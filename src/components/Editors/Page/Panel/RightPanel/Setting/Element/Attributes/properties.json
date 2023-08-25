@@ -1,0 +1,22 @@
+[
+    "color",
+    "fontFamily",
+    "fontSize",
+    "fontWeight",
+    "textDecoration",
+    "textAlign",
+    "backgroundColor",
+    "backgroundImage",
+    "border",
+    "borderRadius",
+    "padding",
+    "margin",
+    "width",
+    "height",
+    "display",
+    "position",
+    "top",
+    "right",
+    "bottom",
+    "left"
+  ]

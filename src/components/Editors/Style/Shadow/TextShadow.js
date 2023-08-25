@@ -1,0 +1,207 @@
+import React, { useState, useEffect } from "react";
+import { Slider, Input, Switch, Tooltip, Checkbox, Button, ColorPicker } from "antd";
+
+import { MdRestartAlt } from "react-icons/md";
+import { rgbToHex } from '../../../../lib/utils';
+
+const ShadowText = ({ style, properties, onChangeStyle }) => {
+    
+    const [offsetX, setOffsetX] = useState(0);
+    const [offsetY, setOffsetY] = useState(0);
+    const [blurRadius, setBlurRadius] = useState(0);
+    const [color, setColor] = useState("#000000");
+    const [stylePriority, setStylePriority] = useState({
+        textShadow: "",
+    });
+
+    useEffect(() => {
+
+        if (!properties) {
+            return;
+        }
+
+        const priorities = {};
+
+        for (const key in stylePriority) {
+            const hyphenatedKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+            if (properties[hyphenatedKey])
+                priorities[key] = properties[hyphenatedKey].priority;
+            else
+                priorities[key] = '';
+
+        }
+        setStylePriority(priorities);
+
+        if (!properties["text-shadow"])
+            properties["text-shadow"] = {};
+
+        if (properties['text-shadow']) {
+            const {color, offsetXValue, offsetYValue, blurRadiusValue} = properties['text-shadow'];
+            setOffsetX(parseFloat(offsetXValue));
+            setOffsetY(parseFloat(offsetYValue));
+            setBlurRadius(parseFloat(blurRadiusValue || "0"));
+            setColor(color);
+            setStylePriority(priorities);
+        }
+
+        console.log(properties)
+    }, [properties]);
+
+    const handleOffsetXChange = (value) => {
+
+        if (!properties["text-shadow"])
+        properties["text-shadow"] = {};
+
+        properties["text-shadow"].offsetXValue = value;
+        const shadow = `${value}px ${offsetY}px ${blurRadius}px ${color}`;
+
+        style.setProperty(
+            "text-shadow",
+            shadow,
+            stylePriority.textShadow
+        );
+        properties["text-shadow"].value = shadow;
+
+        setOffsetX(value);
+        onChangeStyle();
+    };
+
+    const handleOffsetYChange = (value) => {
+
+        if (!properties["text-shadow"])
+        properties["text-shadow"] = {};
+
+        properties["text-shadow"].offsetYValue = value;
+
+        const shadow = `${offsetX}px ${value}px ${blurRadius}px ${color}`;
+        style.setProperty(
+            "text-shadow",
+            shadow,
+            stylePriority.textShadow
+        );
+        properties["text-shadow"].value = shadow;
+
+        setOffsetY(value);
+        onChangeStyle();
+
+    };
+
+    const handleBlurRadiusChange = (value) => {
+
+        if (!properties["text-shadow"])
+        properties["text-shadow"] = {};
+
+        properties["text-shadow"].blurRadiusValue = value;
+
+        const shadow =  `${offsetX}px ${offsetY}px ${value}px ${color}`;
+        style.setProperty(
+            "text-shadow",
+            shadow,
+            stylePriority.textShadow
+        );
+        properties["text-shadow"].value = shadow;
+
+        setBlurRadius(value);
+        onChangeStyle();
+
+    };
+
+    const handleColorChange = (value) => {
+
+        if (!properties["text-shadow"])
+        properties["text-shadow"] = {};
+
+        properties["text-shadow"].color = value;
+
+        const shadow = `${offsetX}px ${offsetY}px ${blurRadius}px ${value}`;
+        style.setProperty(
+            "text-shadow",
+            shadow,
+            stylePriority.textShadow
+        );
+        properties["text-shadow"].value = shadow;
+
+        setColor(value);
+        onChangeStyle();
+
+    };
+
+    const onChangePriority = (e) => {
+
+        const priority = e.target.checked ? 'important' : '';
+        setStylePriority({ ...stylePriority, "text-shadow": priority })
+
+
+        if (!properties["text-shadow"])
+        properties["text-shadow"] = {};
+
+        properties["text-shadow"].priority = priority;
+   
+        style.setProperty("text-shadow", style.textShadow, priority);
+        onChangeStyle();
+
+    }
+
+
+    return (
+        <div>
+            <div style={{ marginBottom: "10px" }}>
+                <strong >Text Shadow:     </strong>
+                <Tooltip placement="top" title="important">
+                    <Checkbox style={{ marginLeft: 3 }}
+                        checked={stylePriority.textShadow === 'important'} onChange={onChangePriority}>i</Checkbox>
+                </Tooltip>
+                <Tooltip placement="top" title="Reset">
+                    <Button
+                        style={{ float: 'right' }}
+                        size='small'
+                        icon={<MdRestartAlt size="small" />}
+                        onClick={(e) => {
+                            e.preventDefault();
+
+                            if (properties["text-shadow"])
+                                delete properties["text-shadow"];
+                            onChangeStyle();
+                            setStylePriority({ ...stylePriority, "text-shadow": "" })
+
+                            style.removeProperty('text-shadow');
+                        }}
+                    />
+                </Tooltip>
+            </div>
+            <div style={{ marginBottom: "10px" }}>
+                <label>Offset X:</label>
+                <Slider min={-50} max={50} value={offsetX} onChange={handleOffsetXChange} />
+                <Input value={offsetX} onChange={(e) => handleOffsetXChange(e.target.value)} />
+            </div>
+            <div style={{ marginBottom: "10px" }}>
+                <label>Offset Y:</label>
+                <Slider min={-50} max={50} value={offsetY} onChange={handleOffsetYChange} />
+                <Input value={offsetY} onChange={(e) => handleOffsetYChange(e.target.value)} />
+            </div>
+            <div style={{ marginBottom: "10px" }}>
+                <label>Blur Radius:</label>
+                <Slider min={0} max={50} value={blurRadius} onChange={handleBlurRadiusChange} />
+                <Input value={blurRadius} onChange={(e) => handleBlurRadiusChange(e.target.value)} />
+            </div>
+
+            <div style={{ marginBottom: "10px" }}>
+                <label>Color:</label>
+                <br/>
+            <ColorPicker value={color}
+                allowClear={true}
+                format={"hex"}
+                onChangeComplete={(color, hex) => {
+                    const metaColor = color.metaColor;
+                    const rgbColor = `rgba(${metaColor.r}, ${metaColor.g}, ${metaColor.b}, ${metaColor.a})`;
+
+                    handleColorChange(rgbColor)
+
+                }} />
+            </div>
+
+        </div>
+    );
+};
+
+export default ShadowText;

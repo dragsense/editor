@@ -1,0 +1,773 @@
+{
+  "layouts": [
+    {
+      "tag": "header",
+      "type": "layouts",
+      "layout": "header",
+      "notaccept": [
+        "main",
+        "header"
+      ]
+    },
+    {
+      "tag": "nav",
+      "type": "layouts",
+      "layout": "nav",
+      "notaccept": [
+        "main",
+        "nav",
+        "header"
+      ]
+    },
+    {
+      "tag": "aside",
+      "type": "layouts",
+      "layout": "aside",
+      "notaccept": [
+        "main",
+        "header",
+        "nav",
+        "footer",
+        "section",
+        "aside"
+      ]
+    },
+    {
+      "tag": "main",
+
+      "type": "layouts",
+      "layout": "main",
+      "notaccept": [
+        "header",
+        "main",
+        "nav",
+        "footer"
+      ]
+    },
+    {
+      "tag": "section",
+      "type": "layouts",
+      "layout": "section",
+      "notaccept": [
+        "main",
+        "header",
+        "nav",
+        "footer",
+        "section"
+      ]
+    },
+    {
+      "tag": "div",
+      "type": "layouts",
+      "layout": "div",
+      "notaccept": []
+    },
+    {
+      "tag": "article",
+      "type": "layouts",
+      "layout": "article",
+      "notaccept": [
+        "main",
+        "header",
+        "nav",
+        "footer",
+        "section"
+      ]
+    },
+    {
+      "tag": "hr",
+
+      "type": "layouts",
+      "layout": "hr",
+      "notaccept": []
+    },
+ 
+    {
+      "tag": "footer",
+      "type": "layout",
+      "layout": "footer",
+
+      "notaccept": [
+        "main",
+        "header",
+        "nav",
+        "footer"
+      ]
+    }
+  ],
+  "texts": [
+    {
+      "tag": "h1",
+      "html": "<h1> This is Heading 1 </h1>",
+      "text": "This is Heading 1",
+      "type": "texts",
+      "layout": "text",
+      "notaccept": [
+        "p",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "layouts",
+        "ul",
+        "ol",
+        "li"
+      ]
+    },
+    {
+      "tag": "h2",
+      "html": "<h2> This is Heading 2 </h2>",
+      "text": "This is Heading 2",
+      "type": "texts",
+      "layout": "text",
+      "notaccept": [
+        "p",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "layouts",
+        "ul",
+        "ol",
+        "li"
+      ]
+    },
+    {
+      "tag": "h3",
+      "html": "<h3> This is Heading 3 </h3>",
+      "text": "This is Heading 3",
+      "type": "texts",
+      "layout": "text",
+      "notaccept": [
+        "p",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "layouts",
+        "ul",
+        "ol",
+        "li"
+      ]
+    },
+    {
+      "tag": "h4",
+      "html": "<h4> This is Heading 4 </h3>",
+      "text": "This is Heading 4",
+      "type": "texts",
+      "layout": "text",
+      "notaccept": [
+        "p",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "layouts",
+        "ul",
+        "ol",
+        "li"
+      ]
+    },
+    {
+      "tag": "h5",
+      "html": "<h5> This is Heading 5 </h3>",
+      "text": "This is Heading 5",
+      "type": "texts",
+      "layout": "text",
+      "notaccept": [
+        "p",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "layouts",
+        "ul",
+        "ol",
+        "li"
+      ]
+    },
+    {
+      "tag": "h6",
+      "html": "<h6> This is Heading 6 </h6>",
+      "text": "This is Heading 6",
+      "type": "texts",
+      "layout": "text",
+      "notaccept": [
+        "p",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "layouts",
+        "ul",
+        "ol",
+        "li"
+      ]
+    },
+    {
+      "tag": "p",
+      "type": "texts",
+      "layout": "text",
+      "notaccept": [
+        "p",
+        "layouts"
+      ],
+      "text": "This is Paragraph. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "html": "<p> This is Paragraph. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.  </p>"
+    },
+    {
+      "tag": "a",
+      "type": "texts",
+      "text": "Link",
+      "layout": "link",
+      "html": "<a href='#'> This is a link. </a>",
+      "notaccept": [
+        "p",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "div",
+        "layouts",
+        "ul",
+        "ol",
+        "li"
+      ]
+    },
+    {
+      "tag": "ul",
+      "type": "texts",
+      "layout": "list",
+      "html": "<ul style='list-style: square !important;padding-left: 20px;'>  <li style='list-style: square;'>This is Unodered List.  </li><li style='list-style: square;'> This is Unodered List. </li></ul>",
+      "notaccept": [
+        "main",
+        "section",
+        "table",
+        "header",
+        "nav",
+        "footer",
+        "media"
+      ]
+    },
+    {
+      "tag": "ol",
+      "type": "texts",
+      "layout": "list",
+      "html": "<ol style='list-style: decimal !important;padding-left: 20px;'> <li>This is Ordered List.  </li><li>This is Ordered List. </li></ol>",
+      "notaccept": [
+        "main",
+        "section",
+        "table",
+        "header",
+        "nav",
+        "footer",
+        "media",
+        "inputs"
+      ]
+    },
+    {
+      "tag": "span",
+      "type": "texts",
+      "layout": "text",
+      "text": "Some text goes here...",
+      "html": "<span> This is Span. </span>",
+      "notaccept": [
+        "p",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "layouts",
+        "ul",
+        "ol",
+        "li"
+      ]
+    },
+    {
+      "tag": "label",
+      "type": "texts",
+      "layout": "text",
+      "text": "Label",
+      "html": "<label> This is Label. </label>",
+      "notaccept": [
+        "layouts",
+        "media",
+        "ul",
+        "ol",
+        "li"
+      ]
+    },
+    {
+      "tag": "blockquote",
+      "type": "texts",
+      "layout": "text",
+      "text": "The only way to do great work is to love what you do. - Steve Jobs",
+      "html": "<blockquote> This is Blockquote. </blockquote>",
+      "notaccept": [
+        "p",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "layouts",
+        "ul",
+        "ol",
+        "li"
+      ]
+    }
+  ],
+  "media": [
+    {
+      "type": "media",
+      "tag": "img",
+      "layout": "img",
+      "html": "<img src='./images/default/default-img.png' style='width: 100%' alt='image'/>",
+      "notaccept": [
+        "texts",
+        "inputs",
+        "layouts"
+      ]
+    },
+    {
+      "type": "media",
+      "tag": "video",
+      "html": "<video style='width: 100%' controls><source type='video/mp4'>Your browser does not support the video tag.</video>",
+
+      "layout": "video",
+      "notaccept": [
+        "texts",
+        "inputs",
+        "layouts"
+      ]
+    },
+    {
+      "type": "media",
+      "tag": "audio",
+      "layout": "audio",
+      "html": "<audio style='width: 100%' controls><source type='audio/mpeg'>Your browser does not support the video tag.</audio>",
+
+      "notaccept": [
+        "texts",
+        "inputs",
+        "layouts"
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "tag": "button",
+      "html": "<button>Button</button>",
+      "text": "button",
+      "type": "inputs",
+      "layout": "button",
+      "notaccept": [
+        "layouts"
+      ],
+      "attributes": {
+        "type": {
+          "key": "type",
+          "value": "button"
+        }
+      }
+    },
+    {
+      "tag": "input",
+      "layout": "input",
+
+      "html": "<input disabled type='text' style='width: 100%;  margin-bottom: 6px' placeholder='text input'/> Text",
+      "notaccept": [
+        "media",
+        "texts",
+        "layouts",
+        "components",
+        "inputs"
+      ],
+      "attributes":  {
+        "type": {
+          "key": "type",
+          "value": "text"
+        }
+       },
+      "type": "inputs"
+    },
+    {
+      "tag": "input",
+      "layout": "input",
+
+      "html": "<input disabled type='number' style='width: 100%;      margin-bottom: 6px;'  placeholder='number input'/> Number",
+      "type": "inputs",
+      "notaccept": [
+        "media",
+        "texts",
+        "layouts",
+        "components",
+        "inputs"
+      ],
+      "attributes":  {
+        "type": {
+          "key": "type",
+          "value": "number"
+        }
+      }
+    },
+    {
+      "tag": "input",
+      "layout": "input",
+
+      "html": "<input disabled type='date' placeholder='date input' style='width: 100%;  margin-bottom: 6px;   ' /> Date",
+      "type": "inputs",
+      "notaccept": [
+        "media",
+        "texts",
+        "layouts",
+        "components",
+        "inputs"
+      ],
+      "attributes":  {
+        "type": {
+          "key": "type",
+          "value": "date"
+        }
+      }
+    },
+    {
+      "tag": "input",
+      "layout": "input",
+
+      "html": "<input disabled type='datetime-local' placeholder='datetime input'  style='width: 100%;   margin-bottom: 6px;  ' /> Datetime",
+      "type": "inputs",
+      "notaccept": [
+        "media",
+        "texts",
+        "layouts",
+        "components",
+        "inputs"
+      ],
+      "attributes":  {
+        "type": {
+          "key": "type",
+          "value": "datetime-local"
+        }
+      }
+    },
+    {
+      "tag": "input",
+      "layout": "input",
+
+      "html": "<input disabled type='month' placeholder='month input' style='width: 100%;   margin-bottom: 6px;  ' /> Month",
+      "type": "inputs",
+      "notaccept": [
+        "media",
+        "texts",
+        "layouts",
+        "components",
+        "inputs"
+      ],
+      "attributes": {
+        "type": {
+          "key": "type",
+          "value": "month"
+        }
+      }
+    }, 
+    {
+      "tag": "input",
+      "layout": "input",
+
+      "html": "<input disabled type='time' placeholder='time input'  style='width: 100%;  margin-bottom: 6px;   ' /> Time",
+      "type": "inputs",
+      "notaccept": [
+        "media",
+        "texts",
+        "layouts",
+        "components",
+        "inputs"
+      ],
+      "attributes": {
+        "type": {
+          "key": "type",
+          "value": "time"
+        }
+      }
+    },
+    {
+      "tag": "input",
+      "layout": "fileinput",
+
+      "html": "<input disabled type='file' style='width: 100%; margin-bottom: 6px;  ' /> File",
+      "type": "inputs",
+      "notaccept": [
+        "media",
+        "texts",
+        "layouts",
+        "components",
+        "inputs"
+      ],
+      "attributes": {
+        "type": {
+          "key": "type",
+          "value": "file"
+        }
+      }
+    },
+    {
+      "tag": "input",
+      "html": "<input disabled type='checkbox' style='width: 100%;     ' checked/> Checkbox",
+      "type": "inputs",
+      "layout": "inputgroup",
+      "notaccept": [
+        "media",
+        "texts",
+        "layouts",
+        "components",
+        "inputs"
+      ],
+      "attributes":  {
+        "type": {
+          "key": "type",
+          "value": "checkbox"
+        }
+      }
+    },
+    {
+      "tag": "input",
+
+      "html": "<input disabled type='radio' style='width: 100%;     ' checked/> Radio",
+      "type": "inputs",
+      "layout": "inputgroup",
+      "notaccept": [
+        "media",
+        "texts",
+        "layouts",
+        "components",
+        "inputs"
+      ],
+      "attributes":  {
+        "type": {
+          "key": "type",
+          "value": "radio"
+        }
+      }
+    },
+    {
+      "tag": "textarea",
+      "layout": "input",
+
+      "html": "<textarea value='textarea'  style='width: 100%;     ' disabled> Textarea</textarea>",
+      "type": "inputs",
+      "notaccept": [
+        "media",
+        "texts",
+        "layouts",
+        "components",
+        "inputs"
+      ]
+    },
+    {
+      "tag": "select",
+      
+      "html": "<select disabled style='width: 100%;  margin-bottom: 6px;   '><option value='' >Select Option</option></select> Dropdown",
+      "type": "inputs",
+      "layout": "select",
+      "notaccept": [
+        "media",
+        "texts",
+        "layouts",
+        "components",
+        "inputs"
+
+      ]
+    },
+    {
+      "tag": "select",
+      "html": "<select disabled multiple style='width: 100%;  margin-bottom: 6px;   '><option value='' >Select Multiple Option</option></select> Dropdown",
+      "type": "inputs",
+      "layout": "multiselect",
+      "notaccept": [
+        "media",
+        "texts",
+        "layouts",
+        "components",
+        "inputs"
+
+      ],
+       "attributes":  {
+        "multiple": {
+          "key": "multiple",
+          "value": true
+        }
+      }
+    },
+    {
+      "tag": "input",
+      "html": "<input type='submit' value='Submit'/>",
+      "type": "inputs",
+      "layout": "input",
+      "notaccept": [
+        "media",
+        "texts",
+        "layouts",
+        "components",
+        "inputs"
+
+      ],
+      "attributes":  {
+        "htmlType": {
+          "key": "htmlType",
+          "value": "submit"
+        },
+          "type": {
+            "key": "type",
+          "value": "submit"
+        },
+        
+          "value": {
+          "key": "value",
+          "value": "Submit"
+        }
+      }
+    }
+  ],
+  "components": [
+    {
+      "tag": "nav",
+      "html": "Menu",
+      "type": "component",
+      "component": "menu",
+      "layout": "menu",
+      "notaccept": [
+        "main",
+        "header",
+        "nav"
+      ]
+    },
+   
+    {
+      "tag": "div",
+      "html": "Container",
+
+      "layout": "container",
+      "component": "container",
+      "type": "component",
+      "notaccept": []
+    },
+    {
+      "tag": "div",
+      "html": "Flex",
+      "type": "component",
+      "component": "flex",
+      "layout": "flex",
+      "notaccept": [
+        "main",
+        "header",
+        "nav"
+      ]
+    },
+    {
+      "tag": "div",
+      "html": "Grid",
+      "type": "component",
+      "component": "grid",
+      "layout": "grid",
+      "notaccept": [
+        "main",
+        "header",
+        "nav"
+      ]
+    },
+    {
+      "tag": "div"
+      ,"type": "component",
+      "layout": "slider",
+      "html": "Slider",
+
+      "component": "slider",
+      "notaccept": []
+    },
+    {
+      "tag": "div",
+      "html": "Tabs"
+      ,"type": "component",
+      "layout": "tabs",
+      "component": "tabs",
+      "notaccept": []
+    },
+    {
+      "tag": "div",
+      "html": "Accordion"
+      ,"type": "component",
+      "layout": "accordion",
+      "component": "accordion",
+
+      "notaccept": []
+    },
+    {
+      "tag": "div",
+      "html": "Gallery"
+      ,"type": "component",
+      "layout": "gallery",
+      "component": "gallery",
+      "notaccept": []
+    },
+    {
+      "tag": "div",
+      "html": "Modal"
+      ,"type": "component",
+      "layout": "modal",
+      "component": "modal",
+      "notaccept": []
+    },
+    {
+      "tag": "div",
+      "html": "Sider"
+      ,"type": "component",
+      "layout": "sider",
+      "component": "sider",
+
+      "notaccept": []
+    },{
+      "tag": "div",
+      "html": "Dropdown"
+      ,"type": "component",
+      "layout": "dropdown",
+      "component": "dropdown",
+      "notaccept": []
+    },
+    {
+      "tag": "button",
+      "html": "GoToTopButton"
+      ,"type": "component",
+      "layout": "gototop",
+      "component": "gototop",
+      "notaccept": []
+    },
+    {
+      "tag": "div",
+      "html": "Observable"
+      ,"type": "component",
+      "layout": "observable",
+      "component": "observable",
+      "notaccept": []
+    }
+   
+  ]
+}
+
