@@ -42,7 +42,7 @@ const Input = (props) => {
    
     const InputElement = React.cloneElement(children, {
         customAttributes: {
-            key:_uid,
+            
             "data-id": _uid,
             "data-pos": pos,
             "data-name": 'input',

@@ -66,11 +66,12 @@ const Navigator = ({ onClickElement, onCopy, onDelete, state }) => {
     if (rootNode) setTreeData({ [rootNode._uid]: rootNode });
   };
 
+
   useEffect(() => {
-  
-    if(state.pageUpdated === 1)
-    fetchData();
-  }, [state.pageUpdated]);
+
+    if (state.page)
+      fetchData();
+  }, [state.page, state.pageUpdated]);
 
 
 
@@ -106,22 +107,13 @@ const Navigator = ({ onClickElement, onCopy, onDelete, state }) => {
     setTreeData({ ...treeData, ...elements });
   };
 
-  const unloadData = (key, rootKey) => {
-    if (treeData[key] && treeData[key].childNodes) {
-      treeData[key].childNodes.forEach((_uid) => unloadData(_uid, rootKey));
-    }
-    if (key !== rootKey) delete treeData[key];
-  };
 
   const onExpand = useCallback(async (keys, { expanded, node }) => {
 
     const key = node.key;
     if (expanded) {
       await loadData(treeData[key]);
-    } else {
-      unloadData(key, key);
-      setTreeData({ ...treeData });
-    }
+    } 
     setExpandedKeys(keys);
   }, [treeData]);
 
@@ -207,6 +199,9 @@ const Navigator = ({ onClickElement, onCopy, onDelete, state }) => {
       setAutoExpandParent(true);
       setTreeData({ ...treeData })
     }
+
+    
+
     fetchData();
 
     return () => {

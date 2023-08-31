@@ -15,7 +15,7 @@ const Image = (props) => {
 
     const ImageElement = React.cloneElement(children, {
             customAttributes: {
-                key:_uid,
+             
                 src: image.src, alt: image.alt,
                 "data-id": _uid,
                 "data-pos": pos,

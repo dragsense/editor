@@ -1,5 +1,5 @@
 
-import { Button, Divider, Card, Select } from 'antd';
+import { Button, Divider, Card, Select, Input } from 'antd';
 
 
 import { useState, useEffect, Children } from 'react';
@@ -9,7 +9,7 @@ import ElementCondition from '../Element/Condition';
 import ElementMapping from '../Element/Map';
 const { Option } = Select
 
-export default function Content({ state, onUpdate, onChange, cascaderStates, customPaths }) {
+export default function Content({ state, onUpdate, onChange, cascaderStates }) {
 
     const [contentState, setContentState] = useState({ attributes: {}, conditions: {} });
     const [optionState, setOptionState] = useState({ conditions: {} });
@@ -79,17 +79,14 @@ export default function Content({ state, onUpdate, onChange, cascaderStates, cus
             <Card>
                 <Divider orientation="center" orientationMargin="0">Custom Component: </Divider>
 
-                <Select
-                    disabled={state.node.layout !== 'div'}
+                <Input disabled={state.node.layout !== 'div'}
                     style={{ width: '100%' }}
-                    placeholder="Component Path"
+                    placeholder="Component Component"
                     value={contentState.customPath}
                     onChange={onChangeImportPath}
-                    optionFilterProp="label"
-                >
-                    <Option>None</Option>
-                    {Array.isArray(customPaths) && customPaths.map(val => <Option value={val}></Option>)}
-                </Select>
+
+                />
+
 
                 <Divider orientation="center" orientationMargin="0">Custom Content: </Divider>
 

@@ -54,7 +54,7 @@ const Select = (props) => {
             display: 'inherit',
             ...(conds ? {} : disabledStyles),
         }} className="ac-000-yrbQEpZzT">
-        {React.cloneElement(children, { customAttributes: { key:_uid,ref, onChange: onChangeValue } }, innerWraaper)}
+        {React.cloneElement(children, { customAttributes: { ref, onChange: onChangeValue } }, innerWraaper)}
 
     </div>
     </div>
@@ -62,7 +62,7 @@ const Select = (props) => {
 
 
 const disabledElement = React.cloneElement(children, { customAttributes: { 
-    key:_uid,
+   
     ref,
     onClick: onClick,
     style: conds ? {} : disabledStyles,

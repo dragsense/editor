@@ -9,10 +9,10 @@ const General = ({ _uid, conds, disabled, onClick, name, innerWraaper, value, ch
         border: '1px dashed #ccc',
     };
 
-    const spanElement = innerWraaper ? ([<>
+    const spanElement = innerWraaper ? (<>
         {React.isValidElement(value) ? value : <div
             dangerouslySetInnerHTML={{ __html: value }}
-            key={`child-${_uid}`}
+          
             data-child={`child-${_uid}`}
             style={{
                 display: 'inline',
@@ -21,13 +21,13 @@ const General = ({ _uid, conds, disabled, onClick, name, innerWraaper, value, ch
         />
         }
         {innerWraaper}</>
-    ]) : <span style={{ userSelect: 'none', color: "#cccccc" }}>{name}</span>;
+    ) : <span  style={{ userSelect: 'none', color: "#cccccc" }}>{name}</span>;
 
 
 
     const clonedElement = React.cloneElement(children, {
         customAttributes: {
-            key:_uid,
+          
             onClick: onClick ? onClick : (e) => e.preventDefault(),
             "data-id": _uid,
             "data-pos": pos,
@@ -38,18 +38,18 @@ const General = ({ _uid, conds, disabled, onClick, name, innerWraaper, value, ch
     }, spanElement);
 
 
-    const disabledChild = !innerWraaper ? [] : ([<>
+    const disabledChild = !innerWraaper ? [] : (<>
         {React.isValidElement(value) ? value : <span
             dangerouslySetInnerHTML={{ __html: value }}
 
         />
         }
         {innerWraaper}</>
-    ]);
+    );
 
     const disabledElement = React.cloneElement(children, {
         customAttributes: {
-            key:_uid,
+           
             onClick: onClick ? onClick : (e) => e.preventDefault(),
             style: conds ? {} : disabledStyles
         }

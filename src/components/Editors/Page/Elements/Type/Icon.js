@@ -14,7 +14,6 @@ const Icon = ({ _uid, conds, onClick, value, layout, disabled, children, pos }) 
     const clonedElement = React.cloneElement(children, {
         customAttributes: {
             onClick,
-            key:_uid,
             dangerouslySetInnerHTML: { __html: layout === 'svg-icon' ? value : '' },
             "data-id": _uid,
             "data-pos": pos,
@@ -25,7 +24,7 @@ const Icon = ({ _uid, conds, onClick, value, layout, disabled, children, pos }) 
 
     const disabledElement = React.cloneElement(children, {
         customAttributes: {
-            key:_uid,
+         
             dangerouslySetInnerHTML: { __html: layout === 'svg-icon' ? value : '' },
             onClick: onClick ? onClick : (e) => e.preventDefault(),
             style: conds ? {} : disabledStyles

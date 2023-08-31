@@ -1,7 +1,19 @@
 
 import React, { Children, useMemo } from 'react';
 
-const General = ({ _uid, conds, onClick, disabled, name, innerWraaper, value, children, pos }) => {
+
+
+const General = ({ 
+    _uid, 
+
+    conds, 
+    onClick, 
+    disabled, 
+    name, 
+    innerWraaper, 
+    value, 
+    children, 
+    pos }) => {
 
 
     const disabledStyles = {
@@ -11,7 +23,7 @@ const General = ({ _uid, conds, onClick, disabled, name, innerWraaper, value, ch
 
 
     const spanElement = innerWraaper.length > 0 && innerWraaper ? innerWraaper : <span
-        key={`child-${_uid}`}
+       
         data-child={`child-muted`}
         dangerouslySetInnerHTML={{ __html: value }}
         style={{ userSelect: 'none', color: "#cccccc" }}></span>;
@@ -19,7 +31,7 @@ const General = ({ _uid, conds, onClick, disabled, name, innerWraaper, value, ch
 
     const clonedElement = React.cloneElement(children, {
         customAttributes: {
-            key:_uid,
+    
             onClick: onClick ? onClick : (e) => e.preventDefault(),
             "data-id": _uid,
             "data-pos": pos,
@@ -36,7 +48,7 @@ const General = ({ _uid, conds, onClick, disabled, name, innerWraaper, value, ch
 
     const disabledElement = React.cloneElement(children, {
         customAttributes: {
-            key:_uid,
+        
             onClick: onClick ? onClick : (e) => e.preventDefault(),
             style: conds ? {} : disabledStyles
         }

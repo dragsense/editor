@@ -35,7 +35,7 @@ const ElementLayout = (props) => {
         mapIndex) => {
 
         return <ElementSetting
-        key={node._uid}
+        key={node._uid+mapIndex}
             {...props}
             node={node}
             _states={_states}
@@ -53,7 +53,7 @@ const ElementLayout = (props) => {
 
 
             return React.cloneElement(child, {
-                key: mapValue?.value || index,
+                key: node._uid+pos,
                 ...(mapValue ? { mapValue } : {}),
                 ...(mapIndex ? { mapIndex } : {}),
                 ...(mapValue?.type === 'docs' ? { colStates: { ...props.colStates, ...mapValue } } : {}),
@@ -188,7 +188,7 @@ const ElementLayout = (props) => {
             return element(node, nodes.length > 0 ?
                 nodes.map((mapValue, mapIndex) =>
                     <ElementSetting
-                        key={mapIndex}
+                        key={node._uid+mapIndex}
                         _states={_states}
                         node={{ _uid: mapIndex + 1, tagName: 'option' }}
                         attributes={node.childAttributes}

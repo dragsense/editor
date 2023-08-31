@@ -45,7 +45,7 @@ const disabledStyles = {
 
     const clonedElement = React.cloneElement(children, {
         customAttributes: {
-            key:_uid,
+          
             "data-id": _uid,
             "data-pos": pos,
             "draggable": false,
@@ -58,7 +58,7 @@ const disabledStyles = {
 
     const disabledElement = React.cloneElement(children, {
         customAttributes: {
-            key:_uid,
+           
             onClick: onClick,
             style:  conds ? {} : disabledStyles
         }

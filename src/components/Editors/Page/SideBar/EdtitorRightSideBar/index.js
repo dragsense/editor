@@ -123,7 +123,7 @@ let globalStates = [
                         label: 'Creator',
                         value: 'creator'
                     },
-                  
+
                     {
                         label: 'Created At', value: 'createdAt',
                         children: [
@@ -135,7 +135,7 @@ let globalStates = [
                             { label: "D MMM, YYYY", value: "D MMM, YYYY" },
                             { label: "MMMM DD, YYYY", value: "MMMM DD, YYYY" },
                             { label: "DD MMM, YYYY", value: "DD MMM, YYYY" },
-                
+
                         ]
                     },
                     {
@@ -173,7 +173,7 @@ const EditorRightSideBar = ({ onClickElement,
 
     const handleSubMenuOpenChange = (keys) => {
         setOpenKeys(keys.slice(-1));
-        setKeys(keys.length > 0 && !collapsed  ? [keys[keys.length - 1]] : menuKeys);
+        setKeys(keys.length > 0 && !collapsed ? [keys[keys.length - 1]] : menuKeys);
     };
 
     const {
@@ -182,34 +182,20 @@ const EditorRightSideBar = ({ onClickElement,
 
     const [cascaderStates, setCascaderStates] = useState(globalStates);
 
-    const [customPaths, setCustomPaths] = useState([]);
 
 
-    useEffect(() => {
 
-        const load = async () => {
-            try {
-                const res = await ComponentServices.getPaths();
-                if (res.paths)
-                    setCustomPaths(res.paths);
-            } catch (e) {
-            } finally {
-            }
-        }
-
-        load();
-    }, []);
 
     useEffect(() => {
 
         const fetchData = async () => {
-          
+
             const states = state.states || {};
 
             let panelStates = globalStates;
             for (const key in states) {
                 const stateItem = states[key];
-                    panelStates = [...panelStates, ...stateItem.states]
+                panelStates = [...panelStates, ...stateItem.states]
             }
 
             setCascaderStates(panelStates);
@@ -265,16 +251,15 @@ const EditorRightSideBar = ({ onClickElement,
                                         onClickElement={onClickElement}
                                         state={state} /> :
                                         key === 'sub2' ? (state.node && <Component onAdd={onAdd}
-                                         onChange={onChange}
-                                         onUpdate={onUpdate}
-                                            state={state} 
+                                            onChange={onChange}
+                                            onUpdate={onUpdate}
+                                            state={state}
                                             cascaderStates={cascaderStates} />) :
                                             key === 'sub3' ? (state.node && <Element onChange={onChange}
                                                 state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />) :
                                                 key === 'sub4' ? (state.node && <Content
                                                     onChange={onChange}
-
-                                                    customPaths={customPaths} state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />) :
+                                                    state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />) :
                                                     key === 'sub5' ? (state.node && <Collection onChange={onChange}
                                                         state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />) :
                                                         key === 'sub6' ? (state.node && <Form onChange={onChange}
