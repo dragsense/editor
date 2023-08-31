@@ -73,7 +73,6 @@ const InnerComponent = ({ children, document, onLoad }) => {
 
         if (res.fonts)
           for await (let font of res.fonts.data) {
-            console.log(font)
             root.style.setProperty(font.variable, font.fontFamily);
           }
         res = await ThemeServices.getColors()
@@ -207,7 +206,7 @@ const AnimationsInnerComponent = ({ children, document, onLoad }) => {
           style.textContent = res.css;
         }
         document.head.appendChild(style);
-        console.log(res)
+      
         resolve(res._id)
         
 

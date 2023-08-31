@@ -149,7 +149,6 @@ export default function ElementContent({ cascaderStates, state, setState,
                         : state.tagName == 'img' ?
 
                             <Form.Item label="Image">
-                                {console.log(state.src)}
                                 <Image
                                     width="100%"
                                     onClick={() => {

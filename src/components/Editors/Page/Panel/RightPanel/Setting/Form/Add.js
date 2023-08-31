@@ -118,7 +118,7 @@
 //                                                                                 if (value < nestedState.min)
 //                                                                                     value = nestedState.min;
 
-//                                                                             console.log(nestedState);
+//                                                                            
 
 //                                                                             nestedState.defaultValue = value
 //                                                                             onChange()

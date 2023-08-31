@@ -80,7 +80,6 @@ const InnerComponent = ({ children, document, onLoad, _id, type }) => {
 
         if (res.fonts)
           for await (let font of res.fonts.data) {
-            console.log(font)
             root.style.setProperty(font.variable, font.fontFamily);
           }
         res = await ThemeServices.getColors()

@@ -27,7 +27,6 @@ export default function Table({ element }) {
         if (!element || element.tagName !== 'table')
             return;
 
-            console.log(element);
 
         setIsThead(element.thead?.enable);
         setIsFoot(element.tfoot?.enable);

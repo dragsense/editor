@@ -284,7 +284,6 @@ export const loadGlobalStyles = async (dispatch, clear) => {
             if (done) {
                 break;
             }
-            console.log(value)
 
             await storePage(value, STYLE_STORE_NAME);
 

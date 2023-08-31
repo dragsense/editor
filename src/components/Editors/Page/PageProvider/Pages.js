@@ -466,7 +466,6 @@ export default function Pages({ children }) {
                 iframeDocument.head.appendChild(style);
             }
             let data = await getAllData(tag.page._id);
-            console.log(data);
             rootElement = await data.elements[0];
 
 
@@ -1585,7 +1584,6 @@ export default function Pages({ children }) {
 
 
         } catch (e) {
-            console.log(e?.message)
             dispatch({ type: 'error', error: e?.message || 'Something went wrong.' });
 
         }

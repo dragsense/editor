@@ -115,7 +115,7 @@ export const updateStateValue = (elem, withValue, states, value, updateKey = "de
     let orignal = expression.replace(/\[withkey]/g, withValue);
     orignal = orignal.replace(/\[value]/g, value);
     orignal = orignal.replace(/\[key]/g, stateRef.defaultValue);
-    //console.log(eval(orignal))
+    //
 
     let val = '';
     // let evalString;

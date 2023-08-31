@@ -387,7 +387,6 @@ export default function PageManger({ children }) {
             if (!childNode)
                 childNode = node.querySelector(`[data-child="child-muted"]`);
 
-            console.log(updatedElement.updateHTML)
 
             if (childNode && updatedElement.updateHTML) {
                 updatedElement.nodeValue = childNode.innerHTML;
@@ -1562,7 +1561,6 @@ export default function PageManger({ children }) {
 
             const selectorType = selector.selectorType || 'root';
 
-            console.log(selector.key)
             if (!style[selector.key])
                 style[selector.key] = { [selectorType]: {} }
 

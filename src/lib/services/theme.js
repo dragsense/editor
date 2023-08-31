@@ -101,7 +101,6 @@ const ThemeServices = {
         const url = project.url + `/theme/css/animation/names`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
-        console.log(sanitizedUrl)
 
         return await fetcher(`${sanitizedUrl}`, {
             method: 'GET',

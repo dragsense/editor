@@ -20,7 +20,6 @@ const ImageElement = ({ children, node, onSave }) => {
 
         node.nodeValue = media[0].src;
         node.src = media[0];
-        console.log(node);
         onSave();
     }
 

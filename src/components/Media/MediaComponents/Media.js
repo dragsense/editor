@@ -130,7 +130,6 @@ export default function Media({ type, srcs, onSelect }) {
             }
 
         } catch (e) {
-            console.log(e?.message)
             message.error(e?.message || 'Something went wrong.');
         } finally {
             dispatch({ type: 'finish' });

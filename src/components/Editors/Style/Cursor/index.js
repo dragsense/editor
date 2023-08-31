@@ -90,7 +90,6 @@ export default function Cursor({ style, properties, onChangeStyle }) {
     
         properties['pointer-events']['value'] = pointerEventsValue;
 
-        console.log(pointerEventsValue)
 
         style.setProperty('pointer-events', pointerEventsValue, stylePriority.pointerEvents);
         onChangeStyle();
