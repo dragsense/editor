@@ -42,7 +42,6 @@ export default function Editor({ children, _id, pageType, onBack }) {
     }, [minMax, orientation, windowWidth])
 
 
-
     return <>
 
         <EditorNav
@@ -81,7 +80,7 @@ export default function Editor({ children, _id, pageType, onBack }) {
                             onUpdateSelector={onUpdateSelector}
                             onUpdate={onUpdate}
                         >
-
+                           
                             {state.page &&
                                 <Elements page={state.page}
                                     onUpdateStates={onUpdateStates}

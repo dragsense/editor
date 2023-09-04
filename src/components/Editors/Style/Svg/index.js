@@ -7,7 +7,7 @@ import { MdRestartAlt } from 'react-icons/md';
 import ThemeServices from '../../../../lib/services/theme';
 import { CgGlobeAlt } from 'react-icons/cg';
 
-export default function Svg({ style, properties,
+export default function Svg({ style, colors, properties,
     onChangeStyle, }) {
 
 
@@ -16,24 +16,8 @@ export default function Svg({ style, properties,
     })
 
     const [color, setColor] = useState(style.fill || "black");
-    const [colors, setColors] = useState([]);
 
 
-    const load = async () => {
-        try {
-            const resColors = await ThemeServices.getColors();
-
-            if (resColors.colors)
-                setColors(resColors.colors.data);
-        } catch (e) {
-            message.error(e?.message || 'Something went wrong');
-        } finally {
-        }
-    }
-
-    useEffect(() => {
-        load();
-    }, []);
 
     useEffect(() => {
 

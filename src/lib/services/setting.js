@@ -14,7 +14,7 @@ const SettingServices = {
 
         return fetcher(`${sanitizedUrl}`, {
             method: 'Get',
-            headers: { 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey },
         });
     },
 

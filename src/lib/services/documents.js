@@ -15,7 +15,7 @@ const DocumentServices = {
 
         return fetcher(`${sanitizedUrl}`, {
             method: 'Get',
-            headers: { 'x-api-key': apikey, "origin": 'http://localhost:3000' },
+             headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey, "origin": 'http://localhost:3000' },
         });
     },
 
@@ -31,7 +31,7 @@ const DocumentServices = {
 
         return fetcher(`${sanitizedUrl}?form=${form}&limit=${limit}&page=${page}`, {
             method: 'Get',
-            headers: { 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey },
         });
     },
 
@@ -47,7 +47,7 @@ const DocumentServices = {
 
         return fetcher(`${sanitizedUrl}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true, 'Content-Type': 'application/json', 'x-api-key': apikey },
             body: JSON.stringify({...states})
         });
     },
@@ -65,7 +65,7 @@ const DocumentServices = {
 
         return fetcher(`${sanitizedUrl}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true, 'Content-Type': 'application/json', 'x-api-key': apikey },
             body: JSON.stringify({...states})
         });
     },
@@ -82,7 +82,7 @@ const DocumentServices = {
 
         return fetcher(`${sanitizedUrl}`, {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json', 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true, 'Content-Type': 'application/json', 'x-api-key': apikey },
             body: JSON.stringify({...states})
         });
     },
@@ -103,7 +103,7 @@ const DocumentServices = {
 
         return fetcher(`${sanitizedUrl}`, {
             method: 'Get',
-            headers: { 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey },
         });
 
     },

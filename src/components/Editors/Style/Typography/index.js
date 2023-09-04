@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 
 import { FaAlignJustify, FaAlignLeft, FaAlignRight, FaAlignCenter } from 'react-icons/fa'
 import { MdRestartAlt } from 'react-icons/md';
-import ThemeServices from '../../../../lib/services/theme';
 import { isEmpty } from '../../../../lib/utils';
 import { SaveOutlined } from '@ant-design/icons';
 
@@ -28,7 +27,9 @@ const { Panel } = Collapse;
 const { Option } = Select;
 
 
-export default function Typography({ style, properties, onChangeStyle }) {
+export default function Typography({ style, fonts, variables, colors, 
+    properties, 
+    onChangeStyle }) {
 
 
     const [unit, setUnit] = useState(units[0]);
@@ -37,9 +38,7 @@ export default function Typography({ style, properties, onChangeStyle }) {
     const [lineHeightUnit, setLineHeightUnit] = useState('');
     const [content, setContent] = useState(null);
 
-    const [fonts, setFonts] = useState([]);
-    const [colors, setColors] = useState([]);
-    const [variables, setVariables] = useState([]);
+
 
     const [color, setColor] = useState("black");
 
@@ -61,30 +60,6 @@ export default function Typography({ style, properties, onChangeStyle }) {
 
     })
 
-    const load = async () => {
-        try {
-            const resFonts = await ThemeServices.getFonts();
-            const resColors = await ThemeServices.getColors();
-            const resVaraibles = await ThemeServices.getVariables();
-
-            if (resFonts.fonts)
-                setFonts(resFonts.fonts.data);
-
-            if (resColors.colors)
-                setColors(resColors.colors.data);
-
-            if (resVaraibles.variables)
-                setVariables(resVaraibles.variables.data)
-
-        } catch (e) {
-            message.error(e?.message || 'Something went wrong');
-        } finally {
-        }
-    }
-
-    useEffect(() => {
-        load();
-    }, []);
 
 
 

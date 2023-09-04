@@ -40,21 +40,23 @@ const setSession = (argUrl) => {
   const pageId = info['pageId'];
   const pageType = info['pageType'];
   const userName = info['userName'];
+  const apiUrl = info['url'];
 
 
   store.set('projectId', projectId || null);
   store.set('pageId', pageId || null);
   store.set('pageType', pageType || null);
   store.set('userName', userName || null);
+  store.set('apiUrl', apiUrl || '');
 
   const ses = session.defaultSession;
   ses.clearStorageData();
 
 
   if (sessionToken && csrfToken && callbackUrl) {
-    ses.cookies.set({ url: "http://localhost:3000", name: 'next-auth.session-token', value: sessionToken });
-    ses.cookies.set({ url: "http://localhost:3000", name: 'next-auth.callback-url', value: callbackUrl });
-    ses.cookies.set({ url: "http://localhost:3000", name: 'next-auth.csrf-token', value: csrfToken });
+    ses.cookies.set({ url: apiUrl || '', name: 'next-auth.session-token', value: sessionToken });
+    ses.cookies.set({ url: apiUrl || '', name: 'next-auth.callback-url', value: callbackUrl });
+    ses.cookies.set({ url: apiUrl || '', name: 'next-auth.csrf-token', value: csrfToken });
     webContents.getAllWebContents().forEach((contents) => {
       contents.send('session-update', { projectId, pageId, pageType, userName, session: true });
     });
@@ -155,8 +157,12 @@ function createWindow() {
 
 ipcMain.handle('makeApiRequest', async (event, apiEndpoint) => {
   try {
+
+
+    const apiUrl = store.get('apiUrl');
+
     const ses = session.defaultSession;
-    const cookies = await ses.cookies.get({ url: 'http://localhost:3000' });
+    const cookies = await ses.cookies.get({ url: apiUrl });
     const cookieString = cookies
       .map((cookie) => `${cookie.name}=${cookie.value}`)
       .join('; ');
@@ -164,7 +170,7 @@ ipcMain.handle('makeApiRequest', async (event, apiEndpoint) => {
 
     const projectId = store.get('projectId');
 
-    const response = await fetch('http://localhost:3000/api/projects/' + projectId, {
+    const response = await fetch(`${apiUrl}/api/projects/` + projectId, {
       method: 'GET',
       headers: {
         Accept: 'application/json',

@@ -34,7 +34,7 @@ export const loadElements = async (project, page, type, dispatch, clear) => {
     const stream = new ReadableStream({
         start(controller) {
             fetch(`${sanitizedUrl}`, {
-                headers: { 'x-api-key': apikey },
+                 headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey },
 
             })
                 .then(response => {
@@ -123,7 +123,7 @@ export const loadStyles = async (project, page, type, dispatch, clear) => {
     const stream = new ReadableStream({
         start(controller) {
             fetch(`${sanitizedUrl}`, {
-                headers: { 'x-api-key': apikey },
+                 headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey },
 
             })
                 .then(response => {
@@ -214,7 +214,7 @@ export const loadGlobalStyles = async (dispatch, clear) => {
     const stream = new ReadableStream({
         start(controller) {
             fetch(`${sanitizedUrl}`, {
-                headers: { 'x-api-key': apikey },
+                 headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey },
 
             })
                 .then(response => {
@@ -309,7 +309,7 @@ export const loadAnimationStyles = async (dispatch, clear) => {
     const stream = new ReadableStream({
         start(controller) {
             fetch(`${sanitizedUrl}`, {
-                headers: { 'x-api-key': apikey },
+                 headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey },
 
             })
                 .then(response => {
@@ -433,7 +433,7 @@ export const savePage = async (page, type, dispatch) => {
 
     await fetcher(`${sanitizedUrl}`, {
         method: 'POST',
-        headers: { 'x-api-key': apikey, 'Content-Type': 'application/json', },
+         headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey, 'Content-Type': 'application/json', },
         body: JSON.stringify({ elements, collStates, components, forms, updater: project.creator })
     });
 
@@ -463,7 +463,7 @@ export const savePage = async (page, type, dispatch) => {
 
     await fetcher(`${sanitizedUrl}`, {
         method: 'POST',
-        headers: { 'x-api-key': apikey, 'Content-Type': 'application/json', },
+         headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey, 'Content-Type': 'application/json', },
         body: JSON.stringify({ styles, updater: project.creator })
     });
 
@@ -503,7 +503,7 @@ export const saveStyle = async (page, type) => {
 
     await fetcher(`${sanitizedUrl}`, {
         method: 'POST',
-        headers: { 'x-api-key': apikey, 'Content-Type': 'application/json', },
+         headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey, 'Content-Type': 'application/json', },
         body: JSON.stringify({ styles })
     });
 

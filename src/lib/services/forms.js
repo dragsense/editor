@@ -15,7 +15,7 @@ const FormServices = {
 
         return fetcher(`${sanitizedUrl}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true, 'Content-Type': 'application/json', 'x-api-key': apikey },
             body: JSON.stringify({ states }),
         });
 

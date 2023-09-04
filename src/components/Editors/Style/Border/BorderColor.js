@@ -8,7 +8,7 @@ import { MdLockOpen, MdLockOutline, MdRestartAlt } from 'react-icons/md'
 
 const units = ['px', '%', 'em', 'rem'];
 
-export default function BorderColor({ type, style, properties, onChangeStyle, stylePriority, setStylePriority }) {
+export default function BorderColor({ type, style, colors, properties, onChangeStyle, stylePriority, setStylePriority }) {
 
 
     const [lock, setLock] = useState(true);
@@ -17,24 +17,7 @@ export default function BorderColor({ type, style, properties, onChangeStyle, st
     const [rightColor, setRightColor] = useState('black');
     const [bottomColor, setBottomColor] = useState('black');
     const [leftColor, setLeftColor] = useState('black');
-    const [colors, setColors] = useState([]);
-
-    const laod = async () => {
-        try {
-            const resColors = await ThemeServices.getColors();
-            if (resColors.colors)
-                setColors(resColors.colors.data);
-        } catch (e) {
-            message.error(e?.message || 'Something went wrong');
-        } finally {
-        }
-    }
-
-    useEffect(() => {
-
-        laod();
-
-    }, []);
+    
 
     useEffect(() => {
 

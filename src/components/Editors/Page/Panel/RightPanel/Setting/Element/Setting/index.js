@@ -46,7 +46,6 @@ export default function ElementSetting({ cascaderStates, state, setState,
     }
 
     const onChange = (value, name) => {
-
         setState({ ...state, [name]: value });
 
         setIsChange(true);
@@ -137,10 +136,10 @@ export default function ElementSetting({ cascaderStates, state, setState,
 
         <Form.Item label="Mian Class">
             <Input
-                value={state.className}
+                value={state.mainClass}
                 placeholder="Main Class"
-                onChange={(value) => {
-                    onChange(value, "mainClass")
+                onChange={(e) => {
+                    onChange(e.target.value, "mainClass")
                 }
                 }
             />

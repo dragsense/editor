@@ -8,7 +8,7 @@ import { MdLockOpen, MdLockOutline, MdRestartAlt } from 'react-icons/md'
 const { Option } = Select;
 const units = ['px', '%', 'em', 'rem'];
 
-export default function BorderWidth({ type, style,
+export default function BorderWidth({ type, variables, style,
     properties, onChangeStyle,
     stylePriority, setStylePriority }) {
 
@@ -19,7 +19,6 @@ export default function BorderWidth({ type, style,
     const [leftUnit, setLeftUnit] = useState(units[0]);
     const [bottomUnit, setBottomUnit] = useState(units[0]);
     const [rightUnit, setRightUnit] = useState(units[0]);
-    const [variables, setVariables] = useState([]);
 
 
     useEffect(() => {
@@ -177,22 +176,7 @@ export default function BorderWidth({ type, style,
 
     }
 
-    const load = async () => {
-        try {
-            const resVaraibles = await ThemeServices.getVariables();
 
-            if (resVaraibles.variables)
-            setVariables(resVaraibles.variables.data)
-
-        } catch (e) {
-            message.error(e?.message || 'Something went wrong');
-        } finally {
-        }
-    }
-
-    useEffect(() => {
-        load();
-    }, []);
 
 
     const onChangeBottomUnit = (value) => {

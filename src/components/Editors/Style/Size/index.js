@@ -18,7 +18,7 @@ const units = ['px', '%', 'em', 'rem', 'vh', 'vw'];
 const { Option } = Select;
 const { Panel } = Collapse;
 
-export default function Size({ style, properties, onChangeStyle }) {
+export default function Size({ style, variables, properties, onChangeStyle }) {
 
 
     const [widthUnit, setWidthUnit] = useState(units[0]);
@@ -29,7 +29,6 @@ export default function Size({ style, properties, onChangeStyle }) {
     const [minWidthUnit, setMinWidthUnit] = useState(units[0]);
     const [minHeigthUnit, setMinHeightUnit] = useState(units[0]);
 
-    const [variables, setVariables] = useState([]);
 
 
     const [stylePriority, setStylePriority] = useState({
@@ -44,24 +43,7 @@ export default function Size({ style, properties, onChangeStyle }) {
         overflowY: ''
     });
 
-    const load = async () => {
-        try {
-            const resVaraibles = await ThemeServices.getVariables();
-
-
-            if(resVaraibles.variables)
-            setVariables(resVaraibles.variables.data)
-
-
-        } catch (e) {
-            message.error(e?.message || 'Something went wrong');
-        } finally {
-        }
-    }
-
-    useEffect(() => {
-        load();
-    }, []);
+ 
 
 
     useEffect(() => {

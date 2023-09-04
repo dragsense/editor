@@ -7,12 +7,11 @@ import { MdRestartAlt } from 'react-icons/md'
 import { DeleteOutlined, FieldTimeOutlined, PlusOutlined } from '@ant-design/icons';
 import { FaTimes } from 'react-icons/fa';
 
-export default function Color({ type, style, properties, onChangeStyle, stylePriority, setStylePriority }) {
+export default function Color({ type, colors, style, properties, onChangeStyle, stylePriority, setStylePriority }) {
 
 
     const [colorPicker, setColorPicker] = useState(false);
     const [color, setColor] = useState(style.backgroundColor);
-    const [colors, setColors] = useState([]);
     const [isGradient, setIsGradientType] = useState(false);
 
     const [gradientType, setGradientType] = useState('linear');
@@ -20,24 +19,7 @@ export default function Color({ type, style, properties, onChangeStyle, stylePri
     const [gradientColors, setGradientColors] = useState([]);
 
 
-    const laod = async () => {
-        try {
-            const resColors = await ThemeServices.getColors();
-
-            if (resColors.colors)
-                setColors(resColors.colors.data);
-
-        } catch (e) {
-            message.error(e?.message || 'Something went wrong');
-        } finally {
-        }
-    }
-
-    useEffect(() => {
-
-        laod();
-
-    }, []);
+  
 
     useEffect(() => {
 

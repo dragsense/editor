@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Slider, Input, Switch, Tooltip, Checkbox, Button, ColorPicker } from "antd";
+import { Slider, Input, Dropdown, Tooltip, Checkbox, Button, ColorPicker, Space } from "antd";
 
 import { MdRestartAlt } from "react-icons/md";
 import { rgbToHex } from '../../../../lib/utils';
+import { CgGlobeAlt } from 'react-icons/cg';
 
-const ShadowText = ({ style, properties, onChangeStyle }) => {
+const ShadowText = ({ style, colors, properties, onChangeStyle }) => {
     
     const [offsetX, setOffsetX] = useState(0);
     const [offsetY, setOffsetY] = useState(0);
@@ -126,6 +127,33 @@ const ShadowText = ({ style, properties, onChangeStyle }) => {
 
     };
 
+    const onChangeGlobalColor = ({ key }) => {
+
+
+        const item = colors[key];
+
+        const { value, color } = item;
+
+        if (!properties["text-shadow"])
+        properties["text-shadow"] = {};
+
+        properties["text-shadow"].color = color;
+
+        const shadow = `${offsetX}px ${offsetY}px ${blurRadius}px ${color}`;
+        style.setProperty(
+            "text-shadow",
+            shadow,
+            stylePriority.textShadow
+        );
+        properties["text-shadow"].value = shadow;
+
+        setColor(color);
+        onChangeStyle();
+
+
+
+    }
+
     const onChangePriority = (e) => {
 
         const priority = e.target.checked ? 'important' : '';
@@ -142,6 +170,7 @@ const ShadowText = ({ style, properties, onChangeStyle }) => {
 
     }
 
+    const items = colors.map((c, i) => { return { label: c.name, key: i } });
 
     return (
         <div>
@@ -198,6 +227,18 @@ const ShadowText = ({ style, properties, onChangeStyle }) => {
                     handleColorChange(rgbColor)
 
                 }} />
+                  {colors && (
+                <Dropdown menu={{ items, onClick: onChangeGlobalColor }} trigger={['click']}>
+                    <a onClick={(e) => e.preventDefault()}>
+                        <Space>
+                            <CgGlobeAlt
+                                size="35"
+                                color={color}
+                            />
+                        </Space>
+                    </a>
+                </Dropdown>
+            )}
             </div>
 
         </div>

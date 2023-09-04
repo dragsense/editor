@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Slider, Input, Switch, Checkbox, Tooltip, Button, ColorPicker } from "antd";
+import { Slider, Input, Switch, Checkbox, Dropdown, Tooltip, Button, ColorPicker, Space } from "antd";
 import { rgbToHex } from '../../../../lib/utils';
 import { MdRestartAlt } from "react-icons/md";
+import { CgGlobeAlt } from 'react-icons/cg';
 
-const ShadowBox = ({ style, properties, onChangeStyle }) => {
+const ShadowBox = ({ style, colors, properties, onChangeStyle }) => {
 
     const [offsetX, setOffsetX] = useState(0);
     const [offsetY, setOffsetY] = useState(0);
@@ -167,6 +168,36 @@ const ShadowBox = ({ style, properties, onChangeStyle }) => {
         onChangeStyle();
     };
 
+     const onChangeGlobalColor = ({ key }) => {
+
+
+        const item = colors[key];
+
+        const { value, color } = item;
+
+        const shadow = `${inset ? "inset" : ""} ${offsetX}px ${offsetY}px ${blurRadius}px ${spreadRadius}px ${color}`;
+
+
+
+        style.setProperty(
+            "box-shadow",
+            shadow,
+            stylePriority["box-shadow"]
+        );
+
+        if (!properties["box-shadow"])
+            properties["box-shadow"] = {};
+
+        properties["box-shadow"].value = shadow;
+        properties["box-shadow"].color = color;
+
+
+        setColor(color);
+        onChangeStyle();
+
+    }
+
+
     const handleInsetChange = (checked) => {
 
         const shadow = `${checked ? "inset" : ""} ${offsetX}px ${offsetY}px ${blurRadius}px ${spreadRadius}px ${color}`;
@@ -208,6 +239,7 @@ const ShadowBox = ({ style, properties, onChangeStyle }) => {
 
 
     }
+    const items = colors.map((c, i) => { return { label: c.name, key: i } });
 
     return (
         <div>
@@ -269,6 +301,18 @@ const ShadowBox = ({ style, properties, onChangeStyle }) => {
                     handleColorChange(rgbColor)
 
                 }} />
+                 {colors && (
+                <Dropdown menu={{ items, onClick: onChangeGlobalColor }} trigger={['click']}>
+                    <a onClick={(e) => e.preventDefault()}>
+                        <Space>
+                            <CgGlobeAlt
+                                size="35"
+                                color={color}
+                            />
+                        </Space>
+                    </a>
+                </Dropdown>
+            )}
             </div>
             <div style={{ marginBottom: "10px", }}>
                 <Switch

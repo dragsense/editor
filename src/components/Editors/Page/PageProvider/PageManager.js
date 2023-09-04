@@ -53,6 +53,7 @@ const reducer = (state, action) => {
             return {
                 ...state, pageUpdated: action.pageUpdated,
                 isChange: true,
+                
             }
 
         case "updateStates":
@@ -327,9 +328,9 @@ export default function PageManger({ children }) {
                 throw new Error('Page or Type not selected!');
             }
 
+            dispatch({ type: 'edit', page: page, pageType: type });
 
             // Dispatch an 'edit' action with the selected page and page type to update the state.
-            dispatch({ type: 'edit', page: page, pageType: type });
 
             // Clear the undo and redo stores to start a fresh edit session.
             await clearStore(UNDO_STORE_NAME);
@@ -342,7 +343,13 @@ export default function PageManger({ children }) {
             await loadPage(page, type, dispatch);
 
             // After loading the page data, update the 'pageUpdated' flag to indicate that the update is completed.
-            setTimeout(() => dispatch({ type: 'laod', pageUpdated: 1 }));
+            setTimeout(() => {
+                dispatch({ type: 'laod', pageUpdated: 1 })
+
+            }
+
+            );
+
         } catch (e) {
             // If an error occurs during the edit process, dispatch an 'error' action with the error message.
             dispatch({ type: 'error', error: e?.message || 'Something went wrong.' });
@@ -393,7 +400,7 @@ export default function PageManger({ children }) {
             }
 
 
-            if (updatedElement.mainClass !== updatedElement.className && updatedElement.mainClass) {
+            if ( updatedElement.mainClass && updatedElement.mainClass !== updatedElement.className) {
 
 
                 const iframe = document.querySelector("#ac-editor-iframe-doc")
@@ -405,6 +412,17 @@ export default function PageManger({ children }) {
                 updatedElement.selector = selectors.join(" ");
 
                 const style = await getData(state.page._id, updatedElement.styleUid, 'id', STYLE_STORE_NAME);
+                
+                const selector = {
+                    _uid: style._uid,
+                    selectorText: updatedElement.selector,
+                    properties: state.selector?.properties || {}
+
+                }
+
+
+                 onSelectSelector(selector, "")
+                
                 if (style) {
                     style.selectorText = updatedElement.selector;
                     createCss('normal', style, style.selectorText, iFrameDocument)
@@ -413,7 +431,8 @@ export default function PageManger({ children }) {
                         createCss(state.media, style, style.selectorText, iFrameDocument)
 
                     await updateData(state.page._id, style, STYLE_STORE_NAME);
-
+                    
+                    
                 }
 
             }
@@ -433,7 +452,7 @@ export default function PageManger({ children }) {
             onAddAction({ action: 'update', ...pageUpdated, orignal }, STORE);
 
 
-            dispatch({ type: 'updatePage', pageUpdated });
+            dispatch({ type: 'updatePage', pageUpdated, node: null });
 
         } catch (e) {
 
@@ -546,6 +565,7 @@ export default function PageManger({ children }) {
         iFramedocument,
         STORE = UNDO_STORE_NAME) => {
 
+            
 
         if (!tag || !currentUid) {
             dispatch({ type: 'error', error: 'Tag or Element not selected.' });

@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import _Spacing from './_Spacing';
 const { Panel } = Collapse;
 
-export default function Spacing({ style, properties, onChangeStyle  }) {
+export default function Spacing({ style, variables, properties, onChangeStyle  }) {
 
 
     const [stylePriority, setStylePriority] = useState({
@@ -46,10 +46,10 @@ export default function Spacing({ style, properties, onChangeStyle  }) {
 
     return <> {style && <>  <Collapse defaultActiveKey={['1']} accordion ghost>
         <Panel header="Padding" key="1">
-            <_Spacing type="padding" style={style} properties={properties} onChangeStyle={onChangeStyle} stylePriority={stylePriority} setStylePriority={setStylePriority}  />
+            <_Spacing type="padding" variables={variables} style={style} properties={properties} onChangeStyle={onChangeStyle} stylePriority={stylePriority} setStylePriority={setStylePriority}  />
         </Panel>
         <Panel header="Margin" key="2">
-            <_Spacing type="margin" style={style} properties={properties} onChangeStyle={onChangeStyle} stylePriority={stylePriority}  setStylePriority={setStylePriority}  />
+            <_Spacing type="margin" variables={variables} style={style} properties={properties} onChangeStyle={onChangeStyle} stylePriority={stylePriority}  setStylePriority={setStylePriority}  />
         </Panel>
     </Collapse>
     </>}

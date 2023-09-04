@@ -9,7 +9,7 @@ import { isEmpty } from '../../../../lib/utils';
 
 const { Panel } = Collapse;
 
-export default function Border({ style, properties, onChangeStyle }) {
+export default function Border({ style, colors, variables, properties, onChangeStyle }) {
 
 
 
@@ -66,16 +66,16 @@ export default function Border({ style, properties, onChangeStyle }) {
             <Panel header="Border" key="1">
             <BorderStyle type="Style" style={style} properties={properties} onChangeStyle={onChangeStyle} stylePriority={stylePriority} setStylePriority={setStylePriority} />
             <br /><br />
-            <BorderWidth type="Width" style={style} properties={properties} onChangeStyle={onChangeStyle} stylePriority={stylePriority} setStylePriority={setStylePriority} />
+            <BorderWidth variables={variables} type="Width" style={style} properties={properties} onChangeStyle={onChangeStyle} stylePriority={stylePriority} setStylePriority={setStylePriority} />
             <br /><br />
 
-                <BorderColor type="Color" style={style} properties={properties}
+                <BorderColor colors={colors} type="Color" style={style} properties={properties}
                     onChangeStyle={onChangeStyle} stylePriority={stylePriority}
                     setStylePriority={setStylePriority} />
           
             </Panel>
             <Panel header="Radius" key="2">
-                <BorderRadius type="Radius" style={style} properties={properties} onChangeStyle={onChangeStyle} stylePriority={stylePriority} setStylePriority={setStylePriority} />
+                <BorderRadius variables={variables} type="Radius" style={style} properties={properties} onChangeStyle={onChangeStyle} stylePriority={stylePriority} setStylePriority={setStylePriority} />
             </Panel>
         </Collapse>
 

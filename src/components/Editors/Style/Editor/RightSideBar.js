@@ -1,10 +1,11 @@
 import React, { Children, useEffect, useState } from 'react';
 
-import { Collapse, Layout, Space, Tooltip, Button, theme, Modal } from 'antd';
+import { Collapse, Layout, message, Tooltip, Button, theme, Modal } from 'antd';
 
 import { } from 'react-icons/md'
 import { ExclamationCircleFilled, ClearOutlined, DeleteOutlined } from '@ant-design/icons';
 
+import ThemeServices from '../../../../lib/services/theme';
 
 
 import SearchableSelector from '../Selector';
@@ -98,6 +99,34 @@ export default function RigthSideBar({
         setState('');
     }, [selector])
 
+    const [fonts, setFonts] = useState([]);
+    const [colors, setColors] = useState([]);
+    const [variables, setVariables] = useState([]);
+    
+    const load = async () => {
+        try {
+            const resFonts = await ThemeServices.getFonts();
+            const resColors = await ThemeServices.getColors();
+            const resVaraibles = await ThemeServices.getVariables();
+
+            if (resFonts.fonts)
+                setFonts(resFonts.fonts.data);
+
+            if (resColors.colors)
+                setColors(resColors.colors.data);
+
+            if (resVaraibles.variables)
+                setVariables(resVaraibles.variables.data)
+
+        } catch (e) {
+            message.error(e?.message || 'Something went wrong');
+        } finally {
+        }
+    }
+
+    useEffect(() => {
+        load();
+    }, []);
 
     return <>
 
@@ -218,84 +247,87 @@ export default function RigthSideBar({
                     {keys.includes('1') && <Panel showArrow={false}
                         header="Typeography"
                         key="1">
-                        <Typography style={selector?.style} properties={selector?.properties} onChangeStyle={onChange} />
+                        <Typography style={selector?.style} 
+                        fonts={fonts} colors={colors} variables={variables}
+                        properties={selector?.properties} onChangeStyle={onChange} />
                     </Panel>}
                     {keys.includes('2') && <Panel showArrow={false}
                         header="Size"
                         key="2">
-                        <Size style={selector?.style} properties={selector?.properties} onChangeStyle={onChange} />
+                        <Size style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
                     </Panel>}
                     {keys.includes('3') && <Panel showArrow={false}
                         header="Space"
                         key="3">
-                        <Spacing style={selector?.style} properties={selector?.properties} onChangeStyle={onChange} />
+                        <Spacing style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
                     </Panel>}
                     {keys.includes('4') && <Panel showArrow={false}
                         header="Border"
                         key="4">
-                        <Border style={selector?.style} properties={selector?.properties} onChangeStyle={onChange} />
+                        <Border style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
                     </Panel>}
                     {keys.includes('5') && <Panel showArrow={false}
                         header="Background"
                         key="5">
                         <Background style={selector?.style}
+                        fonts={fonts} colors={colors} variables={variables}
                             properties={selector?.properties}
                             onChangeStyle={onChange} />
                     </Panel>}
                     {keys.includes('6') && <Panel showArrow={false}
                         header="Position"
                         key="6">
-                        <Position style={selector?.style} properties={selector?.properties} onChangeStyle={onChange} />
+                        <Position style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
                     </Panel>}
                     {keys.includes('7') && <Panel showArrow={false}
                         header="Display"
                         key="7">
-                        <Display style={selector?.style} properties={selector?.properties} onChangeStyle={onChange} />
+                        <Display style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
                     </Panel>}
 
                     {keys.includes('8') && <Panel showArrow={false}
                         header="Shadow"
                         key="8">
-                        <Shadow style={selector?.style} properties={selector?.properties} onChangeStyle={onChange} />
+                        <Shadow style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
                     </Panel>}
 
                     {keys.includes('9') && <Panel showArrow={false}
                         header="Transform"
                         key="9">
-                        <Transform style={selector?.style} properties={selector?.properties} onChangeStyle={onChange} />
+                        <Transform style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
                     </Panel>}
 
                     {keys.includes('10') && <Panel showArrow={false}
                         header="Transition"
                         key="10">
-                        <Transition style={selector?.style} properties={selector?.properties} onChangeStyle={onChange} />
+                        <Transition style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
                     </Panel>}
 
                     {(keys.includes('11') && !animation) && <Panel showArrow={false}
                         header="Animation"
                         key="11">
-                        <Animation style={selector?.style} properties={selector?.properties} onChangeStyle={onChange} />
+                        <Animation style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
                     </Panel>}
 
                     {(keys.includes('12')) && <Panel showArrow={false}
                         header="Filter"
                         key="12">
-                        <Filter style={selector?.style} properties={selector?.properties} onChangeStyle={onChange} />
+                        <Filter style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
                     </Panel>}
                     {(keys.includes('13')) && <Panel showArrow={false}
                         header="Svg"
                         key="13">
-                        <Svg style={selector?.style} onChangeStyle={onChange} properties={selector?.properties} />
+                        <Svg style={selector?.style} fonts={fonts} colors={colors} variables={variables} onChangeStyle={onChange} properties={selector?.properties} />
                     </Panel>}
                     {(keys.includes('14')) && <Panel showArrow={false}
                         header="List"
                         key="14">
-                        <List style={selector?.style} onChangeStyle={onChange} properties={selector?.properties} />
+                        <List style={selector?.style} fonts={fonts} colors={colors} variables={variables} onChangeStyle={onChange} properties={selector?.properties} />
                     </Panel>}
                     {(keys.includes('15')) && <Panel showArrow={false}
                         header="Cursor"
                         key="15">
-                        <Cursor style={selector?.style} onChangeStyle={onChange} properties={selector?.properties} />
+                        <Cursor style={selector?.style} fonts={fonts} colors={colors} variables={variables} onChangeStyle={onChange} properties={selector?.properties} />
                     </Panel>}
 
                 </Collapse>

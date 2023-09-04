@@ -14,7 +14,7 @@ import Clip from './Clip';
 const { Panel } = Collapse;
 
 
-export default function Background({ style, properties, onChangeStyle }) {
+export default function Background({ style, colors, variables, properties, onChangeStyle }) {
 
 
     const [stylePriority, setStylePriority] = useState({
@@ -62,7 +62,10 @@ export default function Background({ style, properties, onChangeStyle }) {
         {style && <>
             <Collapse defaultActiveKey={['1']} accordion ghost>
                 <Panel header="Color" key="1">
-                    <Color type="Color" style={style}  properties={properties} 
+                    <Color type="Color" 
+                    colors={colors} 
+                    style={style}  
+                    properties={properties} 
                     onChangeStyle={onChangeStyle} stylePriority={stylePriority} 
                     setStylePriority={setStylePriority} />
                 </Panel>

@@ -33,7 +33,7 @@ export default function Element({ state, onChange, onUpdate, cascaderStates }) {
         if (!state.node.attributes)
             state.node.attributes = {};
 
-        setSettingState({ ...state.node });
+        setSettingState({ ...state.node, mainClass: state.node.className });
 
         if (!state.node.childAttributes)
             state.node.childAttributes = {};

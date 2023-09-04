@@ -22,6 +22,7 @@ const InnerComponent = ({ children, document, onLoad, _id, type }) => {
 
   useEffect(() => {
 
+
     if (_id)
       loadCSSStyles(type, _id).then((status) => {
         onLoad({ _id }, type);
@@ -1008,7 +1009,7 @@ export default function IFrame({
         onLoad={onLoad}
 
         document={container.document}>
-        <div data-rootId="0" data-pos="" data-name="Root" draggable="false">{children}
+        {state.page &&<div data-rootId="0" data-pos="" data-name="Root" draggable="false">{children}
           <div style={{
             userSelect: 'none', color: "#cccccc", fontSize: 48,
             padding: 0, textAlign: 'center',
@@ -1034,7 +1035,7 @@ export default function IFrame({
               })
             }}
           >  + </div>
-        </div>
+        </div>}
       </InnerComponent>, container.mountTarget)}
     </iframe>
 

@@ -6,17 +6,17 @@ import ShadowBox from "./BoxShadow";
 import ShadowText from './TextShadow';
 const { Panel } = Collapse;
 
-const Shadow = ({ style, properties, onChangeStyle }) => {
+const Shadow = ({ style, properties,  colors, onChangeStyle }) => {
 
     return (<>
         <Collapse defaultActiveKey={['1']} accordion ghost>
             <Panel header="Box Shadow" key="1">
 
-                <ShadowBox style={style} properties={properties} onChangeStyle={onChangeStyle} />
+                <ShadowBox colors={colors} style={style} properties={properties} onChangeStyle={onChangeStyle} />
             </Panel>
             <Panel header="Text Shadow" key="2">
 
-                <ShadowText style={style} properties={properties} onChangeStyle={onChangeStyle} />
+                <ShadowText style={style} colors={colors} properties={properties} onChangeStyle={onChangeStyle} />
             </Panel>
         </Collapse>
     </>

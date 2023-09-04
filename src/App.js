@@ -2,6 +2,7 @@
 import { Button, theme, ConfigProvider } from 'antd';
 import { Main } from './components';
 import { useState } from 'react'
+import { FaSun, FaMoon } from 'react-icons/fa';
 
 const { darkAlgorithm, compactAlgorithm, defaultAlgorithm } = theme;
 
@@ -34,10 +35,10 @@ const App = () => {
     <Main />
 
     <div style={{ position: 'fixed', bottom: 0, right: 0, zIndex: 10000 }}>
-      <Button type='text' onClick={handleClick}>
-        {isDarkMode ? "Light" : "Dark"}
-      </Button>
-    </div>
+            <Button type='text' onClick={handleClick}>
+            {isDarkMode ? <FaSun /> : <FaMoon />}            
+            </Button>
+          </div>
   </ConfigProvider>
 };
 

@@ -8,7 +8,7 @@ import { CgGlobeAlt } from 'react-icons/cg';
 const units = ['px', '%', 'em', 'rem'];
 const { Option } = Select;
 
-export default function _Spacing({ style, type, stylePriority, properties,
+export default function _Spacing({ style, variables, type, stylePriority, properties,
     setStylePriority, onChangeStyle }) {
 
 
@@ -19,7 +19,6 @@ export default function _Spacing({ style, type, stylePriority, properties,
     const [bottomUnit, setBottomUnit] = useState(units[0]);
     const [rightUnit, setRightUnit] = useState(units[0]);
 
-    const [variables, setVariables] = useState([]);
 
 
     useEffect(() => {
@@ -46,22 +45,7 @@ export default function _Spacing({ style, type, stylePriority, properties,
 
     }, []);
 
-    const load = async () => {
-        try {
-            const resVaraibles = await ThemeServices.getVariables();
 
-            if (resVaraibles.variables)
-                setVariables(resVaraibles.variables.data)
-
-        } catch (e) {
-            message.error(e?.message || 'Something went wrong');
-        } finally {
-        }
-    }
-
-    useEffect(() => {
-        load();
-    }, []);
 
     const spaces = variables.filter((variable) => variable.type === 'space').map((v, i) => { return { variable: v.variable, label: v.name, key: i } });
 

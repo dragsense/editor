@@ -16,7 +16,7 @@ const ThemeServices = {
 
         return fetcher(`${sanitizedUrl}`, {
             method: 'Get',
-            headers: { 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true,'x-api-key': apikey },
         });
     },
 
@@ -34,7 +34,7 @@ const ThemeServices = {
 
         return fetcher(`${sanitizedUrl}`, {
             method: 'Get',
-            headers: { 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true,'x-api-key': apikey },
         });
 
 
@@ -52,7 +52,7 @@ const ThemeServices = {
 
         return fetcher(`${sanitizedUrl}`, {
             method: 'Get',
-            headers: { 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true,'x-api-key': apikey },
         });
     },
 
@@ -71,7 +71,7 @@ const ThemeServices = {
 
         return await fetcher(`${sanitizedUrl}`, {
             method: 'GET',
-            headers: { 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true,'x-api-key': apikey },
         });
     },
 
@@ -87,7 +87,7 @@ const ThemeServices = {
 
         const res = await fetcher(`${sanitizedUrl}`, {
             method: 'GET',
-            headers: { 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true,'x-api-key': apikey },
         });
 
         return ({ css: res.css, _id: project._id })
@@ -104,7 +104,7 @@ const ThemeServices = {
 
         return await fetcher(`${sanitizedUrl}`, {
             method: 'GET',
-            headers: { 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true,'x-api-key': apikey },
         });
 
     },
@@ -121,7 +121,7 @@ const ThemeServices = {
 
         return await fetcher(`${sanitizedUrl}`, {
             method: 'GET',
-            headers: { 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true,'x-api-key': apikey },
         });
     },
 
@@ -160,7 +160,7 @@ const ThemeServices = {
 
         return await fetcher(`${sanitizedUrl}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true,'Content-Type': 'application/json', 'x-api-key': apikey },
             body: JSON.stringify({ animations }),
         });
 
@@ -184,7 +184,7 @@ const ThemeServices = {
 
         return await fetcher(`${sanitizedUrl}`, {
             method: 'GET',
-            headers: { 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true,'x-api-key': apikey },
         });
     },
 
@@ -202,7 +202,7 @@ const ThemeServices = {
 
         return fetcher(`${sanitizedUrl}`, {
             method: 'Get',
-            headers: { 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true,'x-api-key': apikey },
         });
 
     },
@@ -220,7 +220,7 @@ const ThemeServices = {
 
         return fetcher(`${sanitizedUrl}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true,'Content-Type': 'application/json', 'x-api-key': apikey },
             body: JSON.stringify(obj),
         });
 
@@ -238,7 +238,7 @@ const ThemeServices = {
 
         return fetcher(`${sanitizedUrl}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true,'Content-Type': 'application/json', 'x-api-key': apikey },
             body: JSON.stringify(obj),
         });
     },
@@ -256,7 +256,7 @@ const ThemeServices = {
 
         return fetcher(`${sanitizedUrl}`, {
             method: 'DELETE',
-            headers: { 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true,'x-api-key': apikey },
         });
 
     },

@@ -92,7 +92,7 @@ export function Pages({ type, selectedPage, onEdit }) {
 
             const res = await fetcher(`${sanitizedUrl}`, {
                 method: 'Get',
-                headers: { 'x-api-key': apikey },
+                 headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey },
             });
 
 

@@ -11,7 +11,7 @@ const easingOptions = [
     { value: "ease-out", label: "Ease Out" },
     { value: "ease-in-out", label: "Ease In Out" },
 ];
-export default function Transition({ style, properties,
+export default function Transition({ style, fonts, variables, colors,  properties,
     onChangeStyle, }) {
 
     const [duration, setDuration] = useState(0);

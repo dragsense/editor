@@ -14,7 +14,7 @@ const MediaServices = {
 
         return fetcher(`${sanitizedUrl}`, {
             method: 'Get',
-            headers: { 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey },
         });
     },
 
@@ -31,7 +31,7 @@ const MediaServices = {
 
         return fetcher(`${sanitizedUrl}`, {
             method: 'Get',
-            headers: { 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey },
         });
     },
 
@@ -48,7 +48,7 @@ const MediaServices = {
 
         return fetcher(`${sanitizedUrl}`, {
             method: 'Get',
-            headers: { 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey },
         });
     },
 
@@ -63,7 +63,7 @@ const MediaServices = {
 
         return await fetcher(`${sanitizedUrl}`, {
             method: 'POST',
-            headers: { 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey },
             body: formData,
             onProgress: ({ total, loaded }) => {
                 if (onProgress) {
@@ -86,7 +86,7 @@ const MediaServices = {
 
         return fetcher(`${sanitizedUrl}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true, 'Content-Type': 'application/json', 'x-api-key': apikey },
             body: JSON.stringify({ ...states }),
         });
     },
@@ -103,7 +103,7 @@ const MediaServices = {
 
         return fetcher(`${sanitizedUrl}`, {
             method: 'DELETE',
-            headers: { 'x-api-key': apikey },
+             headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey },
         });
     },
 
