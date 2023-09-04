@@ -1108,6 +1108,9 @@ export default function PageManger({ children }) {
 
     const onSubmit = async () => {
 
+        if(state.loading)
+        return;
+
         try {
 
             if (!state.page || !state.type)
