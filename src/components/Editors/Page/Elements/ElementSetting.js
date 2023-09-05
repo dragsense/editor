@@ -27,7 +27,14 @@ const ElementSetting = (props) => {
 
         switch (type) {
             case 'GLOBAL':
-
+                if (key[0] === "WINDOW") {
+                    if (key[1] === 'width') {
+                        return window.innerWidth;
+                    }else
+                    if (key[1] === 'height') {
+                        return window.innerHeight;
+                    }
+                }else
                 if (key[0] === "WEBSITE") {
                     const global = setting.global || [];
                     if (key[1] === 'images') {

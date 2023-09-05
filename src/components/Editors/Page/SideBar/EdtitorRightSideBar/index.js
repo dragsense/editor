@@ -46,6 +46,19 @@ let globalStates = [
     {
         label: "GLOBAL", value: "GLOBAL", type: "GLOBAL", children: [
             {
+                label: "WINDOW", value: "WINDOW",
+                children: [
+                    {
+                        label: 'WIDTH',
+                        value: 'width'
+                    },
+                    {
+                        label: 'HEIGHT',
+                        value: 'height'
+                    },
+                ]
+            },
+            {
                 label: "WEBSITE", value: "WEBSITE",
                 children: [
 
