@@ -26,8 +26,7 @@ const ElementType = (props) => {
 
     const _uid = node._uid;
     let tagType = node.tagName;
-    if (tagType == 'hr')
-        tagType = "close";
+  
 
     const layout = node.layout;
     if (layout == 'inputgroup')
@@ -40,6 +39,9 @@ const ElementType = (props) => {
 
     if (node.type === 'component')
         tagType = 'component';
+
+        if (node.tagName == 'hr')
+        tagType = "close";
 
     const element = <Element key={_uid} classes={classes} attributes={attributes} tagName={node.tagName} />
 

@@ -1009,7 +1009,7 @@ export default function IFrame({
         onLoad={onLoad}
 
         document={container.document}>
-        {state.page &&<div data-rootId="0" data-pos="" data-name="Root" draggable="false">{children}
+        {state.page ? <div data-rootId="0" data-pos="" data-name="Root" draggable="false">{children}
           <div style={{
             userSelect: 'none', color: "#cccccc", fontSize: 48,
             padding: 0, textAlign: 'center',
@@ -1035,7 +1035,7 @@ export default function IFrame({
               })
             }}
           >  + </div>
-        </div>}
+        </div> : <p>Laoding...</p>}
       </InnerComponent>, container.mountTarget)}
     </iframe>
 

@@ -30,9 +30,9 @@ const setSession = (argUrl) => {
   const cookies = JSON.parse(decodeURIComponent(queryParams.get('cookies')));
 
 
-  const sessionToken = cookies['next-auth.session-token'];
-  const callbackUrl = cookies['next-auth.callback-url'];
-  const csrfToken = cookies['next-auth.csrf-token'];
+  const sessionToken = cookies['__Secure-next-auth.session-token'];
+  const callbackUrl = cookies['__Secure-next-auth.callback-url'];
+  const csrfToken = cookies['__Host-next-auth.csrf-token'];
 
   const info = JSON.parse(decodeURIComponent(queryParams.get('info')));
 
@@ -47,16 +47,15 @@ const setSession = (argUrl) => {
   store.set('pageId', pageId || null);
   store.set('pageType', pageType || null);
   store.set('userName', userName || null);
-  store.set('apiUrl', apiUrl || '');
+  store.set('apiUrl', callbackUrl || '');
 
   const ses = session.defaultSession;
   ses.clearStorageData();
-
-
   if (sessionToken && csrfToken && callbackUrl) {
-    ses.cookies.set({ url: apiUrl || '', name: 'next-auth.session-token', value: sessionToken });
-    ses.cookies.set({ url: apiUrl || '', name: 'next-auth.callback-url', value: callbackUrl });
-    ses.cookies.set({ url: apiUrl || '', name: 'next-auth.csrf-token', value: csrfToken });
+
+    ses.cookies.set({ url: callbackUrl, name: 'Secure-next-auth.session-token', value: sessionToken });
+    ses.cookies.set({ url: callbackUrl, name: 'Secure-next-auth.callback-url', value: callbackUrl });
+    ses.cookies.set({ url: callbackUrl, name: 'Host-next-auth.csrf-token', value: csrfToken });
     webContents.getAllWebContents().forEach((contents) => {
       contents.send('session-update', { projectId, pageId, pageType, userName, session: true });
     });
@@ -82,6 +81,7 @@ if (!gotTheLock) {
     }
 
     const argUrl = commandLine.find(arg => arg.startsWith('autocode-editor://'));
+
     if (argUrl)
       setSession(argUrl)
 
@@ -160,15 +160,19 @@ ipcMain.handle('makeApiRequest', async (event, apiEndpoint) => {
 
 
     const apiUrl = store.get('apiUrl');
-
     const ses = session.defaultSession;
     const cookies = await ses.cookies.get({ url: apiUrl });
+
+
     const cookieString = cookies
-      .map((cookie) => `${cookie.name}=${cookie.value}`)
+      .map((cookie) => `__${cookie.name}=${cookie.value}`)
       .join('; ');
+
+  
 
 
     const projectId = store.get('projectId');
+
 
     const response = await fetch(`${apiUrl}/api/projects/` + projectId, {
       method: 'GET',
@@ -189,6 +193,7 @@ ipcMain.handle('makeApiRequest', async (event, apiEndpoint) => {
 
   } catch (error) {
     // Handle errors
+
     console.error('Error fetching data:', error.message);
     return {};
   }

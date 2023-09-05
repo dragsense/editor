@@ -34,6 +34,7 @@ const MediaList = ({ media, type, onEdit, onDelete, onSelect, srcs }) => {
                         return (
                             <Col key={item._id} span={6} style={{ marginBottom: 16 }}>
                                 <Badge.Ribbon text={isSelected ? 'Selected' : ''} color={isSelected ? 'green' : 'none'}>
+                                    {console.log(item.src)}
                                     <Card
                                         className="actions-item-card"
                                         style={{  height: 300 }}

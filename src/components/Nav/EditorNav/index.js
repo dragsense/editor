@@ -80,7 +80,7 @@ const EditorNav = ({
                   
                     loading={state?.loading}
                     onClick={handleBackClick}>Back</Button>
-
+                    
                 <Button type="primary"
                     disabled={!state?.isChange}
                     loading={state?.loading}
