@@ -1,0 +1,91 @@
+
+import React, { useEffect, useMemo, useState } from 'react';
+
+const InputGroup = (props) => {
+    const { labelPos, onChange, conds,
+        attributes, type, mapValue, onClick, value, children } = props;
+
+    const option = mapValue ? { value: mapValue.value, label: mapValue.label || mapValue.value } : { value: '' };
+
+    const [checked, setChecked] = useState(false);
+
+    const onChangeValue = (e) => {
+        e.preventDefault();
+        const optionValue = e.target.value;
+        let newValue = '';
+
+        if (checked) {
+            if (type === 'radio' || !value)
+                newValue = ''
+            else {
+                const valuesArray = String(value).split(",");
+                newValue = valuesArray.filter(v => v !== optionValue).join(",");
+                if (newValue === 'all')
+                    newValue = '';
+            }
+        }
+        else {
+            if (type === 'radio' || !value)
+                newValue = optionValue;
+            else {
+                newValue = value + "," + optionValue;
+                if(optionValue === 'all')
+                newValue = 'all';
+
+            }
+        }
+
+        if (onChange) {
+            onChange(newValue, optionValue === 'all');
+        }
+
+        //setChecked(!checked);
+
+
+    }
+
+
+    useEffect(() => {
+        let isChecked = false;
+
+        if (typeof value === 'string') {
+            isChecked = type === 'radio'
+                ? value === option.value || (option.value === 'all' && value.includes('all'))
+                : value.split(',').some(v => v === option.value);
+
+
+        } else if (typeof value === 'boolean') {
+            isChecked = value === (option.value.toLowerCase() === 'true'); // Convert string to boolean
+        } else if (!isNaN(Number(value))) { // Check if value is a number
+            isChecked = Number(value) === Number(option.value); // Convert string to number
+        }
+
+        setChecked(isChecked);
+    }, [value]);
+
+    const input = <>{labelPos == 0 && option.label}<input key={checked} type={type} {...attributes}
+
+        onClick={onChangeValue}
+        value={option.value}
+        checked={checked === true} />  {labelPos == 1 && option.label}</>
+
+
+
+    const clonedElement = React.cloneElement(children, {
+        customAttributes: {
+            onClick: onClick,
+
+          
+        }
+    }, input);
+
+
+
+
+
+    return conds ? clonedElement : null;
+
+
+};
+
+export default InputGroup;

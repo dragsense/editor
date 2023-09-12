@@ -47,6 +47,8 @@ const InnerComponent = ({ children, document, onLoad, _id, type }) => {
         if (res?.setting)
           document.head.insertAdjacentHTML("beforeend", res.setting.scripts?.head);
 
+
+
         res = await ThemeServices.getFonts();
 
         if (res.fonts)
@@ -63,14 +65,19 @@ const InnerComponent = ({ children, document, onLoad, _id, type }) => {
               if (Array.isArray(fontSrc)) {
                 try {
 
+                  const styleElement = document.createElement('style');
+                  styleElement.textContent = '';
+
                   for (const src of fontSrc) {
-
-                    const fontFace = new FontFace(fontFamily, `url(${src.src}) format('${src.format}')`);
-                    await fontFace.load();
-                    document.fonts.add(fontFace);
-
-
+                    styleElement.textContent += `
+                      @font-face {
+                        font-family: "${fontFamily}";
+                        src: url("${src.src}");
+                      }
+                    `;
                   }
+
+                  document.head.appendChild(styleElement);
                 } catch (error) {
                   message.error(`Failed to load ${fontFamily} font: ${error}`);
                 }
@@ -103,10 +110,14 @@ const InnerComponent = ({ children, document, onLoad, _id, type }) => {
 
 
         style.textContent = `
-     
-        html {
-          cursor: pointer;
+        
+       
+        .cke_editable.ae-editable, .cke_editable.ae-editable *{
+          background: #fff !important;
         }
+
+       
+
         @keyframes ac-001-pulse {
           0% {
             opacity: 1;
@@ -179,7 +190,7 @@ export default function IFrame({
   onUpdate,
   onLoad,
   onChange,
-  onUpdateSelector,
+  previewMode,
   onClickElement,
   onAdd,
   onDelete,
@@ -213,7 +224,7 @@ export default function IFrame({
     const elementsWithUid = elements.filter(element => element.dataset.id).map(element => ({
       uid: element.dataset.id,
       name: element.dataset.name || element.tagName,
-      layout:  element.dataset.name || element.tagName,
+      layout: element.dataset.name || element.tagName,
       pos: element.dataset.pos
     }));
 
@@ -264,6 +275,12 @@ export default function IFrame({
   const [gapBarPos, setGapBprPos] = useState(null);
 
   const handleMenuItemClick = (key) => {
+
+    const oldNode = state.node;
+    if (oldNode?._uid === key || !key) {
+      return;
+    }
+
     onClickElement(container?.document, key);
     ContentEditor.destroy();
   };
@@ -300,55 +317,59 @@ export default function IFrame({
       event.preventDefault();
       // event.stopPropagation();
 
+      try {
+        if (event.ctrlKey) {
+          const elements = Array.from(iframeDocument.elementsFromPoint(event.clientX, event.clientY));
+          createContextMenu(elements, { x: event.clientX + 10, y: event.clientY + 10 });
+        }
 
-      if (event.ctrlKey) {
-        const elements = Array.from(iframeDocument.elementsFromPoint(event.clientX, event.clientY));
-        createContextMenu(elements, { x: event.clientX + 10, y: event.clientY + 10 });
-      }
+        let currentElement = event.target;
 
-      let currentElement = event.target;
+        if (!currentElement.dataset.id)
+          currentElement = currentElement.parentNode;
 
-      if (!currentElement.dataset.id)
-        currentElement = currentElement.parentNode;
+        const id = currentElement.dataset.id || currentElement.dataset.rootid;
 
-      const id = currentElement.dataset.id || currentElement.dataset.rootid;
+        if (currentElement === iframeDocument.body || !id) {
+          return;
+        }
+        //const pos = currentElement.dataset.pos;
+        const name = currentElement.dataset.name || currentElement.tagName;
 
-      if (currentElement === iframeDocument.body || !id) {
-        return;
-      }
-      //const pos = currentElement.dataset.pos;
-      const name = currentElement.dataset.name || currentElement.tagName;
+        const rect = currentElement.getBoundingClientRect();
 
-      const rect = currentElement.getBoundingClientRect();
+        const hoverMiddleY = 10;
 
-      const hoverMiddleY = 10;
+        const hoverClientY = event.clientY - rect.top;
 
-      const hoverClientY = event.clientY - rect.top;
+        if (hoverClientY < hoverMiddleY) {
 
-      if (hoverClientY < hoverMiddleY) {
+          setGapBprPos({
+            value: name,
+            left: rect.left,
+            width: rect.width,
+            top: rect.top - 5, height: 5,
+            background: colorPrimaryBg,
+            borderBottom: `2px solid ${colorPrimary}`,
+            display: 'initial'
+          });
 
-        setGapBprPos({
-          value: name,
-          left: rect.left,
-          width: rect.width,
-          top: rect.top - 5, height: 5,
-          background: colorPrimaryBg,
-          borderBottom: `2px solid ${colorPrimary}`,
-          display: 'initial'
-        });
+          isTop = true;
 
-        isTop = true;
+        }
+        else {
+          setGapBprPos({
+            value: name,
 
-      }
-      else {
-        setGapBprPos({
-          value: name,
+            border: `2px solid ${colorPrimary}`, display: 'initial',
+            left: rect.left - 2, width: rect.width, top: rect.top - 2, height: rect.height
+          });
+          isTop = false;
 
-          border: `2px solid ${colorPrimary}`, display: 'initial',
-          left: rect.left - 2, width: rect.width, top: rect.top - 2, height: rect.height
-        });
-        isTop = false;
 
+        }
+      } catch (e) {
+        setGapBprPos(null)
 
       }
 
@@ -359,17 +380,24 @@ export default function IFrame({
     const onDragLeaveHandle = (event) => {
       event.preventDefault();
 
-      if (editing)
-        return;
+      try {
+        if (editing)
+          return;
 
-      var currentElement = event.target;
+        var currentElement = event.target;
 
-      if (currentElement === iframeDocument.body) {
-        return;
+        if (currentElement === iframeDocument.body) {
+          return;
+        }
+        isTop = false;
+
+        setGapBprPos(null);
+
+      } catch (e) {
+        setGapBprPos(null)
+
       }
-      isTop = false;
 
-      setGapBprPos(null);
     }
 
     iframeDocument.body.addEventListener("dragleave", onDragLeaveHandle);
@@ -377,51 +405,59 @@ export default function IFrame({
     const onDropHandle = (event) => {
       event.preventDefault();
 
-      if (editing)
-        return;
+      try {
+        if (editing)
+          return;
 
 
-      var currentElement = event.target;
+        var currentElement = event.target;
 
-      if (currentElement === iframeDocument.body) {
-        return;
-      }
-
-
-
-      if (!currentElement.dataset.id && !currentElement.dataset.rootid)
-        currentElement = currentElement.closest('[data-id]');
-
-      if (!currentElement)
-        return;
-
-      const id = currentElement.dataset.id || currentElement.dataset.rootid;
-      const pos = currentElement.dataset.pos || '';
-
-      const tag = JSON.parse(event.dataTransfer.getData('text/plain'));
+        if (currentElement === iframeDocument.body) {
+          return;
+        }
 
 
-      if (tag.copy)
-        onCopy({
-          dataset: {
-            pageId: tag.pageId,
-            targetId: id,
-            id: tag._uid,
-            pos,
-            addToAbove: isTop,
-            copy: true
-          }
-        }, false);
-      else
-        if (tag.move)
-          onMove(id, tag._uid, isTop, pos, tag.dragPos, iframeDocument);
+
+        if (!currentElement.dataset.id && !currentElement.dataset.rootid)
+          currentElement = currentElement.closest('[data-id]');
+
+        if (!currentElement)
+          return;
+
+        const id = currentElement.dataset?.id || currentElement.dataset?.rootid;
+        const pos = currentElement.dataset.pos || '';
+
+        if (!id) {
+          return;
+        }
+
+        const tag = JSON.parse(event.dataTransfer.getData('text/plain'));
+
+
+        if (tag.copy)
+          onCopy({
+            dataset: {
+              pageId: tag.pageId,
+              targetId: id,
+              id: tag._uid,
+              pos,
+              addToAbove: isTop,
+              copy: true
+            }
+          }, false);
         else
-          onAdd(tag, id, isTop, pos, iframeDocument);
+          if (tag.move)
+            onMove(id, tag._uid, isTop, pos, tag.dragPos, iframeDocument);
+          else
+            onAdd(tag, id, isTop, pos, iframeDocument);
 
-      setGapBprPos(null);
+        setGapBprPos(null);
 
-      isTop = false;
-
+        isTop = false;
+      } catch (e) {
+        console.log(e?.message, "Something Wrong")
+        setGapBprPos(null)
+      }
     }
 
 
@@ -431,71 +467,92 @@ export default function IFrame({
 
     const onClickHandle = async (event) => {
 
-      if (editing)
-        return;
-
-      const scrollTop = iframeRef.current.contentWindow.pageYOffset;
-      const scrollLeft = iframeRef.current.contentWindow.pageXOffset;
-      const top = (scrollTop + 44) + 'px';
-      const left = (scrollLeft) + 'px';
-
-      overlayRef2.current.style.top = top;
-      overlayRef2.current.style.left = left;
-
-      // event.preventDefault();
-
-      let currentElement = event.target;
-
-      if (!currentElement.dataset.id && !currentElement.dataset.rootid)
-        currentElement = currentElement.closest('[data-id]');
-
-      if (!currentElement)
-        return;
 
 
-      const id = currentElement.dataset.id || currentElement.dataset.rootid;
 
-      const oldNode = state.node;
-      if (oldNode?._uid === id || !id) {
-        return;
+      try {
+        if (editing)
+          return;
+
+        const scrollTop = iframeRef.current.contentWindow.pageYOffset;
+        const scrollLeft = iframeRef.current.contentWindow.pageXOffset;
+        const top = (scrollTop + 44) + 'px';
+        const left = (scrollLeft) + 'px';
+
+        overlayRef2.current.style.top = top;
+        overlayRef2.current.style.left = left;
+
+
+        let currentElement = event.target;
+
+        if (currentElement.tagName.toLowerCase() === 'a' ||
+          currentElement.parentNode.tagName.toLowerCase() === 'a') {
+          // Prevent the default behavior for anchor links
+          event.preventDefault();
+        }
+
+        if (!currentElement.dataset.id && !currentElement.dataset.rootid)
+          currentElement = currentElement.closest('[data-id]');
+
+        if (!currentElement)
+          return;
+
+
+        const id = currentElement.dataset.id || currentElement.dataset.rootid;
+
+        const oldNode = state.node;
+        if (oldNode?._uid === id || !id) {
+          return;
+        }
+
+        onClickElement(iframeDocument, id);
+        ContentEditor.destroy();
+      } catch (e) {
+        setGapBprPos(null)
+
+
       }
-
-      onClickElement(iframeDocument, id);
-      ContentEditor.destroy();
 
     }
 
     const onDbClickHandle = (event) => {
 
-      if (editing)
-        return;
-      // event.preventDefault();
+      try {
+        if (editing)
+          return;
+        // event.preventDefault();
 
-      let currentElement = event.target;
+        let currentElement = event.target;
 
-      if (!currentElement.dataset.id && !currentElement.dataset.rootid)
-        currentElement = currentElement.closest('[data-id]');
+        if (!currentElement.dataset.id && !currentElement.dataset.rootid)
+          currentElement = currentElement.closest('[data-id]');
 
-      if (!currentElement)
-        return;
-
-
-      const id = currentElement.dataset.id || currentElement.dataset.rootid;
-
-      const oldNode = state.node;
-      if (oldNode?._uid !== id || !id) {
-        return;
-      }
+        if (!currentElement)
+          return;
 
 
-      let existingChildren = currentElement.querySelector(`[data-child="child-${id}"]`);
+        const id = currentElement.dataset.id || currentElement.dataset.rootid;
 
-      ContentEditor.destroy();
+        const oldNode = state.node;
+        if (oldNode?._uid !== id || !id) {
+          return;
+        }
 
-      if (existingChildren) {
-        existingChildren.focus();
-        ContentEditor.start(existingChildren, overlayRef2.current);
-        setEditing(true)
+
+        let existingChildren = currentElement.querySelector(`[data-child="child-${id}"]`);
+
+
+        ContentEditor.destroy();
+
+        if (existingChildren) {
+          existingChildren.focus();
+
+          ContentEditor.start(existingChildren, overlayRef2.current, 'editor');
+          setEditing(true)
+
+        }
+      } catch (e) {
+        setGapBprPos(null)
 
       }
 
@@ -507,16 +564,22 @@ export default function IFrame({
 
       if (!editing)
         return;
-
-
       if (event.keyCode === 27) {
-        ContentEditor.destroy();
-        state.node.updateHTML = true;
-        await onUpdate(state.node);
-        onChange();
-        setEditing(false)
-      }
 
+        try {
+          ContentEditor.destroy();
+          state.node.updateHTML = true;
+          await onUpdate(state.node);
+          onChange();
+
+        } catch (e) {
+
+        } finally {
+          setGapBprPos(null)
+
+          setEditing(false)
+        }
+      }
 
     }
 
@@ -526,7 +589,6 @@ export default function IFrame({
 
 
     const onScrollHandle = (event) => {
-
 
       event.preventDefault();
       const scrollTop = iframeRef.current.contentWindow.pageYOffset;
@@ -589,6 +651,10 @@ export default function IFrame({
 
     iframeDocument.addEventListener('contextmenu', event => {
       event.preventDefault();
+
+      if (editing)
+        return;
+
       const elements = Array.from(iframeDocument.elementsFromPoint(event.clientX, event.clientY));
       const mousePosition = { x: event.clientX, y: event.clientY, visible: false };
 
@@ -611,17 +677,24 @@ export default function IFrame({
       iframeDocument.body.removeEventListener('keydown', onKeyPress);
 
       iframeDocument.removeEventListener('contextmenu', event => { });
+
+      setGapBprPos(null)
     }
 
   }, [state.page, state.node, editing]);
 
+  useEffect(() => {
+    setEditing(false)
+
+
+  }, [state.pageUpdated])
 
   useEffect(() => {
 
     if (!container)
       return;
 
-    ContentEditor.init(container.document);
+    ContentEditor.init(container.mountTarget);
 
     return () => {
       ContentEditor.destroy(null);
@@ -649,7 +722,7 @@ export default function IFrame({
     if (!element)
       return;
 
-    const name = element.dataset.name || element.tagName;
+    const name = element.dataset?.name || element.tagName;
 
     const rect = element.getBoundingClientRect();
 
@@ -699,9 +772,12 @@ export default function IFrame({
       return;
     }
 
-    const id = currentElement.dataset.uid || currentElement.parentNode.dataset.uid;
+    const id = currentElement.dataset?.uid || currentElement.parentNode.dataset?.uid;
 
-    const pos = currentElement.dataset.pos || currentElement.parentNode.dataset.pos;
+    const pos = currentElement.dataset?.pos || currentElement.parentNode.dataset?.pos;
+
+    if (!id)
+      return;
 
     const tag = JSON.parse(event.dataTransfer.getData('text/plain'));
 
@@ -738,208 +814,150 @@ export default function IFrame({
 
 
   return <ShadowRootComponent>
+
     <div ref={overlayRef} style={{ width: '100%', height: '0', top: '0px', left: '0px', position: 'absolute' }}>
+
       <div ref={overlayRef2} style={{ width: '100%', height: '0', top: '0px', left: '0px', position: 'absolute' }}>
+        {!editing && !previewMode && <>
+          {gapBarPos && <div style={{
+            display: 'none', ...gapBarPos, position: 'absolute', pointerEvents: 'none', display: 'flex',
+            justifyContent: 'center',
+            zIndex: 1000,
+            alignItems: 'end'
+          }}>
 
-        {gapBarPos && <div style={{
-          display: 'none', ...gapBarPos, position: 'absolute', pointerEvents: 'none', display: 'flex',
-          justifyContent: 'center',
-          zIndex: 1000,
-          alignItems: 'end'
-        }}>
+            <Button type="dashed" icon=<PlusOutlined style={{ color: "white", padding: 5, background: colorPrimaryBg }} />>
+              {gapBarPos.value}</Button>
+          </div>}
+          {contextMenuVisible && (
 
-          <Button type="dashed" icon=<PlusOutlined style={{ color: "white", padding: 5, background: colorPrimaryBg }} />>
-            {gapBarPos.value}</Button>
-        </div>}
-        {contextMenuVisible && (
-
-          <Card
-            ref={tooltipRef}
-            style={{
-              zIndex: 1, maxHeight: 500, overflow: 'auto', position: 'absolute',
-              visibility: contextMenuPosition.visible ? 'visible' : 'hidden',
-              top: contextMenuPosition.y,
-              left: contextMenuPosition.x,
-              zIndex: 1000
-            }}
-            title={<>Elements {" "}<Button
-              size='small'
-              style={{ marginLeft: 10, float: 'right' }}
-              onDragLeave={handleContextMenuMouseLeave}
-              onClick={() => {
-                setContextMenuVisible(false);
-                setGapBprPos(null);
+            <Card
+              ref={tooltipRef}
+              style={{
+                zIndex: 1, maxHeight: 500, overflow: 'auto', position: 'absolute',
+                visibility: contextMenuPosition.visible ? 'visible' : 'hidden',
+                top: contextMenuPosition.y,
+                left: contextMenuPosition.x,
+                zIndex: 1000
               }}
-              icon=<CloseOutlined size="1rem" />></Button></>}
-            bordered={false}
-            onMouseLeave={handleContextMenuMouseLeave}
+              title={<>Elements {" "}<Button
+                size='small'
+                style={{ marginLeft: 10, float: 'right' }}
+                onDragLeave={handleContextMenuMouseLeave}
+                onClick={() => {
+                  setContextMenuVisible(false);
+                  setGapBprPos(null);
+                }}
+                icon=<CloseOutlined size="1rem" />></Button></>}
+              bordered={false}
+              onMouseLeave={handleContextMenuMouseLeave}
 
-          >
+            >
 
-            <ul style={{
-              listStyle: 'none', paddingInlineStart: 0,
-              color: colorText
-            }}>
-
-
+              <ul style={{
+                listStyle: 'none', paddingInlineStart: 0,
+                color: colorText
+              }}>
 
 
-              {contextMenuElements.map((item, index) => (<>
-                <li
 
-                  key={item.uid + index}
-                  onDragOver={handleMenuItemDragOver}
 
-                  onDragEnter={(e) => {
-                    e.target.style.backgroundColor = colorPrimaryBg;
-                    handleMenuItemMouseEnter(item.uid, true)
-                    e.preventDefault();
+                {contextMenuElements.map((item, index) => (<>
+                  <li
 
-                  }}
-                  onDragLeave={(e) => {
-                    e.target.style.backgroundColor = 'transparent';
-                    handleMenuItemMouseLeave()
-
-                    e.preventDefault();
-
-                  }}
-                  style={{
-                    borderRadius: '5px',
-                    height: 10,
-                  }}
-                  onDrop={(e) => handleMenuItemDrop(e, true)}
-                  data-uid={item.uid}
-                  data-pos={item.pos}
-                >
-
-                </li>
-                <li
-                >
-                  <div
-                    onDrop={handleMenuItemDrop}
+                    key={item.uid + index}
                     onDragOver={handleMenuItemDragOver}
+
                     onDragEnter={(e) => {
-
-                      if (state?.node?._uid !== item.uid)
-                        e.target.style.backgroundColor = colorPrimaryBg;
-                      handleMenuItemMouseEnter(item.uid, false)
-
+                      e.target.style.backgroundColor = colorPrimaryBg;
+                      handleMenuItemMouseEnter(item.uid, true)
                       e.preventDefault();
 
                     }}
                     onDragLeave={(e) => {
-                      if (state?.node?._uid !== item.uid)
-                        e.target.style.backgroundColor = 'transparent';
+                      e.target.style.backgroundColor = 'transparent';
                       handleMenuItemMouseLeave()
 
                       e.preventDefault();
 
                     }}
-                    key={item.uid}
-                    onClick={() => handleMenuItemClick(item.uid)}
-                    onMouseEnter={(e) => {
-                      e.preventDefault();
-
-                      if (state?.node?._uid !== item.uid)
-                        e.target.style.backgroundColor = colorPrimaryBg;
-                      handleMenuItemMouseEnter(item.uid)
-                    }
-                    }
-                    onMouseLeave={(e) => {
-                      e.preventDefault();
-
-                      if (state?.node?._uid !== item.uid)
-                        e.target.style.backgroundColor = 'transparent';
-                      handleMenuItemMouseLeave(item.uid)
-                    }
-
-                    }
-
+                    style={{
+                      borderRadius: '5px',
+                      height: 10,
+                    }}
+                    onDrop={(e) => handleMenuItemDrop(e, true)}
                     data-uid={item.uid}
                     data-pos={item.pos}
-                    style={{
-                      color: colorText,
-                      display: "inline-block",
-                      cursor: 'pointer',
-                      borderRadius: '10px',
-                      padding: '0 5px',
-                      marginRight: 5,
-                      backgroundColor: state?.node?._uid === item.uid ? colorPrimaryBg : 'transparent',
-                    }}>
-                    {item.name} {" "} {state?.node?._uid === item.uid && <Popover
+                  >
 
-                      onOpenChange={(open) => {
-                        setPopupOpen(open);
+                  </li>
+                  <li
+                  >
+                    <div
+                      onDrop={handleMenuItemDrop}
+                      onDragOver={handleMenuItemDragOver}
+                      onDragEnter={(e) => {
+
+                        if (state?.node?._uid !== item.uid)
+                          e.target.style.backgroundColor = colorPrimaryBg;
+                        handleMenuItemMouseEnter(item.uid, false)
+
+                        e.preventDefault();
+
                       }}
+                      onDragLeave={(e) => {
+                        if (state?.node?._uid !== item.uid)
+                          e.target.style.backgroundColor = 'transparent';
+                        handleMenuItemMouseLeave()
 
-                      content={<Setting
-                        onChange={onChange}
-                        setPopupOpen={setPopupOpen}
-                        node={state.node} onUpdate={onUpdate} />} title="Setting" trigger="click">
-                      <EditOutlined />
-                    </Popover>}
-                  </div>
-                  {(item.uid !== '0') && <>
-                    <Button
+                        e.preventDefault();
 
+                      }}
+                      key={item.uid}
+                      onClick={() => handleMenuItemClick(item.uid)}
                       onMouseEnter={(e) => {
                         e.preventDefault();
+
+                        if (state?.node?._uid !== item.uid)
+                          e.target.style.backgroundColor = colorPrimaryBg;
                         handleMenuItemMouseEnter(item.uid)
                       }
                       }
                       onMouseLeave={(e) => {
                         e.preventDefault();
-                        handleMenuItemMouseLeave()
+
+                        if (state?.node?._uid !== item.uid)
+                          e.target.style.backgroundColor = 'transparent';
+                        handleMenuItemMouseLeave(item.uid)
                       }
 
                       }
-                      draggable={true}
-                      onDragStart={(e) => {
-                        e.dataTransfer.setData('text/plain', JSON.stringify({
-                          _uid: item.uid,
-                          name: item.name,
-                          dragPos: item.pos,
-                          move: true
-                        }));
-                      }}
 
+                      data-uid={item.uid}
+                      data-pos={item.pos}
+                      style={{
+                        color: colorText,
+                        display: "inline-block",
+                        cursor: 'pointer',
+                        borderRadius: '10px',
+                        padding: '0 5px',
+                        marginRight: 5,
+                        backgroundColor: state?.node?._uid === item.uid ? colorPrimaryBg : 'transparent',
+                      }}>
+                      {item.name} {" "} {state?.node?._uid === item.uid && <Popover
 
-                      style={{ float: 'right' }} size="small" icon=<BsArrowsMove size="1rem" /> />
+                        onOpenChange={(open) => {
+                          setPopupOpen(open);
+                        }}
 
-                    <Popconfirm
-                      onOpenChange={(open) => {
-                        setPopupOpen(open);
-                      }}
-
-                      placement="topRight"
-                      title={"Are you sure to delete this element?"}
-                      onConfirm={() => onDelete({ dataset: { id: item.uid, pos: item.pos } })}
-                      okText="Yes"
-                      cancelText="No"
-                    >
-                      <Button
-                        danger
-                        type='text'
-                        style={{ float: 'right' }} size="small" icon=<DeleteOutlined size="1rem" /> />
-                    </Popconfirm>
-                    <Popconfirm
-                      onOpenChange={(open) => {
-                        setPopupOpen(open);
-                      }}
-
-                      placement="topRight"
-                      title={"Please select?"}
-                      onConfirm={() => {
-                        onCopy({ dataset: { targetId: item.uid, id: item.uid, pos: item.pos } }, false);
-
-                      }}
-                      onCancel={() => {
-                        onCopy({ dataset: { targetId: item.uid, id: item.uid, pos: item.pos } }, true);
-
-                      }}
-                      okText="Copy Selector"
-                      cancelText="Create Selector"
-                    >
+                        content={<Setting
+                          onChange={onChange}
+                          setPopupOpen={setPopupOpen}
+                          node={state.node} onUpdate={onUpdate} />} title="Setting" trigger="click">
+                        <EditOutlined />
+                      </Popover>}
+                    </div>
+                    {(item.uid !== '0') && <>
                       <Button
 
                         onMouseEnter={(e) => {
@@ -953,48 +971,107 @@ export default function IFrame({
                         }
 
                         }
+                        draggable={true}
+                        onDragStart={(e) => {
+                          e.dataTransfer.setData('text/plain', JSON.stringify({
+                            _uid: item.uid,
+                            name: item.name,
+                            dragPos: item.pos,
+                            move: true
+                          }));
+                        }}
 
 
-                        style={{ float: 'right' }} size="small" icon=<CopyOutlined size="1rem" /> />
-                    </Popconfirm>
+                        style={{ float: 'right' }} size="small" icon=<BsArrowsMove size="1rem" /> />
 
-                    <Button
+                      <Popconfirm
+                        onOpenChange={(open) => {
+                          setPopupOpen(open);
+                        }}
 
-                      type='dashed'
-                      onMouseEnter={(e) => {
-                        e.preventDefault();
-                        handleMenuItemMouseEnter(item.uid)
-                      }
-                      }
-                      onMouseLeave={(e) => {
-                        e.preventDefault();
-                        handleMenuItemMouseLeave()
-                      }
+                        placement="topRight"
+                        title={"Are you sure to delete this element?"}
+                        onConfirm={() => onDelete({ dataset: { id: item.uid, pos: item.pos } })}
+                        okText="Yes"
+                        cancelText="No"
+                      >
+                        <Button
+                          danger
+                          type='text'
+                          style={{ float: 'right' }} size="small" icon=<DeleteOutlined size="1rem" /> />
+                      </Popconfirm>
+                      <Popconfirm
+                        onOpenChange={(open) => {
+                          setPopupOpen(open);
+                        }}
 
-                      }
+                        placement="topRight"
+                        title={"Please select?"}
+                        onConfirm={() => {
+                          onCopy({ dataset: { targetId: item.uid, id: item.uid, pos: item.pos } }, false);
 
-                      onClick={() => {
-                        setCurrentElement({
-                          dataset: { id: item.uid, pos: item.pos },
-                          layout: item.layout
-                        })
-                      }}
+                        }}
+                        onCancel={() => {
+                          onCopy({ dataset: { targetId: item.uid, id: item.uid, pos: item.pos } }, true);
+
+                        }}
+                        okText="Copy Selector"
+                        cancelText="Create Selector"
+                      >
+                        <Button
+
+                          onMouseEnter={(e) => {
+                            e.preventDefault();
+                            handleMenuItemMouseEnter(item.uid)
+                          }
+                          }
+                          onMouseLeave={(e) => {
+                            e.preventDefault();
+                            handleMenuItemMouseLeave()
+                          }
+
+                          }
 
 
-                      style={{ float: 'right' }} size="small" icon=<PlusOutlined size="1rem" /> />
+                          style={{ float: 'right' }} size="small" icon=<CopyOutlined size="1rem" /> />
+                      </Popconfirm>
 
-                  </>}
+                      <Button
 
-                </li></>
-              ))}
+                        type='dashed'
+                        onMouseEnter={(e) => {
+                          e.preventDefault();
+                          handleMenuItemMouseEnter(item.uid)
+                        }
+                        }
+                        onMouseLeave={(e) => {
+                          e.preventDefault();
+                          handleMenuItemMouseLeave()
+                        }
 
-            </ul>
+                        }
 
-          </Card>
-        )}
+                        onClick={() => {
+                          setCurrentElement({
+                            dataset: { id: item.uid, pos: item.pos },
+                            layout: item.layout
+                          })
+                        }}
 
+
+                        style={{ float: 'right' }} size="small" icon=<PlusOutlined size="1rem" /> />
+
+                    </>}
+
+                  </li></>
+                ))}
+
+              </ul>
+
+            </Card>
+          )}
+        </>}
       </div>
-
 
     </div>
 
@@ -1002,6 +1079,10 @@ export default function IFrame({
     <iframe frameBorder={0} id="ac-editor-iframe-doc"
       width="100%"
       height="95%" ref={iframeRef}>
+
+
+
+
       {container && ReactDOM.createPortal(<InnerComponent
 
         _id={_id} type={pageType}
@@ -1009,7 +1090,11 @@ export default function IFrame({
         onLoad={onLoad}
 
         document={container.document}>
-        {state.page ? <div data-rootId="0" data-pos="" data-name="Root" draggable="false">{children}
+        {state.page ? !previewMode ? <div data-rootId="0"
+
+          style={{ "-webkit-user-drag": 'none' }}
+
+          data-pos="" data-name="Root" draggable="false">{children}
           <div style={{
             userSelect: 'none', color: "#cccccc", fontSize: 48,
             padding: 0, textAlign: 'center',
@@ -1029,14 +1114,19 @@ export default function IFrame({
             }}
 
             onClick={() => {
-              setCurrentElement({
-                dataset: { id: "0", pos: "" },
-                layout: "div"
-              })
+              if (!editing)
+                setCurrentElement({
+                  dataset: { id: "0", pos: "" },
+                  layout: "div"
+                })
             }}
           >  + </div>
-        </div> : <p>Laoding...</p>}
+
+
+
+        </div> : children : <p>Laoding...</p>}
       </InnerComponent>, container.mountTarget)}
+
     </iframe>
 
 

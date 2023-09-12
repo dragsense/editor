@@ -145,6 +145,33 @@ function Selections(AlloyEditor) {
   }]
 }
 
+function EditorSelections(AlloyEditor) {
+
+  if (!AlloyEditor)
+    return [];
+
+  return [{
+    name: 'link',
+    buttons: ['linkEdit'],
+    test: AlloyEditor.SelectionTest.link
+  }, {
+    name: 'image',
+    buttons: ['imageLeft', 'imageCenter', 'imageRight', 'removeImage'],
+    test: AlloyEditor.SelectionTest.image
+  }, {
+    name: 'text',
+    buttons: ['paragraphLeft', 'paragraphCenter', 'paragraphRight', 'paragraphJustify',
+      'indentBlock', 'outdentBlock', 'bold', 'italic', 'underline', 'link', 'strike', 'removeFormat'],
+    test: AlloyEditor.SelectionTest.text
+  }, {
+    name: 'table',
+    buttons: ['tableRow', 'tableColumn', 'tableCell', 'tableRemove'],
+    getArrowBoxClasses: AlloyEditor.SelectionGetArrowBoxClasses.table,
+    setPosition: AlloyEditor.SelectionSetPosition.table,
+    test: AlloyEditor.SelectionTest.table
+  }]
+}
+
 
 
 
@@ -177,9 +204,14 @@ function createContentEditor() {
         tabIndex: 1
       },
     },
-    start: function (domElement, body, onChange) {
+    start: function (domElement, body, mode = 'content') {
       if (this.AlloyEditor) {
-        const toolbars = this.toolbars;
+        const toolbars = mode === 'editor' ? {
+          styles: {
+            selections: EditorSelections(this.AlloyEditor),
+            tabIndex: 1
+          }
+        }  :  this.toolbars;
         const enterMode = window.CKEDITOR.ENTER_BR;
         const shiftEnterMode = window.CKEDITOR.ENTER_BR;
         this.domElement = domElement;

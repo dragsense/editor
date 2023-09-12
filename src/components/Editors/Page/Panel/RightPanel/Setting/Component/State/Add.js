@@ -1,12 +1,11 @@
-import { Form, Space, Input, Button, Select, Radio, Tooltip, Card, Image, message } from 'antd';
-import { QuestionCircleFilled, PlusOutlined } from '@ant-design/icons';
+import { Form, Space, Input, Button, Select, Radio, Tooltip, Modal, Card, Image, message } from 'antd';
+import { QuestionCircleFilled, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useState, useEffect } from 'react';
 import StateList from './StateList';
 import AddGeneralTypes from './AddGeneralTypes';
 import AddObjectTypes from './AddObjectTypes';
 import AddArrayTypes from './AddArrayTypes';
 import MediaModal from "../../../../../../../Media";
- 
 
 const { Option } = Select;
 
@@ -22,6 +21,7 @@ const initialState = {
     values: [],
     type: 'text',
     new: true,
+    states: {}
 };
 
 export default function AddState({ newState, onAddNew, setNewState }) {
@@ -32,6 +32,7 @@ export default function AddState({ newState, onAddNew, setNewState }) {
     const [innerNewState, setInnerNewState] = useState(null);
     const [form] = Form.useForm();
     const [mediaModal, setMediaModal] = useState(false);
+    const [isChange, setIsChange] = useState(false);
 
     useEffect(() => {
         if (!newState.states)
@@ -40,6 +41,15 @@ export default function AddState({ newState, onAddNew, setNewState }) {
         form.setFieldsValue(newState);
     }, [newState]);
 
+    useEffect(() => {
+
+        if (Object.keys(state.states || {}).length > 0,
+            state.key ||
+            state.defaultValue
+            || Object.keys(state.srcs || {}).length > 0)
+            setIsChange(true);
+    }, [state])
+
     const onChange = (event) => {
         event.preventDefault();
         const value = event.target.value;
@@ -47,9 +57,11 @@ export default function AddState({ newState, onAddNew, setNewState }) {
         setState({ ...state, [name]: value });
     };
 
-    const onChangeArrayValue = (evt, idx) => {
-        state.states[idx] = evt.target.value;
+    const onChangeArrayValue = (value, idx) => {
+        state.states[idx] = { idx, value };
         setState({ ...state });
+
+
     };
 
     const onChangeImage = (images) => {
@@ -58,18 +70,38 @@ export default function AddState({ newState, onAddNew, setNewState }) {
             state.states[index] = value;
         });
 
+        if (images.length <= 0)
+            state.states = {}
+
         setState({ ...state });
+
+
     };
 
     const onChangeType = (value) => {
-        setState({ ...state, type: value });
+
+        if (isChange)
+            Modal.confirm({
+                title: 'Switching Type',
+                content: 'Are you sure you want to switch to the type? Any unsaved changes may be lost.',
+                onOk: () => {
+
+                    setState({ ...initialState, states: {}, key: state.key, new: state.new, type: value });
+                },
+                onCancel: () => {
+                    // Do nothing when the user cancels the confirmation
+                },
+            });
+        else
+            setState({ ...state, type: value });
+
     };
 
     const onAddArrayValue = (values) => {
 
         state.states = {};
-        values.forEach((value, index) => {
-            state.states[index] = value;
+        values.forEach((value, idx) => {
+            state.states[idx] = { idx, value };
         });
 
 
@@ -90,16 +122,19 @@ export default function AddState({ newState, onAddNew, setNewState }) {
 
                 const key = state.key.toLowerCase().replace(/\s+/g, "-");
 
-    
+
                 onAddNew({
                     key,
                     defaultValue: state.defaultValue,
                     type: state.type,
                     states: state.states,
                     src: state.src,
+                    min: state.min,
+                    max: state.max,
                     srcs: state.srcs
                 });
                 setNewState(null);
+                setIsChange(false);
             })
             .catch((info) => {
                 message.error('Validation failed.');
@@ -140,9 +175,11 @@ export default function AddState({ newState, onAddNew, setNewState }) {
                     className="font-500"
                 >
                     <Input
+                        maxLength={60}
+
                         placeholder="Key"
                         name="key"
-                        disabled={state.edit}
+                        disabled={!state.new}
                         onChange={onChange}
                         value={state.key}
                     />
@@ -150,19 +187,35 @@ export default function AddState({ newState, onAddNew, setNewState }) {
                 <Form.Item label="TYPES" className="font-500">
                     <Radio.Group
                         onChange={(e) => {
-                            setTypes(e.target.value);
-                            if (e.target.value === 1) {
-                                setState({ ...state, type: 'array' });
+                            const newType = e.target.value;
+                            if (isChange)
+                                Modal.confirm({
+                                    title: 'Switching to Advanced',
+                                    content: 'Are you sure you want to switch to the Advanced type? Any unsaved changes may be lost.',
+                                    onOk: () => {
+                                        setTypes(newType);
+
+                                        setState({ ...initialState, states: {}, key: state.key, new: state.new, type: newType === 1 ? 'array' : 'text' });
+                                    },
+                                    onCancel: () => {
+                                        // Do nothing when the user cancels the confirmation
+                                    },
+                                });
+                            else {
+                                setTypes(newType);
+                                setState({ ...state, type: newType === 1 ? 'array' : 'text' });
                             }
+
+
                         }}
                         value={types}
                     >
                         <Radio value={0}>General</Radio>
-                        <Radio value={1}>Advance</Radio>
+                        <Radio value={1}>Advanced</Radio>
                     </Radio.Group>
                 </Form.Item>
                 {types === 0 ? (
-                    <AddGeneralTypes setState={setState} state={state} />
+                    <AddGeneralTypes isChange={isChange} setState={setState} state={state} />
                 ) : (
                     <>
                         <Form.Item label="Select Type" className="font-500">
@@ -184,30 +237,46 @@ export default function AddState({ newState, onAddNew, setNewState }) {
                             />
                         ) : state.type === 'images' ? (
                             <Form.Item label="Images">
-                                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                                    {Object.values(state.states).map(src =>
-                                        <Image.PreviewGroup>
-                                            <Image
-                                                preview={true}
-                                                style={{
-                                                    width: '120px',
-                                                    height: '120px',
-                                                    cursor: 'pointer'
-                                                }}
-                                                alt={src?.alt}
-                                                src={src?.src}
-                                                fallback="/images/default/default-img.png" />
 
-                                        </Image.PreviewGroup>
-                                    )}
+                                <Image.PreviewGroup>
+                                    <div style={{ display: 'flex', gap: 10, marginTop: 20, flexWrap: 'wrap', position: 'relative' }}>
 
-                                    <Button
-                                        type="dashed"
-                                        onClick={() => setMediaModal(true)}
-                                        icon={<PlusOutlined />}
-                                        style={{ width: '120px', height: '120px' }}
-                                    />
-                                </div>
+                                        {Object.values(state.states).map((src, idx) => <>
+
+
+                                            <div key={idx} style={{ position: 'relative' }}>
+
+                                                <DeleteOutlined style={{ position: 'absolute', top: -20, right: 0 }} onClick={() => {
+                                                    if (state.states[idx]) {
+                                                        delete state.states[idx];
+                                                    } setState({
+                                                        ...state
+                                                    });
+                                                }} />
+
+                                                <Image
+                                                    preview={true}
+                                                    style={{
+                                                        width: '120px',
+                                                        height: '120px',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                    alt={src?.alt}
+                                                    src={src?.src}
+                                                    fallback="/images/default/default-img.png" />
+                                            </div>
+                                        </>
+
+                                        )}
+                                        <Button
+                                            type="dashed"
+                                            onClick={() => setMediaModal(true)}
+                                            icon={<PlusOutlined />}
+                                            style={{ width: '120px', height: '120px' }}
+                                        />
+                                    </div>
+                                </Image.PreviewGroup>
+
                             </Form.Item>
                         ) : (
                             <Card
@@ -236,11 +305,11 @@ export default function AddState({ newState, onAddNew, setNewState }) {
                 <br />
                 <Form.Item className="text-right">
                     <Space>
-                        <Button type="default" onClick={() => { setNewState(null) }}>
+                        <Button size="small" type="default" onClick={() => { setNewState(null) }}>
                             Cancel
                         </Button>
-                        <Button type="primary" onClick={onAdd}>
-                        {state.new ? 'Add' : 'Update' }
+                        <Button size="small" type="primary" disabled={!isChange} onClick={onAdd}>
+                            {state.new ? 'Add' : 'Update'}
                         </Button>
                     </Space>
                 </Form.Item>

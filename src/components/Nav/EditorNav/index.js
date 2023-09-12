@@ -4,6 +4,7 @@ import { Button, Tooltip } from "antd";
 import { MdUndo, MdRedo } from "react-icons/md";
 import BreakPoints from "../../BreakPoint";
 import { Link } from 'react-router-dom';
+import { EyeFilled, EyeOutlined } from "@ant-design/icons";
 
 
 const EditorNav = ({
@@ -12,6 +13,8 @@ const EditorNav = ({
     redo,
     windowWidth,
     setWindowWidth,
+    previewMode,
+    setPreviewMode,
     minMax,
     setMinMax,
     onSubmit,
@@ -24,16 +27,16 @@ const EditorNav = ({
     const handleBackClick = async (e) => {
         e.preventDefault();
         if (state.isChange) {
-          const shouldSave = await window.autocode.checkUnsavedChanges(state.isChange);
-    
-          if (shouldSave) {
-            await onSubmit();
-          }
+            const shouldSave = await window.autocode.checkUnsavedChanges(state.isChange);
+
+            if (shouldSave) {
+                await onSubmit();
+            }
         }
-    
+
         // Navigate back
         onBack();
-      };
+    };
 
     return (<>
 
@@ -47,7 +50,7 @@ const EditorNav = ({
 
 
 
-            <img src="./images/logo/nav-logo.png" width="50" alt="autocode-logo"/>
+            <img src="./images/logo/nav-logo.png" width="50" alt="autocode-logo" />
 
 
             <BreakPoints windowWidth={windowWidth} setWindowWidth={setWindowWidth}
@@ -75,12 +78,21 @@ const EditorNav = ({
 
             <div>
 
+                <Tooltip title="Preview Page">
+                    <Button type="text"
+                        style={{ marginRight: 20 }}
+                        onClick={() => {
+                            setPreviewMode(!previewMode);
+                        }}
+                        icon={previewMode ? <EyeFilled /> : <EyeOutlined />}>
 
-                <Button type="dashed" style={{marginRight: 10}}
-                  
+                    </Button>
+                </Tooltip>
+                <Button type="dashed" style={{ marginRight: 10 }}
+
                     loading={state?.loading}
                     onClick={handleBackClick}>Back</Button>
-                    
+
                 <Button type="primary"
                     disabled={!state?.isChange}
                     loading={state?.loading}

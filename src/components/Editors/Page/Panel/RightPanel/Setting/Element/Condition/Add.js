@@ -80,6 +80,7 @@ export default function AddCondition({ current, setCurrent, onAdd, states }) {
                     rules={[{ required: true, message: "Please enter a name" }]}
                 >
                     <Input
+                    maxLength={100}
                         placeholder="Name"
                         onChange={onChangeValue}
                         value={newState.name}
@@ -125,7 +126,9 @@ export default function AddCondition({ current, setCurrent, onAdd, states }) {
 
                 >
 
-                    <Input placeholder="Condition" name="value"
+                    <Input placeholder="Condition"
+                    maxLength={200}
+                     name="value"
                         onChange={onChangeValue}
                         value={newState.value}
 

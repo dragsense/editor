@@ -3,7 +3,8 @@ import React, { useMemo } from "react";
 
 import ElementValue from './ElementValue';
 import { getStateValue } from "../../../../lib/element/elementNode";
-import { formatDate } from "../../../../lib/utils";
+import { formatDate, validateClassInput } from "../../../../lib/utils";
+import { message } from "antd";
 
 const ElementSetting = (props) => {
 
@@ -30,97 +31,97 @@ const ElementSetting = (props) => {
                 if (key[0] === "WINDOW") {
                     if (key[1] === 'width') {
                         return window.innerWidth;
-                    }else
-                    if (key[1] === 'height') {
-                        return window.innerHeight;
-                    }
-                }else
-                if (key[0] === "WEBSITE") {
-                    const global = setting.global || [];
-                    if (key[1] === 'images') {
-                        const images = global[key[1]] || {};
-                        const image = images[key[2]] || {}
-                        return {
-                            value: image?.src ? image.src : '/images/default/default-img.png',
-                            label: image === undefined ? `[${key[2]}]` : image?.alt || "Global Image"
+                    } else
+                        if (key[1] === 'height') {
+                            return window.innerHeight;
                         }
-
-                    }
-
-                    return {
-                        value: global[key[1]],
-                        label: global[key[1]] || `[global ${key[1]}]`
-                    }
-                }
-                else
-                    if (key[0] === "PAGE") {
-                        if (key[1] === 'image') {
-                            const image = setting[key[1]];
+                } else
+                    if (key[0] === "WEBSITE") {
+                        const global = setting.global || [];
+                        if (key[1] === 'images') {
+                            const images = global[key[1]] || {};
+                            const image = images[key[2]] || {}
                             return {
                                 value: image?.src ? image.src : '/images/default/default-img.png',
-                                label: image === undefined ? `[featured image]` : image?.alt || 'Featured Image'
+                                label: image === undefined ? `[${key[2]}]` : image?.alt || "Global Image"
                             }
-                        }
-                        if (key[1] === 'creator') {
-                            const creator = setting[key[1]];
 
-                            return {
-                                value: creator?._id ? creator?._id : '',
-                                label: creator?.name ? creator?.name : 'Unknown'
-                            }
                         }
-                        if (key[1] === 'createdAt') {
-                        
-                            const createdAt = setting[key[1]];
-                            if (createdAt)
-                                return formatDate(createdAt, key[2])
-                            else return `[page ${key[1]}]`
-                        } 
-                        if (key[1] === 'status') {
-                            const status = setting[key[1]];
 
-                            return {
-                                value: status,
-                                label: status === undefined ? `[page status]` : status ? 'Published' : 'Draft'
-                            }
-                        }
-                        
                         return {
-
-                            value: key[1] === 'content' ? key[1] : setting[key[1]],
-                            label: setting[key[1]] || `[page ${key[1]}]`
+                            value: global[key[1]],
+                            label: global[key[1]] || `[global ${key[1]}]`
                         }
-                    } else
-                        if (key[0] === "NEXTDOCUMNET" || key[0] === 'PREVDOCUMNET') {
-                            const doc = setting[key[0]];
-
-                            if (!doc) {
-                                return {
-                                    value: `[document ${key[1]}]`,
-                                    label: `[document ${key[1]}]`
-                                }
-                            }
-
+                    }
+                    else
+                        if (key[0] === "PAGE") {
                             if (key[1] === 'image') {
-                                const image = doc[key[1]];
+                                const image = setting[key[1]];
                                 return {
                                     value: image?.src ? image.src : '/images/default/default-img.png',
                                     label: image === undefined ? `[featured image]` : image?.alt || 'Featured Image'
                                 }
                             }
-                            return {
-                                value: doc[key[1]],
-                                label: doc[key[1]] || `[document ${key[1]}]`
+                            if (key[1] === 'creator') {
+                                const creator = setting[key[1]];
+
+                                return {
+                                    value: creator?._id ? creator?._id : '',
+                                    label: creator?.name ? creator?.name : 'Unknown'
+                                }
                             }
-                        } else
+                            if (key[1] === 'createdAt') {
+
+                                const createdAt = setting[key[1]];
+                                if (createdAt)
+                                    return formatDate(createdAt, key[2])
+                                else return `[page ${key[1]}]`
+                            }
+                            if (key[1] === 'status') {
+                                const status = setting[key[1]];
+
+                                return {
+                                    value: status,
+                                    label: status === undefined ? `[page status]` : status ? 'Published' : 'Draft'
+                                }
+                            }
+
                             return {
 
-                                value: setting[key[0]],
-                                label: setting[key[0]] || `[page ${key[0]}]`
+                                value: key[1] === 'content' ? key[1] : setting[key[1]],
+                                label: setting[key[1]] || `[page ${key[1]}]`
                             }
+                        } else
+                            if (key[0] === "NEXTDOCUMNET" || key[0] === 'PREVDOCUMNET') {
+                                const doc = setting[key[0]];
+
+                                if (!doc) {
+                                    return {
+                                        value: `[document ${key[1]}]`,
+                                        label: `[document ${key[1]}]`
+                                    }
+                                }
+
+                                if (key[1] === 'image') {
+                                    const image = doc[key[1]];
+                                    return {
+                                        value: image?.src ? image.src : '/images/default/default-img.png',
+                                        label: image === undefined ? `[featured image]` : image?.alt || 'Featured Image'
+                                    }
+                                }
+                                return {
+                                    value: doc[key[1]],
+                                    label: doc[key[1]] || `[document ${key[1]}]`
+                                }
+                            } else
+                                return {
+
+                                    value: setting[key[0]],
+                                    label: setting[key[0]] || `[page ${key[0]}]`
+                                }
             case 'PROPS':
                 return getStateValue(key, _props) || `[props.${key}]`;
-            case 'STATES': 
+            case 'STATES':
                 return getStateValue(key, _states);
 
             case 'PAGESTATES':
@@ -146,16 +147,16 @@ const ElementSetting = (props) => {
                 }
                 else
                     if (key[0] === 'RELATIONSHIPS' && colStates.relationships) {
-                        if (key[1] >= 0 && key[2])
-                            return colStates.relationships[key[1]][key[2]];
+                        if (colStates.relationships[key[1]])
+                            return colStates.relationships[key[1]];
                         else
-                            return null;
+                            return value;
                     }
                     else
                         if (key[0] === 'PAGES') {
                             return mapIndex + 1;
                         }
-                       
+
                         else {
                             if (key[0] === 'docsLength' && colStates.documents)
                                 return colStates.documents.length || '0';
@@ -254,7 +255,7 @@ const ElementSetting = (props) => {
                 try {
                     cond = eval(orignal);
                 } catch (e) {
-                    console.error("Invalid expression:", e);
+                    message.error("Invalid expression: " + e?.message);
                     return true;
 
                 }
@@ -282,20 +283,16 @@ const ElementSetting = (props) => {
             }
             else {
                 const stateValue = getValue(attribute.valueState, attribute.value);
-                const value = stateValue?.value || stateValue;
-
-                let v = "";
-                if (attribute.key === 'backgroundImage') {
-                    v = value ? `url(${value})` : `url(${attribute.value})`;
-                }
-                if (attribute.key === 'href' && attribute.value) {
-                    const customValue = attribute.value; ///post/[slug]
-
-                    v = value ? customValue.replace(/\[.*?\]/, value) : attribute.value;
+                let value = stateValue?.value || stateValue;
+                if (typeof attribute.value === 'string') {
+                    value = attribute.value.replace(/\[state]/, value);
+                    try {
+                        atrributeValue = eval(value);
+                    } catch (e) {
+                        message.error("Invalid expression: " + e?.message);
+                    }
                 } else
-                    v = value ? value : attribute.value;
-
-                atrributeValue = v;
+                    atrributeValue = value;
             }
 
             const conditions = attribute.conditions;
@@ -325,13 +322,19 @@ const ElementSetting = (props) => {
     const clss = useMemo(() => {
 
 
-        if (!Array.isArray(classes))
+        if (!classes)
             return node.className;
 
-        const list = classes.reduce((a, cls) => {
+        const list = Object.values(classes).reduce((a, cls) => {
             const conditions = cls.conditions;
             const cond = calculateConditions(conditions);
-            const classValue = cond ? cls.name : '';
+
+            let classNames = getValue(cls.stateValue, cls.name);
+
+            classNames = typeof cls.name === 'string' ?
+                cls.name.replace(/\[.*?\]/, classNames?.value || classNames) : ''
+
+            const classValue = cond ? classNames : '';
 
             return a + " " + classValue;
         }, "");
@@ -340,14 +343,42 @@ const ElementSetting = (props) => {
         return node.className + " " + list;
 
 
-    }, [classes, colStates, _states, _props, mapValue, node._uid]);
+    }, [classes, colStates, _states, _props, mapValue, node._uid, node.className]);
+
+    const pattern = /\{\{[^}]*\}\}/g;
+
+    const nodeValue = useMemo(() => {
+
+        if (!node.nodeValue)
+            return '';
+
+        const inputString = node.nodeValue;
+        let resultString = inputString;
+        let match;
+
+        // while ((match = resultString.match(pattern))) {
+        //     const matchedText = match[0];
+        //     const keysString = matchedText.substring(2, matchedText.length - 2);
+        //     const keys = keysString.split('/');
+        //     const modifiedKey = [...keys];
+        //     modifiedKey.shift();
+        //     const elem = { type: keys[0], key: modifiedKey }
+        //     let value = getValue(elem, '');
+        //     value = value?.value || value || '';
+        //     const replacementValue = '[' + value + ']';
+        //     resultString = resultString.replace(matchedText, replacementValue);
+        // }
+
+        return resultString;
+
+    }, [classes, colStates, _states, _props, mapIndex, mapValue, node.nodeValue]);
 
 
-    const fallBackNodeValue = () => {
+    const fallBackNodeValue = (value) => {
 
         switch (node.tagName) {
             case 'img':
-                return node.nodeValue ?
+                return value ?
                     { value: node.src ? node.src.src : './images/default/default-img.png', label: node.src?.alt }
                     :
                     './images/default/default-img.png';
@@ -362,14 +393,14 @@ const ElementSetting = (props) => {
             case 'input':
             case 'textarea':
             case 'option':
-                return node.nodeValue || ''
+                return value || ''
             default:
-                return node.nodeValue || node.childNodes?.length > 0 ? node.nodeValue :
-                    `<span style="user-select: none; color: #cccccc;">${node.layout || node.tagName}</span>`
+                return value || node.childNodes?.length > 0 ? value :
+                    node.layout || node.tagName;
         }
     }
 
-    const nodeValue = node.layout === 'empty' ? '' : fallBackNodeValue();
+    const value = node.layout === 'empty' ? '' : fallBackNodeValue(nodeValue);
 
 
 
@@ -378,7 +409,7 @@ const ElementSetting = (props) => {
     const element = <ElementValue
         {...props}
         state={node.state}
-        nodeValue={nodeValue}
+        nodeValue={value}
         attributes={attr}
         classes={clss}
         conds={conds}

@@ -691,7 +691,7 @@ export const Structure = ({ className = "", elementType = '' }) => {
                         </Div>
                     </Div>
                     <Div style={{ display: 'flex' }}>
-                        <Div style={{ width: 200 }} onClick={(e) => onSelect(e, 'aside')}>
+                     {/*    <Div style={{ width: 200 }} onClick={(e) => onSelect(e, 'aside')}>
                             <em style={{ color: `${elementType == 'aside' ? '#d67822' : 'initial'}` }}>Aside</em>
                             <Div style={{ padding: 8, border: `${elementType == 'aside' ? '2px solid #d67822' : 'none'}` }}>
 
@@ -730,7 +730,7 @@ export const Structure = ({ className = "", elementType = '' }) => {
 
                                 </Aside>
                             </Div>
-                        </Div>
+                        </Div> */}
 
                         <Div onClick={(e) => onSelect(e, 'main')} style={{ flex: 1 }}>
                             <em style={{ color: `${elementType == 'main' ? '#d67822' : 'initial'}` }}>Main</em>
@@ -784,7 +784,7 @@ export const Structure = ({ className = "", elementType = '' }) => {
                                                         <P className={elementType == 'p' && className}>
                                                             This is a paragraph with some <i>italicized</i> and <strong>bolded</strong> text.
 
-                                                            <Img src="https://picsum.photos/id/4/150/150" style={{ float: 'right', marginLeft: '10px' }} />
+                                                            <Img src="https://picsum.photos/id/4/150/150" style={{ float: 'right', marginLeft: '10px', width: 100 }} />
                                                             <br />    <br />
                                                             It also includes an image on the right side of the paragraph.
                                                             <br />
@@ -1566,9 +1566,9 @@ export const Element = ({ classNames, elementType, className, onSelect }) => {
 
                         </Section>
                     </Div>
-                </Div >)
+                </Div>)
             }
-            </div >
+            </div>
         case 'div':
             return <div>{classArray.map(cls =>
                 <Div onClick={(e) => onSelectSelector(e, '.' + cls)} style={{ cursor: 'pointer' }} >

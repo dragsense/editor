@@ -236,7 +236,7 @@ export default function RigthSideBar({
                 <Collapse
                     style={{
                         maxHeight: '100%',
-                        overflow: 'auto',
+                        overflow: 'hidden',
                         backgroundColor: colorBgElevated,
                     }}
                     onChange={handleMenuOpenChange}
@@ -246,29 +246,33 @@ export default function RigthSideBar({
 
                     {keys.includes('1') && <Panel showArrow={false}
                         header="Typeography"
-                        key="1">
+                        key="1"
+                        className='style-item-panel'
+                        >
                         <Typography style={selector?.style} 
                         fonts={fonts} colors={colors} variables={variables}
                         properties={selector?.properties} onChangeStyle={onChange} />
                     </Panel>}
                     {keys.includes('2') && <Panel showArrow={false}
                         header="Size"
-                        key="2">
+                        key="2"
+                        className='style-item-panel'
+                        >
                         <Size style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
                     </Panel>}
                     {keys.includes('3') && <Panel showArrow={false}
                         header="Space"
-                        key="3">
+                        key="3"       className='style-item-panel'>
                         <Spacing style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
                     </Panel>}
                     {keys.includes('4') && <Panel showArrow={false}
                         header="Border"
-                        key="4">
+                        key="4"       className='style-item-panel'>
                         <Border style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
                     </Panel>}
                     {keys.includes('5') && <Panel showArrow={false}
                         header="Background"
-                        key="5">
+                        key="5"       className='style-item-panel'>
                         <Background style={selector?.style}
                         fonts={fonts} colors={colors} variables={variables}
                             properties={selector?.properties}
@@ -276,57 +280,57 @@ export default function RigthSideBar({
                     </Panel>}
                     {keys.includes('6') && <Panel showArrow={false}
                         header="Position"
-                        key="6">
+                        key="6"       className='style-item-panel'>
                         <Position style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
                     </Panel>}
                     {keys.includes('7') && <Panel showArrow={false}
                         header="Display"
-                        key="7">
+                        key="7"       className='style-item-panel'>
                         <Display style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
                     </Panel>}
 
                     {keys.includes('8') && <Panel showArrow={false}
                         header="Shadow"
-                        key="8">
+                        key="8"       className='style-item-panel'>
                         <Shadow style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
                     </Panel>}
 
                     {keys.includes('9') && <Panel showArrow={false}
                         header="Transform"
-                        key="9">
+                        key="9"       className='style-item-panel'>
                         <Transform style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
                     </Panel>}
 
                     {keys.includes('10') && <Panel showArrow={false}
                         header="Transition"
-                        key="10">
+                        key="10"       className='style-item-panel'>
                         <Transition style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
                     </Panel>}
 
                     {(keys.includes('11') && !animation) && <Panel showArrow={false}
                         header="Animation"
-                        key="11">
+                        key="11"       className='style-item-panel'>
                         <Animation style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
                     </Panel>}
 
                     {(keys.includes('12')) && <Panel showArrow={false}
                         header="Filter"
-                        key="12">
+                        key="12"       className='style-item-panel'>
                         <Filter style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
                     </Panel>}
                     {(keys.includes('13')) && <Panel showArrow={false}
                         header="Svg"
-                        key="13">
+                        key="13"       className='style-item-panel'>
                         <Svg style={selector?.style} fonts={fonts} colors={colors} variables={variables} onChangeStyle={onChange} properties={selector?.properties} />
                     </Panel>}
                     {(keys.includes('14')) && <Panel showArrow={false}
                         header="List"
-                        key="14">
+                        key="14"       className='style-item-panel'>
                         <List style={selector?.style} fonts={fonts} colors={colors} variables={variables} onChangeStyle={onChange} properties={selector?.properties} />
                     </Panel>}
                     {(keys.includes('15')) && <Panel showArrow={false}
                         header="Cursor"
-                        key="15">
+                        key="15"       className='style-item-panel'>
                         <Cursor style={selector?.style} fonts={fonts} colors={colors} variables={variables} onChangeStyle={onChange} properties={selector?.properties} />
                     </Panel>}
 

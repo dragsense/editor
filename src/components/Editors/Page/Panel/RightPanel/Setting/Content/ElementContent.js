@@ -27,6 +27,22 @@ export default function ElementContent({ cascaderStates, state, setState,
         setIsChange(true);
     }
 
+    const onChangeValue = (value) => {
+
+        if (!state.attributes) {
+            state.attributes = {};
+        }
+
+        if (state.attributes['type']?.value !== "'number'")
+            state.attributes["value"] = { key: 'value', value: `'${value}'` };
+        else
+            state.attributes["value"] = { key: 'value', value };
+        setState({ ...state });
+
+
+        setIsChange(true);
+    }
+
     const onChangeState = (keys) => {
 
 
@@ -51,8 +67,7 @@ export default function ElementContent({ cascaderStates, state, setState,
 
 
     const onChangeLabelPos = (val) => {
-        const label = val;
-        setState({ ...state, labelPos: label });
+        setState({ ...state, labelPos: val });
         setIsChange(true);
     };
 
@@ -76,16 +91,16 @@ export default function ElementContent({ cascaderStates, state, setState,
 
     }
 
-    const srcs =  type == 'images' ? state.src : [...(state.srcs ? state.srcs : [])];
+    const srcs = type == 'images' ? state.src : [...(state.srcs ? state.srcs : [])];
 
 
     return (
         <>
-            <Form layout="vertical"
+            {state.attributes['type']?.value !== "'file'" && <><Form layout="vertical"
                 initialValues={{}}
             >
 
-                {(['checkbox', 'radio'].includes(state.attributes['type']?.value) || state.tagName == 'select') ? <>
+                {(["'checkbox'", "'radio'"].includes(state.attributes['type']?.value) || state.tagName == 'select') ? <>
                     <Form.Item
                         label="Enter option values"
                     >
@@ -110,45 +125,37 @@ export default function ElementContent({ cascaderStates, state, setState,
                             </Select>
                         </Form.Item>}
                 </>
-                    :
+                    : state.tagName == 'input' && state.attributes['type']?.value !== "'file'" ?
 
-                    (state.tagName == 'video' || state.tagName == 'audio') ? <>
-
-                        <Form.Item label="srcs:">
-                            <Button onClick={() => {
-                                setType('videos')
-
-                                setMediaModal(true)
-                            }} icon={<UploadOutlined />}>Upload</Button>
-                            <br/>
-                            <br/>
-                            {Array.isArray(state.srcs) && state.srcs.map((src, index) => (
-                                <Video src={src.src} alt={src.alt} mimetype={src.mimetype} />
-                            ))}
+                        <Form.Item label="Enter value">
+                            <Input
+                                placeholder="Default Value"
+                                value={state.attributes['value']?.value.replace(/^'|'$/g, '')}
+                                type={
+                                    state.attributes['type']?.value !== "'submit'"
+                                        ? state.attributes['type']?.value.replace(/^'|'$/g, '')
+                                        : 'text' // Default to 'text' if 'type' is not defined
+                                }
+                                onChange={(e) => onChangeValue(e.target.value)}
+                            />
                         </Form.Item>
-                        {state.tagName == 'video' && <Form.Item label="Poster">
-                            <Image
-                                width="100%"
-                                onClick={() => {
-                                    setType('images')
+                        :
+
+                        (state.tagName == 'video' || state.tagName == 'audio') ? <>
+
+                            <Form.Item label="srcs:">
+                                <Button onClick={() => {
+                                    setType('videos')
 
                                     setMediaModal(true)
-                                }}
-                                preview={false}
-                                style={{
-                                    width: '100%',
-                                    objectFit: 'cover',
-                                    objectPosition: 'center',
-                                    height: '120px',
-                                    cursor: 'pointer'
-                                }}
-                                alt="video poster"
-                                src={state.src?.src}
-                                fallback="./images/default/default-poster.png" />
-                        </Form.Item>} </>
-                        : state.tagName == 'img' ?
-
-                            <Form.Item label="Image">
+                                }} icon={<UploadOutlined />}>Upload</Button>
+                                <br />
+                                <br />
+                                {Array.isArray(state.srcs) && state.srcs.map((src, index) => (
+                                    <Video src={src.src} alt={src.alt} mimetype={src.mimetype} />
+                                ))}
+                            </Form.Item>
+                            {state.tagName == 'video' && <Form.Item label="Poster">
                                 <Image
                                     width="100%"
                                     onClick={() => {
@@ -164,18 +171,44 @@ export default function ElementContent({ cascaderStates, state, setState,
                                         height: '120px',
                                         cursor: 'pointer'
                                     }}
-                                    alt={state.src?.alt}
+                                    alt="video poster"
                                     src={state.src?.src}
-                                    fallback="./images/default/default-img.png" />
+                                    fallback="./images/default/default-poster.png" />
+                            </Form.Item>} </>
+                            : state.tagName == 'img' ?
 
-                            </Form.Item>
+                                <Form.Item label="Image">
+                                    <Image
+                                        width="100%"
+                                        onClick={() => {
+                                            setType('images')
 
-                            :
+                                            setMediaModal(true)
+                                        }}
+                                        preview={false}
+                                        style={{
+                                            width: '100%',
+                                            objectFit: 'cover',
+                                            objectPosition: 'center',
+                                            height: '120px',
+                                            cursor: 'pointer'
+                                        }}
+                                        alt={state.src?.alt}
+                                        src={state.src?.src}
+                                        fallback="./images/default/default-img.png" />
 
+                                </Form.Item>
 
-                            <Form.Item label="Content" className="font-500">
-                                <ContentEditor disabled={state.tagName == 'hr'} state={state} onChange={onChange} />
-                            </Form.Item>
+                                :
+
+                                state.attributes['type']?.value !== "'file'" &&
+                                <Form.Item label="Content" className="font-500">
+                                    <ContentEditor
+                                        disabled={state.tagName == 'hr'}
+                                        cascaderStates={cascaderStates}
+                                        state={state}
+                                        onChange={onChange} />
+                                </Form.Item>
                 }
 
                 <Divider orientation="center" orientationMargin="0">Dynamic Value</Divider>
@@ -193,10 +226,10 @@ export default function ElementContent({ cascaderStates, state, setState,
 
             </Form>
 
-            <MediaModal open={mediaModal} 
-            multiple={type == 'videos'}
-            type={type} 
-            onClose={() => setMediaModal(false)} srcs={srcs} onSelect={onChangeMedia} />
+            <MediaModal open={mediaModal}
+                multiple={type == 'videos'}
+                type={type}
+                onClose={() => setMediaModal(false)} srcs={srcs} onSelect={onChangeMedia} /> </>}
 
         </>
 

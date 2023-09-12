@@ -45,15 +45,20 @@ const InnerComponent = ({ children, document, onLoad }) => {
             else
               if (Array.isArray(fontSrc)) {
                 try {
-
+  
+                  const styleElement = document.createElement('style');
+                  styleElement.textContent = '';
+  
                   for (const src of fontSrc) {
-
-                    const fontFace = new FontFace(fontFamily, `url(${src.src}) format('${src.format}')`);
-                    await fontFace.load();
-                    document.fonts.add(fontFace);
-
-
+                    styleElement.textContent += `
+                      @font-face {
+                        font-family: "${fontFamily}";
+                        src: url("${src.src}");
+                      }
+                    `;
                   }
+  
+                  document.head.appendChild(styleElement);
                 } catch (error) {
                   message.error(`Failed to load ${fontFamily} font: ${error}`);
                 }

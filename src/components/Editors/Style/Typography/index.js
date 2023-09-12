@@ -72,8 +72,6 @@ export default function Typography({ style, fonts, variables, colors,
         }
 
 
-        console.log(properties)
-
         const priorities = {};
 
         for (const key in stylePriority) {
@@ -231,7 +229,6 @@ export default function Typography({ style, fonts, variables, colors,
 
     const fontSzies = variables.filter((variable) => variable.type === 'font').map((v, i) => { return { variable: v.variable, label: v.name, key: i } });
 
-    console.log(fontSzies)
 
     return !isEmpty(style) ? <>
         <Collapse defaultActiveKey={['1']} accordion ghost>

@@ -25,7 +25,7 @@ const StateList = ({ states }) => {
 
                     let options = null;
                     if (inputLayout === 'inputgroup' || inputLayout === 'select') {
-                      options = Object.values(item.states).flatMap((value) => value).join(',')
+                      options = Object.values(item.states).map((value) => value.value).join(',')
                     }
 
 
@@ -45,12 +45,18 @@ const StateList = ({ states }) => {
 
                         "name": {
                           "key": "name",
-                          "value": item.key
+                          "value": `'${item.key}'`
                         },
+                        ...(item.type == 'file' && {
+                          "type": {
+                            "key": "accept",
+                            "value": `'${item?.acceptOptions}'`
+                          }
+                        }),
                         ...(inputLayout !== 'select' && {
                           "type": {
                             "key": "type",
-                            "value": item.type
+                            "value": `'${item.type}'`
                           }
                         }),
                         ...(
@@ -61,22 +67,23 @@ const StateList = ({ states }) => {
                           inputLayout !== 'select' && {
                             "placeholder": {
                               "key": "placeholder",
-                              "value": item.placeholder
+                              "value": `'${item.placeholder}'`
                             }
                           }),
                         ...(item.multiple && {
                           "multiple": {
                             "key": "multiple",
-                            "value": item.multiple
+                            "value": `'${item.multiple}'`
                           }
                         }),
                         "required": {
                           "key": "required",
-                          "value": item.required
+                          "value": `'${item.required}'`
                         }
                       },
                       "options": options,
                       "type": "form",
+                      "fieldType": item.type,
                       "form": "formInput",
                       "key": item.key,
                       "label": item.label,
@@ -84,6 +91,7 @@ const StateList = ({ states }) => {
                       "errorMessage": item.errorMessage,
 
                     }
+
 
                     e.dataTransfer.setData('text/plain', JSON.stringify(tag));
                   }}

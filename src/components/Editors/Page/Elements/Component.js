@@ -6,6 +6,7 @@ import ElementMapping from './ElementMapping';
 
 import { InlineSkeleton } from './Elements'
 import { getData, storeData, getAllData } from "../../../../lib/db";
+import { formatDate } from "../../../../lib/utils";
 
 import { getStateValue, updateStateValue, generateCascaderCollStates, getStateRef, generateCascader } from '../../../../lib/element/elementNode';
 import DocumentServices from '../../../../lib/services/documents'
@@ -105,6 +106,7 @@ const generateCollectionStates = async (collection) => {
     const collStates = generateCascaderCollStates({
         docsLength: 0,
         loading: 0,
+        error: 0,
         maxPage: 0,
         states: collection.states || {},
     }, "COLLECTION", "COLSTATES")
@@ -154,7 +156,7 @@ const generateFormStates = (form) => {
         label: 'SETTING', value: '__setting__',
         children: [
             {
-                label: "LAODING", value: 'laoding',
+                label: "LOADING", value: 'loading',
             },
             {
                 label: 'SUCCESSMSG', value: 'successMessage',
@@ -188,10 +190,12 @@ const Component = (props) => {
     const { component, node, _states, _setStates, children, _id, onUpdateStates } = props;
 
     const [states, setStates] = useState({});
+    const [events, setEvents] = useState({});
+
     const [loading, setLoading] = useState(false);
 
 
-    const [colStates, setColStates] = useState({ loading: 0 });
+    const [colStates, setColStates] = useState({ loading: 0, error: 0 });
     const [colPanelStates, setPanelColStates] = useState(null);
     const [panelStates, setPanelStates] = useState(null);
     const [isFilterChange, setFilters] = useState(false);
@@ -219,6 +223,11 @@ const Component = (props) => {
                                 onUpdateStates('COLLECTION', cascaderStates, setPanelColStates)
                             }
 
+                            const relationships = collection.populatedRelationships.reduce((result, rel) => {
+                                result[rel._id] = rel.name;
+                                return result;
+                            }, {});
+
                             const states = {
                                 ...node.collStates,
                                 name: collection.name,
@@ -227,7 +236,7 @@ const Component = (props) => {
                                 createdAt: collection.createdAt,
                                 url: collection.url,
                                 states: collection.states,
-                                relationships: collection.populatedRelationships,
+                                relationships,
                                 setting: collection.setting,
                                 _id: collection._id
                                 , loading: 1
@@ -239,6 +248,7 @@ const Component = (props) => {
                         }
 
                     }
+                    setEvents(node.events);
                     setStates({
                         ...node.states,
                         ...(node.type === 'form' ? {
@@ -262,8 +272,12 @@ const Component = (props) => {
                                 const cascaderStates = generateCascader(node.props || {}, 'PROPS', 'PROPS')
                                 onUpdateStates('PROPS', cascaderStates, null)
                             }
+
+                            onUpdateStates('EVENTS', [], setEvents)
+
                         }
                     }
+
 
                 }
 
@@ -289,6 +303,7 @@ const Component = (props) => {
                 return getStateValue(key, _states);
             case 'STATES':
                 return getStateValue(key, states);
+
             default:
                 return value;
         }
@@ -313,18 +328,22 @@ const Component = (props) => {
 
             let defaultValue = getValue({ type, key }, value);
 
+            if (typeof defaultValue === 'string') {
+                if (defaultValue.includes('all'))
+                    defaultValue = '';
+            }
 
             // if (key[0] == '__relationship__')
             //     defaultValue = filter.defaultRelationshipsFilter?.map(val => val._id);
 
-            return { filterKey: [filter.type, ...filter.filterKey], defaultValue: defaultValue || '' }
+            return { name: filter.name, filterKey: [filter.type, ...filter.filterKey], defaultValue: defaultValue || '' }
         }
         )
 
 
         return _filters;
 
-    }, [colStates.filters]);
+    }, [colStates.filters, states, _states]);
 
 
     const laodDocumnents = async (collection) => {
@@ -345,7 +364,8 @@ const Component = (props) => {
 
 
             if (Array.isArray(docs) && docs?.length > 0) {
-                const res = await DocumentServices.getFilteredDocuments(collectionId, { documentIds: docs.map(doc => doc._id), selectedRelationships, withRelationship });
+                const res = await DocumentServices.getFilteredDocuments(collectionId, { documentIds: docs.map(doc => doc._id), filters, selectedRelationships, withRelationship });
+                console.log(res)
 
                 documents = Array.isArray(res.documents) ? res.documents : [];
                 maxPage = res.total;
@@ -365,30 +385,29 @@ const Component = (props) => {
                 maxPage = res.total;
 
                 if (loadMore)
-                    documents = [...collection.documents, ...documents];
+                    documents = [...(collection.documents || []), ...documents];
 
             }
 
-
-            setColStates({
+            const newSatates = {
                 ...collection,
+                page,
                 documents,
                 states,
                 maxPage,
                 loading: 0
-            });
+            }
 
-
-
-
-
+            setTimeout(async () => {
+                setColStates(newSatates);
+            }, 1000);
 
 
         } catch (e) {
-            console.log(e?.message)
             setColStates({
                 ...collection,
-                loading: 0
+                loading: 0,
+                error: 1,
             });
         } finally {
 
@@ -399,9 +418,11 @@ const Component = (props) => {
 
     useEffect(() => {
         loadComponent();
+
+
+
+
     }, [])
-
-
 
 
     useEffect(() => {
@@ -411,7 +432,7 @@ const Component = (props) => {
             return;
 
         //debounce((colStates) => {
-        setColStates({ ...colStates, loading: 0 });
+        setColStates({ ...colStates, loading: 1, error: 0 });
 
         laodDocumnents(colStates);
         // }, 500);
@@ -419,8 +440,80 @@ const Component = (props) => {
         setFilters(false);
 
 
-    }, [states])
+    }, [states, _states])
 
+    const onScroll = (onScroll, iframeDocument) => {
+
+        if (!onScroll)
+            return;
+
+
+        const scrollTop = iframeDocument.pageYOffset;
+        const scrollLeft = iframeDocument.pageXOffset;
+        const delta = onScroll.delta;
+
+        if (onScroll?.valueX || onScroll?.valueY) {
+
+            let valueX = '';
+
+            if (onScroll?.valueX) {
+                valueX = onScroll.valueX.replace(/\[left]/g, scrollLeft);
+
+                valueX = valueX.replace(/\[top]/g, scrollTop);
+                valueX = valueX.replace(/\[delta]/g, delta);
+            }
+
+            let valueY = '';
+            if (onScroll?.valueY) {
+                valueY = onScroll.valueY?.replace(/\[top]/g, scrollTop);
+                valueY = valueY.replace(/\[left]/g, scrollLeft);
+                valueY = valueY.replace(/\[delta]/g, delta);
+            }
+
+
+            try {
+                valueX = eval(valueX);
+                valueY = eval(valueY);
+
+
+
+            } catch (e) {
+                message.error("Invalid expression:" + e?.message);
+
+            }
+
+            onChange([{ elem: onScroll.stateValueX || {}, value: valueX }, { elem: onScroll.stateValueY || {}, value: valueY }], node, null);
+        }
+
+    }
+
+
+
+    useEffect(() => {
+        if (!events) return;
+      
+        const iframe = document.querySelector("#ac-editor-iframe-doc");
+      
+        const handleScroll = (e) => {
+          e.preventDefault();
+          for (const key in events) {
+            onScroll(events[key], iframe.contentWindow);
+          }
+        };
+      
+        if (iframe) {
+          const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+          iframeDocument.addEventListener('scroll', handleScroll);
+        }
+      
+        return () => {
+          const iframe = document.querySelector("#ac-editor-iframe-doc");
+          if (iframe) {
+            const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+            iframeDocument.removeEventListener('scroll', handleScroll);
+          }
+        };
+      }, [events]);
 
     useEffect(() => {
 
@@ -438,11 +531,11 @@ const Component = (props) => {
         if (!component.disabled) {
 
             if (node.type === 'form') {
-                const cascaderStates = generateFormStates(panelStates, 'FORM', _id)
+                const cascaderStates = generateFormStates(panelStates, 'FORM', 'FORMSTATES')
                 onUpdateStates('FORMSTATES', cascaderStates, setPanelStates)
 
             } else {
-                const cascaderStates = generateCascader(panelStates, 'STATES', _id)
+                const cascaderStates = generateCascader(panelStates, 'STATES', 'STATES')
                 onUpdateStates('STATES', cascaderStates, setPanelStates)
             }
         }
@@ -452,11 +545,18 @@ const Component = (props) => {
 
 
 
-    const setValue = async (elem, value, withValue) => {
+    const setValue = useCallback(async (elem, value, withValue) => {
         const type = elem.type;
         const key = elem.key;
 
-        const isFilterKey = Object.values(colStates.filters || {}).some(filter => filter.triggerKey === key && filter.triggerType === type);
+        const isFilterKey = Object.values(colStates.filters || {}).some(filter => {
+            return (
+                filter.triggerType === type && // Check if triggerType matches
+                filter.triggerKey.some(trigger => key.includes(trigger)) // Check for intersection
+            );
+        });
+
+
         setFilters(isFilterKey);
 
         switch (type) {
@@ -464,33 +564,47 @@ const Component = (props) => {
                 updateStateValue(elem, withValue, _states, value);
                 _setStates({ ..._states });
             case 'STATES':
+
                 updateStateValue(elem, withValue, states, value);
                 setStates({ ...states });
-            case 'COLLECTION':
-
+            case 'COLSTATES':
                 if (key[0] === 'page') {
 
-                    if (isNaN(value))
+                    if (isNaN(value) || isNaN(withValue))
                         value = colStates.page;
 
                     const totalPages = Math.ceil(colStates.maxPage / colStates.limit);
+                    const page = { max: totalPages, min: 1, defaultValue: colStates.page }
+                    updateStateValue(elem, withValue, { page }, value);
 
+                    if (colStates.page === page.defaultValue)
+                        return;
 
+                    if (colStates.loadMore) {
 
-                    if (!colStates.loadMore) {
-                        const page = { max: totalPages + 1, min: 1, defaultValue: colStates.page }
-
-                        updateStateValue({ key, value: "[withvalue]+[value]" }, withValue, { page }, value);
-
-                        if (page.defaultValue >= totalPages + 1)
+                        if (Math.abs(colStates.page - page.defaultValue) > 1) {
                             return;
+                        }
 
-                        laodDocumnents({ ...colStates, page: page.defaultValue });
+                        if (colStates.page < page.defaultValue) {
+                            setColStates({ ...colStates, loading: 1, error: 0 });
+
+                            await laodDocumnents({ ...colStates, page: page.defaultValue });
+                        } else if (colStates.page > page.defaultValue - 1) {
+                            const documents = colStates.documents.slice(0, -(colStates.limit || 1))
+                            setColStates({ ...colStates, page: page.defaultValue, documents })
+                        }
+
+
+                    } else {
+                        setColStates({ ...colStates, loading: 1, error: 0 });
+                        await laodDocumnents({ ...colStates, page: page.defaultValue });
+
                     }
+
                 }
 
             case 'FORMSTATES':
-
                 if (states[key[0]]) {
                     states[key[0]][key[1]] = value
                     setStates({ ...states });
@@ -499,7 +613,7 @@ const Component = (props) => {
         }
 
 
-    }
+    }, [states, colStates, _states])
 
     const onSetStates = useCallback(async (key, value, type) => {
 
@@ -522,7 +636,7 @@ const Component = (props) => {
 
     }, [states, _states])
 
-    const onClick = useCallback(async (node, stateValue, withValue) => {
+    const onClick = useCallback((node, stateValue, withValue) => {
 
         //const node = await getData(_id, id);
         if (node && node.onClick) {
@@ -530,47 +644,119 @@ const Component = (props) => {
             setValue(onclick, stateValue?.value || stateValue, withValue?.value || withValue);
         }
 
-    }, [states, colStates])
+    }, [states, colStates, _states])
 
-    const onChange = useCallback(async (node, value, all = false) => {
+    const onChange = useCallback(async (values, node, all = false) => {
 
         //const node = await getData(_id, id);
-        setValue(node.onChange, value, '');
+        for (const elem of values) {
 
-        if (node && node.state) {
+            let value = elem.value;
+            const onChange = elem.elem;
 
 
-            if (all && node.map) {
+            if (value === 'all' && all) {
+                let options = [];
 
-                if (value.includes('all')) {
+                if (node.options) {
+                    options = node.options.split(",");
+                    options = Object.values(options).map((val) => val.split(":")[0]);
+                }
+
+                if (node.map) {
+                    let statesRef = {};
                     const maKey = node.map.key;
                     const mapType = node.map.type;
-                    let map = null;
-                    if (mapType == 'STATES')
-                        map = getStateRef(maKey, states);
-                    else
-                        map = getStateRef(maKey, states);
 
-                    if (map) {
-                        const states = Object.values(map.states).map((val) => val.split(":")[0]);
-                        let options = node.options.split(",");
-                        options = Object.values(options).map((val) => val.split(":")[0]);
-                        value = [...(new Set([...options, ...states]))].join(',');
+
+                    if (mapType == 'STATES')
+                        statesRef = getStateRef(maKey, states);
+                    else
+                        if (mapType == 'PROPS')
+                            statesRef = getStateRef(maKey, _states);
+                    if (mapType == 'COLSTATES') {
+                        statesRef.states = {};
+
+                        if (maKey[0] === 'DOCUMENTS' && colStates.documents) {
+
+
+                            statesRef.states = colStates.documents.reduce((result, doc, idx) => {
+                                result[idx] = { value: doc._id + ":" + doc.name, idx };
+                                return result;
+                            }, {});
+
+
+
+                        } else
+                            if (maKey[0] === 'RELATIONSHIPS' && colStates.populatedRelationships) {
+                                const docs = colStates.populatedRelationships[maKey[1]];
+
+                                if (docs)
+                                    statesRef.states = docs.reduce((result, rel, idx) => {
+                                        result[idx] = { value: rel._id + ":" + rel.name, idx };
+                                        return result;
+                                    }, {});
+                            } else if (maKey[0] === 'PAGES') {
+
+                                const totalPages = Math.ceil(colStates.maxPage / colStates.limit);
+                                const pageArray = Array.from({ length: totalPages }, (_, index) => index + 1);
+
+                                if (pageArray.length > 0)
+                                    statesRef.states = pageArray.reduce((result, index, idx) => {
+                                        result[idx] = { value: index, idx };
+                                        return result;
+                                    }, {});
+                            }
+                    }
+
+
+                    if (statesRef && statesRef.states) {
+                        const states = Object.values(statesRef.states).map((val) => val.value.split(":")[0]);
+                        options = [...(new Set([...options, ...states]))];
 
                     }
-                } else
-                    value = ''
+                }
+
+
+                value = options.join(',');
+
             }
 
+            setValue(onChange, value, '');
 
+            // if (node && node.state) {
+            //     if (all && node.map) {
+
+            //         if (value.includes('all')) {
+            //             const maKey = node.map.key;
+            //             const mapType = node.map.type;
+            //             let map = null;
+            //             if (mapType == 'STATES')
+            //                 map = getStateRef(maKey, states);
+            //             else
+            //                 map = getStateRef(maKey, states);
+
+            //             if (map) {
+            //                 const states = Object.values(map.states).map((val) => val.split(":")[0]);
+            //                 let options = node.options.split(",");
+            //                 options = Object.values(options).map((val) => val.split(":")[0]);
+            //                 value = [...(new Set([...options, ...states]))].join(',');
+
+            //             }
+            //         } else
+            //             value = ''
+            //     }
+
+
+            // }
         }
 
-    }, [states])
+    }, [states, colStates, _states])
 
 
     const onSubmit = useCallback((states) => {
         setStates({ ...states });
-    }, [states])
+    }, [states])  
 
 
     return <span style={{ border: '#ff7875 solid 1px', display: 'inline-block', width: '-webkit-fill-available' }}
@@ -582,11 +768,14 @@ const Component = (props) => {
                 _props={_states}
                 disabled={component.disabled}>
 
-                {React.Children.map(children, (child) => {
+                {React.Children.map(children, (child, index) => {
                     return child && React.cloneElement(child, {
-                        onChange: onChange,
-                        onClick: onClick,
-                        onSubmit: onSubmit,
+                        key: index,
+                        fun: {
+                            onChange,
+                            onClick,
+                            onSubmit
+                        },
                         disabled: component.disabled,
                         _id: component._id,
                         _states: states,

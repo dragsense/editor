@@ -164,8 +164,11 @@ const ElementComponent = (props) => {
         onClick={onClick}>
         {React.Children.map(children, (child) => {
             return child && React.cloneElement(child, {
-                onChange: onChange,
+                fun: {
+                    onChange: onChange,
                 onClick: onClick,
+                },
+               
                 _cstates: states,
                 updateStates: updateStates
             })

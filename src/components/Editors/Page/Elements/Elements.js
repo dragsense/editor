@@ -24,7 +24,7 @@ export function InlineSkeleton() {
 function TreeNode(props) {
 
 
-  let { _uid, pos, _id, pageUpdated, _states, _props, colStates, _cstates, pageType } = props;
+  let { _uid, pos, _id, pageUpdated, _states, fun, _props, colStates, _cstates, pageType } = props;
 
 
 
@@ -100,7 +100,7 @@ function TreeNode(props) {
 
 
     fetchNode();
- 
+
   }, [pageUpdated]);
 
   const component = node.page?.pageType === 'component' ? { ...node.page, disabled: true } : null;
@@ -110,7 +110,11 @@ function TreeNode(props) {
   const rootForm = pageType === 'form' ? { _id } : null;
 
 
-  return (<ElementWrapper key={_uid}
+  return <>
+
+
+ 
+  <ElementWrapper key={_uid}
     {...props}
     component={rootComponent || component}
     customPath={node.customPath}
@@ -121,15 +125,17 @@ function TreeNode(props) {
     _states={_states}
     _props={_props}
     node={node}>
+
     {children.map((child, i) => React.cloneElement(child, {
       pos: pos + i,
       _states,
       _cstates,
       _props,
       colStates,
+      fun,
       pageUpdated
     }))}
-  </ElementWrapper>);
+  </ElementWrapper></>;
 }
 const MemoizedTreeNode = React.memo(TreeNode, (prevProps, nextProps) => {
   const pattern = new RegExp(prevProps.pos);
@@ -139,6 +145,8 @@ const MemoizedTreeNode = React.memo(TreeNode, (prevProps, nextProps) => {
   const states = prevProps._states === nextProps._states &&
     prevProps._props === nextProps._props &&
     prevProps.colStates === nextProps.colStates &&
+    prevProps.fun === nextProps.fun &&
+
     prevProps._cstates === nextProps._cstates;
 
   const allUpdate = prevProps.pageUpdated?.allUpdate === nextProps.pageUpdated?.allUpdate;
@@ -164,10 +172,12 @@ export default function Elements({ pageUpdated, _id, onUpdateStates }) {
       if (page) {
         setType(page.type);
 
-    
+
         const res = await SettingServices.get();
-        const data = { name: page.name, url: page.url, createdAt: page.createdAt, creator: page.creator,
-           ...(page.setting || {}), global: { ...res.setting } };
+        const data = {
+          name: page.name, url: page.url, createdAt: page.createdAt, creator: page.creator,
+          ...(page.setting || {}), global: { ...res.setting }
+        };
         setSetting(data)
       }
 
@@ -176,12 +186,13 @@ export default function Elements({ pageUpdated, _id, onUpdateStates }) {
     fetchNode();
   }, [_id]);
 
-  return setting && <MemoizedTreeNode
+  return <>
+{setting && <MemoizedTreeNode
     pageUpdated={pageUpdated}
     onUpdateStates={onUpdateStates}
     pageType={pageType}
     pos={""}
     setting={setting}
     _id={_id}
-    _uid={"0"} />
+    _uid={"0"} />}</>
 }

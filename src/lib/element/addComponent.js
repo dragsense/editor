@@ -119,11 +119,11 @@ const createMenu = async (tag, state, document) => {
         attributes: {
             "href": {
                 "key": "href",
-                "value": "#",
+                "value": "'#'",
             },
             "target": {
                 "key": "target",
-                "value": "_self",
+                "value": "'_self'",
             }
         },
         className: "menu-link",
@@ -1853,11 +1853,11 @@ export const createMenuItem = async (
             listItemLink.attributes = {
                 href: {
                     key: "href",
-                    value: element.link,
+                    value: `'${element.link}'`,
                 },
                 target: {
                     key: "target",
-                    value: element.target,
+                    value: `'${element.target}'`,
                 },
             }
 
@@ -1913,11 +1913,11 @@ export const createMenuItem = async (
             listItemLink.attributes = {
                 href: {
                     key: "href",
-                    value: element.link,
+                    value: `'${element.link}'`,
                 },
                 target: {
                     key: "target",
-                    value: element.target,
+                    value: `'${element.target}'`,
                 },
             }
 
@@ -2099,7 +2099,6 @@ const createObservable = async (state, document) => {
         layout: "observable",
         nodeValue: '',
         childNodes: [],
-        classes: [],
         className: className,
         selector: "." + className,
         states: componentStates
@@ -2134,7 +2133,7 @@ const createSearchable = async (state, document) => {
         name: "search input",
         type: 'inputs',
         layout: "input",
-        attributes: { type: { key: "type", value: 'text' }, placeholder: { key: "placeholder", value: "Search..." } },
+        attributes: { type: { key: "type", value: "'text'" }, placeholder: { key: "placeholder", value: "'Search...'" } },
         state: {
             type: 'Searchable',
             key: ["searchText", "defaultValue"]
@@ -2158,7 +2157,7 @@ const createSearchable = async (state, document) => {
         type: 'inputs',
         layout: "button",
         attributes: {
-            type: { key: "type", value: 'button' }
+            type: { key: "type", value: "'button'" }
         },
         onClick: {
             type: 'Searchable',

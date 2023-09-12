@@ -9,7 +9,7 @@ const { Option } = Select;
 
 const displays = ['none', 'block', 'inline', 'inline-block', 'flex', 'inline-flex', 'grid', 'inline-grid', 'table', 'table row', 'contents', 'list item', 'flow root', 'inherit'];
 
-const aligns = ['baseline','sub','super','top','text-top','middle','bottom','text-bottom']
+const aligns = ['baseline', 'sub', 'super', 'top', 'text-top', 'middle', 'bottom', 'text-bottom']
 
 export default function _Display({ type, properties, onChangeStyle,
     style, stylePriority, setStylePriority }) {
@@ -25,7 +25,7 @@ export default function _Display({ type, properties, onChangeStyle,
         style.setProperty('display', value, stylePriority.display);
 
 
-       onChangeStyle(); setStylePriority({ ...stylePriority });
+        onChangeStyle(); setStylePriority({ ...stylePriority });
 
     }
 
@@ -36,7 +36,17 @@ export default function _Display({ type, properties, onChangeStyle,
         properties['visibility'].value = value;
         style.setProperty('visibility', value, stylePriority.visibility);
 
-       onChangeStyle(); setStylePriority({ ...stylePriority });
+        onChangeStyle(); setStylePriority({ ...stylePriority });
+    }
+
+    const onChangeBFVisiblity = (value) => {
+        if (!properties['backface-visibility'])
+            properties['backface-visibility'] = {};
+
+        properties['backface-visibility'].value = value;
+        style.setProperty('backface-visibility', value, stylePriority.backfaceVisibility);
+
+        onChangeStyle(); setStylePriority({ ...stylePriority });
     }
 
     const onChangeVerticleAlign = (value) => {
@@ -46,7 +56,7 @@ export default function _Display({ type, properties, onChangeStyle,
         properties['vertical-align'].value = value;
         style.setProperty('vertical-align', value, stylePriority.verticalAlign);
 
-       onChangeStyle(); setStylePriority({ ...stylePriority });
+        onChangeStyle(); setStylePriority({ ...stylePriority });
     }
 
     const onChangeOpacity = (value) => {
@@ -55,7 +65,7 @@ export default function _Display({ type, properties, onChangeStyle,
 
         properties['opacity'].value = value;
         style.setProperty('opacity', value, stylePriority.opacity);
-       onChangeStyle(); setStylePriority({ ...stylePriority });
+        onChangeStyle(); setStylePriority({ ...stylePriority });
 
     }
 
@@ -65,7 +75,7 @@ export default function _Display({ type, properties, onChangeStyle,
 
         properties['z-index'].value = value;
         style.setProperty('z-index', value, stylePriority.zIndex);
-       onChangeStyle(); setStylePriority({ ...stylePriority });
+        onChangeStyle(); setStylePriority({ ...stylePriority });
 
     }
 
@@ -78,12 +88,12 @@ export default function _Display({ type, properties, onChangeStyle,
         setStylePriority({ ...stylePriority, [name]: priority })
 
         if (!properties[_name])
-        properties[_name] = {};
+            properties[_name] = {};
 
         properties[_name].priority = priority;
 
         style.setProperty(_name, style[name], priority);
-       onChangeStyle(); 
+        onChangeStyle();
 
     }
 
@@ -105,7 +115,7 @@ export default function _Display({ type, properties, onChangeStyle,
                         e.preventDefault();
                         if (properties["display"])
                             delete properties["display"];
-                       onChangeStyle(); setStylePriority({ ...stylePriority, display: '' });
+                        onChangeStyle(); setStylePriority({ ...stylePriority, display: '' });
                         style.removeProperty('display');
                     }}
                 />
@@ -133,7 +143,7 @@ export default function _Display({ type, properties, onChangeStyle,
                         e.preventDefault();
                         if (properties["vertical-align"])
                             delete properties["vertical-align"];
-                       onChangeStyle(); setStylePriority({ ...stylePriority, verticalAlign: '' });
+                        onChangeStyle(); setStylePriority({ ...stylePriority, verticalAlign: '' });
                         style.removeProperty('vertical-align');
                     }}
                 />
@@ -163,7 +173,7 @@ export default function _Display({ type, properties, onChangeStyle,
                         e.preventDefault();
                         if (properties["visibility"])
                             delete properties["visibility"];
-                       onChangeStyle(); setStylePriority({ ...stylePriority, visibility: ''  });
+                        onChangeStyle(); setStylePriority({ ...stylePriority, visibility: '' });
                         style.removeProperty('visibility');
                     }}
                     className="ac-icons-btn"
@@ -189,6 +199,44 @@ export default function _Display({ type, properties, onChangeStyle,
         </div>
 
 
+        <div style={{ marginBottom: "10px" }}>
+            <strong >Backface Visibility:     </strong>
+            <Tooltip placement="top" title="important">
+                <Checkbox style={{ marginLeft: 3 }} name='backfaceVisibility' data-name="backface-visibility" checked={stylePriority.backfaceVisibility === 'important'} onChange={onChangePriority}>i</Checkbox>
+
+            </Tooltip>
+            <Tooltip placement="top" title="Reset">
+                <Button
+                    style={{ float: 'right' }}
+                    size='small'
+                    icon={<MdRestartAlt size="small" />}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        if (properties["backface-visibility"])
+                            delete properties["backface-visibility"];
+                        onChangeStyle(); setStylePriority({ ...stylePriority, backfaceVisibility: '' });
+                        style.removeProperty('backface-visibility');
+                    }}
+                    className="ac-icons-btn"
+                />
+            </Tooltip>
+        </div>
+        <div style={{ marginBottom: "10px" }}>
+
+            <Button
+                onClick={(e) => { e.preventDefault(); onChangeBFVisiblity('visible') }}
+                type={'visible' === style.backfaceVisibility ? 'primary' : 'default'}>
+                 Visible
+            </Button>
+            {" "}
+
+            <Button
+                onClick={(e) => { e.preventDefault(); onChangeBFVisiblity('hidden') }}
+                type={'hidden' === style.backfaceVisibility ? 'primary' : 'default'}>
+                 Hidden
+            </Button>
+        </div>
+
 
         <div style={{ marginBottom: "10px" }}>
             <strong >Opacity:     </strong>
@@ -205,7 +253,7 @@ export default function _Display({ type, properties, onChangeStyle,
                         e.preventDefault();
                         if (properties["opacity"])
                             delete properties["opacity"];
-                       onChangeStyle(); setStylePriority({ ...stylePriority, opacity: '' });
+                        onChangeStyle(); setStylePriority({ ...stylePriority, opacity: '' });
                         style.removeProperty('opacity');
                     }}
                 />
@@ -240,7 +288,7 @@ export default function _Display({ type, properties, onChangeStyle,
                         e.preventDefault();
                         if (properties["z-index"])
                             delete properties["z-index"];
-                       onChangeStyle(); setStylePriority({ ...stylePriority, zIndex: '' });
+                        onChangeStyle(); setStylePriority({ ...stylePriority, zIndex: '' });
                         style.removeProperty('z-index');
                     }}
                 />

@@ -18,7 +18,7 @@ const StateList = ({ states, setNewState, onRemove }) => {
       okType: 'danger',
       cancelText: 'No',
       onOk() {
-        onRemove(record.key);
+        onRemove(record);
       },
       onCancel() { },
     });
@@ -47,9 +47,9 @@ const StateList = ({ states, setNewState, onRemove }) => {
   return (
     states && <List
       dataSource={Object.values(states)}
-      renderItem={(item) => (
+      renderItem={(item, index) => (
         <List.Item key={item.key}>
-          <List.Item.Meta title={item.key} description={`Type: ${item.type}`} />
+          <List.Item.Meta title={item.key || 'event'+index} description={`Type: ${item.type || 'scroll'}`} />
           {renderItemActions(item)}
         </List.Item>
       )}

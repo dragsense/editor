@@ -7,7 +7,14 @@ import AddAttribute from "./Add";
 
 const initialAttribute = { key: '', value: '', type: '', conditions: {} };
 const initialCondition = { key: '', match: '', value: '' };
-export default function ElementAttribute({ cascaderStates, label, _attributes, state, setState, setIsChange }) {
+export default function ElementAttribute({
+  isCondtions = true,
+  cascaderStates,
+  label,
+  _attributes,
+  state,
+  setState,
+  setIsChange }) {
   const [currentAttribute, setCurrentAttribute] = useState(null);
 
   const attributes = state.attributes || {};
@@ -46,6 +53,7 @@ export default function ElementAttribute({ cascaderStates, label, _attributes, s
 
   return currentAttribute ? (
     <AddAttribute
+      isCondtions={isCondtions}
       current={currentAttribute}
       onAdd={onAdd}
       label={label}
@@ -56,27 +64,27 @@ export default function ElementAttribute({ cascaderStates, label, _attributes, s
     />
   ) : (
     <>
-       {Object.entries(attributes).map(([key, attr], idx) => (
-          <div style={{display: 'flex', justifyContent: 'space-between'}} key={key}>
-            <Typography.Text strong><span  style={{ color: attr.conditions?.length > 0 ? colorPrimary : colorText }}>{attr.name}</span></Typography.Text>
-            <div>
-              <Button type="text" icon={<EditOutlined />} onClick={() => onEdit(key)} />
-              <Popconfirm
-                title="Delete"
-                description={`Are you sure to delete this ${label?.toLowerCase()}?`}
-                onConfirm={() => onRemove(key)}
-                onCancel={() => { }}
-                okText="Yes"
-                cancelText="No"
-              >
-                <Button type="text" icon={<MinusCircleOutlined />} />
-              </Popconfirm>
-            </div>
+      {Object.entries(attributes).map(([key, attr], idx) => (
+        <div style={{ display: 'flex', justifyContent: 'space-between' }} key={key}>
+          <Typography.Text strong><span style={{ color: attr.conditions?.length > 0 ? colorPrimary : colorText }}>{attr.name || attr.key}</span></Typography.Text>
+          <div>
+            <Button type="text" icon={<EditOutlined />} onClick={() => onEdit(key)} />
+            <Popconfirm
+              title="Delete"
+              description={`Are you sure to delete this ${label?.toLowerCase()}?`}
+              onConfirm={() => onRemove(key)}
+              onCancel={() => { }}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button type="text" icon={<MinusCircleOutlined />} />
+            </Popconfirm>
           </div>
-        ))}
-   
+        </div>
+      ))}
 
-      <Button type="dashed" style={{margin: '5px 0'}} onClick={() => setCurrentAttribute(initialAttribute)} block icon={<PlusOutlined />}>
+
+      <Button type="dashed" style={{ margin: '5px 0' }} onClick={() => setCurrentAttribute(initialAttribute)} block icon={<PlusOutlined />}>
         Add {label}
       </Button>
     </>

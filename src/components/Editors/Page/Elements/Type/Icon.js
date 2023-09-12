@@ -1,7 +1,7 @@
 
 import React, { Children, useMemo } from 'react';
 
-const Icon = ({ _uid, conds, onClick, value, layout, disabled, children, pos }) => {
+const Icon = ({ _uid, conds, onMouseMove, onClick, value, layout, disabled, children, pos }) => {
 
 
     const disabledStyles = {
@@ -14,6 +14,8 @@ const Icon = ({ _uid, conds, onClick, value, layout, disabled, children, pos }) 
     const clonedElement = React.cloneElement(children, {
         customAttributes: {
             onClick,
+            onMouseMove: onMouseMove,
+
             dangerouslySetInnerHTML: { __html: layout === 'svg-icon' ? value : '' },
             "data-id": _uid,
             "data-pos": pos,
@@ -24,9 +26,10 @@ const Icon = ({ _uid, conds, onClick, value, layout, disabled, children, pos }) 
 
     const disabledElement = React.cloneElement(children, {
         customAttributes: {
-         
+            onMouseMove: onMouseMove,
+
             dangerouslySetInnerHTML: { __html: layout === 'svg-icon' ? value : '' },
-            onClick: onClick ? onClick : (e) => e.preventDefault(),
+            onClick: onClick,
             style: conds ? {} : disabledStyles
         }
     });

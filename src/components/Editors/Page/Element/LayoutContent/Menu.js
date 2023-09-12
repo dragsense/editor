@@ -93,6 +93,7 @@ const MenuTree = ({ children, node, onSave }) => {
 
             const updatedData = updateNodeByKey(gData, node.parentKey, { children: parentChildren });
             setGData(updatedData);
+            setChange(true)
         }
     };
 
@@ -207,6 +208,7 @@ const MenuTree = ({ children, node, onSave }) => {
         findAndRemove(newData);
         setGData(newData);
         setEditingNode(null);
+        setChange(true)
     };
 
 

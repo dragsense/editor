@@ -5,24 +5,29 @@ const Input = (props) => {
 
 
 
-    const { _uid, pos, onChange, value, onClick, children, conds, disabled } = props;
+    const { _uid, pos, onChange, value,
+
+        onClick, children, conds, disabled } = props;
 
     const [v, setV] = useState(value);
 
     const onChangeValue = (e) => {
         e.preventDefault();
 
+
+
+        const v = e.target.value;
         if (onChange) {
-            onChange(e.target.value);
+            onChange(v);
         }
-        else
-            setV(e.target.value);
+        setV(v);
 
     }
 
 
     useEffect(() => {
         setV(value);
+
     }, [value])
 
 
@@ -39,16 +44,15 @@ const Input = (props) => {
 
     // </div>
     // </div>
-   
+
     const InputElement = React.cloneElement(children, {
         customAttributes: {
-            
+
             "data-id": _uid,
             "data-pos": pos,
             "data-name": 'input',
             "draggable": false,
             onClick: onClick,
-
             onChange: onChangeValue, value: v
         }
     });
@@ -61,7 +65,7 @@ const Input = (props) => {
 
     const disabledElement = React.cloneElement(children, {
         customAttributes: {
-            key:_uid,
+            key: _uid,
             onClick: onClick,
             onChange: onChangeValue, value: v,
             style: conds ? {} : disabledStyles

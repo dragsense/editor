@@ -3,7 +3,9 @@ import React, { useMemo } from 'react';
 import { nanoid } from 'nanoid';
 
 const Media = (props) => {
-    const { tag, pos, _uid, value, conds, onClick, children, disabled } = props;
+    const { tag, pos, _uid, value, conds,
+        onMouseMove,
+        onClick, children, disabled } = props;
 
     const poster =
         value.value ?
@@ -48,6 +50,8 @@ const Media = (props) => {
                 width: 320, height: 'auto', controls: true,
                 poster: tag == 'video' ? poster.src : undefined,
                 alt: poster.alt,
+                onMouseMove: onMouseMove,
+
             }
         }, [...sources, `Your browser does not support the ${tag} element.`])}
 
@@ -62,6 +66,8 @@ const Media = (props) => {
                 width: 320, height: 'auto', controls: true,
                 poster: tag == 'video' ? poster.src : undefined,
                 alt: poster.alt,
+                onMouseMove: onMouseMove,
+
                 onClick: onClick,
                 style: conds ? {} : disabledStyles
             }

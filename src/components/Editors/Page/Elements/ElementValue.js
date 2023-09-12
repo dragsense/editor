@@ -5,6 +5,7 @@ import ElementType from "./ElementType";
 
 import { getStateValue } from "../../../../lib/element/elementNode";
 import { formatDate } from "../../../../lib/utils";
+import { message } from "antd";
 
 const ElementValue = (props) => {
 
@@ -16,9 +17,8 @@ const ElementValue = (props) => {
         _states,
         colStates,
         _props,
-        onClick,
+        fun,
         _cstates,
-        onChange,
         attributes,
         setting = {},
         classes,
@@ -68,12 +68,12 @@ const ElementValue = (props) => {
                             }
                         }
                         if (key[1] === 'createdAt') {
-                        
+
                             const createdAt = setting[key[1]];
                             if (createdAt)
                                 return formatDate(createdAt, key[2])
                             else return `[page ${key[1]}]`
-                        } 
+                        }
                         if (key[1] === 'status') {
                             const status = setting[key[1]];
 
@@ -82,7 +82,7 @@ const ElementValue = (props) => {
                                 label: status === undefined ? `[page status]` : status ? 'Published' : 'Draft'
                             }
                         }
-                        
+
                         return {
 
                             value: key[1] === 'content' ? key[1] : setting[key[1]],
@@ -118,7 +118,8 @@ const ElementValue = (props) => {
                             }
             case 'PROPS':
                 return getStateValue(key, _props) || `[props.${key}]`;
-            case 'STATES': 
+            case 'STATES':
+
                 return getStateValue(key, _states);
 
             case 'PAGESTATES':
@@ -144,16 +145,16 @@ const ElementValue = (props) => {
                 }
                 else
                     if (key[0] === 'RELATIONSHIPS' && colStates.relationships) {
-                        if (key[1] >= 0 && key[2])
-                            return colStates.relationships[key[1]][key[2]];
+                        if (colStates.relationships[key[1]])
+                            return colStates.relationships[key[1]];
                         else
-                            return null;
+                            return value;
                     }
                     else
                         if (key[0] === 'PAGES') {
                             return mapIndex + 1;
                         }
-                       
+
                         else {
                             if (key[0] === 'docsLength' && colStates.documents)
                                 return colStates.documents.length || '0';
@@ -239,13 +240,14 @@ const ElementValue = (props) => {
 
 
 
-        return value || nodeValue;
+        return value !== undefined ? value : nodeValue;
 
     }, [state, colStates, _states, _props, mapValue, nodeValue]);
 
     const onClickNode = (e) => {
 
-        e.preventDefault();
+        if (node.tagName === 'a')
+            e.preventDefault();
 
         if (node.onClick) {
             const onclick = node.onClick;
@@ -260,15 +262,153 @@ const ElementValue = (props) => {
             let stateValue = getValue({ type: stateType, key: stateKey }, '');
             stateValue = stateValue?.value ? stateValue.value : stateValue;
 
-            if (stateValue?.notClickable)
+            if (withValue?.notClickable)
                 return;
 
-            onClick(node, stateValue, withValue);
+
+            if (fun?.onClick)
+                fun.onClick(node, stateValue, withValue);
         }
     }
 
     const onChangeNode = (value, all) => {
-        onChange(node, value, all);
+
+        const onChangeEvent = node.onChange;
+
+        if (onChangeEvent?.value || !onChangeEvent) {
+            console.log(fun)
+
+            if (fun?.onChange)
+                fun.onChange([{ elem: onChangeEvent, value }], node, all);
+        }
+
+
+    }
+
+    const onMouseMove = (e) => {
+        e.preventDefault();
+
+        const onMouseMove = node.onMouseMove;
+
+
+        if (!onMouseMove)
+            return;
+
+        let pageX;
+        let pageY;
+
+        let scrollLeft;
+        let scrollTop;
+
+        if (onMouseMove.mouseType === 'page') {
+            pageX = e.pageX;
+            pageY = e.pageY;
+        } else {
+            pageX = e.clientX;
+            pageY = e.clientY;
+        }
+
+
+        if (onMouseMove.scrollType === 'pageScroll') {
+            const iframe = document.querySelector("#ac-editor-iframe-doc");
+
+            if (iframe) {
+                const iframeWindow = iframe.contentWindow;
+                scrollLeft = iframeWindow.pageYOffset;
+                scrollTop = iframeWindow.pageYOffset;
+            }
+        } else {
+
+            scrollLeft = e.target.scrollLeft;
+            scrollTop = e.target.scrollTop;
+        }
+
+
+        const delta = onMouseMove.delta;
+
+        if (onMouseMove.valueX || onMouseMove.valueY) {
+
+            let valueX = '';
+            if (onMouseMove.valueX) {
+                valueX = onMouseMove.valueX.replace(/\[X]/g, pageX);
+                valueX = valueX.replace(/\[Y]/g, pageY);
+                valueX = valueX.replace(/\[scrollLeft]/g, scrollLeft);
+                valueX = valueX.replace(/\[scrollTop]/g, scrollTop);
+                valueX = valueX.replace(/\[delta]/g, delta);
+            }
+
+            let valueY = ''
+            if (onMouseMove.valueY) {
+                valueY = onMouseMove.valueY.replace(/\[Y]/g, pageY);
+                valueY = valueY.replace(/\[X]/g, pageX);
+                valueY = valueY.replace(/\[scrollLeft]/g, scrollLeft);
+                valueY = valueY.replace(/\[scrollTop]/g, scrollTop);
+                valueY = valueY.replace(/\[delta]/g, delta);
+            }
+            try {
+                valueX = eval(valueX);
+                valueY = eval(valueY);
+
+            } catch (e) {
+                console.error("Invalid expression:", e);
+
+            }
+
+            if (fun?.onChange)
+                fun.onChange([{ elem: onMouseMove.stateValueX || {}, value: valueX }, { elem: onMouseMove.stateValueY || {}, value: valueY }], node, null);
+        }
+
+    }
+
+
+    const onScroll = (e) => {
+
+
+        e.preventDefault();
+
+        const onScroll = node.onScroll;
+
+        if (!onScroll || !fun?.onChange)
+            return;
+
+        const scrollLeft = e.target.scrollLeft;
+        const scrollTop = e.target.scrollTop;
+
+
+        const delta = onScroll.delta;
+
+
+        if (onScroll?.valueX || onScroll?.valueY) {
+
+            let valueX = '';
+            if (onScroll?.valueX) {
+                valueX = onScroll.valueX.replace(/\[left]/g, scrollLeft);
+                valueX = valueX.replace(/\[top]/g, scrollTop);
+                valueX = valueX.replace(/\[delta]/g, delta);
+            }
+
+            let valueY = ''
+            if (onScroll?.valueY) {
+                valueY = onScroll.valueY.replace(/\[top]/g, scrollTop);
+                valueY = valueY.replace(/\[left]/g, scrollLeft);
+                valueY = valueY.replace(/\[delta]/g, delta);
+            }
+
+            try {
+                valueX = eval(valueX);
+                valueY = eval(valueY);
+
+            } catch (e) {
+                message.error("Invalid expression:" + e?.message);
+
+            }
+
+            if (fun?.onChange)
+                fun.onChange([
+                    { elem: onScroll.stateValueX || {}, value: valueX },
+                    { elem: onScroll.stateValueY || {}, value: valueY }],
+                    node, null);
+        }
 
     }
 
@@ -282,8 +422,9 @@ const ElementValue = (props) => {
         mapValue={mapValue}
         mapIndex={mapIndex}
         onChange={node.onChange ? onChangeNode : undefined}
-
+        onMouseMove={node.onMouseMove ? onMouseMove : undefined}
         onClick={node.onClick ? onClickNode : undefined}
+        onScroll={node.onScroll ? onScroll : undefined}
     >
         {children}
     </ElementType>

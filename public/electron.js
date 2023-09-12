@@ -1,6 +1,6 @@
 const { app, BrowserWindow, webContents, ipcMain, shell, dialog, session } = require('electron')
 const path = require('path')
-const url = require('url'); 
+const url = require('url');
 const Store = require('electron-store')
 
 const store = new Store();
@@ -23,6 +23,9 @@ if (process.defaultApp) {
 }
 
 
+const prefix = app.isPackaged ? '__' : '';
+const prefixSecure = app.isPackaged ? 'Secure-' : '';
+const prefixHost = app.isPackaged ? 'Host-' : '';
 
 const setSession = (argUrl) => {
   const url = new URL(argUrl);
@@ -30,9 +33,10 @@ const setSession = (argUrl) => {
   const cookies = JSON.parse(decodeURIComponent(queryParams.get('cookies')));
 
 
-  const sessionToken = cookies['__Secure-next-auth.session-token'];
-  const callbackUrl = cookies['__Secure-next-auth.callback-url'];
-  const csrfToken = cookies['__Host-next-auth.csrf-token'];
+
+  const sessionToken = cookies[prefix + prefixSecure + 'next-auth.session-token'];
+  const callbackUrl = cookies[prefix + prefixSecure + 'next-auth.callback-url'];
+  const csrfToken = cookies[prefix + prefixHost + 'next-auth.csrf-token'];
 
   const info = JSON.parse(decodeURIComponent(queryParams.get('info')));
 
@@ -40,7 +44,6 @@ const setSession = (argUrl) => {
   const pageId = info['pageId'];
   const pageType = info['pageType'];
   const userName = info['userName'];
-  const apiUrl = info['url'];
 
 
   store.set('projectId', projectId || null);
@@ -53,9 +56,9 @@ const setSession = (argUrl) => {
   ses.clearStorageData();
   if (sessionToken && csrfToken && callbackUrl) {
 
-    ses.cookies.set({ url: callbackUrl, name: 'Secure-next-auth.session-token', value: sessionToken });
-    ses.cookies.set({ url: callbackUrl, name: 'Secure-next-auth.callback-url', value: callbackUrl });
-    ses.cookies.set({ url: callbackUrl, name: 'Host-next-auth.csrf-token', value: csrfToken });
+    ses.cookies.set({ url: callbackUrl, name: prefixSecure + 'next-auth.session-token', value: sessionToken });
+    ses.cookies.set({ url: callbackUrl, name: prefixSecure + 'Secure-next-auth.callback-url', value: callbackUrl });
+    ses.cookies.set({ url: callbackUrl, name: prefixHost + 'Host-next-auth.csrf-token', value: csrfToken });
     webContents.getAllWebContents().forEach((contents) => {
       contents.send('session-update', { projectId, pageId, pageType, userName, session: true });
     });
@@ -143,14 +146,14 @@ function createWindow() {
     icon: path.join(__dirname, 'favicon.ico'),
   })
 
-  const appURL =  app.isPackaged ?  url.format({
-      pathname: path.join(__dirname, "index.html"),
-      protocol: "file:",
-      slashes: true,
-    }) :  'http://localhost:3002'
+  const appURL = app.isPackaged ? url.format({
+    pathname: path.join(__dirname, "index.html"),
+    protocol: "file:",
+    slashes: true,
+  }) : 'http://localhost:3002'
 
   mainWindow.loadURL(appURL);
-  
+
 
 }
 
@@ -165,10 +168,10 @@ ipcMain.handle('makeApiRequest', async (event, apiEndpoint) => {
 
 
     const cookieString = cookies
-      .map((cookie) => `__${cookie.name}=${cookie.value}`)
+      .map((cookie) => `${prefix}${cookie.name}=${cookie.value}`)
       .join('; ');
 
-  
+
 
 
     const projectId = store.get('projectId');

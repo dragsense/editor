@@ -11,30 +11,37 @@ const Select = (props) => {
     const onChangeValue = (e) => {
 
         const fun = (e) => {
-            const selectedValues = Array.from(e.target.selectedOptions).map(option => option.value);
-            
+            let selectedValues = Array.from(e.target.selectedOptions).map(option => option.value);
+
+            if (selectedValues.includes("all"))
+            selectedValues = ['all'];
+                //selectedValues = Array.from(e.target.options).filter(option => option.value !== 'all').map(opt => opt.value);
+                
+
             onChange(selectedValues.join(','), selectedValues.includes("all"));
         }
 
 
-        if(onChange)
-        debounce(fun(e), 500)
+        if (onChange)
+            debounce(fun(e), 500)
     }
 
     useEffect(() => {
 
         if (!ref.current)
             return;
-            
-        const selectElement = ref.current;
-        const selectedOptions = value.split(',');
-        if (selectElement) {
-            const optionsLength = selectElement.options.length;
-            const selectedLength = selectedOptions.length;
 
-             if (selectedLength > 0) {
-                for (let i = optionsLength - 1; i > -1; i--) {
-                    selectElement.options[i].selected = selectedOptions.includes(selectElement.options[i].value);
+        if (typeof value === 'string') {
+            const selectElement = ref.current;
+            const selectedOptions = value.split(',');
+            if (selectElement) {
+                const optionsLength = selectElement.options.length;
+                const selectedLength = selectedOptions.length;
+
+                if (selectedLength > 0) {
+                    for (let i = optionsLength - 1; i > -1; i--) {
+                        selectElement.options[i].selected = selectedOptions.includes(selectElement.options[i].value);
+                    }
                 }
             }
         }
@@ -61,16 +68,19 @@ const Select = (props) => {
 
 
 
-const disabledElement = React.cloneElement(children, { customAttributes: { 
-   
-    ref,
-    onClick: onClick,
-    style: conds ? {} : disabledStyles,
-    onChange: onChangeValue } }, innerWraaper);
+    const disabledElement = React.cloneElement(children, {
+        customAttributes: {
+
+            ref,
+            onClick: onClick,
+            style: conds ? {} : disabledStyles,
+            onChange: onChangeValue
+        }
+    }, innerWraaper);
 
 
 
-return disabled ? disabledElement : SelectElement;
+    return disabled ? disabledElement : SelectElement;
 
 };
 

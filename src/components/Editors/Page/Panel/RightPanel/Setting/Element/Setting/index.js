@@ -26,6 +26,7 @@ export default function ElementSetting({ cascaderStates, state, setState,
             onRemove(key);
         } else {
             state.attributes[key] = { key, value };
+            
             setState({ ...state });
         }
 
@@ -90,7 +91,7 @@ export default function ElementSetting({ cascaderStates, state, setState,
 
 
         <Form.Item label="Name" className="font-500">
-            <Input placeholder="Element Name" name="name"
+            <Input maxLength={100} placeholder="Element Name" name="name"
                 onChange={(e) => {
                     e.preventDefault();
 
@@ -103,7 +104,7 @@ export default function ElementSetting({ cascaderStates, state, setState,
                 value={state.name}
             /> </Form.Item>
         <Form.Item label="Element ID">
-            <Input value={state.attributes['id']?.value} name="id" placeholder="ID"
+            <Input maxLength={200} value={state.attributes['id']?.value} name="id" placeholder="ID"
                 onChange={(e) => { e.preventDefault(); onChnageAttribute('id', e.target.value) }} />
         </Form.Item>
 
@@ -136,6 +137,7 @@ export default function ElementSetting({ cascaderStates, state, setState,
 
         <Form.Item label="Mian Class">
             <Input
+            maxLength={100}
                 value={state.mainClass}
                 placeholder="Main Class"
                 onChange={(e) => {
@@ -146,7 +148,9 @@ export default function ElementSetting({ cascaderStates, state, setState,
         </Form.Item>
 
         <Form.Item label="Element Classes">
-            <ClassManager element={state} cascaderStates={cascaderStates} setIsChange={setIsChange} />
+            <ClassManager element={state} 
+            cascaderStates={cascaderStates} 
+            setIsChange={setIsChange} />
         </Form.Item>
 
 

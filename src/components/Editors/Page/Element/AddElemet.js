@@ -53,9 +53,9 @@ function AddElement({ onAddElement, currentElement, setCurrentElement }) {
 
     const showModal = async () => {
 
-        console.log(currentElement)
-
-        if (currentElement.layout.toLowerCase() === 'ul' || currentElement.layout.toLowerCase() === 'ol') {
+        if (currentElement.layout.toLowerCase() === 'list' || 
+        currentElement.layout.toLowerCase() === 'ul' ||
+        currentElement.layout.toLowerCase() === 'ol') {
             await onAddElement({ tag: 'li' }, false, currentElement);
             onCancel();
         }

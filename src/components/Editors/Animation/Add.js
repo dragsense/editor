@@ -72,10 +72,11 @@ export default function Animations({ onEdit, animation, onChange, state, onDelet
 
     function handleSelectOption(value) {
 
+        if(!value) {
+        }
+
         const animation = animations.find(sel => sel._uid === value)
 
-        if (!animation)
-            return;
 
         onEdit(animation);
         setSearchTerm("");
@@ -121,7 +122,7 @@ export default function Animations({ onEdit, animation, onChange, state, onDelet
     }
 
     const validateSearchInput = (inputValue, option) => {
-        const regex = /^[a-zA-Z_]+$/;
+        const regex = /^[a-zA-Z_-]+$/;
         const isValid = regex.test(inputValue);
         setValidationResult(isValid ? 'valid' : 'invalid');
         return isValid;
@@ -172,7 +173,7 @@ export default function Animations({ onEdit, animation, onChange, state, onDelet
             </>)}
 
         >
-
+                <Option>None</Option>
             {animations.map(animation => <Option key={animation._uid} 
             value={animation._uid} label={animation.name}>
                 {animation.name}

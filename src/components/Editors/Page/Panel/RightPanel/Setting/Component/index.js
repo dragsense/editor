@@ -19,10 +19,11 @@ const COMPONENTS = ['none', 'slider', 'tabs', 'gallery', 'accordion', 'modal', '
 const { confirm } = Modal;
 
 
-export default function Component({ state, cascaderStates, onUpdate, onAdd }) {
+export default function Component({ state, cascaderStates, onChange, onUpdate, onAdd }) {
 
 
     const [component, setComponent] = useState(null);
+    const [filteredStates, setFilterStates] = useState(null);
 
     const fetchComponent = async () => {
 
@@ -43,6 +44,8 @@ export default function Component({ state, cascaderStates, onUpdate, onAdd }) {
             return;
 
         fetchComponent();
+
+        setFilterStates(cascaderStates.filter(state => state.type === 'STATES' || state.type === 'PROPS'))
 
     }, [state.page]);
 
@@ -118,34 +121,42 @@ export default function Component({ state, cascaderStates, onUpdate, onAdd }) {
 
     }
 
-    const onSubmit = async (states) => {
+    const onSubmit = async (states, events) => {
 
         if (state.type === 'component') {
 
             const _id = state.page._id;
             const page = await getAllData(_id);
             page.states = states;
+            page.events = events;
+
             await storePage(page);
 
             if (state.states["STATES"])
                 state.states["STATES"].setStates(states);
 
+            if (state.states["EVENTS"])
+                state.states["EVENTS"].setStates(events);
+
+                onChange(true)
         }
+
+        
     }
 
     return (component && state.node.type !== 'component') ? <>
         <Divider orientation="center" orientationMargin="0">Tag: {state.node.tagName} </Divider>
 
-        <div style={{ maxHeight: '62vh', overflow: 'auto' }}>
             <Card>
 
                 <ElementComponent
+                    filteredStates={filteredStates}
                     component={component}
                     onSubmit={onSubmit}
                 />
 
             </Card>
-        </div>
+    
     </>
         : <>        <Card bodyStyle={{ padding: 0 }}><LayoutContent state={state}
             onUpdate={onUpdateNNodes} /></Card>

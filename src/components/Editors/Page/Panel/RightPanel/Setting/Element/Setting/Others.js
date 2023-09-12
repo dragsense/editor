@@ -5,21 +5,21 @@ import { Collapse, theme, Form, Input, InputNumber, Select, Checkbox, Switch } f
 const { Option } = Select;
 const { Panel } = Collapse;
 
-const scopes = ['row', 'col', 'rowgroup', 'colgroup'];
+const scopes = ['row', 'col', 'rowgroup', 'colgroup'].map(value => `'${value}'`);
 
-const dirs = ['ltr', 'rtl', 'auto'];
+const dirs = ['ltr', 'rtl', 'auto'].map(value => `'${value}'`);
 
-const targets = ['_self', '_blank', '_parent', '_top'];
+const targets = ['_self', '_blank', '_parent', '_top'].map(value => `'${value}'`);
 
-const liTypes = ['a', 'A', 'i', 'I', '1'];
+const liTypes = ['a', 'A', 'i', 'I', '1'].map(value => `'${value}'`);
 
-const imgLoading = ['eager', 'lazy'];
+const imgLoading = ['eager', 'lazy'].map(value => `'${value}'`);
 
-const prelaods = ['none', 'metadata', 'auto', ''];
+const prelaods = ['none', 'metadata', 'auto', ''].map(value => `'${value}'`);
 
-const buttonTypes = ['submit', 'reset', 'button'];
+const buttonTypes = ['submit', 'reset', 'button'].map(value => `'${value}'`);
 
-const inputTypes = ['button', 'checkbox', 'color', 'date', 'datetime-local', 'email', 'file', 'hidden', 'month', 'number', 'password', 'radio', 'range', 'reset', 'search', 'submit', 'tel', 'text', 'time', 'url', 'week'];
+const inputTypes = ['button', 'checkbox', 'color', 'date', 'datetime-local', 'email', 'file', 'hidden', 'month', 'number', 'password', 'radio', 'range', 'reset', 'search', 'submit', 'tel', 'text', 'time', 'url', 'week'].map(value => `'${value}'`);
 
 const autocompletes = [
     "on",
@@ -67,9 +67,9 @@ const autocompletes = [
     "sex",
     "url",
     "photo",
-];
+].map(value => `'${value}'`);
 
-const acceptOptions = ['doc', 'docx', 'xml', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+const acceptOptions = ['doc', 'docx', 'xml', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].map(value => `'${value}'`);
 
 
 const Others = ({ state, onChnageAttribute, onRemove }) => {
@@ -318,9 +318,7 @@ const Others = ({ state, onChnageAttribute, onRemove }) => {
                     <Input value={state.attributes['name']?.value} placeholder="name" name="name" onChange={(e) => { e.preventDefault(); onChnageAttribute('name', e.target.value) }} />
                 </Form.Item>
 
-                <Form.Item label="Value">
-                    <Input value={state.attributes['value']?.value} placeholder="value" name="value" onChange={(e) => { e.preventDefault(); onChnageAttribute('value', e.target.value) }} />
-                </Form.Item>
+
 
                 <Form.Item label="Auto Focus?">
                     <Checkbox checked={state.attributes['autofocus']?.value}
@@ -338,25 +336,6 @@ const Others = ({ state, onChnageAttribute, onRemove }) => {
                 <Form.Item label="Multiple">
                     <Switch checked={state.attributes['multiple']?.value} onChange={(value) => { onChnageAttribute('multiple', value) }} />
                 </Form.Item>
-            </>}
-
-            {(state.tagName == 'input' || state.tagName == 'select') && <>
-                <Form.Item label="Required">
-                    <Switch checked={state.attributes['required']?.value} onChange={(value) => { onChnageAttribute('required', value) }} />
-                </Form.Item>
-
-                <Form.Item label="Size">
-                    <InputNumber value={state.attributes['size']?.value} onChange={(value) => { onChnageAttribute('size', value) }} />
-                </Form.Item>
-
-                {!['checkbox', 'radio', 'file'].includes(state.attributes['type']?.value) && <>
-
-                    <Form.Item label="Auto Complete">
-                        <Input value={state.attributes['autocomplete']?.value} placeholder="autocomplete" name="autocomplete" onChange={(e) => { e.preventDefault(); onChnageAttribute('autocomplete', e.target.value) }} />
-                    </Form.Item>
-
-                </>}
-
             </>}
 
 
@@ -472,9 +451,38 @@ const Others = ({ state, onChnageAttribute, onRemove }) => {
                 </Form.Item>
 
 
+                <Form.Item label="Required">
+                    <Switch checked={state.attributes['required']?.value} onChange={(value) => { onChnageAttribute('required', value) }} />
+                </Form.Item>
+
+                <Form.Item label="Size">
+                    <InputNumber value={state.attributes['size']?.value} onChange={(value) => { onChnageAttribute('size', value) }} />
+                </Form.Item>
 
             </>
             }
+
+            {(state.tagName == 'select') && <>
+                <Form.Item label="Required">
+                    <Switch checked={state.attributes['required']?.value} onChange={(value) => { onChnageAttribute('required', value) }} />
+                </Form.Item>
+
+                <Form.Item label="Size">
+                    <InputNumber value={state.attributes['size']?.value} onChange={(value) => { onChnageAttribute('size', value) }} />
+                </Form.Item>
+
+                {!['checkbox', 'radio', 'file'].includes(state.attributes['type']?.value) && <>
+
+                    <Form.Item label="Auto Complete">
+
+                        <Select showSearch value={state.attributes['autocomplete']?.value} onChange={(value) => { onChnageAttribute('autocomplete', value) }}>
+                            {autocompletes.map(t => <Option key={t} value={t} label={t} />)}
+                        </Select>
+                    </Form.Item>
+
+                </>}
+
+            </>}
 
             {state.tagName === 'label' && <>
                 <Form.Item label="For">

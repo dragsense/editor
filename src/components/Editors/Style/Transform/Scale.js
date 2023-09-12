@@ -1,182 +1,213 @@
-import { Input, Slider, Button, Checkbox, Tooltip, InputNumber } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Input, Select, Button, Slider, Checkbox, Tooltip, InputNumber } from 'antd';
+import { MdLockOpen, MdLockOutline, MdRestartAlt } from 'react-icons/md';
 
-import { useEffect, useState } from 'react';
+const { Option } = Select;
 
-import { MdLockOpen, MdLockOutline, MdRestartAlt } from 'react-icons/md'
-
-const units = ['px', '%', 'em', 'rem'];
-
-export default function Scale({ min = 0, max = 1, style, 
-     properties,
-    onChangeStyle,  stylePriority, setStylePriority }) {
-
-
-   // const [lock, setLock] = useState(false);
+export default function Scale({
+    min = 0,
+    max = 1,
+    style,
+    stylePriority,
+    properties,
+    onChangeStyle,
+    setStylePriority,
+}) {
+    const [lock, setLock] = useState(true);
 
     useEffect(() => {
-
-        if (!properties) {
+        if (!properties || !properties['transform'] || !properties['transform']['scale']) {
             return;
         }
 
-     
-        // let values = properties["scale"]?.value;
+        const { valueX, valueY, valueZ } = properties['transform']['scale'];
 
-        // values = values ? values.split(" ") : [];
-
-        // if (values[0] === values[1])
-        //     setLock(true);
-        // else
-        //     setLock(false)
+        if (valueX === valueY && valueX === valueZ) {
+            setLock(true);
+        } else {
+            setLock(false);
+        }
 
     }, [properties]);
 
-
     const onChange = (value, name) => {
+        if (!properties['transform']) {
+            properties['transform'] = {};
+        }
 
-        //const values = style.scale.split(' ');
+        if (!properties['transform']['scale']) {
+            properties['transform']['scale'] = {};
+        }
 
-        // if (name == "scaleX")
-        //     values[0] = value;
-        // else if (name == "scaleY")
-        //     values[1] = value;
+        const scaleData = properties['transform']['scale'];
 
-            if (!properties['scale'])
-            properties['scale'] = {};
-    
-        //if (!lock){
-            properties['scale'].value = value;
+        if (lock) {
+            
+            scaleData.valueX = value;
+            scaleData.valueY = value;
+            scaleData.valueZ = value;
+        } else {
+            if (name === 'scaleX') {
+            
+                scaleData.valueX = value;
+            } else if (name === 'scaleY') {
+              
+                scaleData.valueY = value;
+            } else if (name === 'scaleZ') {
+             
+                scaleData.valueZ = value;
+            }
+        }
 
-            style.setProperty('scale', value, stylePriority.scale);
-        //}
-        // else
-        // {
-        //     properties['scale'].value =`${value} ${value}`;
+        // Create the scale transformation string
+        const scale = `scale3d(${scaleData.valueX || 1}, ${scaleData.valueY || 1}, ${scaleData.valueZ || 1})`;
 
-        //     style.setProperty('scale', `${value} ${value}`, stylePriority.scale);
-        // }
+        // Preserve other transform properties and set the transform property
+        const otherTransform = style.transform.replace(/scale3d\([^)]+\)/, '');
+        const finalTransform = `${scale} ${otherTransform}`;
 
-         onChangeStyle();
-         setStylePriority({ ...stylePriority})
+        properties['transform'].value = finalTransform;
 
-    }
+        style.setProperty('transform', finalTransform, stylePriority.transform);
+
+        onChangeStyle();
+        setStylePriority({ ...stylePriority });
+    };
+
+  
 
     const onChangePriority = (e) => {
-
         const priority = e.target.checked ? 'important' : '';
-        properties['scale'].priority = priority;
-        setStylePriority({ ...stylePriority, scale: priority })
-        style.setProperty('scale', style.scale, stylePriority.scale);
+
+        if (!properties || !properties['transform']) {
+            return;
+        }
+
+        properties['transform'].priority = priority;
+
+        setStylePriority({ ...stylePriority, transform: priority });
+        style.setProperty('transform', style.transform, priority);
+
         onChangeStyle();
+    };
 
-    }
+    return (
+        <>
+            <div>
+                <div style={{ marginBottom: '10px' }}>
+                    <strong>Scale: </strong>
+                    <Tooltip placement="top" title="important">
+                        <Checkbox
+                            style={{ marginLeft: 3 }}
+                            checked={stylePriority.transform === 'important'}
+                            onChange={onChangePriority}
+                        >
+                            i
+                        </Checkbox>
+                    </Tooltip>
+                    <Tooltip placement="top" title="Reset">
+                        <Button
+                            style={{ float: 'right' }}
+                            size="small"
+                            icon={<MdRestartAlt size="small" />}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                if (properties && properties['transform'] && properties['transform']['scale']) {
+                                    delete properties['transform']['scale'];
+                                }
 
+                                const otherTransform = style.transform.replace(/scale3d\([^)]+\)/, '');
+                                const finalTransform = `${otherTransform}`;
 
-    return <div>
+                                if (!finalTransform.trim()) {
+                                    style.removeProperty('transform');
+                                    setStylePriority({ ...stylePriority, transform: '' });
+                                } else {
+                                    style.setProperty('transform', finalTransform, stylePriority.transform);
+                                    properties['transform'].value = finalTransform;
+                                    setStylePriority({ ...stylePriority });
+                                }
 
-        <div style={{ marginBottom: "10px" }}>
-            <strong>Scale: </strong>
-            <Tooltip placement="top" title="important">
-                <Checkbox style={{ marginLeft: 3 }}
-                    checked={stylePriority.scale === 'important'} onChange={onChangePriority}>i</Checkbox>
-            </Tooltip>
+                                onChangeStyle();
+                            }}
+                        />
+                    </Tooltip>
+                </div>
+                <div style={{ marginBottom: '10px' }}>
+                    <Button
+                        type={lock ? 'primary' : 'default'}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            setLock(!lock);
+                        }}
+                    >
+                        {lock ? <MdLockOutline size="1rem" /> : <MdLockOpen size="1rem" />}
+                    </Button>
+                </div>
 
-            <Tooltip placement="top" title="Reset">
-                <Button
-                    style={{ float: 'right' }}
-                    size='small'
-                    icon={<MdRestartAlt size="small" />}
-                    onClick={(e) => {
-                        e.preventDefault();
-                        if (properties["scale"])
-                                delete properties["scale"];
-                            onChangeStyle();
-                            setStylePriority({ ...stylePriority, "scale": "" })
-                         style.removeProperty('scale');
-                    }}
-                />
-            </Tooltip>
-        </div>
-        {/* <div style={{ marginBottom: "10px" }}>
+                <div style={{ marginBottom: '10px' }}>
+                    <InputNumber
+                            style={{width: '100%'}}
 
-            <Button type={lock ? 'primary' : 'default'}
-                onClick={(e) => { e.preventDefault(); setLock(!lock) }}>{lock ? <MdLockOutline size='1rem' /> : <MdLockOpen size='1rem' />}</Button>
-        </div> */}
-        <div style={{ marginBottom: "10px", display: 'flex' }}>
+                        name="scaleX"
+                        size="small"
+                        placeholder="scaleX"
+                        value={parseFloat(properties['transform']?.scale?.valueX) || 1}
+                        onChange={(value) => onChange(value, 'scaleX')}
+                        
+                    />
 
-            <Slider
-                min={min}
-                max={max}
-                style={{ width: '70%' }}
-                onChange={(value) => onChange(value, 'scaleX')}
-                value={parseFloat(style.scale?.split(' ')[0]) ?? ""}
-                step={0.1}
-            />
-            <InputNumber
-                style={{ width: '30%' }}
+                    <Slider
+                        min={min}
+                        max={max}
+                        onChange={(value) => onChange(value, 'scaleX')}
+                        value={parseFloat(properties['transform']?.scale?.valueX) || 1}
+                        step={0.1}
+                    />
+                </div>
 
-                type='number'
-                name="scaleX" value={parseFloat(style.scale?.split(' ')[0])} onChange={(value) => {
+                <div style={{ marginBottom: '10px' }}>
+                    <InputNumber
+                            style={{width: '100%'}}
 
-                    onChange(value, 'scaleX');
-                }} />
+                        name="scaleY"
+                        size="small"
+                        placeholder="scaleY"
+                        value={parseFloat(properties['transform']?.scale?.valueY) || 1}
+                        onChange={(value) => onChange(value, 'scaleY')}
+                        
+                    />
 
+                    <Slider
+                        min={min}
+                        max={max}
+                        onChange={(value) => onChange(value, 'scaleY')}
+                        value={parseFloat(properties['transform']?.scale?.valueY) || 1}
+                        step={0.1}
+                    />
+                </div>
 
+                <div style={{ marginBottom: '10px' }}>
+                    <InputNumber
+                            style={{width: '100%'}}
 
-        </div>
+                        name="scaleZ"
+                        size="small"
+                        placeholder="scaleZ"
+                        value={parseFloat(properties['transform']?.scale?.valueZ) || 1}
+                        onChange={(value) => onChange(value, 'scaleZ')}
+                 
+                    />
 
-        {/* <div style={{ marginBottom: "10px", display: 'flex' }}>
-            <Slider
-                min={min}
-                style={{ width: '70%' }}
-                disabled={lock}
-
-                max={max}
-                onChange={(value) => onChange(value, 'scaleY')}
-                value={parseFloat(style.scale?.split(' ')[1]) ?? ""}
-                step={0.1}
-            />
-            <InputNumber type='number' name="scaleY"
-                            value={parseFloat(style.scale?.split(' ')[1]) ?? ""}
-
-                onChange={(value) => onChange(value, 'scaleY')}
-                style={{ width: '30%' }}
-                disabled={lock}
-
-            />
-
-
-
-
-        </div>
-
-        <div style={{ marginBottom: "10px", display: 'flex' }}>
-
-
-            <Slider
-                min={min}
-                max={max}
-                style={{ width: '70%' }}
-                disabled={lock}
-                onChange={(value) => onChange(value, 'scaleZ')}
-                value={parseFloat(style.scale?.split(' ')[2]) ?? ""}
-                step={0.1}
-            />
-
-            <InputNumber type='number' name="scaleZ"
-                style={{ width: '30%' }}
-                disabled={lock}
-
-                value={parseFloat(style.scale?.split(' ')[2]) ?? ""}
-                onChange={(value) => onChange(value, 'scaleZ')}
-            />
-
-        </div> */}
-
-    </div>
-
-
-
+                    <Slider
+                        min={min}
+                        max={max}
+                        onChange={(value) => onChange(value, 'scaleZ')}
+                        value={parseFloat(properties['transform']?.scale?.valueZ) || 1}
+                        step={0.1}
+                    />
+                </div>
+            </div>
+        </>
+    );
 }
-
-

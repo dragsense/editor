@@ -1,7 +1,7 @@
 
 import {
   Button, Modal, Card, Spin, Alert, Tooltip, InputNumber,
-  Radio, Select, Divider, ColorPicker, Layout
+  Radio, Select, Divider, ColorPicker, Layout, Input, Checkbox
 } from "antd";
 import { useState, useReducer, useEffect, useRef } from "react";
 import { ExclamationCircleFilled } from '@ant-design/icons';
@@ -163,7 +163,14 @@ export default function Animations({ menuKeys, children, onBack }) {
   const onEdit = async (animation) => {
 
     if (!animation || !state.page?._id)
-      return;
+    {
+      
+    saveIsChange(() => {
+      dispatch({ type: 'edit', animation: null, elementType: '' });
+    });
+    return;
+
+    }
 
     saveIsChange(() => {
       dispatch({ type: 'edit', animation: animation, elementType: animation.name });
@@ -688,19 +695,22 @@ export default function Animations({ menuKeys, children, onBack }) {
   const [direction, setDirection] = useState('normal');
   const [fillMode, setFillMode] = useState('none');
   const [playState, setPlayState] = useState('running');
-
+  const [iterationCount, setIterationCount] = useState('infinite')
   const [width, setWidth] = useState(200);
   const [height, setHeight] = useState(200);
+  const [perspective, setPerspective] = useState(0);
+
   const [borderRadius, setBorderRadius] = useState(100);
   const [backgroundItemColor, setBackgroundItemColor] = useState('#000');
 
-  const inputs = `${duration + "s"} ${timeFun} ${delay + "s"} infinite ${direction} ${fillMode} ${playState}  ${state.animation?.name}`;
+  const inputs = `${duration + "s"} ${timeFun} ${delay + "s"} ${iterationCount} ${direction} ${fillMode} ${playState}  ${state.animation?.name}`;
   const style = {
     animation: inputs,
     width: `${width}px`,
     height: `${height}px`,
     borderRadius: `${borderRadius}px`,
-    backgroundColor: backgroundItemColor
+    backgroundColor: backgroundItemColor,
+    perspective
   }
 
 
@@ -794,6 +804,16 @@ export default function Animations({ menuKeys, children, onBack }) {
                     }} />
 
                 </div>
+
+                <div style={{ marginBottom: 16 }}>
+                  <label>Perspective:</label> &nbsp; &nbsp;
+                  <InputNumber
+                    value={perspective}
+                    onChange={(value) => setPerspective(value)}
+                  />
+
+                </div>
+
                 <Divider orientation="left" orientationMargin="0">Animation</Divider>
                 <div style={{ marginBottom: 16 }}>
                   <label>Name: </label> &nbsp; &nbsp;
@@ -857,6 +877,14 @@ export default function Animations({ menuKeys, children, onBack }) {
                     <Option value="backwards">backwards</Option>
                     <Option value="both">both</Option>
                   </Select>
+                </div>
+                <div style={{ marginBottom: 16 }}>
+                  <label>Iteration Count: </label>&nbsp; &nbsp;
+                  <InputNumber max={100} min={1} value={iterationCount} onChange={(value) => setIterationCount(value)} />
+                </div>
+                <div style={{ marginBottom: 16 }}>
+                  <label>Infinite: </label>&nbsp; &nbsp;
+                  <Checkbox value={iterationCount === 'infinite'} onChange={(e) => setIterationCount(iterationCount === 'infinite' ? '1' : 'infinite')} />
                 </div>
                 <div style={{ marginBottom: 16 }}>
                   <label>Play State: </label>&nbsp; &nbsp;

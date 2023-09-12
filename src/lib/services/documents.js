@@ -76,12 +76,12 @@ const DocumentServices = {
         const response = await window.autocode.makeApiRequest();
 
         const project = response.project;
-        const url = project.url + `/documents/collection/${collectionId}/document/?search=${search}?limit=${limit}&page=${page}&sortBy=${sortBy+":"+sort}`;
+        const url = project.url + `/documents/collection/${collectionId}/document/?name=${search}&limit=${limit}&page=${page}&sortBy=${sortBy+":"+sort}`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
 
         return fetcher(`${sanitizedUrl}`, {
-            method: 'PATCH',
+            method: 'PUT',
              headers: { 'ngrok-skip-browser-warning': true, 'Content-Type': 'application/json', 'x-api-key': apikey },
             body: JSON.stringify({...states})
         });

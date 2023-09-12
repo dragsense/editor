@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Tag, Input, Button, Tooltip, AutoComplete, Popconfirm, Alert, Space, theme } from 'antd';
+import { Tag, Input, Button, Tooltip, AutoComplete, Popconfirm, Alert, Space, theme, Cascader, message } from 'antd';
 import ElementCondition from "../Condition";
 
-import { PlusOutlined, CloseOutlined, MinusCircleOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, CloseOutlined, MinusCircleOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { nanoid } from 'nanoid';
+
 
 const initial = {
     cKey: '', key: null, value: [], type: ''
@@ -10,10 +12,13 @@ const initial = {
 
 const classes = [];
 
-export default function ClassManager({ element, cascaderStates, setIsChange }) {
+export default function ClassManager({
+    element,
+    cascaderStates,
+    setIsChange }) {
 
     const {
-        token: { colorBgBase, colorWarning },
+        token: { colorText,colorError, colorBgLayout, colorWarning },
     } = theme.useToken();
 
 
@@ -24,42 +29,64 @@ export default function ClassManager({ element, cascaderStates, setIsChange }) {
     const input = useRef();
 
     const [state, setState] = useState({
-        tags: [],
+        _uid: undefined,
+        stateValue: undefined,
         inputVisible: false,
         inputValue: ''
     });
 
-
+    const [currentClasses, setCurrentClasses] = useState([]);
 
     useEffect(() => {
+        if (!cascaderStates) return;
 
 
-        if (!Array.isArray(element.classes))
-            element.classes = [];
+        setCurrentClasses(
+            cascaderStates
+                .map(state => ({
+                    ...state,
+                    children: state.children?.filter(childState => ['classes'].includes(childState.type))
 
-        const classes = element.classes;
+                }))
 
-        setState({ ...state, tags: classes })
+        );
 
+    }, [cascaderStates]);
 
-    }, [element]);
 
 
     const validateSearchInput = (inputValue, option) => {
-        const regex = /^\.[a-zA-Z][\w-]*$/;
+
+        const regex = /^(?!.*\d\.{2,})(?=.*[a-zA-Z\[\]_-]).*$/;
         const isValid = regex.test(inputValue);
         setValidationResult(isValid ? 'valid' : 'invalid');
-        return isValid;
+
+        const lengthInvalid = inputValue.length < 3 || inputValue.length > 20;
+
+        if (isValid && !lengthInvalid) {
+            setValidationResult('valid');
+        } else {
+            setValidationResult('invalid');
+        }
+
+        return isValid && !lengthInvalid;
     };
 
 
-    const handleClose = removedTag => {
+    const handleClose = uid => {
 
-        const tags = state.tags.filter(tag => tag !== removedTag);
-        element.classes = tags.map(tag => tag);
-        setState({ ...state, tags });
-        setIsChange(true);
+        try {
 
+            if (!element.classes)
+                element.classes = {};
+
+            delete element.classes[uid];
+            setState({ ...state });
+
+            setIsChange(true);
+        } catch (e) {
+            message.error("class not found.")
+        }
 
     };
 
@@ -82,24 +109,27 @@ export default function ClassManager({ element, cascaderStates, setIsChange }) {
 
     const handleInputConfirm = () => {
 
-        let { tags, inputValue } = state;
-        inputValue = inputValue.substring(1);
-        if (inputValue && tags.findIndex(tag => tag.name == inputValue) == -1) {
-            tags = [...tags, { name: inputValue, conditions: current?.conditions }];
-            element.classes.push({ name: inputValue, conditions: current?.conditions });
-            setIsChange(true);
+        let { inputValue, stateValue, _uid } = state;
 
-            const value = "." + inputValue;
-            if (classes.findIndex(clas => clas.value == value) === -1)
-                classes.push({ value });
+         _uid = _uid ? _uid : nanoid(3);
 
-        }
+        if (!element.classes)
+            element.classes = {};
+
+        element.classes[_uid] = { _uid, stateValue, name: inputValue, conditions: current?.conditions };
+        setIsChange(true);
+
+        const value = inputValue;
+        if (classes.findIndex(clas => clas.value == value) === -1 && !stateValue)
+            classes.push({ value });
+
+
 
         setState({
-            ...state,
-            tags,
+            _uid: undefined,
             inputVisible: false,
             inputValue: '',
+            stateValue: undefined,
         });
 
         setCurrent(null);
@@ -112,30 +142,71 @@ export default function ClassManager({ element, cascaderStates, setIsChange }) {
     };
 
 
-    const { tags, inputVisible, inputValue } = state;
+    const onChangekey = (keys) => {
+
+        if (keys === undefined || keys[0] === undefined) {
+            state.stateValue = undefined
+
+        } else {
+
+            const value = [...keys];
+
+            const stateValue = state.stateValue ?? {};
+
+            stateValue.type = value[0];
+            value.shift();
+            stateValue.key = value;
+            state.stateValue = stateValue
+
+          
+        }
+        setState({
+            ...state
+        });
+
+        setIsChange(true);
+
+    }
+
+
+    const { tags, inputVisible, inputValue, stateValue } = state;
     return (
         <>
-            {tags.map((tag, index) => {
+            {Object.values(element.classes || {}).map((tag, index) => {
                 const isLongTag = tag.name.length > 20;
-
+                const name = tag.name;
                 const tagElem = (
                     <Tag
-                        key={tag.name}
+                        key={index}
 
 
-                        color={Array.isArray(tag.conditions) ? colorWarning : colorBgBase}
+                        color={Array.isArray(tag.conditions) ? colorWarning : colorBgLayout}
                     >
-                        <span >
-                            {isLongTag ? `${tag.name.slice(0, 2)}...` : tag.name} &nbsp;&nbsp;
+                        <span style={{ color: colorText }}>
+                            {isLongTag ? `${name.slice(0, 2)}...` : name} &nbsp;&nbsp;
+                           <EditOutlined size="small" onClick={(e) => {
+                                e.preventDefault();
+
+                                setState({
+                                    _uid: tag._uid,
+                                    inputVisible: !state.inputVisible, 
+                                    inputValue: name,
+                                    stateValue: tag.stateValue
+                                });
+
+                                setCurrent({ conditions: tag.conditions })
+
+
+                            }} />  &nbsp;&nbsp; 
                             <Popconfirm
                                 title="Delete"
                                 description="Are you sure to delete this class?"
-                                onConfirm={() => handleClose(tag)}
+                                onConfirm={() => handleClose(tag._uid)}
                                 onCancel={() => { }}
                                 okText="Yes"
                                 cancelText="No"
                             >
-                                <DeleteOutlined />
+                                <DeleteOutlined  style={{color: colorError}}/>
                             </Popconfirm>
                         </span>
                     </Tag>
@@ -150,7 +221,22 @@ export default function ClassManager({ element, cascaderStates, setIsChange }) {
 
                     </Alert>
                 </>}
+
+
+                <Cascader style={{ width: '100%', margin: '5px 0'  }}
+                    allowClear
+                    options={currentClasses}
+                    value={state.stateValue
+                        ?
+                        [state.stateValue.type, ...(Array.isArray(state.stateValue.key) ?
+                            state.stateValue.key : [])] : [undefined]}
+                    onChange={onChangekey}>
+
+                </Cascader>
+
                 <Space style={{ paddingTop: 10 }}>
+
+
 
                     <AutoComplete
                         options={classes}
@@ -160,6 +246,7 @@ export default function ClassManager({ element, cascaderStates, setIsChange }) {
                         }
                         status={validationResult === 'invalid' ? 'error' : ''}
                         onSelect={handleSelectChange}
+                        value={inputValue}
                     >
                         <>
 
@@ -194,12 +281,12 @@ export default function ClassManager({ element, cascaderStates, setIsChange }) {
             </>
 
             }
-           <div style={{paddingTop: 10}}>
-            {element && !inputVisible && (
-                <Tag onDoubleClick={showInput}>
-                    <PlusOutlined /> New Class
-                </Tag>
-            )}
+            <div style={{ paddingTop: 10 }}>
+                {element && !inputVisible && (
+                    <Tag onDoubleClick={showInput}>
+                        <PlusOutlined /> New Class
+                    </Tag>
+                )}
             </div>
         </>
     );

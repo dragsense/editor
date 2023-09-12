@@ -45,6 +45,7 @@ function SearchableSelector({ selectors, onSelect, onDelete }) {
         value={searchTerm}
         placeholder="Please Select"
         onSearch={handleSearchInput}
+        onSelect={handleSelectOption}
         option={selectors}
         dropdownRender={menu => (
             <div>

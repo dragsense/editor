@@ -384,7 +384,7 @@
       "attributes": {
         "type": {
           "key": "type",
-          "value": "button"
+          "value": "'button'"
         }
       }
     },
@@ -403,7 +403,7 @@
       "attributes":  {
         "type": {
           "key": "type",
-          "value": "text"
+          "value": "'text'"
         }
        },
       "type": "inputs"
@@ -424,7 +424,7 @@
       "attributes":  {
         "type": {
           "key": "type",
-          "value": "number"
+          "value": "'number'"
         }
       }
     },
@@ -444,7 +444,7 @@
       "attributes":  {
         "type": {
           "key": "type",
-          "value": "date"
+          "value": "'date'"
         }
       }
     },
@@ -464,7 +464,7 @@
       "attributes":  {
         "type": {
           "key": "type",
-          "value": "datetime-local"
+          "value": "'datetime-local'"
         }
       }
     },
@@ -484,7 +484,7 @@
       "attributes": {
         "type": {
           "key": "type",
-          "value": "month"
+          "value": "'month'"
         }
       }
     }, 
@@ -504,7 +504,7 @@
       "attributes": {
         "type": {
           "key": "type",
-          "value": "time"
+          "value": "'time'"
         }
       }
     },
@@ -524,7 +524,7 @@
       "attributes": {
         "type": {
           "key": "type",
-          "value": "file"
+          "value": "'file'"
         }
       }
     },
@@ -543,7 +543,7 @@
       "attributes":  {
         "type": {
           "key": "type",
-          "value": "checkbox"
+          "value": "'checkbox'"
         }
       }
     },
@@ -563,7 +563,7 @@
       "attributes":  {
         "type": {
           "key": "type",
-          "value": "radio"
+          "value": "'radio'"
         }
       }
     },
@@ -612,7 +612,7 @@
        "attributes":  {
         "multiple": {
           "key": "multiple",
-          "value": true
+          "value": "'true'"
         }
       }
     },
@@ -632,16 +632,16 @@
       "attributes":  {
         "htmlType": {
           "key": "htmlType",
-          "value": "submit"
+          "value": "'submit'"
         },
           "type": {
             "key": "type",
-          "value": "submit"
+          "value": "'submit'"
         },
         
           "value": {
           "key": "value",
-          "value": "Submit"
+          "value": "'Submit'"
         }
       }
     }

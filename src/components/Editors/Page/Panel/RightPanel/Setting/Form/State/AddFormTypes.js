@@ -20,6 +20,7 @@ export default function AddFormTypes({ onChangeState, state }) {
     }
 
 
+
     const onChangeType = (value) => {
         state.type = value;
 

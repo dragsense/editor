@@ -1,82 +1,124 @@
 import { message } from 'antd';
 
 export const getStateValue = (key, states) => {
-
   let defaultValue = "";
 
-  if (!states)
-    return defaultValue;
-
-  const stateRef = states[key[0]];
-
-  if (!stateRef)
-    return defaultValue;
+  try {
 
 
-  if (stateRef.type == 'image') {
-    defaultValue = {
-      value: stateRef.defaultValue ? stateRef.defaultValue.src : './images/default/default-img.png',
-      label: stateRef.defaultValue?.alt
-    }
-  }
-  else
-    if (stateRef.type == 'video') {
+    if (!states)
+      return defaultValue;
+
+    let stateRef = states[key[0]];
+
+    if (!stateRef)
+      return defaultValue;
+
+
+    if (stateRef.type == 'image') {
       defaultValue = {
-        value: stateRef.src ? stateRef.src.src : './images/default/default-poster.png',
-        label: stateRef.src?.alt, srcs: stateRef.srcs
+        value: stateRef.src ? stateRef.src.src : './images/default/default-img.png',
+        label: stateRef.src?.alt || 'image'
       }
-    } else
-      if (stateRef.type == 'audio') {
+    }
+    else
+      if (stateRef.type == 'video') {
         defaultValue = {
-          value: './audios/default/sample.mp3', srcs: stateRef.srcs
+          value: stateRef.src ? stateRef.src.src : './images/default/default-poster.png',
+          label: stateRef.src?.alt || 'video', srcs: stateRef.srcs
         }
-      }
-      else
-        if (key[1] && stateRef.states) {
-          defaultValue = (stateRef.states[key[1]] !== undefined ? stateRef.states[key[1]] : "")
+      } else
+        if (stateRef.type == 'audio') {
+          defaultValue = {
+            value: './audios/default/sample.mp3', srcs: stateRef.srcs
+          }
         }
         else
-          defaultValue = (stateRef.defaultValue !== undefined ? stateRef.defaultValue : "");
+          if (stateRef.type == 'images') {
+            if (key[1] && stateRef.states) {
+              const index = Number(key[1]) !== NaN ? Number(key[1]) : -1;
+              defaultValue = (stateRef.states[index] !== undefined ? stateRef.states[index].src : "")
+              if (stateRef.states[index] !== undefined) {
+                const value = stateRef.states[index]
+                defaultValue = {
+                  value: value.src || './images/default/default-img.png',
+                  label: value.alt || 'image'
+                }
+              }
+            }
+          } else
+            if (stateRef.type == 'array') {
+              if (key[1] && stateRef.states) {
+                const index = Number(key[1]) !== NaN ? Number(key[1]) : -1;
+                if (stateRef.states[index] !== undefined) {
+                  const value = stateRef.states[index].value?.split(":")
+                  defaultValue = {
+                    value: value[0],
+                    label: value[1] || value[0]
+                  }
+                }
+              }
+            }
+            else
+              if (stateRef.type == 'object') {
 
+                defaultValue = getStateValue([key[1]], stateRef.states)
+
+
+              } else
+                defaultValue = (stateRef.defaultValue !== undefined ? stateRef.defaultValue : "");
+
+
+  } catch (e) {
+    message.error("Some thing went wrong.");
+  }
 
   return defaultValue;
+
 }
 
 export const getStateStates = (key, states) => {
-
-
   let values = [];
 
-  if (!states)
-    return values;
+  try {
 
-  const value = states[key[0]];
-  if (!value)
-    return values;
+    if (!states)
+      return values;
 
-  // if (value.type == 'arraylength') {
-  //   const defaultValue = (value.defaultValue !== undefined ? value.defaultValue : 0);
-  //   values = Array.from({ length: parseInt(defaultValue) }, (_, index) => {
-  //     return { label: `${value.text || "Item"} ${index}`, value: index }
-  //   })
-  // }
+    const value = states[key[0]];
+    if (!value)
+      return values;
+
+    // if (value.type == 'arraylength') {
+    //   const defaultValue = (value.defaultValue !== undefined ? value.defaultValue : 0);
+    //   values = Array.from({ length: parseInt(defaultValue) }, (_, index) => {
+    //     return { label: `${value.text || "Item"} ${index}`, value: index }
+    //   })
+    // }
 
 
-  if (value.type == 'array') {
-    values = Object.values(value.states).map((value, index) => {
-      const val = value.split(":");
-      return { label: val[0], value: val[1] ? val[1] : index }
-    })
+    if (value.type == 'array') {
+      values = Object.values(value.states).flatMap((value, index) => {
+        const v = value;
+        const val = v.value.split(":");
+        return { label: val[0], value: val[1] ? val[1] : v.idx }
+      })
+    }
+
+    if (value.type == 'images') {
+      values = Object.values(value.states).map((value) => {
+        return { label: value.alt, value: value.src }
+      })
+    }
+
+
+
+  } catch (e) {
+    message.error("Some thing went wrong.");
   }
-
-  if (value.type == 'images') {
-    values = Object.values(value.states).map((value) => {
-      return { label: value.alt, value: value.src }
-    })
-  }
-
 
   return values;
+
 }
 
 export const getStateRef = (key, states) => {
@@ -96,41 +138,24 @@ export const updateStateValue = (elem, withValue, states, value, updateKey = "de
   const key = elem.key;
   const expression = elem.value;
 
-  if (!expression)
-    return;
+
 
   let stateRef = getStateRef(key, states);
 
   if (!stateRef)
     return false;
 
-
-
-
-
   try {
 
-
-
-    let orignal = expression.replace(/\[withkey]/g, withValue);
-    orignal = orignal.replace(/\[value]/g, value);
-    orignal = orignal.replace(/\[key]/g, stateRef.defaultValue);
-    //
-
     let val = '';
-    // let evalString;
 
-
-    // if (withValue)
-    //   evalString = `${withValue} ${value}`;
-    // else
-    //   evalString = `${value}`;
-
-    // evalString = evalString.replace(/\s/g, '');
-    // const hasNonNumeric = /[^+\-*/()\d]/.test(evalString);
-    // val = hasNonNumeric ? evalString : eval(evalString);
-
-    val = eval(orignal);
+    if (expression) {
+      let orignal = expression.replace(/\[withkey]/g, withValue);
+      orignal = orignal.replace(/\[value]/g, value);
+      orignal = orignal.replace(/\[key]/g, stateRef.defaultValue);
+      val = eval(orignal);
+    } else
+      val = value;
 
     if (val >= stateRef.max && updateKey !== 'max')
       val = stateRef.max;
@@ -147,15 +172,14 @@ export const updateStateValue = (elem, withValue, states, value, updateKey = "de
     else
       stateRef[updateKey] = val;
 
-
   } catch (e) {
-
     message.error(e.message);
   }
 
 
 
 }
+
 
 
 export const generateCascader = (elementStates, type, value) => {
@@ -212,6 +236,9 @@ export const getPaginationRange = (currentPage, totalPages, pagination) => {
 
   let start = Math.max(currentPage - rangeSize, 1);
   let end = Math.min(currentPage + rangeSize, totalPages);
+
+
+
 
   if (leftRangeLength > totalPages) {
     leftRangeLength = totalPages;

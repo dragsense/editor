@@ -191,3 +191,28 @@ export const getPaginationRange = (currentPage, totalPages, pagination) => {
 
   return [...leftRange, ...nearbyRange, ...rightRange];
 };
+
+
+export const validateClassInput = (inputValue) => {
+
+  const regex = /^(?!.*\d\.{2,})(?=.*[a-zA-Z\[\]_-]).*$/;
+  const isValid = regex.test(inputValue);
+  const lengthInvalid = inputValue.length < 3 || inputValue.length > 20;
+
+  return isValid && lengthInvalid ? inputValue : '';
+};
+
+
+export function getFileExtension(filename) {
+  // Use the lastIndexOf method to find the last dot in the filename
+  const lastDotIndex = filename.lastIndexOf('.');
+  
+  // Check if a dot was found and if it's not the last character in the string
+  if (lastDotIndex !== -1 && lastDotIndex < filename.length - 1) {
+    // Use substring to get the text after the last dot
+    return filename.substring(lastDotIndex + 1);
+  } else {
+    // No dot or dot is the last character (no extension)
+    return '';
+  }
+}

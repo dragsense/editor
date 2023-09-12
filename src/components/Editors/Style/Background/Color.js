@@ -19,7 +19,7 @@ export default function Color({ type, colors, style, properties, onChangeStyle, 
     const [gradientColors, setGradientColors] = useState([]);
 
 
-  
+
 
     useEffect(() => {
 
@@ -100,7 +100,7 @@ export default function Color({ type, colors, style, properties, onChangeStyle, 
                 properties['background'] = {};
             properties['background'].priority = priority;
 
-            setStylePriority({ ...stylePriority, 'background':priority });
+            setStylePriority({ ...stylePriority, 'background': priority });
             style.setProperty('background', style.background, priority);
         }
 
@@ -228,7 +228,7 @@ export default function Color({ type, colors, style, properties, onChangeStyle, 
         <div style={{ marginBottom: "10px" }}>
             <strong>{type}:  </strong>
             <Tooltip placement='bottom' title="important">
-                <Checkbox style={{ marginLeft: 3 }} name='backgroundColor' data-name="background-color" checked={stylePriority.backgroundColor === 'important' || (isGradient && stylePriority.background === 'important') } onChange={onChangePriority}>i</Checkbox>
+                <Checkbox style={{ marginLeft: 3 }} name='backgroundColor' data-name="background-color" checked={stylePriority.backgroundColor === 'important' || (isGradient && stylePriority.background === 'important')} onChange={onChangePriority}>i</Checkbox>
             </Tooltip>
             <Tooltip placement="top" title="Reset">
                 <Button
@@ -241,9 +241,9 @@ export default function Color({ type, colors, style, properties, onChangeStyle, 
 
                         if (properties['background-color'])
                             delete properties['background-color'];
-                            if (properties['background'])
+                        if (properties['background'])
                             delete properties['background'];
-                            
+
                         style.removeProperty('background-color');
                         style.removeProperty('background');
 
@@ -330,11 +330,19 @@ export default function Color({ type, colors, style, properties, onChangeStyle, 
                 {gradientColors.map((color, index) => (
                     <div style={{ marginBottom: "10px" }}>
                         <div className="flex items-center">
-                            <Input
-                                type="color"
+                          
+                            <ColorPicker
                                 value={color.color}
-                                onChange={(e) => onGradientColorChange(index, e.target.value)}
-                            />
+
+                                allowClear={true}
+                                format={"hex"}
+                                onChangeComplete={(color, hex) => {
+                                    const metaColor = color.metaColor;
+                                    const rgbColor = `rgba(${metaColor.r}, ${metaColor.g}, ${metaColor.b}, ${metaColor.a})`;
+                                    onGradientColorChange(index, rgbColor)
+
+                                }} />
+
                         </div>
 
                         <Slider

@@ -25,8 +25,7 @@ const ElementLayout = (props) => {
         node,
         children } = props;
 
-    const mapVal = { label: 'Element', value: 0 }
-    const mapIdx = pos.slice(-1)
+
 
 
 
@@ -72,7 +71,7 @@ const ElementLayout = (props) => {
 
         return nodes.length > 0 ?
             nodes.map((mapValue, mapIndex) => element(node, children, mapValue, mapIndex)) :
-            element(node, children, mapValue || mapVal, mapIndex || mapIdx);
+            element(node, children, mapValue, mapIndex);
 
     }, [nodes])
 
@@ -185,6 +184,8 @@ const ElementLayout = (props) => {
                 updateStates={updateStates}>{children}</Menu>;
             break;
         case 'select':
+            case 'multiselect':
+
             return element(node, nodes.length > 0 ?
                 nodes.map((mapValue, mapIndex) =>
                     <ElementSetting

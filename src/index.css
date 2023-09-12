@@ -158,3 +158,10 @@ Editor  Ruler
 .ant-menu-light .ant-menu-item-selected {
   color: #101010 !important;
 }
+
+.style-item-panel:not(.ant-collapse-item-active):hover {
+  transform: translateX(20px); /* Zoom effect */
+  font-weight: bold; /* Bold text */
+  background-color: #f3f3f3;
+  transition: all 0.1s ease-in-out;
+}

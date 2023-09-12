@@ -93,6 +93,7 @@ function SearchableSelector({ state, onSelect, animation = false }) {
 
         const selector = selectors.find(sel => sel._uid === value)
 
+        console.log(selectors)
         if (!selector)
             return;
 
@@ -157,6 +158,8 @@ function SearchableSelector({ state, onSelect, animation = false }) {
 
                 animation.style[selectorText] = {
                     selectorText,
+                    _uid: id,
+
                     type: state.elementType,
                     properties: {
                     }
@@ -273,7 +276,9 @@ function SearchableSelector({ state, onSelect, animation = false }) {
 
         >
 
-            {selectors.map((value) => <Option value={value._uid} label={value.selectorText}>
+            {selectors.map((value, index) => <Option 
+            key={index}
+            value={value._uid} label={value.selectorText}>
                 {value.selectorText}
             </Option>)}
         </Select>

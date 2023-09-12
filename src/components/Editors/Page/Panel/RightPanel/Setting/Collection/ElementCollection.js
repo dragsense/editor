@@ -66,12 +66,12 @@ export default function ElemnetCollection({
         if (!cascaderStates)
             return;
 
-            const extractedChildren = cascaderStates
+        const extractedChildren = cascaderStates
             .filter(state => state.type === 'STATES' || state.type === 'PROPS')
         setComponentStates(extractedChildren);
 
         const extractedAndFilteredChildren = cascaderStates
-            .filter(state => state.type === 'COLSTATES')
+            .filter(state => state.type === 'COLLECTION')
             .flatMap(state => {
                 const allowedValues = [
                     '_id',
@@ -108,8 +108,10 @@ export default function ElemnetCollection({
 
             // if (key[0] == '__relationship__')
             //     defaultValue = filter.defaultRelationshipsFilter?.map(val => val._id);
+            return { 
+                filterKey: [filter.type, ...filter.filterKey], defaultValue: defaultValue || '', 
 
-            return { key: filter.key, name: filter.name, defaultValue }
+            name: filter.name }
         }
         )
 
@@ -123,6 +125,7 @@ export default function ElemnetCollection({
 
             dispatch({ type: 'start' });
 
+
             const res = await DocumentServices.searchWithFilters(
                 state._id,
                 documentSeacrh,
@@ -132,6 +135,8 @@ export default function ElemnetCollection({
                 state.sortBy || 'createdAt',
                 state.sort || 'acs'
             );
+
+
 
             dispatch({ type: 'documents', data: res.documents });
 
@@ -422,7 +427,7 @@ export default function ElemnetCollection({
                 relationships={state.selectedRelationships}
                 withRelationship={state.withRelationship} /> : <>{
 
-                    filters.map((filter, idx) => <div style={{ paddingBottom: 10 }}>
+                    Object.values(state.filters || {}).map((filter, idx) => <div style={{ paddingBottom: 10 }}>
                         <b>Name: {filter.name} </b>
                         <EditOutlined onClick={() => onEditFilter(filter.key)} />  &nbsp;
 
@@ -462,14 +467,14 @@ export default function ElemnetCollection({
                 }
                 }
                 dropdownRender={dropdownRender}
-                value={Array.isArray(state.documents) ? state.documents.map(val => val._id) : []}
-                defaultValue={Array.isArray(state.documents) ? state.documents.map(val => val._id) : []}
+                value={Array.isArray(state.docs) ? state.docs.map(val => val._id) : []}
+                defaultValue={Array.isArray(state.docs) ? state.docs.map(val => val._id) : []}
 
                 optionFilterProp="label"
             >
-                {Array.isArray(state.documents) &&
-                    state.documents.map((document, index) => <Option
-                        key={index} disabled
+                {Array.isArray(state.docs) &&
+                    state.docs.map((document, index) => <Option
+                        key={index} 
                         value={document._id}
                         label={document.name}>{document.name}</Option>)}
                 <Option value="" label="">All</Option>

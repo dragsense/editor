@@ -6,7 +6,7 @@ import IFrame from "./Iframe";
 
 import { RightPanelComponent, LeftPanelComponent } from "./Panel";
 import CanvasEditor from "../Canvas";
-
+import Preview from './Preview';
 import { EditorNav } from '../../Nav';
 
 const { Content } = Layout;
@@ -18,6 +18,7 @@ export default function Editor({ children, _id, pageType, onBack }) {
 
     const [minMax, setMinMax] = useState('');
     const [orientation, setOrientation] = useState("");
+    const [previewMode, setPreviewMode] = useState(false);
 
     const { state,
         undo,
@@ -54,10 +55,12 @@ export default function Editor({ children, _id, pageType, onBack }) {
             setOrientation={setOrientation}
             orientation={orientation}
             windowWidth={windowWidth}
+            previewMode={previewMode}
+            setPreviewMode={setPreviewMode}
             onBack={onBack}
             setWindowWidth={setWindowWidth} >
             <Layout style={{ marginTop: 0, minHeight: 'calc(100vh - 56px)' }}>
-                <LeftPanelComponent />
+                {!previewMode && <LeftPanelComponent />}
 
                 <Content>
 
@@ -74,6 +77,7 @@ export default function Editor({ children, _id, pageType, onBack }) {
                             onMove={onMove}
                             onDelete={onDelete}
                             onCopy={onCopy}
+                            previewMode={previewMode}
                             onChange={onChange}
                             onAdd={onAdd}
                             state={state}
@@ -81,12 +85,17 @@ export default function Editor({ children, _id, pageType, onBack }) {
                             onUpdate={onUpdate}
                         >
                            
-                            {state.page &&
+                            {state.page && !previewMode &&
                                 <Elements page={state.page}
                                     onUpdateStates={onUpdateStates}
                                     pageUpdated={state.pageUpdated}
                                     loading={state.loading} />
                             }
+
+                            {state.page && previewMode &&
+                                <Preview page={state.page} />
+                            }
+
 
                         </IFrame>
 
@@ -95,7 +104,7 @@ export default function Editor({ children, _id, pageType, onBack }) {
 
                 </Content>
 
-                <RightPanelComponent
+                {!previewMode && <RightPanelComponent
                     onDeleteSelector={onDeleteSelector}
                     onUpdateSelector={onUpdateSelector}
                     onSelectSelector={onSelectSelector}
@@ -107,7 +116,7 @@ export default function Editor({ children, _id, pageType, onBack }) {
                     onClickElement={onClickElement}
                     state={state}
                     onUpdate={onUpdate}
-                />
+                />}
 
             </Layout>
 

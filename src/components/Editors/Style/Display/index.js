@@ -17,6 +17,7 @@ export default function Display({ style, properties, onChangeStyle }) {
         display: '',
         opacity: '',
         visibility: '',
+        backfaceVisibility: '',
         rowGap: '',
         columnGap: '',
         flexDirection: '',

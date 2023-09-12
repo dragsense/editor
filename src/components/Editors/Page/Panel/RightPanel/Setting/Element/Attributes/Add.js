@@ -16,7 +16,14 @@ const initialCondtion = {
 }
 const { Option } = Select;
 
-export default function AddAttribute({ current, attributes, label, setCurrent, onAdd, states }) {
+export default function AddAttribute({ 
+    isCondtions = true,
+    current,
+     attributes,
+      label, 
+      setCurrent,
+       onAdd, 
+       states }) {
 
 
     const [newState, setNewState] = useState(current);
@@ -57,12 +64,9 @@ export default function AddAttribute({ current, attributes, label, setCurrent, o
             setNewState({ ...newState, valueState: undefined })
         else {
             const value = [...keys];
-            const first = value[0];
             value.shift()
-
-
-
-            setNewState({ ...newState, valueState: { key: value, type: first } })
+console.log({ key: value, type: keys[0] }, states)
+            setNewState({ ...newState, valueState: { key: value, type: keys[0] } })
         }
     }
 
@@ -72,7 +76,7 @@ export default function AddAttribute({ current, attributes, label, setCurrent, o
         <>
 
             <Divider orientation="left" orientationMargin="0">Set {label}: </Divider>
-            <ElementCondition setIsChange={() => { }} cascaderStates={states} state={newState} setState={setNewState} />
+            {isCondtions && <ElementCondition setIsChange={() => { }} cascaderStates={states} state={newState} setState={setNewState} />}
             <Divider orientation="left" orientationMargin="0"></Divider>
 
             <Form
@@ -89,7 +93,7 @@ export default function AddAttribute({ current, attributes, label, setCurrent, o
                     <Input
                         placeholder="Name"
                         name="name"
-
+                        maxLength={100}
                         onChange={onChangeValue}
                         value={newState.name}
                         required
@@ -139,6 +143,7 @@ export default function AddAttribute({ current, attributes, label, setCurrent, o
 
                         <Input placeholder="Custom Value" 
                         name="value"
+                        maxLength={200}
                             onChange={onChangeValue}
                             value={newState.value}
                         />

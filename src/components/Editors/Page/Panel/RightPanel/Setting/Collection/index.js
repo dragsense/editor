@@ -6,7 +6,7 @@ import ElementCollection from './ElementCollection';
 import { getAllData, storePage } from "../../../../../../../lib/db";
 
 
-export default function Collection({ state, onUpdate, cascaderStates }) {
+export default function Collection({ state, onChange, cascaderStates }) {
 
     const [collectionState, setState] = useState(null);
     const [isChange, setIsChange] = useState(false);
@@ -26,6 +26,7 @@ export default function Collection({ state, onUpdate, cascaderStates }) {
 
             if (collection) {
                 setState({
+                    _id: collection._id,
                     ...node.collStates,
                     relationships: collection.populatedRelationships,
                     states: undefined
@@ -57,6 +58,7 @@ export default function Collection({ state, onUpdate, cascaderStates }) {
         if (state.states['COLLECTION'])
             state.states['COLLECTION'].setStates(collectionState);
         setIsChange(false);
+        onChange(true)
     }
 
     return state.node ? <>

@@ -112,16 +112,16 @@ const createInput = async (tag, state, document) => {
         type: tag.type,
         layout: tag.layout,
         options: tag.options,
-        attributes: { ...tag.attributes, id: { key: "id", value: inputId + "_" + tag.key } },
-        state: {
+        attributes: { ...tag.attributes, id: { key: "id", value: `'${inputId}_${tag.key}'` } },
+        state: tag.fieldType !== 'file' ? {
             type: 'FORMSTATES',
             key: [tag.key, "defaultValue"]
-        },
-        onChange: {
+        }: undefined,
+        onChange: tag.fieldType !== 'file' ? {
             type: 'FORMSTATES',
             key: [tag.key, "defaultValue"],
             value: "'[value]'"
-        },
+        } : undefined,
         labelPos: tag.labelPos,
         nodeValue: tag.nodeValue,
         childNodes: [],
@@ -140,7 +140,7 @@ const createInput = async (tag, state, document) => {
         type: "texts",
         layout: "form-label",
         nodeValue: tag.label,
-        attributes: { htmlFor: { key: "htmlFor", value: inputId + "_" + tag.key } },
+        attributes: { htmlFor: { key: "htmlFor", value: `'${inputId}_${tag.key}'` } },
         childNodes: [],
         className: "",
         selector: "." + className + " label"

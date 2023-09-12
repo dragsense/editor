@@ -1,7 +1,12 @@
 
 import React, { Children, useMemo } from 'react';
 
-const General = ({ _uid, conds, disabled, onClick, name, innerWraaper, value, children, pos }) => {
+const General = ({ _uid, conds, disabled,
+    onMouseMove,
+    onClick,
+    onScroll,
+
+    name, innerWraaper, value, children, pos }) => {
 
 
     const disabledStyles = {
@@ -12,23 +17,33 @@ const General = ({ _uid, conds, disabled, onClick, name, innerWraaper, value, ch
     const spanElement = innerWraaper ? (<>
         {React.isValidElement(value) ? value : <div
             dangerouslySetInnerHTML={{ __html: value }}
-          
             data-child={`child-${_uid}`}
             style={{
                 display: 'inline',
-                cursor: 'text'
+                cursor: 'text',
+
             }}
         />
         }
         {innerWraaper}</>
-    ) : <span  style={{ userSelect: 'none', color: "#cccccc" }}>{name}</span>;
+    ) : <span style={{ userSelect: 'none', color: "#cccccc" }}>{name}</span>;
 
 
 
     const clonedElement = React.cloneElement(children, {
         customAttributes: {
-          
-            onClick: onClick ? onClick : (e) => e.preventDefault(),
+            onMouseMove: onMouseMove,
+            onScroll: onScroll,
+
+            onClick: onClick ? onClick : (e) => {
+                const currentElement = e.target;  
+                if (currentElement.tagName.toLowerCase() === 'a' ||
+                currentElement.parentNode.tagName.toLowerCase() === 'a') {
+                // Prevent the default behavior for anchor links
+                e.preventDefault();
+              }
+
+            },
             "data-id": _uid,
             "data-pos": pos,
             "data-name": name,
@@ -49,8 +64,21 @@ const General = ({ _uid, conds, disabled, onClick, name, innerWraaper, value, ch
 
     const disabledElement = React.cloneElement(children, {
         customAttributes: {
-           
-            onClick: onClick ? onClick : (e) => e.preventDefault(),
+            onMouseMove: onMouseMove,
+            onScroll: onScroll,
+
+            onClick: onClick ? onClick : (e) => {
+
+                const currentElement = e.target;  
+                if (currentElement.tagName.toLowerCase() === 'a' ||
+                currentElement.parentNode.tagName.toLowerCase() === 'a') {
+                // Prevent the default behavior for anchor links
+                e.preventDefault();
+              }
+
+             
+
+            },         
             style: conds ? {} : disabledStyles
         }
     }, disabledChild);

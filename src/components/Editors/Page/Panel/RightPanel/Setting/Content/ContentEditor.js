@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
-import { Button, Modal, theme, Space, message } from "antd";
+import { Button, Modal, theme, Space, message, Cascader } from "antd";
 
 import ContentEditor from "../../../../Element/ContentEditor";
 
@@ -10,7 +10,11 @@ import SyntaxHighlighter from "../../../../Element/Content/SyntaxHighlighter";
 import { dark } from "react-syntax-highlighter/dist/cjs/styles/hljs"
 import { EditOutlined } from "@ant-design/icons";
 
-export default function RichTextEditor({ disabled, state, onChange }) {
+export default function RichTextEditor({
+    disabled,
+    state,
+    onChange,
+    cascaderStates }) {
 
 
     const {
@@ -19,9 +23,13 @@ export default function RichTextEditor({ disabled, state, onChange }) {
 
 
     const contentRef = useRef();
+    const textareaRef = useRef();
+
 
     const [html, setHtml] = useState('');
     const [type, setType] = useState(0);
+
+  
 
     useEffect(() => {
 
@@ -29,6 +37,7 @@ export default function RichTextEditor({ disabled, state, onChange }) {
             return;
 
         ContentEditor.destroy(null);
+
         if (type == 0) {
             contentRef.current.innerHTML = html;
 
@@ -53,14 +62,14 @@ export default function RichTextEditor({ disabled, state, onChange }) {
         if (!state.node)
             return;
 
-            if (type == 1) {
-                onChange(html)
+        if (type == 1) {
+            onChange(html)
 
-            }
-            else {
-                onChange(contentRef.current.innerHTML)
+        }
+        else {
+            onChange(contentRef.current.innerHTML)
 
-            }
+        }
 
         setIsModalOpen(false);
 
@@ -74,6 +83,11 @@ export default function RichTextEditor({ disabled, state, onChange }) {
     };
 
     const handleAfterOpenChange = (visible) => {
+
+        if(!state.node) {
+            message.error("node not selected.")
+        }
+
         if (visible && contentRef.current) {
             let existingChildren = state?.node.querySelector(`[data-child="child-${state._uid}"]`);
 
@@ -90,6 +104,59 @@ export default function RichTextEditor({ disabled, state, onChange }) {
         }
     };
 
+    const onChangeKeys = (keys) => {
+        // Get a reference to the content element (assuming contentRef is a valid reference)
+
+
+        if (type == 0) {
+            const contentEditable = contentRef.current;
+
+            if (!contentEditable || !keys) return;
+            contentEditable.focus();
+
+            // Get the current selection and range
+            const selection = window.getSelection();
+            const range = selection.getRangeAt(0);
+
+            // Create a text node with the keys text
+            const keysNode = document.createTextNode(`{{${keys.join("/")}}}`);
+
+            // Insert the keys text at the cursor position
+            range.deleteContents();
+            range.insertNode(keysNode);
+
+            // Move the cursor to the end of the inserted text
+            range.setStartAfter(keysNode);
+            range.setEndAfter(keysNode);
+
+            // Collapse the selection to the end of the inserted text
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            contentEditable.focus();
+        }
+        else {
+            const textarea = textareaRef.current;
+
+            if (!textarea || !keys) return;
+            textarea.focus();
+
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const currentText = textarea.value;
+            const newValue = `{{${keys.join("/")}}}`;
+            const newText = currentText.substring(0, start) + newValue + currentText.substring(end);
+            setHtml(newText)
+            textarea.selectionStart = textarea.selectionEnd = start + newValue.length;
+
+            textarea.focus();
+        }
+        // Set focus back to the content-editable element
+    };
+
+
+
+
 
 
     return (
@@ -97,7 +164,18 @@ export default function RichTextEditor({ disabled, state, onChange }) {
             <Button disabled={disabled} onClick={showModal}>
                 Edit Content <EditOutlined style={{ color: colorPrimary }} />
             </Button>
-            <Modal width="90%" afterOpenChange={handleAfterOpenChange} title="Edit Content" visible={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+            <Modal width="90%" afterOpenChange={handleAfterOpenChange}
+
+                title={<>
+
+                    Edit Contents &nbsp;&nbsp;
+                    <Cascader
+                        options={cascaderStates}
+                        onChange={onChangeKeys}
+                        placeholder="Select State"
+                    />
+
+                </>} visible={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
 
                 <Space wrap>
                     <Button disabled={type == 0}
@@ -125,10 +203,11 @@ export default function RichTextEditor({ disabled, state, onChange }) {
 
                 <div style={{ overflowY: 'auto', overflowX: 'clip', maxHeight: '50vh' }}>
 
-                    {type == 0 && <div ref={contentRef} index={0}>
+                    {type == 0 && <div key={0} ref={contentRef} index={0}>
                     </div>}
-                    {type == 1 && <div style={{ position: 'relative' }} index={1}>
+                    {type == 1 && <div key={1} style={{ position: 'relative' }} index={1}>
                         <textarea
+                            ref={textareaRef}
                             style={{
                                 caretColor: 'white',
                                 margin: '0px',

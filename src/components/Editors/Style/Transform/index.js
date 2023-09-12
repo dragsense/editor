@@ -52,12 +52,12 @@ export default function Trasform({ style, properties, onChangeStyle  }) {
         <Panel header="Translate" key="3">
             <Translate min={-50} max={50} style={style} properties={properties} onChangeStyle={onChangeStyle} stylePriority={stylePriority} setStylePriority={setStylePriority} />
         </Panel>
-         {/* <Panel header="Skew" key="4">
-            <Skew min={0} max={1} style={style} properties={properties} onChangeStyle={onChangeStyle} stylePriority={stylePriority} setStylePriority={setStylePriority}  />
+          <Panel header="Skew" key="4">
+            <Skew min={-50} max={50} style={style} properties={properties} onChangeStyle={onChangeStyle} stylePriority={stylePriority} setStylePriority={setStylePriority}  />
         </Panel> 
-         <Panel header="Perspective" key="5">
-            <Perspective min={0} max={2} style={style} properties={properties} onChangeStyle={onChangeStyle} stylePriority={stylePriority} setStylePriority={setStylePriority} />
-        </Panel>  */}
+        <Panel header="Perspective" key="5">
+            <Perspective min={-1000} max={1000} style={style} properties={properties} onChangeStyle={onChangeStyle} stylePriority={stylePriority} setStylePriority={setStylePriority}  />
+        </Panel>  
     </Collapse>
     </>}
     </>

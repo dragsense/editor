@@ -725,7 +725,7 @@ export default function PageManger({ children }) {
             }
 
             if (currentUid == '0') {
-                throw new Error('Body can not be deleted.');
+                throw new Error('Body cannot be deleted.');
             }
 
             dispatch({ type: 'start' });
@@ -1213,10 +1213,7 @@ export default function PageManger({ children }) {
             // Dispatch the selected node along with its data to the state
             dispatch({ type: 'selectNode', node: { node, ...element } });
 
-            if (state.selector && state.isStyleChange) {
-                await onUpdateSelector(state.selector);
-            }
-
+         
             let style = await getData(state.page._id, element.styleUid, 'id', STYLE_STORE_NAME);
 
 
@@ -1245,9 +1242,10 @@ export default function PageManger({ children }) {
             }
         } catch (error) {
             // Handle any errors that occur during the execution of the function
+    
             dispatch({ type: 'error', error: error.message });
         }
-    }, [state]);
+    }, [state, state.page]);
 
     const onSelectSelector = async (newSelector, elementstate = '', STORE = UNDO_STORE_NAME, isRedo = false) => {
 
@@ -1258,6 +1256,11 @@ export default function PageManger({ children }) {
             if (!newSelector) {
                 throw new Error('Selector not found.');
             }
+
+            if (state.selector && state.isStyleChange) {
+                await onUpdateSelector(state.selector);
+            }
+
 
             dispatch({ type: 'start' });
 
@@ -1704,8 +1707,6 @@ export default function PageManger({ children }) {
     }, [state.isStyleChange]);
 
     const onUpdateStates = useCallback(async (_id, states, setStates) => {
-
-
 
         dispatch({ type: 'updateStates', states: { [_id]: { states, setStates } } });
 

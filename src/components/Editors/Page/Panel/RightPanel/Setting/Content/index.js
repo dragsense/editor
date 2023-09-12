@@ -75,8 +75,9 @@ export default function Content({ state, onUpdate, onChange, cascaderStates }) {
     return state.node ? <>
         <Divider orientation="center" orientationMargin="0">Tag: {state.node.tagName} </Divider>
 
-        <div style={{ maxHeight: '62vh', overflow: 'auto' }}>
-            <Card>
+
+        <Card>
+            <div style={{ maxHeight: '62vh', overflow: 'auto' }}>
                 <Divider orientation="center" orientationMargin="0">Custom Component: </Divider>
 
                 <Input disabled={state.node.layout !== 'div'}
@@ -116,13 +117,15 @@ export default function Content({ state, onUpdate, onChange, cascaderStates }) {
                         state={optionState}
                         setState={setOptionState} /></>}
 
-            </Card>
-        </div>
-        <Divider orientation="center" orientationMargin="0"></Divider>
+            </div>
+            <Divider orientation="center" orientationMargin="0"></Divider>
 
-        <div style={{ textAlign: 'right' }}>
-            <Button disabled={!isChange} onClick={onElementUpdate} type='primary'>Update</Button>
-        </div>
+            <div style={{ textAlign: 'right' }}>
+                <Button disabled={!isChange} onClick={onElementUpdate} type='primary'>Update</Button>
+            </div>
+        </Card>
+
+
     </>
         : <span>Please Select the node</span>
 }
