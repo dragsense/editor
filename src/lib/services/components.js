@@ -11,7 +11,12 @@ const ComponentServices = {
         });
 
          
-        const project = response.project;
+        const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
         const url = project.url + `/components/${id}`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -28,7 +33,12 @@ const ComponentServices = {
             method: 'GET'
         });
 
-        const project = response.project;
+        const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
         const url = project.url + `/components`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -44,7 +54,12 @@ const ComponentServices = {
         const response = await window.autocode.makeApiRequest();
 
 
-        const project = response.project;
+        const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
         const url = project.url + `/components/custom/paths`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -62,7 +77,12 @@ const ComponentServices = {
             method: 'GET'
         });
 
-        const project = response.project;
+        const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
         const url = project.url + `/components?name=${search}&limit=${25}&page=${1}`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -81,7 +101,12 @@ const ComponentServices = {
         });
 
  
-        const project = response.project;
+        const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
         const url = project.url + `/components/duplicate/${id}`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -101,7 +126,12 @@ const ComponentServices = {
         const response = await fetcher('/api/projects/' + projectId, {
             method: 'GET'
         });
-        const project = response.project;
+        const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
         const url = project.url + `/components${id !== -1 ? '/' + id : ''}`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -123,7 +153,12 @@ const ComponentServices = {
             method: 'GET'
         });
 
-        const project = response.project;
+        const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
         const url = `${project.url}/components/${id}`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');

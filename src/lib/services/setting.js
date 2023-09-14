@@ -7,14 +7,20 @@ const SettingServices = {
         const response = await window.autocode.makeApiRequest();
 
 
-        const project = response.project;
+        const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
+
         const url = project.url + `/settings`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
 
         return fetcher(`${sanitizedUrl}`, {
             method: 'Get',
-             headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey },
+            headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey },
         });
     },
 

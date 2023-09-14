@@ -16,7 +16,7 @@ const InputGroup = (props) => {
 
         if (checked) {
             if (type === 'radio' || !value)
-                newValue = ''
+                newValue = "''"
             else {
                 const valuesArray = String(value).split(",");
                 newValue = valuesArray.filter(v => v !== optionValue).join(",");
@@ -39,7 +39,7 @@ const InputGroup = (props) => {
             onChange(newValue, optionValue === 'all');
         }
 
-        //setChecked(!checked);
+        setChecked(!checked);
 
 
     }

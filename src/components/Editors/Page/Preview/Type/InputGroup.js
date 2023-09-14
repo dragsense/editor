@@ -39,7 +39,7 @@ const InputGroup = (props) => {
             onChange(newValue, optionValue === 'all');
         }
 
-        //setChecked(!checked);
+        setChecked(!checked);
 
 
     }

@@ -19,7 +19,6 @@ const MainLayout = ({
                     display: 'flex',
                   
                     width: '100%',
-                    alignItems: 'center',
                     justifyContent: 'center'
                 }}>{children}</Content>
 

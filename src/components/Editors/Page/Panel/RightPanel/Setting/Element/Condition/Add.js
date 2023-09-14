@@ -6,7 +6,8 @@ export default function AddCondition({ current, setCurrent, onAdd, states }) {
 
     const [newState, setNewState] = useState(current);
 
-   
+    const [form] = Form.useForm();
+
 
 
     const onChangeValue = (event) => {
@@ -71,7 +72,8 @@ export default function AddCondition({ current, setCurrent, onAdd, states }) {
             <Form
                 layout="vertical"
                 initialValues={newState}
-                onFinish={onSubmit} // Use onFinish instead of onClick
+                form={form} // Use onFinish instead of onClick
+                onFinish={onSubmit}
             >
                 <Form.Item
                     label="Name"
@@ -142,7 +144,10 @@ export default function AddCondition({ current, setCurrent, onAdd, states }) {
                 <div style={{ width: '100%', textAlign: 'end', marginTop: 5 }}>
                     <Button type="default" onClick={() => { setCurrent(null) }}>Cancel</Button>
                     &nbsp;
-                    <Button type="primary" htmlType="submit" disabled={!newState.key}>
+                    <Button type="primary"  disabled={!newState.key} onClick={(e) => {
+                        e.preventDefault();
+                        form.submit();
+                    }}>
                         {current?.key ? 'Update Cond' : 'Add Cond'}
                     </Button>
                 </div>

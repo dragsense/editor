@@ -41,16 +41,16 @@ function TreeNode(props) {
 
       setNode(newNode);
 
-      const unloadedNodes = newNode.childNodes.filter((key, i) => {
-        return !children.some((child) => {
-          const index = children.indexOf(child);
-          return child.props._uid === key && index == i;
-        });
+      const unloadedNodes = newNode.childNodes.filter((key) => {
+        return !children.some((child) => child.props._uid === key);
       });
+      
 
-      const deletedNodes = children.filter((child) => {
+      const deletedNodes = children.filter((child) => { 
         return !newNode.childNodes.includes(child.props._uid);
       });
+
+
 
       setChildren((prevChildren) => {
         const updatedChildren = prevChildren.filter((child) => !deletedNodes.includes(child));
@@ -68,8 +68,11 @@ function TreeNode(props) {
             />
           );
 
-          updatedChildren[index] = childNode;
+          if (index >= 0) {
+            updatedChildren.splice(index, 0, childNode);
+          }
         });
+
 
         return updatedChildren;
       });
@@ -113,29 +116,30 @@ function TreeNode(props) {
   return <>
 
 
- 
-  <ElementWrapper key={_uid}
-    {...props}
-    component={rootComponent || component}
-    customPath={node.customPath}
-    form={rootForm || form}
-    pos={pos}
-    _id={_id}
-    colStates={colStates}
-    _states={_states}
-    _props={_props}
-    node={node}>
 
-    {children.map((child, i) => React.cloneElement(child, {
-      pos: pos + i,
-      _states,
-      _cstates,
-      _props,
-      colStates,
-      fun,
-      pageUpdated
-    }))}
-  </ElementWrapper></>;
+    <ElementWrapper key={_uid}
+      {...props}
+      component={rootComponent || component}
+      customPath={node.customPath}
+      form={rootForm || form}
+      pos={pos}
+      _id={_id}
+      colStates={colStates}
+      _states={_states}
+      _props={_props}
+      node={node}>
+
+      {children.map((child, i) => React.cloneElement(child, {
+        key: child.props._uid,
+        pos: pos + i,
+        _states,
+        _cstates,
+        _props,
+        colStates,
+        fun,
+        pageUpdated
+      }))}
+    </ElementWrapper></>;
 }
 const MemoizedTreeNode = React.memo(TreeNode, (prevProps, nextProps) => {
   const pattern = new RegExp(prevProps.pos);
@@ -146,7 +150,6 @@ const MemoizedTreeNode = React.memo(TreeNode, (prevProps, nextProps) => {
     prevProps._props === nextProps._props &&
     prevProps.colStates === nextProps.colStates &&
     prevProps.fun === nextProps.fun &&
-
     prevProps._cstates === nextProps._cstates;
 
   const allUpdate = prevProps.pageUpdated?.allUpdate === nextProps.pageUpdated?.allUpdate;
@@ -187,12 +190,12 @@ export default function Elements({ pageUpdated, _id, onUpdateStates }) {
   }, [_id]);
 
   return <>
-{setting && <MemoizedTreeNode
-    pageUpdated={pageUpdated}
-    onUpdateStates={onUpdateStates}
-    pageType={pageType}
-    pos={""}
-    setting={setting}
-    _id={_id}
-    _uid={"0"} />}</>
+    {setting && <MemoizedTreeNode
+      pageUpdated={pageUpdated}
+      onUpdateStates={onUpdateStates}
+      pageType={pageType}
+      pos={""}
+      setting={setting}
+      _id={_id}
+      _uid={"0"} />}</>
 }

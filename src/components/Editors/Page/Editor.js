@@ -3,7 +3,7 @@ import { Spin, Alert, Layout } from "antd";
 import { usePageStates } from "./PageProvider";
 import Elements from './Elements';
 import IFrame from "./Iframe";
-
+import PreviewIFrame from './Iframe/preview';
 import { RightPanelComponent, LeftPanelComponent } from "./Panel";
 import CanvasEditor from "../Canvas";
 import Preview from './Preview';
@@ -18,7 +18,6 @@ export default function Editor({ children, _id, pageType, onBack }) {
 
     const [minMax, setMinMax] = useState('');
     const [orientation, setOrientation] = useState("");
-    const [previewMode, setPreviewMode] = useState(false);
 
     const { state,
         undo,
@@ -35,6 +34,9 @@ export default function Editor({ children, _id, pageType, onBack }) {
         onUpdateStates,
         onUpdateSelector,
         onChangeMedia,
+        onPreview,
+        previewMode,
+        setPreviewMode,
         onChange,
         onEdit } = usePageStates();
 
@@ -59,13 +61,19 @@ export default function Editor({ children, _id, pageType, onBack }) {
             setPreviewMode={setPreviewMode}
             onBack={onBack}
             setWindowWidth={setWindowWidth} >
-            <Layout style={{ marginTop: 0, minHeight: 'calc(100vh - 56px)' }}>
-                {!previewMode && <LeftPanelComponent />}
+            {state.error && <Alert message={state.error} style={{ margin: '10px' }} type="error" showIcon closable />}
+
+            <Layout style={{
+                ...(previewMode ? { opacity: 0, display: 'none', pointerEvents: 'none', userSelect: 'none' } : {}),
+                marginTop: 0,
+                minHeight: 'calc(100vh - 56px)'
+            }}>
+                <LeftPanelComponent />
+
 
                 <Content>
 
                     {(!state.page && state.loading) && <Alert style={{ margin: '10px' }} message="Please Select the Page Or Component" />}
-                    {state.error && <Alert message={state.error} style={{ margin: '10px' }} type="error" showIcon closable />}
 
 
                     <CanvasEditor windowWidth={windowWidth} setWindowWidth={setWindowWidth}>
@@ -77,24 +85,22 @@ export default function Editor({ children, _id, pageType, onBack }) {
                             onMove={onMove}
                             onDelete={onDelete}
                             onCopy={onCopy}
-                            previewMode={previewMode}
+
                             onChange={onChange}
                             onAdd={onAdd}
                             state={state}
                             onUpdateSelector={onUpdateSelector}
                             onUpdate={onUpdate}
                         >
-                           
-                            {state.page && !previewMode &&
+
+                            {state.page &&
                                 <Elements page={state.page}
                                     onUpdateStates={onUpdateStates}
                                     pageUpdated={state.pageUpdated}
                                     loading={state.loading} />
                             }
 
-                            {state.page && previewMode &&
-                                <Preview page={state.page} />
-                            }
+
 
 
                         </IFrame>
@@ -102,9 +108,13 @@ export default function Editor({ children, _id, pageType, onBack }) {
 
                     </CanvasEditor>
 
+
+
+
+
                 </Content>
 
-                {!previewMode && <RightPanelComponent
+                {<RightPanelComponent
                     onDeleteSelector={onDeleteSelector}
                     onUpdateSelector={onUpdateSelector}
                     onSelectSelector={onSelectSelector}
@@ -119,6 +129,24 @@ export default function Editor({ children, _id, pageType, onBack }) {
                 />}
 
             </Layout>
+
+
+            {previewMode && <div style={{
+                position: 'absolute',
+                background: "#fff", opacity: 1,
+                top: 115, left: 0, right: 0, bottom: 0
+            }}><CanvasEditor windowWidth={windowWidth} setWindowWidth={setWindowWidth}>
+
+                    <PreviewIFrame
+                        _id={state.page?._id} pageType={state.type}
+                        onLoad={onPreview}
+                        loading={state?.loading}
+                    >
+                        <Preview page={state.page} loading={state.loading} preview={state.preview} />
+                    </PreviewIFrame>
+
+
+                </CanvasEditor></div>}
 
         </EditorNav>
 

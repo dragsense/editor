@@ -10,7 +10,12 @@ const CollectionServices = {
         });
 
       
-        const project = response.project;
+        const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
         const url = project.url + `/collections/${id}`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -28,7 +33,13 @@ const CollectionServices = {
             method: 'GET'
         });
 
-        const project = response.project;
+              const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
+
         const url = project.url + `/collections`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -47,7 +58,13 @@ const CollectionServices = {
             method: 'GET'
         });
 
-        const project = response.project;
+              const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
+
         const url = project.url + `/collections?name=${search}&limit=${25}&page=${1}`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -64,7 +81,13 @@ const CollectionServices = {
             method: 'GET'
         });
 
-        const project = response.project;
+              const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
+
         const url = project.url + `/collections/duplicate/${id}`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -85,7 +108,13 @@ const CollectionServices = {
             method: 'GET'
         });
 
-        const project = response.project;
+              const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
+
         const url = project.url + `/collections${id !== -1 ? '/' + id : ''}`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -105,7 +134,13 @@ const CollectionServices = {
         const response = await fetcher('/api/projects/' + projectId, {
             method: 'GET'
         });
-        const project = response.project;
+              const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
+
         const url = `${project.url}/collections/${id}`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');

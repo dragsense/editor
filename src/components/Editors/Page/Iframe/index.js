@@ -24,21 +24,21 @@ const InnerComponent = ({ children, document, onLoad, _id, type }) => {
 
 
     if (_id)
-      loadCSSStyles(type, _id).then((status) => {
-        onLoad({ _id }, type);
+      loadCSSStyles().then((status) => {
+        onLoad({ _id }, type, document);
       }).catch((e) => {
         message.error(e?.message || 'Something went wrong!');
 
       });
     else
-      onLoad(null, '');
+      onLoad(null, '', document);
 
 
 
 
   }, []);
 
-  const loadCSSStyles = async (type, _id) => {
+  const loadCSSStyles = async () => {
     return new Promise(async (resolve, reject) => {
 
       try {
@@ -141,24 +141,6 @@ const InnerComponent = ({ children, document, onLoad, _id, type }) => {
           style.textContent = res.css;
           document.head.appendChild(style);
         }
-
-
-
-        res = await ThemeServices.getPageCss(type, _id)
-
-        style = document.createElement('style');
-        style.id = 'ac-stylesheet-global'
-        if (res.css)
-          for await (let css of res.css) {
-
-            style.textContent += css;
-          }
-
-        document.head.appendChild(style);
-
-
-
-
 
 
 
@@ -381,8 +363,9 @@ export default function IFrame({
       event.preventDefault();
 
       try {
-        if (editing)
+        if (editing) {
           return;
+        }
 
         var currentElement = event.target;
 
@@ -406,8 +389,10 @@ export default function IFrame({
       event.preventDefault();
 
       try {
-        if (editing)
+        if (editing) {
+          message.warning("please escape to save!")
           return;
+        }
 
 
         var currentElement = event.target;
@@ -471,8 +456,7 @@ export default function IFrame({
 
 
       try {
-        if (editing)
-          return;
+
 
         const scrollTop = iframeRef.current.contentWindow.pageYOffset;
         const scrollLeft = iframeRef.current.contentWindow.pageXOffset;
@@ -505,6 +489,12 @@ export default function IFrame({
           return;
         }
 
+        if (editing) {
+          message.warning("please escape to save!")
+          return;
+        }
+
+
         onClickElement(iframeDocument, id);
         ContentEditor.destroy();
       } catch (e) {
@@ -518,8 +508,9 @@ export default function IFrame({
     const onDbClickHandle = (event) => {
 
       try {
-        if (editing)
+        if (editing) {
           return;
+        }
         // event.preventDefault();
 
         let currentElement = event.target;
@@ -648,19 +639,23 @@ export default function IFrame({
     //  const observer = new MutationObserver(mutationHandler);
     //observer.observe(iframeDocument.body, { childList: true, subtree: true });
 
-
-    iframeDocument.addEventListener('contextmenu', event => {
+    const onContextMenu = (event) => {
       event.preventDefault();
 
-      if (editing)
+      if (editing) {
+        message.warning("please escape to save!")
         return;
+      }
 
       const elements = Array.from(iframeDocument.elementsFromPoint(event.clientX, event.clientY));
       const mousePosition = { x: event.clientX, y: event.clientY, visible: false };
 
 
       createContextMenu(elements, mousePosition);
-    });
+    }
+
+
+    iframeDocument.addEventListener('contextmenu', onContextMenu);
 
 
 
@@ -676,7 +671,7 @@ export default function IFrame({
       iframeDocument.body.removeEventListener('dblclick', onDbClickHandle);
       iframeDocument.body.removeEventListener('keydown', onKeyPress);
 
-      iframeDocument.removeEventListener('contextmenu', event => { });
+      iframeDocument.removeEventListener('contextmenu', onContextMenu);
 
       setGapBprPos(null)
     }
@@ -779,12 +774,16 @@ export default function IFrame({
     if (!id)
       return;
 
-    const tag = JSON.parse(event.dataTransfer.getData('text/plain'));
+    try {
+      const tag = JSON.parse(event.dataTransfer.getData('text/plain'));
 
-    if (tag.move)
-      onMove(id, tag._uid, isTop, pos, tag.dragPos, iframeDocument);
-    else
-      onAdd(tag, id, isTop, pos, iframeDocument);
+      if (tag.move)
+        onMove(id, tag._uid, isTop, pos, tag.dragPos, iframeDocument);
+      else
+        onAdd(tag, id, isTop, pos, iframeDocument);
+    } catch (e) {
+
+    }
 
     currentElement.style.backgroundColor = 'transparent';
 

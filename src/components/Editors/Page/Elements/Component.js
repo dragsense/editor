@@ -723,33 +723,8 @@ const Component = (props) => {
             }
 
             setValue(onChange, value, '');
-
-            // if (node && node.state) {
-            //     if (all && node.map) {
-
-            //         if (value.includes('all')) {
-            //             const maKey = node.map.key;
-            //             const mapType = node.map.type;
-            //             let map = null;
-            //             if (mapType == 'STATES')
-            //                 map = getStateRef(maKey, states);
-            //             else
-            //                 map = getStateRef(maKey, states);
-
-            //             if (map) {
-            //                 const states = Object.values(map.states).map((val) => val.split(":")[0]);
-            //                 let options = node.options.split(",");
-            //                 options = Object.values(options).map((val) => val.split(":")[0]);
-            //                 value = [...(new Set([...options, ...states]))].join(',');
-
-            //             }
-            //         } else
-            //             value = ''
-            //     }
-
-
-            // }
         }
+
 
     }, [states, colStates, _states])
 
@@ -766,7 +741,7 @@ const Component = (props) => {
             <ElementMapping {...props} map={node.map}
                 _states={states}
                 _props={_states}
-                disabled={component.disabled}>
+                >
 
                 {React.Children.map(children, (child, index) => {
                     return child && React.cloneElement(child, {

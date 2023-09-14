@@ -258,11 +258,16 @@ const EditorRightSideBar = ({ onClickElement,
                             >
                                 <div style={{ padding: '10px 15px 10px 10px' }}>
                                     {key === 'sub1' ? <Navigator
+                                        page={state.page}
+                                        onAdd={onAdd}
                                         onMove={onMove}
-                                        onCopy={onCopy}
                                         onDelete={onDelete}
+                                        onCopy={onCopy}
+                                        node={state.node}
                                         onClickElement={onClickElement}
-                                        state={state} /> :
+                                        pageUpdated={state.pageUpdated}
+                                        loading={state.loading}
+                                    /> :
                                         key === 'sub2' ? (state.node && <Component onAdd={onAdd}
                                             onChange={onChange}
                                             onUpdate={onUpdate}

@@ -8,7 +8,7 @@ import { updateStateValue, getStateRef, generateCascader } from '../../../../lib
 
 const ElementComponent = (props) => {
 
-    const { node, _id, children, setting,onUpdateStates } = props;
+    const { node, _id, fun, children, onUpdateStates } = props;
 
     const [states, setStates] = useState(node.states);
     const [state, setState] = useState(null);
@@ -21,10 +21,9 @@ const ElementComponent = (props) => {
 
         switch (type) {
             case 'Menu': case 'Flex': case 'Tabs': case 'Accordion': case 'Sider':
-                case 'Grid': case 'Container': case 'Slider': case 'Gallery': case 'Dropdown':
-                case 'Dropdown': case 'Observable': case 'Modal': case 'GoToTop':
+            case 'Grid': case 'Container': case 'Slider': case 'Gallery': case 'Dropdown':
+            case 'Dropdown': case 'Observable': case 'Modal': case 'GoToTop':
                 updateStateValue(elem, withValue, states, value);
-
                 setStates({ ...states });
             default:
                 return;
@@ -39,27 +38,9 @@ const ElementComponent = (props) => {
         if (!node)
             return;
 
-        if (node.layout === "searchable") {
-            const pages = node.states?.pages;
-            if (pages) {
-                pages.states = [{ ...setting, global: undefined }]
-
-
-                const items = 1;
-                const values = Array.from({ length: parseInt(items) }, (_, index) => {
-                    return `${states['items'].text || "Item"} ${index + 1}`
-                });
-                node.states.total.defaultValue = items;
-                node.states.items.states = values;
-                node.states.search.defaultValue = setting.query || '';
-
-            }
-
-        }
-
         setStates({ ...node.states });
         const cascaderStates = generateCascader(node.states, node.name, node.cname);
-        onUpdateStates(node.cname,  cascaderStates, setStates)
+        onUpdateStates(node.cname, cascaderStates, setStates)
 
     }, []);
 
@@ -75,10 +56,10 @@ const ElementComponent = (props) => {
 
         if (node && node.onClick) {
             const elem = node.onClick;
-
-
-
             setState({ elem, stateValue, withValue })
+
+            if (fun?.onClick)
+                fun.onClick(node, stateValue, withValue)
         }
 
     }, [states]);
@@ -119,62 +100,48 @@ const ElementComponent = (props) => {
 
 
 
-
-    const onChange = useCallback(async (node, value, all = false) => {
-
-
-        if (node && node.state) {
+    const onChange = useCallback(async (values, node, all = false) => {
 
 
-            if (all && node.map) {
 
-                if (value.includes('all')) {
-                    const maKey = node.map.key;
-                    const mapType = node.map.type;
-                    let map = null;
-                    if (mapType == 'STATES')
-                        map = getStateRef(maKey, states);
-                    else
-                        map = getStateRef(maKey, states);
 
-                    if (map) {
-                        const states = Object.values(map.states).map((val) => val.split(":")[0]);
-                        let options = node.options.split(",");
-                        options = Object.values(options).map((val) => val.split(":")[0]);
-                        value = [...(new Set([...options, ...states]))].join(',');
-
-                    }
-                } else
-                    value = ''
-            }
-
-            setValue(node.state, value, '');
-
+        for (const elem of values) {
+            let value = elem.value;
+            const onChange = elem.elem;
+            setValue(onChange, value, '');
         }
+
+
+        if (fun?.onChange)
+            fun.onChange(values, node, all)
 
     }, [states]);
 
 
 
-    return <span style={{border: '#ffaa4f5e solid 1px', display:'inline-block', width: '-webkit-fill-available'  }}><ElementMapping
+
+    return <span style={{ border: '#ffaa4f5e solid 1px', display: 'inline-block', width: '-webkit-fill-available' }}><ElementMapping
         {...props} map={node.map}
         _cstates={states}
         updateStates={updateStates}
-        onChange={onChange}
+        fun={{
+            onChange: onChange,
+            onClick: onClick,
+        }}
         onClick={onClick}>
-        {React.Children.map(children, (child) => {
+        {React.Children.map(children, (child, i) => {
             return child && React.cloneElement(child, {
+                index: i,
                 fun: {
                     onChange: onChange,
-                onClick: onClick,
+                    onClick: onClick,
                 },
-               
                 _cstates: states,
                 updateStates: updateStates
             })
         })}
     </ElementMapping>
-</span>
+    </span>
 
 
 

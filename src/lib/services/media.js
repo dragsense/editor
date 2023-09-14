@@ -7,7 +7,13 @@ const MediaServices = {
    
         const response = await window.autocode.makeApiRequest();
 
-        const project = response.project;
+        const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
+
         const url = project.url + `/media/${id}`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -24,7 +30,14 @@ const MediaServices = {
         const response = await window.autocode.makeApiRequest();
 
 
-        const project = response.project;
+        const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
+
+
         const url = project.url + `/media?type=${type}&limit=${limit}&page=${page}`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -41,7 +54,14 @@ const MediaServices = {
         const response = await window.autocode.makeApiRequest();
 
 
-        const project = response.project;
+        const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
+
+
         const url = project.url + `/media?name=${search}&type=${type}&limit=${25}&page=${1}`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -56,7 +76,14 @@ const MediaServices = {
 
         const response = await window.autocode.makeApiRequest();
 
-        const project = response.project;
+        const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
+
+
         const url = project.url + `/media?type=${type}`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -79,7 +106,14 @@ const MediaServices = {
 
         const response = await window.autocode.makeApiRequest();
 
-        const project = response.project;
+        const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
+
+
         const url = project.url + `/media${id !== -1 ? '/' + id : ''}`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -95,7 +129,14 @@ const MediaServices = {
 
         const response = await window.autocode.makeApiRequest();
 
-        const project = response.project;
+        const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
+
+
         const url = `${project.url}/media/${id}`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');

@@ -4,7 +4,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 
 import {
     loadPage, getData, updateData, updateStyleData, searchSelector,
-    clearStore, UNDO_STORE_NAME, REDO_STORE_NAME, savePage, getAction, deleteAction, deleteAllActions, storeAction, STYLE_STORE_NAME, PAGE_STORE_NAME, deleteData, getAllData, loadWithoutStyle, storePage
+    clearStore, UNDO_STORE_NAME, REDO_STORE_NAME, publishPage, savePage, getAction, deleteAction, deleteAllActions, storeAction, STYLE_STORE_NAME, PAGE_STORE_NAME, deleteData, getAllData, loadWithoutStyle, storePage
 } from '../../../../lib/db';
 import addElement from '../../../../lib/element/addElement';
 import addCSS from '../../../../lib/element/addCSS';
@@ -13,7 +13,7 @@ import { v4 as uuid } from 'uuid';
 import { nanoid } from 'nanoid';
 import ThemeServices from "../../../../lib/services/theme";
 import HTMLTags from '../Panel/LeftPanel/Tag/htmlTags.json'
-import { message } from "antd";
+import { message, Modal } from "antd";
 
 export const pageContext = React.createContext({});
 
@@ -42,6 +42,10 @@ const reducer = (state, action) => {
             return {
                 ...state, pageUpdated: action.pageUpdated,
             }
+        case "preview":
+            return {
+                ...state, preview: action.preview,
+            }
         case "edit":
             return {
                 ...state,
@@ -53,7 +57,7 @@ const reducer = (state, action) => {
             return {
                 ...state, pageUpdated: action.pageUpdated,
                 isChange: true,
-                
+
             }
 
         case "updateStates":
@@ -285,6 +289,7 @@ export const onDeleteElement = async (currentElement, _id) => {
 export default function PageManger({ children }) {
 
     const [state, dispatch] = useReducer(reducer, initial);
+    const [previewMode, setPreviewMode] = useState(false);
 
 
     useEffect(() => {
@@ -299,9 +304,11 @@ export default function PageManger({ children }) {
                     await onSubmit();
                 }
 
-                setTimeout(() => {
-                    window.close();
-                }, 100);
+                if (shouldSave === 1) {
+                    setTimeout(() => {
+                        window.close();
+                    }, 100);
+                }
 
 
             }
@@ -318,7 +325,88 @@ export default function PageManger({ children }) {
     }, [state.isChange]);
 
 
-    const onEdit = async (page, type) => {
+
+    const onPreview = async (page, type, iframeDocument) => {
+
+        if (!previewMode)
+            return;
+
+
+        const loadElements = async () => {
+
+            try {
+
+
+                if (!page || !type) {
+                    throw new Error('Page not selected!');
+                }
+
+
+
+                if (!iframeDocument) {
+                    const iframe = document.querySelector("#ac-editor-iframe-preveiw-doc");
+                    iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+                }
+
+
+                dispatch({ type: 'start' });
+
+                if (!iframeDocument) {
+                    throw new Error('Iframe content document not found.');
+                }
+
+
+                dispatch({ type: 'preview', preview: 0 });
+                await loadWithoutStyle(page, type, dispatch, true);
+
+
+                const res = await ThemeServices.getPageCss(type, page._id)
+
+                let style = iframeDocument.querySelector('#ac-stylesheet-global');
+
+                if (!style) {
+                    style = iframeDocument.createElement('style');
+                    style.id = 'ac-stylesheet-global';
+                    iframeDocument.head.appendChild(style);
+                }
+
+                if (Array.isArray(res.css)) {
+                    style.textContent = res.css.join('\n');
+                }
+
+
+                setTimeout(() => {
+                    dispatch({ type: 'preview', preview: 1 });
+
+                })
+
+            } catch (e) {
+                dispatch({ type: 'error', error: e?.message || 'Something went wrong.' });
+            } finally {
+                dispatch({ type: 'finish' });
+            }
+
+        }
+
+        loadElements();
+    }
+
+    const onEdit = async (page, type, iframeDocument) => {
+
+
+        if (state.isChange) {
+            const shouldSave = await window.autocode.checkUnsavedChanges(state.isChange);
+
+            if (shouldSave === 0) {
+                await onSubmit();
+            }
+
+            if (shouldSave === 2) {
+                return;
+            }
+
+        }
+
         try {
             // Dispatch a 'start' action to indicate the start of the edit process.
             dispatch({ type: 'start' });
@@ -341,6 +429,25 @@ export default function PageManger({ children }) {
 
             // Load the selected page data asynchronously and update the state with the loaded data.
             await loadPage(page, type, dispatch);
+
+            if (!iframeDocument) {
+                const iframe = document.querySelector("#ac-editor-iframe-doc");
+                iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+            }
+
+            const res = await ThemeServices.getPageCss(type, page._id)
+
+            let style = iframeDocument.querySelector('#ac-stylesheet-global');
+
+            if (!style) {
+                style = iframeDocument.createElement('style');
+                style.id = 'ac-stylesheet-global';
+                iframeDocument.head.appendChild(style);
+            }
+
+            if (Array.isArray(res.css)) {
+                style.textContent = res.css.join('\n');
+            }
 
             // After loading the page data, update the 'pageUpdated' flag to indicate that the update is completed.
             setTimeout(() => {
@@ -400,7 +507,7 @@ export default function PageManger({ children }) {
             }
 
 
-            if ( updatedElement.mainClass && updatedElement.mainClass !== updatedElement.className) {
+            if (updatedElement.mainClass && updatedElement.mainClass !== updatedElement.className) {
 
 
                 const iframe = document.querySelector("#ac-editor-iframe-doc")
@@ -412,7 +519,7 @@ export default function PageManger({ children }) {
                 updatedElement.selector = selectors.join(" ");
 
                 const style = await getData(state.page._id, updatedElement.styleUid, 'id', STYLE_STORE_NAME);
-                
+
                 const selector = {
                     _uid: style._uid,
                     selectorText: updatedElement.selector,
@@ -421,8 +528,8 @@ export default function PageManger({ children }) {
                 }
 
 
-                 onSelectSelector(selector, "")
-                
+                onSelectSelector(selector, "")
+
                 if (style) {
                     style.selectorText = updatedElement.selector;
                     createCss('normal', style, style.selectorText, iFrameDocument)
@@ -431,8 +538,8 @@ export default function PageManger({ children }) {
                         createCss(state.media, style, style.selectorText, iFrameDocument)
 
                     await updateData(state.page._id, style, STYLE_STORE_NAME);
-                    
-                    
+
+
                 }
 
             }
@@ -514,9 +621,16 @@ export default function PageManger({ children }) {
             await loadWithoutStyle(tag.page, tag.page.pageType, dispatch, false);
             const res = await ThemeServices.getPageCss(tag.page.pageType, tag.page._id);
             if (iFramedocument) {
-                let style = iFramedocument.createElement('style');
-                style.textContent = res.css;
-                iFramedocument.head.appendChild(style);
+                let style = iFramedocument.querySelector(`#ac-stylesheet-${tag.page._id}`);
+                if (!style) {
+                    style = iFramedocument.createElement('style');
+                    style.id = `ac-stylesheet-${tag.page._id}`;
+                    iFramedocument.head.appendChild(style);
+
+                }
+                if (Array.isArray(res.css)) {
+                    style.textContent = res.css.join('\n');
+                }
             }
 
             page = await getAllData(tag.page._id);
@@ -552,6 +666,18 @@ export default function PageManger({ children }) {
                     (id) => id !== tag.page._id
                 );
                 await storePage(page);
+
+                const iframe = document.querySelector("#ac-editor-iframe-doc")
+
+                if (iframe) {
+                    const iFramedocument = iframe.contentDocument;;
+                    let style = iFramedocument.querySelector(`#ac-stylesheet-${tag.page._id}`);
+
+                    if (style) {
+                        style.remove();
+                    }
+                }
+
             }
         }
     };
@@ -565,7 +691,7 @@ export default function PageManger({ children }) {
         iFramedocument,
         STORE = UNDO_STORE_NAME) => {
 
-            
+
 
         if (!tag || !currentUid) {
             dispatch({ type: 'error', error: 'Tag or Element not selected.' });
@@ -1106,40 +1232,64 @@ export default function PageManger({ children }) {
 
 
 
-    const onSubmit = async () => {
+    const onSubmit = async (previewMode) => {
 
-        if(state.loading)
-        return;
+        if (state.loading)
+            return;
 
         try {
 
+
+
             if (!state.page || !state.type)
                 throw new Error('Page or Type not selected!');
+
+
 
             dispatch({ type: 'start' });
 
             const page = state.page;
             const type = state.type;
 
+            if (previewMode) {
 
-            if (state.node) {
-                await updateValue(state.node);
+                Modal.confirm({
+                    title: 'Publish Page',
+                    content: 'Are you sure you want to publish this page?',
+                    onOk: async () => {
+                        try {
+                            const res = await publishPage(page, type, dispatch);
+                            message.success("Page Published.")
+                        } catch (e) {
+                            dispatch({ type: 'error', error: e?.message || 'Something went wrong.' });
+
+                        }
+                    },
+                    onCancel: () => {
+                        // Do nothing when the user cancels the confirmation
+                    },
+                });
+
+            } else {
+                if (state.node) {
+                    await updateValue(state.node);
+                }
+
+                if (state.selector && state.isStyleChange) {
+                    await onUpdateSelector(state.selector);
+                }
+
+                // if (state.selector) {
+                //     const selector = { ...state.selector, key: undefined, style: undefined }
+                //     const key = state.selector.key;
+                //     await updateStyleData({ type: key[0], elementType: key[1], ...selector }, key);
+                // }
+
+                const res = await savePage(page, type);
+
+                // onEdit(res[type], type);
+                dispatch({ type: 'savePage' });
             }
-
-            if (state.selector && state.isStyleChange) {
-                await onUpdateSelector(state.selector);
-            }
-
-            // if (state.selector) {
-            //     const selector = { ...state.selector, key: undefined, style: undefined }
-            //     const key = state.selector.key;
-            //     await updateStyleData({ type: key[0], elementType: key[1], ...selector }, key);
-            // }
-
-            const res = await savePage(page, type);
-
-            // onEdit(res[type], type);
-            dispatch({ type: 'savePage' });
 
 
         } catch (e) {
@@ -1173,6 +1323,7 @@ export default function PageManger({ children }) {
             let node = iframeDocument.querySelector(`[data-id="${id}"]`);
 
 
+            console.log(id)
             if (!node) {
                 dispatch({ type: 'selectNode', node: null });
                 return;
@@ -1184,6 +1335,7 @@ export default function PageManger({ children }) {
             if (!element) {
                 node = node.closest('div[data-name="disabled-component"]');
                 if (node) {
+                    
                     node = node.firstElementChild;
                     const id = node.dataset.id;
                     element = await getData(state.page._id, id);
@@ -1210,10 +1362,11 @@ export default function PageManger({ children }) {
 
 
             node.style.outline = '#2fc1ff dotted 3px';
+
             // Dispatch the selected node along with its data to the state
             dispatch({ type: 'selectNode', node: { node, ...element } });
 
-         
+
             let style = await getData(state.page._id, element.styleUid, 'id', STYLE_STORE_NAME);
 
 
@@ -1242,7 +1395,7 @@ export default function PageManger({ children }) {
             }
         } catch (error) {
             // Handle any errors that occur during the execution of the function
-    
+
             dispatch({ type: 'error', error: error.message });
         }
     }, [state, state.page]);
@@ -1725,6 +1878,9 @@ export default function PageManger({ children }) {
             onAdd,
             onMove,
             onUpdate,
+            onPreview,
+            previewMode,
+            setPreviewMode,
             onCopy,
             onChange,
             onDelete,
@@ -1755,9 +1911,12 @@ export function usePageStates() {
         onDeleteSelector,
         onUpdateSelector,
         onUpdateStates,
+        previewMode,
+        setPreviewMode,
         onChange,
         onChangeMedia,
         onMove,
+        onPreview,
         onSubmit,
         onUpdate,
         undo,
@@ -1767,7 +1926,10 @@ export function usePageStates() {
         onClickElement, onMove, onDelete,
         onSelectSelector,
         onDeleteSelector,
+        previewMode,
+        setPreviewMode,
         onUpdateStates,
+        onPreview,
         onUpdateSelector,
         onChange,
         onChangeMedia,

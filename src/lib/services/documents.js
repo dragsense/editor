@@ -8,7 +8,14 @@ const DocumentServices = {
         const response = await window.autocode.makeApiRequest();
 
 
-        const project = response.project;
+        const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
+
+
         const url = project.url + `/documents/${collectionId}/${id}?form=${_form}`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -24,7 +31,14 @@ const DocumentServices = {
         const response = await window.autocode.makeApiRequest();
 
     
-        const project = response.project;
+        const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
+
+
         const url = project.url + `/documents/${collectionId}`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -40,7 +54,12 @@ const DocumentServices = {
 
         const response = await window.autocode.makeApiRequest();
 
-        const project = response.project;
+        const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
         const url = project.url + `/documents/collection/${collectionId}/document?limit=${limit}&page=${page}&sortBy=${sortBy+":"+sort}`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -58,7 +77,12 @@ const DocumentServices = {
         const response = await window.autocode.makeApiRequest();
 
 
-        const project = response.project;
+        const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
         const url = project.url + `/documents/collection/${collectionId}/document`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -75,7 +99,12 @@ const DocumentServices = {
 
         const response = await window.autocode.makeApiRequest();
 
-        const project = response.project;
+        const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
         const url = project.url + `/documents/collection/${collectionId}/document/?name=${search}&limit=${limit}&page=${page}&sortBy=${sortBy+":"+sort}`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -96,7 +125,12 @@ const DocumentServices = {
 
 
 
-        const project = response.project;
+        const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
         const url = project.url + `/documents/${collectionId}?name=${search}&limit=${25}&page=${1}&form=${form}`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');

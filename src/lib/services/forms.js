@@ -8,7 +8,13 @@ const FormServices = {
         const response = await window.autocode.makeApiRequest();
 
 
-        const project = response.project;
+        const project = response?.project;
+
+        if (!project) {
+            throw new Error("Project Not Found.");
+            return;
+        }
+
         const url = `${project.url}/forms/submit/${id}`;
         const apikey = project.apikey;
         const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');

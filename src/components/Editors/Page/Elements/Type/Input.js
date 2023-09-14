@@ -1,5 +1,6 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
+import { debounce } from '../../../../../lib/utils'
 
 const Input = (props) => {
 
@@ -18,7 +19,8 @@ const Input = (props) => {
 
         const v = e.target.value;
         if (onChange) {
-            onChange(v);
+                debounce(onChange(v), 500)
+
         }
         setV(v);
 

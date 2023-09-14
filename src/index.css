@@ -150,7 +150,7 @@ Editor  Ruler
   height: 100%;
 }
 
-#icons-container > :first-of-type {
+#icons-container> :first-of-type {
   overflow-x: hidden !important;
 }
 
@@ -160,8 +160,79 @@ Editor  Ruler
 }
 
 .style-item-panel:not(.ant-collapse-item-active):hover {
-  transform: translateX(20px); /* Zoom effect */
-  font-weight: bold; /* Bold text */
+  transform: translateX(20px);
+  /* Zoom effect */
+  font-weight: bold;
+  /* Bold text */
   background-color: #f3f3f3;
   transition: all 0.1s ease-in-out;
+}
+
+
+.ac-nav-tree-item {
+  margin: 0.4rem 0 0 0.4rem;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+
+
+
+details {
+  position: relative;
+  width: auto;
+
+
+  overflow: hidden;
+  transition: all 0.1s ease;
+  line-height: 1.2;
+}
+
+
+details>summary {
+  position: relative;
+  border-radius: 5px;
+  height: 100%;
+  color: rgb(0, 0, 0);
+  padding: 0.1em 0.5em 0.2em;
+}
+summary {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+details[open] > summary {
+  
+}
+
+
+details[open] > summary:before {
+  content: "▼"; /* Custom expand icon */
+  color: #2fc1ff;
+
+  margin-right: 0.5em;
+}
+
+details > summary:before {
+  content: "▶"; /* Custom collapse icon */
+  font-size: 12px;
+
+  margin-right: 0.7em;
+}
+
+details[open] {
+  height: auto;
+  transition: all 1.2s ease;
+}
+
+details:not([open]) .ac-nav-tree-item {
+  height: 0px !important;
+}
+
+.tree-node-text {
+  overflow: hidden;
+  white-space: nowrap; /* Prevent text from wrapping */
+  text-overflow: ellipsis; /* Display ellipsis (...) when text overflows */
+  max-width: 100%; /* Ensure the text doesn't exceed the available space */
 }

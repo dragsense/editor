@@ -7,7 +7,13 @@ export const loadPage = async (page, type, dispatch, clear = true) => {
 
     const response = await window.autocode.makeApiRequest();
 
-    const project = response.project;
+    const project = response?.project;
+
+    if (!project) {
+        throw new Error("Project Not Found.");
+        return;
+    }
+
     await loadStyles(project, page, type, dispatch, clear)
     await loadElements(project, page, type, dispatch, clear);
 
@@ -17,7 +23,13 @@ export const loadPage = async (page, type, dispatch, clear = true) => {
 export const loadWithoutStyle = async (page, type, dispatch, clear = true) => {
 
     const response = await window.autocode.makeApiRequest();
-    const project = response.project;
+    const project = response?.project;
+
+    if (!project) {
+        throw new Error("Project Not Found.");
+        return;
+    }
+
     await loadElements(project, page, type, dispatch, clear);
 
 
@@ -206,7 +218,13 @@ export const loadGlobalStyles = async (dispatch, clear) => {
 
     const response = await window.autocode.makeApiRequest();
 
-    const project = response.project;
+    const project = response?.project;
+
+    if (!project) {
+        throw new Error("Project Not Found.");
+        return;
+    }
+
     const url = `${project.url}/theme/style/${project._id}`;
     const apikey = project.apikey;
     const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -300,7 +318,13 @@ export const loadAnimationStyles = async (dispatch, clear) => {
 
     const response = await window.autocode.makeApiRequest();
 
-    const project = response.project;
+    const project = response?.project;
+
+    if (!project) {
+        throw new Error("Project Not Found.");
+        return;
+    }
+
     const url = `${project.url}/theme/animation/${project._id}`;
     const apikey = project.apikey;
     const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -392,7 +416,30 @@ export const loadAnimationStyles = async (dispatch, clear) => {
 }
 
 
+export const publishPage = async (page, type, dispatch) => {
 
+
+    const response = await window.autocode.makeApiRequest();
+
+    const project = response?.project;
+
+    if (!project) {
+        throw new Error("Project Not Found.");
+        return;
+    }
+
+    let url = `${project.url}/${type}s/publish/${page._id}`;
+    const apikey = project.apikey;
+    let sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
+
+    await fetcher(`${sanitizedUrl}`, {
+        method: 'POST',
+        headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey, 'Content-Type': 'application/json', },
+        body: JSON.stringify({ updater: project.creator })
+    });
+
+
+}
 
 
 export const savePage = async (page, type, dispatch) => {
@@ -400,7 +447,13 @@ export const savePage = async (page, type, dispatch) => {
 
     const response = await window.autocode.makeApiRequest();
 
-    const project = response.project;
+    const project = response?.project;
+
+    if (!project) {
+        throw new Error("Project Not Found.");
+        return;
+    }
+
     let url = `${project.url}/${type}s/elements/${page._id}`;
     const apikey = project.apikey;
     let sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
@@ -414,10 +467,10 @@ export const savePage = async (page, type, dispatch) => {
         return;
     }
 
-    let elements = {};
+    let _elements = {};
 
     if (data.elements && typeof data.elements === 'object') {
-        elements = Object.keys(data.elements).reduce((filteredElements, key) => {
+        _elements = Object.keys(data.elements).reduce((filteredElements, key) => {
             const element = data.elements[key];
             if (!element.deleted) {
                 filteredElements[key] = element;
@@ -425,23 +478,23 @@ export const savePage = async (page, type, dispatch) => {
             return filteredElements;
         }, {});
     }
-    const components = data.components || [];
-    const forms = data.forms || [];
-    const collStates = data.collStates;
-    const states = data.states || {};
-    const events = data.events ? { events: data.events } : null;
+    const _components = data.components || [];
+    const _forms = data.forms || [];
+    const _collStates = data.collStates;
+    const _states = data.states || {};
+    const events = data.events ? { _events: data.events } : null;
 
-    console.log(events)
 
     await fetcher(`${sanitizedUrl}`, {
         method: 'POST',
         headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey, 'Content-Type': 'application/json', },
         body: JSON.stringify({
-            elements,
-            states,
+            _elements,
+            _states,
             ...(events ? events : {}),
-            collStates, components,
-            forms,
+            _collStates,
+            _components,
+            _forms,
             updater: project.creator
         })
     });
@@ -458,10 +511,10 @@ export const savePage = async (page, type, dispatch) => {
     url = `${project.url}/${type}s/style/${page._id}`;
     sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
 
-    let styles = data.elements || {};
+    let _styles = data.elements || {};
 
-    if (styles && typeof styles === 'object') {
-        styles = Object.keys(data.elements).reduce((filteredElements, key) => {
+    if (_styles && typeof _styles === 'object') {
+        _styles = Object.keys(data.elements).reduce((filteredElements, key) => {
             const element = data.elements[key];
             if (!element.deleted) {
                 filteredElements[key] = element;
@@ -473,7 +526,7 @@ export const savePage = async (page, type, dispatch) => {
     await fetcher(`${sanitizedUrl}`, {
         method: 'POST',
         headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey, 'Content-Type': 'application/json', },
-        body: JSON.stringify({ styles, updater: project.creator })
+        body: JSON.stringify({ _styles, updater: project.creator })
     });
 
 
@@ -493,7 +546,13 @@ export const saveStyle = async (page, type) => {
     }
 
     const response = await window.autocode.makeApiRequest();
-    const project = response.project;
+    const project = response?.project;
+
+    if (!project) {
+        throw new Error("Project Not Found.");
+        return;
+    }
+
     const apikey = project.apikey;
     const url = `${project.url}/theme/${type}/${page._id}`;
     const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');

@@ -29,9 +29,14 @@ const EditorNav = ({
         if (state.isChange) {
             const shouldSave = await window.autocode.checkUnsavedChanges(state.isChange);
 
-            if (shouldSave) {
+            if (shouldSave === 0) {
                 await onSubmit();
             }
+
+            if (shouldSave === 2) {
+                return;
+            }
+
         }
 
         // Navigate back
@@ -81,22 +86,26 @@ const EditorNav = ({
                 <Tooltip title="Preview Page">
                     <Button type="text"
                         style={{ marginRight: 20 }}
-                        onClick={() => {
-                            setPreviewMode(!previewMode);
+                        onClick={async () => {
+
+                            if (!state.isChange)
+                                setPreviewMode(!previewMode);
+
                         }}
+                        disabled={state.isChange}
                         icon={previewMode ? <EyeFilled /> : <EyeOutlined />}>
 
                     </Button>
                 </Tooltip>
-                <Button type="dashed" style={{ marginRight: 10 }}
+                {!previewMode && <Button type="dashed" style={{ marginRight: 10 }}
 
                     loading={state?.loading}
-                    onClick={handleBackClick}>Back</Button>
+                    onClick={handleBackClick}>Back</Button>}
 
                 <Button type="primary"
-                    disabled={!state?.isChange}
+                    disabled={!state?.isChange && !previewMode}
                     loading={state?.loading}
-                    onClick={(e) => { e.preventDefault(); onSubmit() }}>Save</Button>
+                    onClick={(e) => { e.preventDefault(); onSubmit(previewMode) }}>{!previewMode ? 'Save' : 'Publish'}</Button>
             </div>
         </div>
 

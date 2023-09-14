@@ -233,7 +233,8 @@ ipcMain.handle('prompt-to-save', async (event) => {
     buttons: ['Save', 'Don’t Save', 'Cancel'],
   });
 
-  return response.response === 0; // Return true if "Save" is selected
+
+  return response.response; // Return true if "Save" is selected
 });
 
 
