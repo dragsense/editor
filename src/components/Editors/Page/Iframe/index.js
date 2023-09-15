@@ -700,8 +700,8 @@ export default function IFrame({
 
   const handleContextMenuMouseLeave = () => {
     if (!isPopupOpen) {
-      setContextMenuVisible(false);
-      setGapBprPos(null);
+    //  setContextMenuVisible(false);
+     // setGapBprPos(null);
     }
   }
 
@@ -981,7 +981,8 @@ export default function IFrame({
                         }}
 
 
-                        style={{ float: 'right' }} size="small" icon=<BsArrowsMove size="1rem" /> />
+                        style={{ float: 'right', marginLeft: 3 }} size="small" icon=<BsArrowsMove size="1rem" /> />
+                    
 
                       <Popconfirm
                         onOpenChange={(open) => {
@@ -997,8 +998,9 @@ export default function IFrame({
                         <Button
                           danger
                           type='text'
-                          style={{ float: 'right' }} size="small" icon=<DeleteOutlined size="1rem" /> />
+                          style={{ float: 'right', marginLeft: 3  }} size="small" icon=<DeleteOutlined size="1rem" /> />
                       </Popconfirm>
+                      {" "}
                       <Popconfirm
                         onOpenChange={(open) => {
                           setPopupOpen(open);
@@ -1032,9 +1034,10 @@ export default function IFrame({
                           }
 
 
-                          style={{ float: 'right' }} size="small" icon=<CopyOutlined size="1rem" /> />
-                      </Popconfirm>
+                          style={{ float: 'right', marginLeft: 3  }} size="small" icon=<CopyOutlined size="1rem" /> />
 
+                      </Popconfirm>
+                      {" "}
                       <Button
 
                         type='dashed'
@@ -1058,7 +1061,7 @@ export default function IFrame({
                         }}
 
 
-                        style={{ float: 'right' }} size="small" icon=<PlusOutlined size="1rem" /> />
+                        style={{ float: 'right',  }} size="small" icon=<PlusOutlined size="1rem" /> />
 
                     </>}
 

@@ -24,7 +24,7 @@ export function InlineSkeleton() {
 function TreeNode(props) {
 
 
-  let { _uid, pos, _id, pageUpdated, _states, fun, _props, colStates, _cstates, pageType } = props;
+  let { _uid, pos, _id, pageUpdated, _states, _cstates, _props, colStates, pageType } = props;
 
 
 
@@ -41,41 +41,43 @@ function TreeNode(props) {
 
       setNode(newNode);
 
-      const unloadedNodes = newNode.childNodes.filter((key) => {
-        return !children.some((child) => child.props._uid === key);
-      });
-      
+      setChildren([...newNode.childNodes])
 
-      const deletedNodes = children.filter((child) => { 
-        return !newNode.childNodes.includes(child.props._uid);
-      });
+      // const unloadedNodes = newNode.childNodes.filter((key) => {
+      //   return !children.some((child) => child.props._uid === key);
+      // });
 
 
-
-      setChildren((prevChildren) => {
-        const updatedChildren = prevChildren.filter((child) => !deletedNodes.includes(child));
-
-        unloadedNodes.forEach((key, i) => {
-          const index = newNode.childNodes.indexOf(key);
-          const childNode = (
-            <MemoizedTreeNode
-              {...props}
-              pageUpdated={{ ...pageUpdated, pos: pos + i }}
-              pageType={""}
-              _uid={key}
-              _id={_id}
-              key={key}
-            />
-          );
-
-          if (index >= 0) {
-            updatedChildren.splice(index, 0, childNode);
-          }
-        });
+      // const deletedNodes = children.filter((child) => { 
+      //   return !newNode.childNodes.includes(child.props._uid);
+      // });
 
 
-        return updatedChildren;
-      });
+
+      // setChildren((prevChildren) => {
+      //   const updatedChildren = prevChildren.filter((child) => !deletedNodes.includes(child));
+
+      //   unloadedNodes.forEach((key, i) => {
+      //     const index = newNode.childNodes.indexOf(key);
+      //     const childNode = (
+      //       <MemoizedTreeNode
+      //         {...props}
+      //         pageUpdated={{ ...pageUpdated, pos: pos + i }}
+      //         pageType={""}
+      //         _uid={key}
+      //         _id={_id}
+      //         key={key}
+      //       />
+      //     );
+
+      //     if (index >= 0) {
+      //       updatedChildren.splice(index, 0, childNode);
+      //     }
+      //   });
+
+
+      //   return updatedChildren;
+      // });
 
 
     }
@@ -129,7 +131,17 @@ function TreeNode(props) {
       _props={_props}
       node={node}>
 
-      {children.map((child, i) => React.cloneElement(child, {
+      {children.map((key, i) => <MemoizedTreeNode
+        {...props}
+        pageUpdated={pageUpdated}
+        pageType={""}
+        _uid={key}
+        pos={pos + i}
+        _id={_id}
+        key={key}
+      />)}
+
+      {/* {children.map((child, i) => React.cloneElement(child, {
         key: child.props._uid,
         pos: pos + i,
         _states,
@@ -138,7 +150,7 @@ function TreeNode(props) {
         colStates,
         fun,
         pageUpdated
-      }))}
+      }))} */}
     </ElementWrapper></>;
 }
 const MemoizedTreeNode = React.memo(TreeNode, (prevProps, nextProps) => {

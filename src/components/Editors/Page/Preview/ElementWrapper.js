@@ -10,7 +10,7 @@ const ElementWrapper = (props) => {
 
     const { component, form, customPath, node, children, _id } = props;
 
-    return component ? <Component _id={_id} {...props} component={component} >
+    return <> {node.type} {component ? <Component _id={_id} {...props} component={component} >
             {children}
         </Component> : form ?
             <Component
@@ -23,10 +23,10 @@ const ElementWrapper = (props) => {
             :
             customPath ? <CustomComponent id={_id} {...props}> {children}</CustomComponent> :
 
-                node.type == 'component' ?
+                node.type === 'component' ?
                     <ElementComponent id={_id} {...props} >{children}</ElementComponent>
                     :
-                    <ElementMapping {...props} map={node.map}>{children}</ElementMapping>
+                    <ElementMapping {...props} map={node.map}>{children}</ElementMapping>}</>
 
         ;
 

@@ -92,45 +92,48 @@ function TreeNode(props) {
       if(newNode.page)
       return;
 
-      const unloadedNodes = newNode.childNodes.filter((key, i) => {
-        return !children.some((child) => {
-          const index = children.indexOf(child);
-          return child.props._uid === key && index == i;
-        });
-      });
+      setChildren([...newNode.childNodes])
 
-      const deletedNodes = children.filter((child) => {
-        return !newNode.childNodes.includes(child.props._uid);
-      });
 
-      setChildren((prevChildren) => {
-        const updatedChildren = prevChildren.filter((child) => !deletedNodes.includes(child));
+      // const unloadedNodes = newNode.childNodes.filter((key, i) => {
+      //   return !children.some((child) => {
+      //     const index = children.indexOf(child);
+      //     return child.props._uid === key && index == i;
+      //   });
+      // });
 
-        unloadedNodes.forEach((key, i) => {
-          const index = newNode.childNodes.indexOf(key);
-          const childNode = (
-            <MemoizedTreeNode
-              {...props}
-              pageUpdated={{ ...pageUpdated, pos: pos + i }}
-              pageType={""}
-              _uid={key}
-              _id={_id}
-              key={key}
-              onCopy={onCopy}
-              onDelete={onDelete}
-              onMove={onMove}
-              onAdd={onAdd}
-              onClickElement={onClickElement}
-              currentNode={currentNode}
-              setCurrentNode={setCurrentNode}
-            />
-          );
+      // const deletedNodes = children.filter((child) => {
+      //   return !newNode.childNodes.includes(child.props._uid);
+      // });
 
-          updatedChildren[index] = childNode;
-        });
+      // setChildren((prevChildren) => {
+      //   const updatedChildren = prevChildren.filter((child) => !deletedNodes.includes(child));
 
-        return updatedChildren;
-      });
+      //   unloadedNodes.forEach((key, i) => {
+      //     const index = newNode.childNodes.indexOf(key);
+      //     const childNode = (
+      //       <MemoizedTreeNode
+      //         {...props}
+      //         pageUpdated={{ ...pageUpdated, pos: pos + i }}
+      //         pageType={""}
+      //         _uid={key}
+      //         _id={_id}
+      //         key={key}
+      //         onCopy={onCopy}
+      //         onDelete={onDelete}
+      //         onMove={onMove}
+      //         onAdd={onAdd}
+      //         onClickElement={onClickElement}
+      //         currentNode={currentNode}
+      //         setCurrentNode={setCurrentNode}
+      //       />
+      //     );
+
+      //     updatedChildren[index] = childNode;
+      //   });
+
+      //   return updatedChildren;
+      //});
 
 
     }
@@ -278,12 +281,22 @@ function TreeNode(props) {
 
       <div className='ac-nav-tree-item'
       >
-        {children.map((child, i) => React.cloneElement(child, {
+       {children.map((key, i) => <MemoizedTreeNode
+        {...props}
+        pos={pos + i}
+          pageUpdated={pageUpdated}
+        pageType={""}
+        _uid={key}
+        _id={_id}
+        key={key}
+      />)}
+
+        {/* {children.map((child, i) => React.cloneElement(child, {
           _id,
           pos: pos + i,
           pageUpdated,
           currentNode,
-        }))}
+        }))} */}
       </div>
     </details>
   </>;
@@ -320,8 +333,7 @@ export default function Elements({ pageUpdated, _id,
         return;
 
       const page = await getAllData(_id);
-      if (page)
-        setType(page.type);
+        setType(page?.type || 'page');
     }
 
 

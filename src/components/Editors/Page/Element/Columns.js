@@ -47,7 +47,7 @@ const [active, setActive] = useState(0);
                 cursor: 'pointer',
                 padding: 5,
                 margin: 5,
-                border: active == 1 ? '1.5px solid rgb(248, 138, 36)' : '1px dashed rgb(248, 138, 36)',
+                border: active == 1 ? '3px solid rgb(248, 138, 36)' : '1px dashed rgb(248, 138, 36)',
                 width: 40,
                 height: 40
             }}
@@ -61,7 +61,7 @@ const [active, setActive] = useState(0);
                 cursor: 'pointer',
                 padding: 5,
                 margin: 5,
-                border: active == 2 ? '1.5px solid rgb(248, 138, 36)' : '1px dashed rgb(248, 138, 36)',
+                border: active == 2 ? '3px solid rgb(248, 138, 36)' : '1px dashed rgb(248, 138, 36)',
                 width: 80,
                 height: 40
             }}
@@ -76,7 +76,7 @@ const [active, setActive] = useState(0);
                 cursor: 'pointer',
                 padding: 5,
                 margin: 5,
-                border: active == 3 ? '1.5px solid rgb(248, 138, 36)' : '1px dashed rgb(248, 138, 36)',
+                border: active == 3 ? '3px solid rgb(248, 138, 36)' : '1px dashed rgb(248, 138, 36)',
                 width: 100,
                 height: 40
             }}
@@ -91,7 +91,7 @@ const [active, setActive] = useState(0);
                 cursor: 'pointer',
                 padding: 5,
                 margin: 5,
-                border: active == 4 ? '1.5px solid rgb(248, 138, 36)' : '1px dashed rgb(248, 138, 36)',
+                border: active == 4 ? '3px solid rgb(248, 138, 36)' : '1px dashed rgb(248, 138, 36)',
                 width: 100,
                 height: 40
             }}
@@ -108,7 +108,7 @@ const [active, setActive] = useState(0);
                 cursor: 'pointer', 
                 padding: 5, 
                 margin: 5, 
-                border: active == 5 ? '1.5px solid rgb(248, 138, 36)' : '1px dashed rgb(248, 138, 36)',
+                border: active == 5 ? '3px solid rgb(248, 138, 36)' : '1px dashed rgb(248, 138, 36)',
                 width: 120,
                 height: 40 }}
                 onClick={(e) => {e.preventDefault(); setActive(5); onMouseDoubleClick({count: 3, widths: ['33.33%', '33.33%', '33.33%']});}}
@@ -123,7 +123,7 @@ const [active, setActive] = useState(0);
                 cursor: 'pointer', 
                 padding: 5, 
                 margin: 5, 
-                border: active == 6 ? '1.5px solid rgb(248, 138, 36)' : '1px dashed rgb(248, 138, 36)',
+                border: active == 6 ? '3px solid rgb(248, 138, 36)' : '1px dashed rgb(248, 138, 36)',
                 width: 120,
                 height: 40 }}
                 onClick={(e) => {e.preventDefault(); setActive(6);  onMouseDoubleClick({count: 3, widths: ['30%', '40%', '30%']});}}
@@ -139,7 +139,7 @@ const [active, setActive] = useState(0);
                 cursor: 'pointer', 
                 padding: 5,
                  margin: 5, 
-                 border: active == 7 ? '1.5px solid rgb(248, 138, 36)' : '1px dashed rgb(248, 138, 36)',
+                 border: active == 7 ? '3px solid rgb(248, 138, 36)' : '1px dashed rgb(248, 138, 36)',
                  width: 160,
                  height: 40 }}
                  onClick={(e) => {e.preventDefault(); setActive(7);  onMouseDoubleClick({count: 4, widths: ['25%', '25%', '25%','25%']});}}
@@ -155,7 +155,7 @@ const [active, setActive] = useState(0);
                 cursor: 'pointer', 
                 padding: 5,
                  margin: 5, 
-                 border: active == 8 ? '1.5px solid rgb(248, 138, 36)' : '1px dashed rgb(248, 138, 36)',
+                 border: active == 8 ? '3px solid rgb(248, 138, 36)' : '1px dashed rgb(248, 138, 36)',
                  width: 200,
                  height: 40 }}
                  onClick={(e) => {e.preventDefault();  setActive(8);  onMouseDoubleClick({count: 5, widths: ['20%', '20%', '20%','20%' , '20%']});}}
@@ -172,7 +172,7 @@ const [active, setActive] = useState(0);
                 cursor: 'pointer', 
                 padding: 5,
                  margin: 5, 
-                 border: active == 9 ? '1.5px solid rgb(248, 138, 36)' : '1px dashed rgb(248, 138, 36)',
+                 border: active == 9 ? '3px solid rgb(248, 138, 36)' : '1px dashed rgb(248, 138, 36)',
                  width: 240,
                  height: 40 }}
                  onClick={(e) => {e.preventDefault();  setActive(9);  onMouseDoubleClick({count: 6, widths: ['16.66%', '16.66%', '16.66%','16.66%' , '16.66%']});}}

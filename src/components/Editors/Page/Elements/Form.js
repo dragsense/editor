@@ -166,6 +166,7 @@ const Form = (props) => {
 
           {React.Children.map(children, (child) => {
                return child && React.cloneElement(child, {
+                    key: child.props?._uid,
                     fun,
                     disabled,
                     _id: _id,

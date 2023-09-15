@@ -1,5 +1,6 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
+import { debounce } from '../../../../../lib/utils'
 
 const InputGroup = (props) => {
     const { labelPos, onChange, conds,
@@ -36,7 +37,7 @@ const InputGroup = (props) => {
         }
 
         if (onChange) {
-            onChange(newValue, optionValue === 'all');
+            debounce(onChange(newValue, optionValue === 'all'), 500)
         }
 
         setChecked(!checked);

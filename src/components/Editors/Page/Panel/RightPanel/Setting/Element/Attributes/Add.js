@@ -1,4 +1,4 @@
-import { Form, Input, Button, Select, Divider, Popconfirm, Checkbox, Cascader, } from "antd";
+import { Form, Input, Button, Select, Divider, Typography, Checkbox, Cascader, Tooltip, } from "antd";
 
 import { useEffect, useState } from "react";
 
@@ -9,21 +9,23 @@ import ElementCondition from "../Condition";
 
 import properties from './properties.json'
 import List from "./List";
+import { QuestionCircleOutlined } from "@ant-design/icons";
 
+const { Text } = Typography;
 
 const initialCondtion = {
     cKey: '', key: null, value: '', type: ''
 }
 const { Option } = Select;
 
-export default function AddAttribute({ 
+export default function AddAttribute({
     isCondtions = true,
     current,
-     attributes,
-      label, 
-      setCurrent,
-       onAdd, 
-       states }) {
+    attributes,
+    label,
+    setCurrent,
+    onAdd,
+    states }) {
 
 
     const [newState, setNewState] = useState(current);
@@ -45,7 +47,7 @@ export default function AddAttribute({
         setNewState({ ...newState, key: value.trim() })
     }
 
-    
+
 
     const onSubmit =
         async (e) => {
@@ -65,7 +67,6 @@ export default function AddAttribute({
         else {
             const value = [...keys];
             value.shift()
-console.log({ key: value, type: keys[0] }, states)
             setNewState({ ...newState, valueState: { key: value, type: keys[0] } })
         }
     }
@@ -90,6 +91,9 @@ console.log({ key: value, type: keys[0] }, states)
                     rules={[{ required: true, message: "Please enter a name" }]}
                 >
 
+                    <Text disabled>
+                        Some descriptive name.
+                    </Text>
                     <Input
                         placeholder="Name"
                         name="name"
@@ -130,8 +134,11 @@ console.log({ key: value, type: keys[0] }, states)
 
                     :
 
-                    <Form.Item label="Value" className="font-500">
-
+                    <Form.Item label={<>State <Tooltip title={"Select the state whose value can be used in the value."
+                    }><QuestionCircleOutlined style={{ marginLeft: 4 }} /></Tooltip> </>} className="font-500">
+                        <Text disabled>
+                            Optional
+                        </Text>
                         <Cascader
                             options={states}
                             onChange={onChangeState}
@@ -141,9 +148,12 @@ console.log({ key: value, type: keys[0] }, states)
                         />
 
 
-                        <Input placeholder="Custom Value" 
-                        name="value"
-                        maxLength={200}
+                        <Text disabled>
+                            e.g 'heading-[state]' OR '#e0e0e0'
+                        </Text>
+                        <Input placeholder="Value"
+                            name="value"
+                            maxLength={200}
                             onChange={onChangeValue}
                             value={newState.value}
                         />
@@ -151,10 +161,10 @@ console.log({ key: value, type: keys[0] }, states)
 
 
                 <div style={{ width: '100%', textAlign: 'end', marginTop: 10 }}>
-                    <Button type="default" onClick={() => { setCurrent(null) }}>Cancel</Button>
+                    <Button size="small" type="default" onClick={() => { setCurrent(null) }}>Cancel</Button>
                     &nbsp;
-                    <Button type="primary" onClick={onSubmit} disabled={!newState.key || !newState.name}>
-                        {current?.key ? 'Update Attr' : 'Add Attr'}
+                    <Button type="primary" size="small" onClick={onSubmit} disabled={!newState.key || !newState.name}>
+                        {current?.key ? `Update ${label}` : `Add ${label}`}
                     </Button>
                 </div>
 

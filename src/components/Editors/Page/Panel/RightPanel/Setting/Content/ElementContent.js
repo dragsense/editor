@@ -1,15 +1,16 @@
 
 
-import { Form, Input, Button, Popconfirm, Divider, Cascader, Image, Select } from "antd";
+import { Form, Input, Button, Typography, Divider, Cascader, Image, Select, Tooltip } from "antd";
 
 import { useEffect, useState } from "react";
 
-import { PlusOutlined, EditOutlined, MinusCircleOutlined, UploadOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, MinusCircleOutlined, UploadOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 
 import ContentEditor from './ContentEditor'
 
 import MediaModal from "../../../../../../Media";
 import Video from "../../../../../../Media/Video";
+const { Text } = Typography;
 
 
 const { Option } = Select;
@@ -211,7 +212,9 @@ export default function ElementContent({ cascaderStates, state, setState,
                                 </Form.Item>
                 }
 
-                <Divider orientation="center" orientationMargin="0">Dynamic Value</Divider>
+                <Divider orientation="center" orientationMargin="0">Dynamic Value {" "}
+                    <Tooltip title={" When using dynamic state (values that can be changed), applying it to an element will replace its original content."
+                    }><QuestionCircleOutlined /></Tooltip></Divider>
 
 
                 <Cascader
@@ -226,10 +229,10 @@ export default function ElementContent({ cascaderStates, state, setState,
 
             </Form>
 
-            <MediaModal open={mediaModal}
-                multiple={type == 'videos'}
-                type={type}
-                onClose={() => setMediaModal(false)} srcs={srcs} onSelect={onChangeMedia} /> </>}
+                <MediaModal open={mediaModal}
+                    multiple={type == 'videos'}
+                    type={type}
+                    onClose={() => setMediaModal(false)} srcs={srcs} onSelect={onChangeMedia} /> </>}
 
         </>
 

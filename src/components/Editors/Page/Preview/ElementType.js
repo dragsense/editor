@@ -45,7 +45,7 @@ const ElementType = (props) => {
         if (node.tagName == 'hr')
         tagType = "close";
 
-    const element = <Element key={_uid} classes={classes} attributes={attributes} tagName={node.tagName} />
+    const element = <Element  key={_uid}  classes={classes} attributes={attributes} tagName={node.tagName} />
 
     switch (tagType) {
 
@@ -55,7 +55,8 @@ const ElementType = (props) => {
                 onChange={onChange}
                 innerWraaper={children}
                 value={value.value || value}
-           
+                _uid={_uid}
+                pos={pos}
                 options={options}
                 conds={conds}
                 onClick={onClick}
@@ -88,7 +89,8 @@ const ElementType = (props) => {
                 value={value}
                 mapValue={mapValue}
                 labelPos={node.labelPos || 0}
-             
+                _uid={_uid}
+                pos={pos}
                 conds={conds}
                 onClick={onClick}
                 onMouseMove={onMouseMove}
@@ -102,14 +104,15 @@ const ElementType = (props) => {
                 onClick={onClick}
                 onMouseMove={onMouseMove}
 
-                name={node.name || node.tagName}  value={value}>{element}</Image>
+                _uid={_uid} name={node.name || node.tagName} pos={pos} value={value}>{element}</Image>
         case 'video':
         case 'audio':
             return <Media disabled={disabled}
                 conds={conds}
 
-             
-            
+                tag={node.tagName}
+                _uid={_uid}
+                pos={pos}
                 onClick={onClick}
                 onMouseMove={onMouseMove}
 
@@ -120,13 +123,14 @@ const ElementType = (props) => {
                 onClick={onClick}
                 onMouseMove={onMouseMove}
 
-                name={node.name || node.tagName} >{element}</CloseTag>
+                name={node.name || node.tagName} _uid={_uid} pos={pos}>{element}</CloseTag>
         case 'icon':
             return <Icon disabled={disabled}
 
                 onChange={onChange}
                 value={value}
-               
+                _uid={_uid}
+                pos={pos}
                 onClick={onClick}
                 onMouseMove={onMouseMove}
 
@@ -139,7 +143,8 @@ const ElementType = (props) => {
             return <Component
                 disabled={disabled}
                 value={value.label || value || node.name}
-           
+                pos={pos}
+                _uid={_uid}
                 name={node.cname || node.name || node.tagName}
                 conds={conds}
                 onClick={onClick}
@@ -152,7 +157,9 @@ const ElementType = (props) => {
 
             return <General
                 disabled={disabled}
-             
+                
+                pos={pos}
+                _uid={_uid}
                 name={node.cname || node.name || node.tagName}
                 conds={conds} 
                 onMouseMove={onMouseMove}

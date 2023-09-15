@@ -1,11 +1,12 @@
 import React, { Children, useEffect, useRef, useState } from "react";
 
-import { Input, Form, Popover, Button, Select } from "antd";
+import { Input, Form, Popover, Typography, Button, Select } from "antd";
 
 import Others from "./Others";
 import { ArrowLeftOutlined, MoreOutlined } from "@ant-design/icons";
 import ClassManager from "./ClassManager";
 
+const { Text } = Typography;
 
 const { Option } = Select;
 
@@ -90,7 +91,9 @@ export default function ElementSetting({ cascaderStates, state, setState,
         </Form.Item>
 
 
+
         <Form.Item label="Name" className="font-500">
+        <Text disabled>e.g. Hero Heading</Text>
             <Input maxLength={100} placeholder="Element Name" name="name"
                 onChange={(e) => {
                     e.preventDefault();
@@ -102,20 +105,30 @@ export default function ElementSetting({ cascaderStates, state, setState,
                 }
                 }
                 value={state.name}
-            /> </Form.Item>
+            /> 
+                
+
+            
+            </Form.Item>
         <Form.Item label="Element ID">
+        <Text disabled>e.g. 'hero-heading'</Text>
+
             <Input maxLength={200} value={state.attributes['id']?.value} name="id" placeholder="ID"
                 onChange={(e) => { e.preventDefault(); onChnageAttribute('id', e.target.value) }} />
         </Form.Item>
 
 
         {state.tagName == 'a' && <Form.Item label="Custom Link">
+        <Text disabled>e.g. 'https://example.com'</Text>
+
             <Input value={state.attributes['href']?.value} placeholder="href" name="href"
                 onChange={(e) => { e.preventDefault(); onChnageAttribute('href', e.target.value) }} />
         </Form.Item>
         }
 
-        {state.tagName == 'img' || state.tagName == 'video' && <Form.Item label="Custom src">
+        {(state.tagName === 'img' || state.tagName === 'video') && <Form.Item label="Custom src">
+        <Text disabled>e.g. 'https://example.com/src.xyz'</Text>
+
             <Input value={state.attributes['src']?.value} placeholder="src" name="src"
                 onChange={(e) => { e.preventDefault(); onChnageAttribute('src', e.target.value) }} />
         </Form.Item>
@@ -123,7 +136,7 @@ export default function ElementSetting({ cascaderStates, state, setState,
 
         <Popover
             placement="left"
-            title={"Others"}
+            title={<>Others <br/>Note:<em> Use single quotes for string values</em></>}
             content={<Others state={state}
                 attributes={state.attributes}
                 onChnageAttribute={onChnageAttribute}

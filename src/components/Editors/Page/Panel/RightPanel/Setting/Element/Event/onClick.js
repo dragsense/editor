@@ -1,8 +1,10 @@
 
-import { Cascader, Button, Form, Input, Select, Modal } from "antd";
+import { QuestionCircleOutlined } from "@ant-design/icons";
+import { Cascader, Button, Form, Input, Typography, Modal, Tooltip } from "antd";
 import { useState } from "react";
 
 const { TextArea } = Input;
+const { Text } = Typography;
 
 export default function OnClickEvent({
     states,
@@ -58,14 +60,16 @@ export default function OnClickEvent({
     return <>
 
 
-        <Form.Item label="Key" className="font-500">
+        <Form.Item label={<>* Key <Tooltip title={"Select the state key that needs to be changed and this key can be used in the expression."
+        }><QuestionCircleOutlined style={{ marginLeft: 4 }} /></Tooltip> </>} >
             <Cascader options={states}
                 value={[state?.type, ...(Array.isArray(state?.key) ? state.key : [])]}
                 onChange={onChangeState}>
             </Cascader>
         </Form.Item>
 
-        <Form.Item label="With Key" className="font-500">
+        <Form.Item label={<>With Key <Tooltip title={"Select the state key that can be used as an additional value in the expression."
+        }><QuestionCircleOutlined style={{ marginLeft: 4 }} /></Tooltip> </>} >
             <Cascader options={states}
                 value={[state?.withtype, ...(Array.isArray(state?.withkey) ? state.withkey : [])]}
                 onChange={onChangeWithKeyState}>
@@ -73,48 +77,54 @@ export default function OnClickEvent({
         </Form.Item>
 
         <Form.Item label="value" className="font-500">
-
+            <Text disabled>
+                e.g [key] + 1 OR ![key] OR [withkey]
+            </Text>
             <TextArea placeholder="Expression" name="value"
                 onChange={onChange}
                 value={state?.value}
             />
         </Form.Item>
 
-        <Button
-            style={{ margin: '10px 10px' }}
-            size="small"
-            onClick={(e) => {
-                e.preventDefault();
+        <div style={{ width: '100%', textAlign: 'end', marginTop: 5 }}>
 
-                Modal.confirm({
-                    title: 'Reset Event',
-                    content: 'Are you sure you want to reset?',
-                    onOk: () => {
+            <Button
+                style={{ margin: '10px 10px' }}
+                size="small"
+                onClick={(e) => {
+                    e.preventDefault();
 
-                        onSubmit(state.eventType, undefined)
-                        setIsChange(false);
-                        setState(null);
-                    },
-                    onCancel: () => {
-                        // Do nothing when the user cancels the confirmation
-                    },
-                });
+                    Modal.confirm({
+                        title: 'Reset Event',
+                        content: 'Are you sure you want to reset?',
+                        onOk: () => {
+
+                            onSubmit(state.eventType, undefined)
+                            setIsChange(false);
+                            setState(null);
+                        },
+                        onCancel: () => {
+                            // Do nothing when the user cancels the confirmation
+                        },
+                    });
 
 
 
-            }}>Reset</Button>
+                }}>Reset</Button>
 
-        <Button
-            style={{ margin: '10px 0' }}
-            size="small"
-            type="primary"
+            <Button
+                style={{ margin: '10px 0' }}
+                size="small"
+                type="primary"
 
-            disabled={!isChange}
-            onClick={(e) => {
-                e.preventDefault();
-                onSubmit(state.eventType, state)
-                setIsChange(false);
-            }}>Save</Button>
+                disabled={!isChange}
+                onClick={(e) => {
+                    e.preventDefault();
+                    onSubmit(state.eventType, state)
+                    setIsChange(false);
+                }}>Save</Button>
+
+        </div>
 
     </>
 };

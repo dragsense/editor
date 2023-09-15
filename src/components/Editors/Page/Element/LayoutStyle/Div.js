@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Slider, InputNumber, Select, Button,Radio } from 'antd';
+import { Slider, InputNumber, Select, Button, Radio } from 'antd';
 
 const { Option } = Select;
 
 function Div({ children, selector, setChange }) {
     const [values, setValues] = useState({});
-    
+
 
     const style = selector?.style;
     const properties = selector?.properties;
@@ -29,7 +29,9 @@ function Div({ children, selector, setChange }) {
     const handleLockAllSides = (value) => {
         ['top', 'right', 'bottom', 'left'].forEach((side) => {
             handleSideInputChange(side, `${adjustmentType}-${side}`, value);
+
         });
+
     };
 
     const [adjustmentType, setAdjustmentType] = useState('padding');
@@ -70,7 +72,16 @@ function Div({ children, selector, setChange }) {
                         <Select
                             value={properties[`${adjustmentType}-top`]?.unit}
                             onChange={(unit) => {
+
+                                ['top', 'right', 'bottom', 'left'].map((key) => {
+                                    if (!properties[key]) properties[key] = {};
+                                    properties[`${adjustmentType}-${key}`].unit = unit;
+                                })
+
                                 handleLockAllSides(parseFloat(properties[`${adjustmentType}-top`]?.value) + unit);
+
+
+                                setChange(true);
                             }}
                             style={{ width: 70 }}
                         >
@@ -102,6 +113,8 @@ function Div({ children, selector, setChange }) {
                             <Select
                                 value={properties[`${adjustmentType}-${side}`]?.unit}
                                 onChange={(unit) => {
+                                    if (!properties[`${adjustmentType}-${side}`]) properties[`${adjustmentType}-${side}`] = {};
+                                    properties[`${adjustmentType}-${side}`].unit = unit;
                                     handleSideInputChange(side, `${adjustmentType}-${side}`, parseFloat(properties[`${adjustmentType}-${side}`]?.value) + unit);
                                 }}
                                 style={{ width: 70 }}
@@ -114,7 +127,7 @@ function Div({ children, selector, setChange }) {
                     />
                 </div>
             ))}
-            
+
         </div>
     );
 

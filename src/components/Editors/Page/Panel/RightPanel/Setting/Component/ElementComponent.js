@@ -131,7 +131,7 @@ export default function ElementComponent({ component, filteredStates, onSubmit }
                         <StateComponent states={state.states || {}} setNewState={setNewState} onRemove={onRemoveState} />}
 
                     <Divider orientation="center"
-                        orientationMargin="0">Events <Button
+                        orientationMargin="0">Scroll Events <Button
                             type="text"
                             onClick={() => setNewEvent({ ...initialEvent })}
                             icon={<PlusOutlined />}> </Button></Divider>

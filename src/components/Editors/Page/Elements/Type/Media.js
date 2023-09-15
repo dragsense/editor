@@ -20,9 +20,7 @@ const Media = (props) => {
     });
 
     const key = useMemo(() => {
-
         return nanoid(4);
-
     }, [value.srcs])
 
 

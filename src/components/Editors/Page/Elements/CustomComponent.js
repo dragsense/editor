@@ -4,12 +4,12 @@ import React, { useEffect, useMemo } from "react";
 
 
 import ElementSetting from "./ElementSetting";
-import { getStateValue, updateStateValue, generateCascaderCollStates, getStateRef, generateCascader } from '../../../../lib/element/elementNode';
+import { getStates, updateStateValue, generateCascaderCollStates, getStateRef, generateCascader } from '../../../../lib/element/elementNode';
 
 
 const CustomComponent = (props) => {
 
-    const { children, customPath, node, _states, _props, onUpdateStates, mapValue, mapIndex } = props;
+    const { children, customPath, node, _states, _props, onSetStates, mapValue, mapIndex } = props;
 
 
     const loadComponent = async (path) => {
@@ -19,36 +19,36 @@ const CustomComponent = (props) => {
         loadComponent(customPath);
     }, [])
 
-    const states = useMemo(() => {
-        if (!_states) {
-            return {};
+
+    const getStateValue = (key) => {
+        if (!_states || key) {
+            return null;
         }
+        return getStates(key, _states)
 
-        return Object.keys(_states).reduce((accumulator, key) => {
-            accumulator[key] = _states[key].defaultValue;
-            return accumulator;
-        }, {});
+    };
 
-    }, [_states]);
-
-    const computedProps = useMemo(() => {
-        if (!_props) {
-            return {};
+    const getPropValue = (key) => {
+        if (!_states || key) {
+            return null;
         }
+        return getStates(key, _props)
 
-        return Object.keys(_props).reduce((accumulator, key) => {
-            accumulator[key] = _props[key].defaultValue;
-            return accumulator;
-        }, {});
-    }, [_props]);
+    };
 
-    const updateStates = (key, value, type) => {
-        if(onUpdateStates)
-        onUpdateStates(key, value, type)
+
+    const updateState = (key, value) => {
+        if (onSetStates)
+            onSetStates(key, value, 'STATES')
+    }
+
+    const updateProp = (key, value) => {
+        if (onSetStates)
+            onSetStates(key, value, "PROPS")
     }
 
     return (
-        <span style={{border: '#ffaa4f5e solid 1px', display:'inline-block', width: '-webkit-fill-available'  }}>
+        <span style={{ border: '#ffaa4f5e solid 1px', display: 'inline-block', width: '-webkit-fill-available' }}>
 
             <ElementSetting
                 {...props}

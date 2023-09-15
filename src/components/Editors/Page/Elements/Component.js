@@ -491,29 +491,29 @@ const Component = (props) => {
 
     useEffect(() => {
         if (!events) return;
-      
+
         const iframe = document.querySelector("#ac-editor-iframe-doc");
-      
+
         const handleScroll = (e) => {
-          e.preventDefault();
-          for (const key in events) {
-            onScroll(events[key], iframe.contentWindow);
-          }
+            e.preventDefault();
+            for (const key in events) {
+                onScroll(events[key], iframe.contentWindow);
+            }
         };
-      
+
         if (iframe) {
-          const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-          iframeDocument.addEventListener('scroll', handleScroll);
-        }
-      
-        return () => {
-          const iframe = document.querySelector("#ac-editor-iframe-doc");
-          if (iframe) {
             const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-            iframeDocument.removeEventListener('scroll', handleScroll);
-          }
+            iframeDocument.addEventListener('scroll', handleScroll);
+        }
+
+        return () => {
+            const iframe = document.querySelector("#ac-editor-iframe-doc");
+            if (iframe) {
+                const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+                iframeDocument.removeEventListener('scroll', handleScroll);
+            }
         };
-      }, [events]);
+    }, [events]);
 
     useEffect(() => {
 
@@ -646,84 +646,89 @@ const Component = (props) => {
 
     }, [states, colStates, _states])
 
-    const onChange = useCallback(async (values, node, all = false) => {
+    const onChange = useCallback((values, node, all = false) => {
 
         //const node = await getData(_id, id);
+        let allvalues = [];
+        if (all) {
+            let options = [];
+
+            if (node.options) {
+                options = node.options.split(",");
+                options = Object.values(options).map((val) => val.split(":")[0]);
+            }
+
+            if (node.map) {
+                let statesRef = {};
+                const maKey = node.map.key;
+                const mapType = node.map.type;
+
+
+                if (mapType == 'STATES')
+                    statesRef = getStateRef(maKey, states);
+                else
+                    if (mapType == 'PROPS')
+                        statesRef = getStateRef(maKey, _states);
+                if (mapType == 'COLSTATES') {
+                    statesRef.states = {};
+
+                    if (maKey[0] === 'DOCUMENTS' && colStates.documents) {
+
+
+                        statesRef.states = colStates.documents.reduce((result, doc, idx) => {
+                            result[idx] = { value: doc._id + ":" + doc.name, idx };
+                            return result;
+                        }, {});
+
+
+
+                    } else
+                        if (maKey[0] === 'RELATIONSHIPS' && colStates.populatedRelationships) {
+                            const docs = colStates.populatedRelationships[maKey[1]];
+
+                            if (docs)
+                                statesRef.states = docs.reduce((result, rel, idx) => {
+                                    result[idx] = { value: rel._id + ":" + rel.name, idx };
+                                    return result;
+                                }, {});
+                        } else if (maKey[0] === 'PAGES') {
+
+                            const totalPages = Math.ceil(colStates.maxPage / colStates.limit);
+                            const pageArray = Array.from({ length: totalPages }, (_, index) => index + 1);
+
+                            if (pageArray.length > 0)
+                                statesRef.states = pageArray.reduce((result, index, idx) => {
+                                    result[idx] = { value: index, idx };
+                                    return result;
+                                }, {});
+                        }
+                }
+
+
+                if (statesRef && statesRef.states) {
+                    const states = Object.values(statesRef.states).map((val) => val.value.split(":")[0]);
+                    options = [...(new Set([...options, ...states]))];
+
+                }
+            }
+
+
+            allvalues = options;
+
+        }
+
         for (const elem of values) {
 
             let value = elem.value;
             const onChange = elem.elem;
 
-
-            if (value === 'all' && all) {
-                let options = [];
-
-                if (node.options) {
-                    options = node.options.split(",");
-                    options = Object.values(options).map((val) => val.split(":")[0]);
-                }
-
-                if (node.map) {
-                    let statesRef = {};
-                    const maKey = node.map.key;
-                    const mapType = node.map.type;
-
-
-                    if (mapType == 'STATES')
-                        statesRef = getStateRef(maKey, states);
-                    else
-                        if (mapType == 'PROPS')
-                            statesRef = getStateRef(maKey, _states);
-                    if (mapType == 'COLSTATES') {
-                        statesRef.states = {};
-
-                        if (maKey[0] === 'DOCUMENTS' && colStates.documents) {
-
-
-                            statesRef.states = colStates.documents.reduce((result, doc, idx) => {
-                                result[idx] = { value: doc._id + ":" + doc.name, idx };
-                                return result;
-                            }, {});
-
-
-
-                        } else
-                            if (maKey[0] === 'RELATIONSHIPS' && colStates.populatedRelationships) {
-                                const docs = colStates.populatedRelationships[maKey[1]];
-
-                                if (docs)
-                                    statesRef.states = docs.reduce((result, rel, idx) => {
-                                        result[idx] = { value: rel._id + ":" + rel.name, idx };
-                                        return result;
-                                    }, {});
-                            } else if (maKey[0] === 'PAGES') {
-
-                                const totalPages = Math.ceil(colStates.maxPage / colStates.limit);
-                                const pageArray = Array.from({ length: totalPages }, (_, index) => index + 1);
-
-                                if (pageArray.length > 0)
-                                    statesRef.states = pageArray.reduce((result, index, idx) => {
-                                        result[idx] = { value: index, idx };
-                                        return result;
-                                    }, {});
-                            }
-                    }
-
-
-                    if (statesRef && statesRef.states) {
-                        const states = Object.values(statesRef.states).map((val) => val.value.split(":")[0]);
-                        options = [...(new Set([...options, ...states]))];
-
-                    }
-                }
-
-
-                value = options.join(',');
-
-            }
+            if (value === 'all')
+                value = allvalues.join(",");
 
             setValue(onChange, value, '');
         }
+
+        return allvalues;
 
 
     }, [states, colStates, _states])
@@ -731,7 +736,7 @@ const Component = (props) => {
 
     const onSubmit = useCallback((states) => {
         setStates({ ...states });
-    }, [states])  
+    }, [states])
 
 
     return <span style={{ border: '#ff7875 solid 1px', display: 'inline-block', width: '-webkit-fill-available' }}
@@ -741,11 +746,11 @@ const Component = (props) => {
             <ElementMapping {...props} map={node.map}
                 _states={states}
                 _props={_states}
-                >
+            >
 
                 {React.Children.map(children, (child, index) => {
                     return child && React.cloneElement(child, {
-                        key: index,
+                        key: child.props?._uid,
                         fun: {
                             onChange,
                             onClick,
@@ -755,7 +760,7 @@ const Component = (props) => {
                         _id: component._id,
                         _states: states,
                         _props: _states,
-                        onUpdateStates: onSetStates,
+                        onSetStates: onSetStates,
                         _setStates: setStates,
                         colStates: colStates
                     })

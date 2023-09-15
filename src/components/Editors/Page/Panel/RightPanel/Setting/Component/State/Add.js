@@ -12,7 +12,7 @@ const { Option } = Select;
 const ADVANCE_TYPES = [
     { value: 'array', label: 'ARRAY' },
     { value: 'images', label: 'IMAGES' },
-    { value: 'Object', label: 'OBJECT' },
+    { value: 'object', label: 'OBJECT' },
 ];
 
 const initialState = {

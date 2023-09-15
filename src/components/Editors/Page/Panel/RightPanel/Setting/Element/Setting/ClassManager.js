@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Tag, Input, Button, Tooltip, AutoComplete, Popconfirm, Alert, Space, theme, Cascader, message } from 'antd';
+import { Tag, Input, Button, Tooltip, AutoComplete, Typography, Popconfirm, Alert, Space, theme, Cascader, message, Form } from 'antd';
 import ElementCondition from "../Condition";
 
-import { PlusOutlined, CloseOutlined, MinusCircleOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { PlusOutlined, CloseOutlined, MinusCircleOutlined, DeleteOutlined, EditOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { nanoid } from 'nanoid';
 
 
 const initial = {
     cKey: '', key: null, value: [], type: ''
 }
+const { Text } = Typography;
 
 const classes = [];
 
@@ -217,12 +218,17 @@ export default function ClassManager({
             {inputVisible && <>
 
                 {validationResult === 'invalid' && <>
-                    <Alert style={{ margin: '5px 0' }} type="error" onClose={onClose} closable message="Please enter a valid CSS class name (e.g. .my-class).">
+                    <Alert style={{ margin: '5px 0' }} type="error" onClose={onClose} closable message="Please enter a valid CSS class name (e.g. my-class).">
 
                     </Alert>
                 </>}
 
 
+                <>State <Tooltip title={"Select the state whose value can be used in the class name."
+                }><QuestionCircleOutlined style={{ marginLeft: 4 }} /></Tooltip> </>
+                    <Text disabled>
+                        Optional
+                    </Text>
                 <Cascader style={{ width: '100%', margin: '5px 0'  }}
                     allowClear
                     options={currentClasses}
@@ -233,7 +239,9 @@ export default function ClassManager({
                     onChange={onChangekey}>
 
                 </Cascader>
-
+                <Text disabled>
+                        e.g '[descriptive-state-name]-class' OR "hero-class"
+                    </Text>
                 <Space style={{ paddingTop: 10 }}>
 
 
@@ -250,7 +258,7 @@ export default function ClassManager({
                     >
                         <>
 
-
+                   
                             <Input
                                 ref={input}
                                 type="text"

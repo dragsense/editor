@@ -90,6 +90,7 @@ const ElementValue = (props) => {
                         }
                     } else
                         if (key[0] === "NEXTDOCUMNET" || key[0] === 'PREVDOCUMNET') {
+                            
                             const doc = setting[key[0]];
 
                             if (!doc) {
@@ -119,17 +120,11 @@ const ElementValue = (props) => {
             case 'PROPS':
                 return getStateValue(key, _props) || `[props.${key}]`;
             case 'STATES':
-
                 return getStateValue(key, _states);
-
-            case 'PAGESTATES':
-
-                const v = getStateValue(key, _states);
-                if (v)
-                    return v;
-
-                return getStateValue(key, _props);
             case 'COLSTATES':
+                
+                if (!colStates)
+                return value;
 
 
                 if (key[0] === 'POPULATED')
@@ -209,7 +204,7 @@ const ElementValue = (props) => {
                         }
             case 'FORMSTATES':
                 if (_states && _states[key[0]])
-                    return _states[key[0]][key[1]]
+                    return _states[key[0]][key[1]] || '[form state]'
 
             case 'MAPVALUE':
                 return mapValue;
@@ -218,7 +213,6 @@ const ElementValue = (props) => {
             case 'Menu': case 'Flex': case 'Tabs': case 'Accordion': case 'Sider':
             case 'Grid': case 'Container': case 'Slider': case 'Gallery': case 'Dropdown':
             case 'Dropdown': case 'Observable': case 'Modal': case 'GoToTop':
-
                 return getStateValue(key, _cstates);
 
             default:
@@ -231,57 +225,54 @@ const ElementValue = (props) => {
 
     const value = useMemo(() => {
 
-
         if (!state)
             return nodeValue;
-
-
         const value = getValue(state, nodeValue);
-
-
-
         return value !== undefined ? value : nodeValue;
 
-    }, [state, colStates, _states, _props, mapValue, nodeValue]);
+    }, [state, colStates, _cstates, _states, _props, mapValue, nodeValue]);
 
     const onClickNode = (e) => {
 
         if (node.tagName === 'a')
             e.preventDefault();
+        try {
+            if (node.onClick) {
+                const onclick = node.onClick;
 
-        if (node.onClick) {
-            const onclick = node.onClick;
+                const withType = onclick.withtype;
+                const withkey = onclick.withkey;
+                let withValue = getValue({ type: withType, key: withkey });
+                withValue = withValue?.value ? withValue.value : withValue
 
-            const withType = onclick.withtype;
-            const withkey = onclick.withkey;
-            let withValue = getValue({ type: withType, key: withkey });
-            withValue = withValue?.value ? withValue.value : withValue
+                const stateType = onclick.statetype;
+                const stateKey = onclick.statekey;
+                let stateValue = getValue({ type: stateType, key: stateKey }, '');
+                stateValue = stateValue?.value ? stateValue.value : stateValue;
 
-            const stateType = onclick.statetype;
-            const stateKey = onclick.statekey;
-            let stateValue = getValue({ type: stateType, key: stateKey }, '');
-            stateValue = stateValue?.value ? stateValue.value : stateValue;
-
-            if (withValue?.notClickable)
-                return;
+                if (withValue?.notClickable)
+                    return;
 
 
-            if (fun?.onClick)
-                fun.onClick(node, stateValue, withValue);
+                if (fun?.onClick)
+                    fun.onClick(node, stateValue, withValue);
+            }
+        } catch (e) {
+
         }
     }
 
     const onChangeNode = (value, all) => {
 
         const onChangeEvent = node.onChange;
+        try {
+            if (onChangeEvent?.value || !onChangeEvent) {
 
-        if (onChangeEvent?.value || !onChangeEvent) {
-            console.log(fun)
-
-            if (fun?.onChange)
-                fun.onChange([{ elem: onChangeEvent, value }], node, all);
+                if (fun?.onChange)
+                    fun.onChange([{ elem: onChangeEvent, value }], node, all);
+            }
+        } catch (e) {
         }
-
 
     }
 
@@ -293,71 +284,73 @@ const ElementValue = (props) => {
 
         if (!onMouseMove)
             return;
+        try {
+            let pageX;
+            let pageY;
 
-        let pageX;
-        let pageY;
+            let scrollLeft;
+            let scrollTop;
 
-        let scrollLeft;
-        let scrollTop;
+            if (onMouseMove.mouseType === 'page') {
+                pageX = e.pageX;
+                pageY = e.pageY;
+            } else {
+                pageX = e.clientX;
+                pageY = e.clientY;
+            }
 
-        if (onMouseMove.mouseType === 'page') {
-            pageX = e.pageX;
-            pageY = e.pageY;
-        } else {
-            pageX = e.clientX;
-            pageY = e.clientY;
+
+            if (onMouseMove.scrollType === 'pageScroll') {
+                const iframe = document.querySelector("#ac-editor-iframe-doc");
+
+                if (iframe) {
+                    const iframeWindow = iframe.contentWindow;
+                    scrollLeft = iframeWindow.pageYOffset;
+                    scrollTop = iframeWindow.pageYOffset;
+                }
+            } else {
+
+                scrollLeft = e.target.scrollLeft;
+                scrollTop = e.target.scrollTop;
+            }
+
+
+            const delta = onMouseMove.delta;
+
+            if (onMouseMove.valueX || onMouseMove.valueY) {
+
+                let valueX = '';
+                if (onMouseMove.valueX) {
+                    valueX = onMouseMove.valueX.replace(/\[X]/g, pageX);
+                    valueX = valueX.replace(/\[Y]/g, pageY);
+                    valueX = valueX.replace(/\[left]/g, scrollLeft);
+                    valueX = valueX.replace(/\[top]/g, scrollTop);
+                    valueX = valueX.replace(/\[delta]/g, delta);
+                }
+
+                let valueY = ''
+                if (onMouseMove.valueY) {
+                    valueY = onMouseMove.valueY.replace(/\[Y]/g, pageY);
+                    valueY = valueY.replace(/\[X]/g, pageX);
+                    valueY = valueY.replace(/\[left]/g, scrollLeft);
+                    valueY = valueY.replace(/\[top]/g, scrollTop);
+                    valueY = valueY.replace(/\[delta]/g, delta);
+                }
+                try {
+                    valueX = eval(valueX);
+                    valueY = eval(valueY);
+
+                } catch (e) {
+                    console.error("Invalid expression:", e);
+
+                }
+
+                if (fun?.onChange)
+                    fun.onChange([{ elem: onMouseMove.stateValueX || {}, value: valueX }, { elem: onMouseMove.stateValueY || {}, value: valueY }], node, null);
+            }
         }
-
-
-        if (onMouseMove.scrollType === 'pageScroll') {
-            const iframe = document.querySelector("#ac-editor-iframe-doc");
-
-            if (iframe) {
-                const iframeWindow = iframe.contentWindow;
-                scrollLeft = iframeWindow.pageYOffset;
-                scrollTop = iframeWindow.pageYOffset;
-            }
-        } else {
-
-            scrollLeft = e.target.scrollLeft;
-            scrollTop = e.target.scrollTop;
+        catch (e) {
         }
-
-
-        const delta = onMouseMove.delta;
-
-        if (onMouseMove.valueX || onMouseMove.valueY) {
-
-            let valueX = '';
-            if (onMouseMove.valueX) {
-                valueX = onMouseMove.valueX.replace(/\[X]/g, pageX);
-                valueX = valueX.replace(/\[Y]/g, pageY);
-                valueX = valueX.replace(/\[scrollLeft]/g, scrollLeft);
-                valueX = valueX.replace(/\[scrollTop]/g, scrollTop);
-                valueX = valueX.replace(/\[delta]/g, delta);
-            }
-
-            let valueY = ''
-            if (onMouseMove.valueY) {
-                valueY = onMouseMove.valueY.replace(/\[Y]/g, pageY);
-                valueY = valueY.replace(/\[X]/g, pageX);
-                valueY = valueY.replace(/\[scrollLeft]/g, scrollLeft);
-                valueY = valueY.replace(/\[scrollTop]/g, scrollTop);
-                valueY = valueY.replace(/\[delta]/g, delta);
-            }
-            try {
-                valueX = eval(valueX);
-                valueY = eval(valueY);
-
-            } catch (e) {
-                console.error("Invalid expression:", e);
-
-            }
-
-            if (fun?.onChange)
-                fun.onChange([{ elem: onMouseMove.stateValueX || {}, value: valueX }, { elem: onMouseMove.stateValueY || {}, value: valueY }], node, null);
-        }
-
     }
 
 
@@ -371,45 +364,48 @@ const ElementValue = (props) => {
         if (!onScroll || !fun?.onChange)
             return;
 
-        const scrollLeft = e.target.scrollLeft;
-        const scrollTop = e.target.scrollTop;
+        try {
+            const scrollLeft = e.target.scrollLeft;
+            const scrollTop = e.target.scrollTop;
 
 
-        const delta = onScroll.delta;
+            const delta = onScroll.delta;
 
 
-        if (onScroll?.valueX || onScroll?.valueY) {
+            if (onScroll?.valueX || onScroll?.valueY) {
 
-            let valueX = '';
-            if (onScroll?.valueX) {
-                valueX = onScroll.valueX.replace(/\[left]/g, scrollLeft);
-                valueX = valueX.replace(/\[top]/g, scrollTop);
-                valueX = valueX.replace(/\[delta]/g, delta);
+                let valueX = '';
+                if (onScroll?.valueX) {
+                    valueX = onScroll.valueX.replace(/\[left]/g, scrollLeft);
+                    valueX = valueX.replace(/\[top]/g, scrollTop);
+                    valueX = valueX.replace(/\[delta]/g, delta);
+                }
+
+                let valueY = ''
+                if (onScroll?.valueY) {
+                    valueY = onScroll.valueY.replace(/\[top]/g, scrollTop);
+                    valueY = valueY.replace(/\[left]/g, scrollLeft);
+                    valueY = valueY.replace(/\[delta]/g, delta);
+                }
+
+                try {
+                    valueX = eval(valueX);
+                    valueY = eval(valueY);
+
+                } catch (e) {
+                    message.error("Invalid expression:" + e?.message);
+
+                }
+
+                if (fun?.onChange)
+                    fun.onChange([
+                        { elem: onScroll.stateValueX || {}, value: valueX },
+                        { elem: onScroll.stateValueY || {}, value: valueY }],
+                        node, null);
             }
-
-            let valueY = ''
-            if (onScroll?.valueY) {
-                valueY = onScroll.valueY.replace(/\[top]/g, scrollTop);
-                valueY = valueY.replace(/\[left]/g, scrollLeft);
-                valueY = valueY.replace(/\[delta]/g, delta);
-            }
-
-            try {
-                valueX = eval(valueX);
-                valueY = eval(valueY);
-
-            } catch (e) {
-                message.error("Invalid expression:" + e?.message);
-
-            }
-
-            if (fun?.onChange)
-                fun.onChange([
-                    { elem: onScroll.stateValueX || {}, value: valueX },
-                    { elem: onScroll.stateValueY || {}, value: valueY }],
-                    node, null);
         }
-
+        catch (e) {
+        }
     }
 
     return <ElementType

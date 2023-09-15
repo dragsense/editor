@@ -1,8 +1,11 @@
 
-import { Cascader, Button, Form, Input, Select, Modal } from "antd";
+import { QuestionCircleOutlined } from "@ant-design/icons";
+import { Cascader, Button, Form, Input, Typography, Modal, Tooltip } from "antd";
 import { useState } from "react";
 
 const { TextArea } = Input;
+const { Text } = Typography;
+
 
 export default function OnChangEvent({
     states,
@@ -41,14 +44,17 @@ export default function OnChangEvent({
     return <>
 
 
-        <Form.Item label="Key" className="font-500">
+        <Form.Item label={<>* Key <Tooltip title={"Select the state key that needs to be changed and this key can be used in the expression."
+                }><QuestionCircleOutlined style={{ marginLeft: 4 }} /></Tooltip> </>} >
             <Cascader options={states}
                 value={[state?.type, ...(Array.isArray(state?.key) ? state.key : [])]}
                 onChange={onChangeState}>
             </Cascader>
         </Form.Item>
         <Form.Item label="value" className="font-500">
-
+        <Text disabled>
+                        e.g '[value]' OR ![key]
+                    </Text>
             <TextArea placeholder="Expression" name="value"
                 onChange={onChange}
                 value={state?.value}
@@ -56,7 +62,8 @@ export default function OnChangEvent({
         </Form.Item>
 
 
- 
+        <div style={{ width: '100%', textAlign: 'end', marginTop: 5 }}>
+
         <Button
             style={{ margin: '10px 10px' }}
             size="small"
@@ -81,7 +88,6 @@ export default function OnChangEvent({
             }}>Reset</Button>
 
     
-
         <Button
             style={{ margin: '10px 0' }}
             size="small"
@@ -93,6 +99,7 @@ export default function OnChangEvent({
                 onSubmit(state.eventType,state)
                 setIsChange(false);
             }}>Save</Button>
+            </div>
 
     </>
 };

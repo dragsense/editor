@@ -1,5 +1,5 @@
 
-import { Button, Divider, Card, Select, Input } from 'antd';
+import { Button, Divider, Typography, Card, Tooltip, Select, Input } from 'antd';
 
 
 import { useState, useEffect, Children } from 'react';
@@ -7,7 +7,10 @@ import ElementContent from './ElementContent';
 
 import ElementCondition from '../Element/Condition';
 import ElementMapping from '../Element/Map';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 const { Option } = Select
+
+const { Text } = Typography;
 
 export default function Content({ state, onUpdate, onChange, cascaderStates }) {
 
@@ -96,7 +99,9 @@ export default function Content({ state, onUpdate, onChange, cascaderStates }) {
                     state={contentState}
                     setState={setContentState} />
 
-                <Divider orientation="center" orientationMargin="0">Mapping: </Divider>
+                <Divider orientation="center" orientationMargin="0">Mapping  {" "}
+                    <Tooltip title={"Mapping allows looping through the element based on the number of states in the array."
+                    }><QuestionCircleOutlined /></Tooltip> </Divider>
                 <ElementMapping
                     setIsChange={setIsChange}
                     cascaderStates={cascaderStates}

@@ -64,7 +64,6 @@ export const getStateValue = (key, states) => {
 
                 defaultValue = getStateValue([key[1]], stateRef.states)
 
-
               } else
                 defaultValue = (stateRef.defaultValue !== undefined ? stateRef.defaultValue : "");
 
@@ -101,13 +100,13 @@ export const getStateStates = (key, states) => {
       values = Object.values(value.states).flatMap((value, index) => {
         const v = value;
         const val = v.value.split(":");
-        return { label: val[0], value: val[1] ? val[1] : v.idx }
+        return { label: val[0], value: val[1] ? val[1] : v.idx, key: val[1] ? val[1] : v.id }
       })
     }
 
     if (value.type == 'images') {
       values = Object.values(value.states).map((value) => {
-        return { label: value.alt, value: value.src }
+        return { label: value.alt, value: value.src, key: value._id }
       })
     }
 
@@ -127,7 +126,100 @@ export const getStateRef = (key, states) => {
     return undefined;
 
   let value = states[key[0]];
+
+  if(value.type === 'array' || value.type === 'images')
+  return undefined;
+
+  if(value.type === 'object' && value.states)
+    value = value.states[key[1]]
+
   return value;
+}
+
+export const getStates = (key, states) => {
+  let defaultValue = "";
+
+  try {
+
+
+    if (!states)
+      return defaultValue;
+
+    let stateRef = states[key[0]];
+
+    if (!stateRef)
+      return defaultValue;
+
+
+    if (stateRef.type == 'image') {
+      defaultValue = {
+        value: stateRef.src ? stateRef.src.src : './images/default/default-img.png',
+        label: stateRef.src?.alt || 'image'
+      }
+    }
+    else
+      if (stateRef.type == 'video') {
+        defaultValue = {
+          value: stateRef.src ? stateRef.src.src : './images/default/default-poster.png',
+          label: stateRef.src?.alt || 'video', srcs: stateRef.srcs
+        }
+      } else
+        if (stateRef.type == 'audio') {
+          defaultValue = {
+            value: './audios/default/sample.mp3', srcs: stateRef.srcs
+          }
+        }
+        else
+          if (stateRef.type == 'images' && stateRef.states) {
+            if (key[1]) {
+              const index = Number(key[1]) !== NaN ? Number(key[1]) : -1;
+              defaultValue = (stateRef.states[index] !== undefined ? stateRef.states[index].src : "")
+              if (stateRef.states[index] !== undefined) {
+                const value = stateRef.states[index]
+                defaultValue = {
+                  value: value.src || './images/default/default-img.png',
+                  label: value.alt || 'image'
+                }
+              } else {
+                defaultValue = Object.values(stateRef.states).map((value) => {
+                  return { label: value.alt, value: value.src, key: value._id }
+                })
+              }
+            }
+          } else
+            if (stateRef.type == 'array' && stateRef.states) {
+              if (key[1]) {
+                const index = Number(key[1]) !== NaN ? Number(key[1]) : -1;
+                if (stateRef.states[index] !== undefined) {
+                  const value = stateRef.states[index].value?.split(":")
+                  defaultValue = {
+                    value: value[0],
+                    label: value[1] || value[0]
+                  }
+                }
+              } else {
+                defaultValue = Object.values(stateRef.states).flatMap((value, index) => {
+                  const v = value;
+                  const val = v.value.split(":");
+                  return { label: val[0], value: val[1] ? val[1] : v.idx, key: val[1] ? val[1] : v.id }
+                })
+              }
+            }
+            else
+              if (stateRef.type == 'object') {
+
+                defaultValue = getStateValue([key[1]], stateRef.states)
+
+
+              } else
+                defaultValue = (stateRef.defaultValue !== undefined ? stateRef.defaultValue : "");
+
+
+  } catch (e) {
+    console.error("Some thing went wrong.");
+  }
+
+  return defaultValue;
 }
 
 
@@ -170,9 +262,7 @@ export const updateStateValue = (elem, withValue, states, value, updateKey = "de
     // if (stateRef.type == 'array')
     //   val = val.split(',')
 
-    if (key[1])
-      stateRef.states[key[1]] = val;
-    else
+ 
       stateRef[updateKey] = val;
 
   } catch (e) {

@@ -100,14 +100,12 @@ const Main = ({ session, store }) => {
 
                             </p>
                             <Descriptions column={1}>
-                                <Descriptions.Item label={<Text strong><PhoneOutlined /></Text>}>
-                                    0000000000
-                                </Descriptions.Item>
+                              
                                 <Descriptions.Item label={<Text strong>  <MailOutlined /></Text>}>
-                                    info@autocode.com
+                                    info@dragsense.com
                                 </Descriptions.Item>
                                 <Descriptions.Item label={<Text strong><LinkOutlined /> </Text>}>
-                                    <a href="www.autocode.com">www.autocode.com</a>
+                                    <a href="http://dragsense.com/">dragsense.com</a>
                                 </Descriptions.Item>
                             </Descriptions>
                         </Card>   </div>} />

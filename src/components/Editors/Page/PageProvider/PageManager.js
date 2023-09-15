@@ -1058,22 +1058,29 @@ export default function PageManger({ children }) {
         }
 
         let currentElement = await getData(state.page._id, currentUid);
-        let parentElemet = await getData(state.page._id, targetUid);
-
-        if (!parentElemet) {
-            throw new Error('Target Element not found.');
-        }
-
-        if (addToAbove)
-            parentElemet = await getData(state.page._id, parentElemet.parent);
-
-
-        if (!parentElemet || !currentElement) {
-            throw new Error('Target Element Or Element not found.');
-        }
+        let _parentElemet = await getData(state.page._id, targetUid);
 
 
         try {
+
+            if (!_parentElemet || !currentElement) {
+                throw new Error('Target Element Or Element not found.');
+            }
+
+            if (_parentElemet._uid === currentElement._uid) {
+                throw new Error('Target Element is not valid.');
+            }
+
+            if (addToAbove)
+                _parentElemet = await getData(state.page._id, _parentElemet.parent);
+
+
+            if (!_parentElemet) {
+                throw new Error('Target Element Or Element not found.');
+            }
+
+
+
             dispatch({ type: 'start' });
 
             let parentUid = currentElement.parent;
@@ -1335,7 +1342,7 @@ export default function PageManger({ children }) {
             if (!element) {
                 node = node.closest('div[data-name="disabled-component"]');
                 if (node) {
-                    
+
                     node = node.firstElementChild;
                     const id = node.dataset.id;
                     element = await getData(state.page._id, id);

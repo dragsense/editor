@@ -8,7 +8,7 @@ import { getAllData, storePage } from "../../../../../../../lib/db";
 
 export default function Collection({ state, onChange, cascaderStates }) {
 
-    const [collectionState, setState] = useState(null);
+    const [collectionState, setState] = useState({});
     const [isChange, setIsChange] = useState(false);
 
     const fetchCollection = async () => {
@@ -61,18 +61,17 @@ export default function Collection({ state, onChange, cascaderStates }) {
         onChange(true)
     }
 
-    return state.node ? <>
-        <Divider orientation="center" orientationMargin="0">Tag: {state.node.tagName} </Divider>
+    return collectionState._id ? <>
+        <Divider orientation="center" orientationMargin="0">Tag: {state.node.name} </Divider>
 
 
         <Card>
             <div style={{ maxHeight: '62vh', overflow: 'auto' }}>
-                {collectionState ? <ElementCollection
+                 <ElementCollection
                     cascaderStates={cascaderStates}
                     setIsChange={setIsChange}
                     state={collectionState}
-                    setState={setState} /> :
-                    <span>Collection not attached.</span>}
+                    setState={setState} /> 
             </div>
             <Divider orientation="center" orientationMargin="0"></Divider>
 
@@ -83,5 +82,8 @@ export default function Collection({ state, onChange, cascaderStates }) {
 
 
     </>
-        : <span>Please Select the node</span>
+        :  <>  
+        <Card>Collection not attached.</Card>
+
+        </>
 }

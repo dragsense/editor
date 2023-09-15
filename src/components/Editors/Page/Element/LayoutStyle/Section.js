@@ -77,7 +77,16 @@ function Section({ children, selector, setChange }) {
                         <Select
                             value={properties[`${adjustmentType}-top`]?.unit}
                             onChange={(unit) => {
+
+                                ['top', 'right', 'bottom', 'left'].map((key) => {
+                                    if (!properties[key]) properties[key] = {};
+                                    properties[`${adjustmentType}-${key}`].unit = unit;
+                                })
+
                                 handleLockAllSides(parseFloat(properties[`${adjustmentType}-top`]?.value) + unit);
+
+
+                                setChange(true);
                             }}
                             style={{ width: 70 }}
                         >
@@ -109,6 +118,8 @@ function Section({ children, selector, setChange }) {
                             <Select
                                 value={properties[`${adjustmentType}-${side}`]?.unit}
                                 onChange={(unit) => {
+                                    if (!properties[`${adjustmentType}-${side}`]) properties[`${adjustmentType}-${side}`] = {};
+                                    properties[`${adjustmentType}-${side}`].unit = unit;
                                     handleSideInputChange(side, `${adjustmentType}-${side}`, parseFloat(properties[`${adjustmentType}-${side}`]?.value) + unit);
                                 }}
                                 style={{ width: 70 }}

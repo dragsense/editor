@@ -77,54 +77,31 @@ const content = (
 
 
         <div style={{ margin: '10px 0' }}>
-            <label>All Sides</label> <br />
-            <Slider
-                min={0.3}
-                max={50}
-                step={0.1}
-                value={parseFloat(properties[`${adjustmentType}-top`]?.value || 0)}
-                onChange={(v) => handleLockAllSides(v)}
-            />
-            <InputNumber
-                value={parseFloat(properties[`${adjustmentType}-top`]?.value || 0)}
-                onChange={(v) => handleLockAllSides(v)}
-                addonAfter={
-                    <Select
-                        value={properties[`${adjustmentType}-top`]?.unit}
-                        onChange={(unit) => {
-                            handleLockAllSides(parseFloat(properties[`${adjustmentType}-top`]?.value) + unit);
-                        }}
-                        style={{ width: 70 }}
-                    >
-                        <Option value="px">px</Option>
-                        <Option value="em">em</Option>
-                        <Option value="rem">rem</Option>
-                    </Select>
-                }
-            />
-        </div>
-        {['top', 'right', 'bottom', 'left'].map((side) => (
-            <div key={side} style={{ margin: '10px 0' }}>
-                <label>{`${side.charAt(0).toUpperCase() + side.slice(1)}`}</label> <br />
+                <label>All Sides</label> <br />
                 <Slider
                     min={0.3}
                     max={50}
                     step={0.1}
-                    value={parseFloat(properties[`${adjustmentType}-${side}`]?.value || 0)}
-                    onChange={(v) =>
-                        handleSideInputChange(side, `${adjustmentType}-${side}`, v)
-                    }
+                    value={parseFloat(properties[`${adjustmentType}-top`]?.value || 0)}
+                    onChange={(v) => handleLockAllSides(v)}
                 />
                 <InputNumber
-                    value={parseFloat(properties[`${adjustmentType}-${side}`]?.value || 0)}
-                    onChange={(v) =>
-                        handleSideInputChange(side, `${adjustmentType}-${side}`, v)
-                    }
+                    value={parseFloat(properties[`${adjustmentType}-top`]?.value || 0)}
+                    onChange={(v) => handleLockAllSides(v)}
                     addonAfter={
                         <Select
-                            value={properties[`${adjustmentType}-${side}`]?.unit}
+                            value={properties[`${adjustmentType}-top`]?.unit}
                             onChange={(unit) => {
-                                handleSideInputChange(side, `${adjustmentType}-${side}`, parseFloat(properties[`${adjustmentType}-${side}`]?.value) + unit);
+
+                                ['top', 'right', 'bottom', 'left'].map((key) => {
+                                    if (!properties[key]) properties[key] = {};
+                                    properties[`${adjustmentType}-${key}`].unit = unit;
+                                })
+
+                                handleLockAllSides(parseFloat(properties[`${adjustmentType}-top`]?.value) + unit);
+
+
+                                setChange(true);
                             }}
                             style={{ width: 70 }}
                         >
@@ -135,7 +112,41 @@ const content = (
                     }
                 />
             </div>
-        ))}
+            {['top', 'right', 'bottom', 'left'].map((side) => (
+                <div key={side} style={{ margin: '10px 0' }}>
+                    <label>{`${side.charAt(0).toUpperCase() + side.slice(1)}`}</label> <br />
+                    <Slider
+                        min={0.3}
+                        max={50}
+                        step={0.1}
+                        value={parseFloat(properties[`${adjustmentType}-${side}`]?.value || 0)}
+                        onChange={(v) =>
+                            handleSideInputChange(side, `${adjustmentType}-${side}`, v)
+                        }
+                    />
+                    <InputNumber
+                        value={parseFloat(properties[`${adjustmentType}-${side}`]?.value || 0)}
+                        onChange={(v) =>
+                            handleSideInputChange(side, `${adjustmentType}-${side}`, v)
+                        }
+                        addonAfter={
+                            <Select
+                                value={properties[`${adjustmentType}-${side}`]?.unit}
+                                onChange={(unit) => {
+                                    if (!properties[`${adjustmentType}-${side}`]) properties[`${adjustmentType}-${side}`] = {};
+                                    properties[`${adjustmentType}-${side}`].unit = unit;
+                                    handleSideInputChange(side, `${adjustmentType}-${side}`, parseFloat(properties[`${adjustmentType}-${side}`]?.value) + unit);
+                                }}
+                                style={{ width: 70 }}
+                            >
+                                <Option value="px">px</Option>
+                                <Option value="em">em</Option>
+                                <Option value="rem">rem</Option>
+                            </Select>
+                        }
+                    />
+                </div>
+            ))}
       {/* Flex Properties */}
       <div style={{ margin: '10px 0' }}>
         <label>Flex Direction</label> <br />

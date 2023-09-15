@@ -1,5 +1,8 @@
-import { Form, Radio, Divider, Input, Button, Cascader, Select, } from "antd";
+import { Form, Radio, Divider, Input, Button, Cascader, Typography, Tooltip } from "antd";
 import { useState, useCallback, useEffect } from "react";
+import { QuestionCircleOutlined } from '@ant-design/icons';
+
+const { Text } = Typography;
 
 export default function AddCondition({ current, setCurrent, onAdd, states }) {
 
@@ -16,6 +19,7 @@ export default function AddCondition({ current, setCurrent, onAdd, states }) {
         const name = event.target.name;
 
         setNewState({ ...newState, [name]: value })
+        form.setFieldsValue({[name]: value})
     }
 
     const onChangekey = (keys) => {
@@ -58,7 +62,7 @@ export default function AddCondition({ current, setCurrent, onAdd, states }) {
     };
 
     const onSubmit = (values) => {
-            onAdd({...newState, name: values.name, value: values.value});
+        onAdd({ ...newState, name: values.name, value: values.value });
 
     }
 
@@ -81,8 +85,12 @@ export default function AddCondition({ current, setCurrent, onAdd, states }) {
                     name="name"
                     rules={[{ required: true, message: "Please enter a name" }]}
                 >
+                    <Text disabled>
+                        Some descriptive name.
+                    </Text>
                     <Input
-                    maxLength={100}
+                     name="name"
+                        maxLength={100}
                         placeholder="Name"
                         onChange={onChangeValue}
                         value={newState.name}
@@ -90,10 +98,10 @@ export default function AddCondition({ current, setCurrent, onAdd, states }) {
                 </Form.Item>
 
 
-                <Form.Item label="Key" className="font-500"
-               
-
+                <Form.Item label={<>* Key <Tooltip title={"Select the state key that needs to be compared."
+                }><QuestionCircleOutlined style={{ marginLeft: 4 }} /></Tooltip> </>} className="font-500"
                 >
+
                     <Cascader options={states}
                         placeholder="Select Key"
 
@@ -104,15 +112,20 @@ export default function AddCondition({ current, setCurrent, onAdd, states }) {
 
 
 
-                <Form.Item label="Relation" className="font-500">
+                <Form.Item label={<>Relation  <Tooltip title={" Realtion with other condtions."
+                }><QuestionCircleOutlined style={{ marginLeft: 4 }} /></Tooltip></>} className="font-500">
+
                     <Radio.Group value={newState.relation} onChange={onChangeRelation}>
                         <Radio value="AND">AND</Radio>
                         <Radio value="OR">OR</Radio>
                     </Radio.Group>
                 </Form.Item>
 
-                <Form.Item label="Value" className="font-500">
-
+                <Form.Item label={<>State <Tooltip title={"Select the state whose value can be used in the expression."
+                }><QuestionCircleOutlined style={{ marginLeft: 4 }} /></Tooltip> </>} className="font-500">
+                    <Text disabled>
+                        Optional
+                    </Text>
                     <Cascader
                         options={states}
                         onChange={onChangeState}
@@ -123,18 +136,20 @@ export default function AddCondition({ current, setCurrent, onAdd, states }) {
                     />
                 </Form.Item>
 
-                <Form.Item label="Condition" className="font-500" name="value"
+                <Form.Item label={<>Condition</>} className="font-500" name="value"
                     rules={[{ required: true, message: "Please enter a condition" }]}
 
                 >
-
+                    <Text disabled>
+                        e.g [state] === true
+                    </Text>
                     <Input placeholder="Condition"
-                    maxLength={200}
-                     name="value"
+                        maxLength={200}
+                        name="value"
                         onChange={onChangeValue}
                         value={newState.value}
 
-                         />
+                    />
                 </Form.Item>
 
 
@@ -142,9 +157,9 @@ export default function AddCondition({ current, setCurrent, onAdd, states }) {
 
 
                 <div style={{ width: '100%', textAlign: 'end', marginTop: 5 }}>
-                    <Button type="default" onClick={() => { setCurrent(null) }}>Cancel</Button>
+                    <Button type="default" size="small" onClick={() => { setCurrent(null) }}>Cancel</Button>
                     &nbsp;
-                    <Button type="primary"  disabled={!newState.key} onClick={(e) => {
+                    <Button type="primary" size="small" disabled={!newState.key} onClick={(e) => {
                         e.preventDefault();
                         form.submit();
                     }}>

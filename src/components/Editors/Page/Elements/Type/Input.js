@@ -7,7 +7,7 @@ const Input = (props) => {
 
 
     const { _uid, pos, onChange, value,
-
+        type,
         onClick, children, conds, disabled } = props;
 
     const [v, setV] = useState(value);
@@ -19,7 +19,7 @@ const Input = (props) => {
 
         const v = e.target.value;
         if (onChange) {
-                debounce(onChange(v), 500)
+            debounce(onChange(v), 500)
 
         }
         setV(v);
@@ -55,7 +55,7 @@ const Input = (props) => {
             "data-name": 'input',
             "draggable": false,
             onClick: onClick,
-            onChange: onChangeValue, value: v
+            onChange: onChangeValue, value: type === 'file' ? '' : v
         }
     });
 

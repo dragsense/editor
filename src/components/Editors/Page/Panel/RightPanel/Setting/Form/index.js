@@ -17,7 +17,7 @@ export default function Form({ state, cascaderStates }) {
         const _id = state.page._id;
         const node = await getAllData(_id);
 
-        if (!node)
+        if (!node || node.type !== 'form')
             return;
 
         setState({ ...node });
@@ -34,7 +34,7 @@ export default function Form({ state, cascaderStates }) {
     }, [state.page]);
 
 
-    return formState._id ? <> 
+    return (formState._id && formState.type === 'form') ? <> 
         <Divider orientation="center" orientationMargin="0">Tag: {state.node.tagName} </Divider>
 
         <div style={{ maxHeight: '62vh', overflow: 'auto' }}>
@@ -43,5 +43,8 @@ export default function Form({ state, cascaderStates }) {
         </div>
       
     </>
-        : <span>Please Select the node</span>
+        :  <>  
+        <Card>Please Select the form.</Card>
+
+        </>
 }

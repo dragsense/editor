@@ -1,8 +1,10 @@
 
-import { Button, Cascader, Divider, Form, Input, Modal, Radio, Select } from "antd";
+import { QuestionCircleOutlined } from "@ant-design/icons";
+import { Button, Cascader, Divider, Form, Input, Modal, Typography, Select, Tooltip } from "antd";
 import { useState } from "react";
 
 const { TextArea } = Input;
+const { Text } = Typography;
 
 export default function OnScrollEvent({
     states,
@@ -72,28 +74,38 @@ export default function OnScrollEvent({
 
     return <>
 
-        <Form.Item label="KeyLeft" className="font-500">
+        <Form.Item label={<>KeyLeft <Tooltip title={"Select the state key that needs to be changed and this key can be used in the expression."
+        }><QuestionCircleOutlined style={{ marginLeft: 4 }} /></Tooltip> </>} >
             <Cascader options={states}
                 value={[state?.stateValueX?.type, ...(Array.isArray(state?.stateValueX?.key) ? state.stateValueX.key : [])]}
                 onChange={onChangeStateX}>
             </Cascader>
         </Form.Item>
-        <Form.Item label="valueX" className="font-500">
+        <Form.Item label={<>valueX <Tooltip title={"/* left/top indicates scrollLeft/scrollTop */"
+        }><QuestionCircleOutlined style={{ marginLeft: 4 }} /></Tooltip> </>} >
+            <Text disabled>
+                e.g. [left] OR [left] * [delta]
 
+            </Text>
             <TextArea placeholder="Expression" name="valueX"
                 onChange={onChangeX}
                 value={state?.valueX}
             />
         </Form.Item>
-        <Form.Item label="KeyTop" className="font-500">
+        <Form.Item label={<>KeyTop <Tooltip title={"Select the state key that needs to be changed and this key can be used in the expression."
+        }><QuestionCircleOutlined style={{ marginLeft: 4 }} /></Tooltip> </>} >
             <Cascader options={states}
                 value={[state?.stateValueY?.type, ...(Array.isArray(state?.stateValueY?.key) ? state.stateValueY.key : [])]}
                 onChange={onChangeStateY}>
             </Cascader>
         </Form.Item>
 
-        <Form.Item label="valueY" className="font-500">
+        <Form.Item label={<>valueY <Tooltip title={"/* left/top indicates scrollLeft/scrollTop */"
+        }><QuestionCircleOutlined style={{ marginLeft: 4 }} /></Tooltip> </>} >
+            <Text disabled>
+                e.g. [top] OR [top] * [delta]
 
+            </Text>
             <TextArea placeholder="Expression" name="valueY"
                 onChange={onChangeY}
                 value={state?.valueY}
@@ -106,6 +118,7 @@ export default function OnScrollEvent({
             <Input
                 type="number"
                 name="delta"
+                placeholder="0.2"
                 value={state?.delta}
                 onChange={(e) => {
                     setState({ ...state, delta: e.target.value });
@@ -115,12 +128,13 @@ export default function OnScrollEvent({
             />
         </Form.Item>
 
+        <div style={{ width: '100%', textAlign: 'end', marginTop: 5 }}>
 
-        <Button
-            style={{ margin: '10px 10px' }}
-            size="small"
-            onClick={(e) => {
-                e.preventDefault();
+            <Button
+                style={{ margin: '10px 10px' }}
+                size="small"
+                onClick={(e) => {
+                    e.preventDefault();
 
                     Modal.confirm({
                         title: 'Reset Event',
@@ -137,21 +151,22 @@ export default function OnScrollEvent({
                     });
 
 
-            }}>Reset</Button>
+                }}>Reset</Button>
 
 
 
-        <Button
-            style={{ margin: '10px 0' }}
-            size="small"
-            type="primary"
+            <Button
+                style={{ margin: '10px 0' }}
+                size="small"
+                type="primary"
 
-            disabled={!isChange}
-            onClick={(e) => {
-                e.preventDefault();
-                onSubmit(state.eventType || state.uid, state)
-                setIsChange(false);
-            }}>Save</Button>
+                disabled={!isChange}
+                onClick={(e) => {
+                    e.preventDefault();
+                    onSubmit(state.eventType || state.uid, state)
+                    setIsChange(false);
+                }}>Save</Button>
+        </div>
     </>
 };
 

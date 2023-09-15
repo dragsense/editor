@@ -27,7 +27,7 @@ import { FontColorsOutlined, SettingOutlined } from '@ant-design/icons';
 
 
 const { Sider } = Layout;
-const menuKeys = ['sub1', 'sub2', 'sub3', 'sub4', 'sub5', 'sub6', 'sub7', 'sub8'];
+const menuKeys = ['sub1', 'sub3', 'sub4', 'sub2', 'sub5', 'sub6', 'sub7', 'sub8'];
 const { Title } = Typography;
 
 const iconMap = {
@@ -205,6 +205,7 @@ const EditorRightSideBar = ({ onClickElement,
 
             const states = state.states || {};
 
+
             let panelStates = globalStates;
             for (const key in states) {
                 const stateItem = states[key];
@@ -248,9 +249,10 @@ const EditorRightSideBar = ({ onClickElement,
                                 icon={iconMap[key]}
                                 key={key}
                                 title={key === 'sub1' ? 'Navigator' :
-                                    key === 'sub2' ? 'Component' :
+                                  
                                         key === 'sub3' ? 'Element' :
                                             key === 'sub4' ? 'Content' :
+                                            key === 'sub2' ? 'Component' :
                                                 key === 'sub5' ? 'Collection' :
                                                     key === 'sub6' ? 'Form' :
                                                         key === 'sub7' ? 'Styling' :
@@ -268,16 +270,16 @@ const EditorRightSideBar = ({ onClickElement,
                                         pageUpdated={state.pageUpdated}
                                         loading={state.loading}
                                     /> :
-                                        key === 'sub2' ? (state.node && <Component onAdd={onAdd}
-                                            onChange={onChange}
-                                            onUpdate={onUpdate}
-                                            state={state}
-                                            cascaderStates={cascaderStates} />) :
-                                            key === 'sub3' ? (state.node && <Element onChange={onChange}
+                                        key === 'sub3' ? (state.node && <Element onChange={onChange}
+                                            state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />) :
+                                            key === 'sub4' ? (state.node && <Content
+                                                onChange={onChange}
                                                 state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />) :
-                                                key === 'sub4' ? (state.node && <Content
+                                                key === 'sub2' ? (state.node && <Component onAdd={onAdd}
                                                     onChange={onChange}
-                                                    state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />) :
+                                                    onUpdate={onUpdate}
+                                                    state={state} 
+                                                    cascaderStates={cascaderStates} />) :
                                                     key === 'sub5' ? (state.node && <Collection onChange={onChange}
                                                         state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />) :
                                                         key === 'sub6' ? (state.node && <Form onChange={onChange}

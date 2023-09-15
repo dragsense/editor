@@ -107,8 +107,8 @@ const AccordionItems = (props) => {
       accordions.push(flattenedChildren[i].props?.children ?
           React.Children.map(flattenedChildren[i].props.children, child =>
             React.cloneElement(
-              child, { mapIndex: i, isActive })) :
-          React.cloneElement(flattenedChildren[i], { mapIndex: i, isActive }));
+              child, { mapIndex: i, isActive, key: child.props?._uid })) :
+          React.cloneElement(flattenedChildren[i], { mapIndex: i, isActive, key: flattenedChildren[i].props?._uid }));
     }
 
 

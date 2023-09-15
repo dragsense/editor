@@ -1,16 +1,18 @@
 
-import { Cascader, Divider, Form, Input, Radio, Button, Modal } from "antd";
+import { QuestionCircleOutlined } from "@ant-design/icons";
+import { Cascader, Divider, Form, Input, Typography, Radio, Button, Modal, Tooltip } from "antd";
 import { useState } from "react";
 
 const { TextArea } = Input;
+const { Text } = Typography;
 
 export default function OnMoveEvent({
     states,
     state, setState,
-    onSubmit}) {
+    onSubmit }) {
 
 
-        const [isChange, setIsChange] = useState(false);
+    const [isChange, setIsChange] = useState(false);
 
 
     const onChangeX = (event) => {
@@ -73,28 +75,40 @@ export default function OnMoveEvent({
     return <>
 
 
-        <Form.Item label="KeyX" className="font-500">
+        <Form.Item label={<>KeyX <Tooltip title={"Select the state key that needs to be changed and this key can be used in the expression."
+        }><QuestionCircleOutlined style={{ marginLeft: 4 }} /></Tooltip> </>} >
             <Cascader options={states}
                 value={[state?.stateValueX?.type, ...(Array.isArray(state?.stateValueX?.key) ? state.stateValueX.key : [])]}
                 onChange={onChangeStateX}>
             </Cascader>
         </Form.Item>
-        <Form.Item label="valueX" className="font-500">
+        <Form.Item label={<>valueX <Tooltip title={"/* X/Y indicates mouseX/mouseY */ /* left/top indicates scrollLeft/scrollTop */"
+        }><QuestionCircleOutlined style={{ marginLeft: 4 }} /></Tooltip> </>} >
+            <Text disabled>
+                <Text disabled>
+                    e.g. [X] OR [X] * [delta]
 
+                </Text>
+            </Text>
             <TextArea placeholder="Expression" name="valueX"
                 onChange={onChangeX}
                 value={state?.valueX}
             />
         </Form.Item>
-        <Form.Item label="KeyY" className="font-500">
+        <Form.Item label={<>KeyY <Tooltip title={"Select the state key that needs to be changed and this key can be used in the expression."
+        }><QuestionCircleOutlined style={{ marginLeft: 4 }} /></Tooltip> </>} >
             <Cascader options={states}
                 value={[state?.stateValueY?.type, ...(Array.isArray(state?.stateValueY?.key) ? state.stateValueY.key : [])]}
                 onChange={onChangeStateY}>
             </Cascader>
         </Form.Item>
 
-        <Form.Item label="valueY" className="font-500">
+        <Form.Item label={<>valueY <Tooltip title={"/* X/Y indicates mouseX/mouseY */ /* left/top indicates scrollLeft/scrollTop */"
+        }><QuestionCircleOutlined style={{ marginLeft: 4 }} /></Tooltip> </>} >
+   <Text disabled>
+                    e.g. [Y] OR [Y] * [delta]
 
+                </Text>
             <TextArea placeholder="Expression" name="valueY"
                 onChange={onChangeY}
                 value={state?.valueY}
@@ -106,17 +120,19 @@ export default function OnMoveEvent({
         <Form.Item label="Delta">
             <Input
                 type="number"
+                placeholder="0.2"
                 name="delta"
                 value={state?.delta}
                 onChange={(e) => {
                     setState({ ...state, delta: e.target.value });
                     setIsChange(true)
 
-               }}
+                }}
             />
         </Form.Item>
 
-        <Form.Item label="Client Type">
+        <Form.Item label={<>Client Type <Tooltip title={"Select 'Page' to get mouse coordinates relative to the page. Select 'Client' to get mouse coordinates relative to the client area."
+        }><QuestionCircleOutlined style={{ marginLeft: 4 }} /></Tooltip> </>} >
             <Radio.Group
                 onChange={(e) => {
                     setState({ ...state, mouseType: e.target.value });
@@ -130,8 +146,9 @@ export default function OnMoveEvent({
             </Radio.Group>
         </Form.Item>
 
-        
-        <Form.Item label="Scroll Type">
+
+        <Form.Item label={<>Scroll Type <Tooltip title={"Select 'Page' for page-level scrolling. Select 'Self' for element-level scrolling."
+        }><QuestionCircleOutlined style={{ marginLeft: 4 }} /></Tooltip> </>} >
             <Radio.Group
                 onChange={(e) => {
                     setState({ ...state, scrollType: e.target.value });
@@ -145,43 +162,45 @@ export default function OnMoveEvent({
             </Radio.Group>
         </Form.Item>
 
-        
-        <Button
-            style={{ margin: '10px 10px' }}
-            size="small"
-            onClick={(e) => {
-                e.preventDefault(); 
+        <div style={{ width: '100%', textAlign: 'end', marginTop: 5 }}>
 
-                Modal.confirm({
-                    title: 'Reset Event',
-                    content: 'Are you sure you want to reset?',
-                    onOk: () => {
+            <Button
+                style={{ margin: '10px 10px' }}
+                size="small"
+                onClick={(e) => {
+                    e.preventDefault();
 
-                        onSubmit(state.eventType, undefined)
-                        setIsChange(false);
-                        setState(null);
-                    },
-                    onCancel: () => {
-                        // Do nothing when the user cancels the confirmation
-                    },
-                });
+                    Modal.confirm({
+                        title: 'Reset Event',
+                        content: 'Are you sure you want to reset?',
+                        onOk: () => {
+
+                            onSubmit(state.eventType, undefined)
+                            setIsChange(false);
+                            setState(null);
+                        },
+                        onCancel: () => {
+                            // Do nothing when the user cancels the confirmation
+                        },
+                    });
 
 
-            }}>Reset</Button>
+                }}>Reset</Button>
 
-     
 
-        <Button
-            style={{ margin: '10px 0' }}
-            size="small"
-            type="primary"
 
-            disabled={!isChange}
-            onClick={(e) => {
-                e.preventDefault();
-                onSubmit(state.eventType,state)
-                setIsChange(false);
-            }}>Save</Button>
+            <Button
+                style={{ margin: '10px 0' }}
+                size="small"
+                type="primary"
+
+                disabled={!isChange}
+                onClick={(e) => {
+                    e.preventDefault();
+                    onSubmit(state.eventType, state)
+                    setIsChange(false);
+                }}>Save</Button>
+        </div>
     </>
 };
 

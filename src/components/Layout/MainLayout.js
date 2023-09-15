@@ -1,4 +1,4 @@
-import { Layout, theme } from 'antd';
+import { Alert, Layout, theme } from 'antd';
 
 const { Content } = Layout;
 
@@ -20,7 +20,12 @@ const MainLayout = ({
                   
                     width: '100%',
                     justifyContent: 'center'
-                }}>{children}</Content>
+                }}>
+                   <Alert type="warning"
+                            closable
+                            style={{ marginBottom: 10 }} message={<><strong>Note:</strong> Our app is currently in testing mode to ensure a top-notch experience.</>} />
+
+                {children}</Content>
 
         </Layout>
 

@@ -45,7 +45,7 @@ const ElementType = (props) => {
         if (node.tagName == 'hr')
         tagType = "close";
 
-    const element = <Element key={_uid} classes={classes} attributes={attributes} tagName={node.tagName} />
+    const element = <Element  key={_uid}  classes={classes} attributes={attributes} tagName={node.tagName} />
 
     switch (tagType) {
 
@@ -77,7 +77,7 @@ const ElementType = (props) => {
             return <Input disabled={disabled}
                 conds={conds}
                 onClick={onClick}
-
+                type={attributes["type"]}
                 onChange={onChange} _uid={_uid} pos={pos} value={value.value ?? value}>{element}</Input>
         case 'inputgroup':
 

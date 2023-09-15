@@ -14,32 +14,16 @@ const ElementMapping = (props) => {
         const key = elem.key;
 
         switch (type) {
-            case 'GLOBAL':
-                if (key[0] === "PAGES") {
-                    if (setting?.pages)
-                        return setting.pages.map((value) => {
-                            return {
-                                type: "pages",
-                                label: value.name,
-                                value: value._id,
-                                ...value
-                            }
-                        })
-                }
-
 
             case 'STATES':
                 return getStateStates(key, _states);
             case 'PROPS':
                 return getStateStates(key, _props);
-            case 'PAGESTATES':
-                
-                const v = getStateStates(key, _states);
-                if (v)
-                    return v;
-
-                return getStateStates(key, _props);
             case 'COLSTATES':
+
+            if (!colStates)
+                return [];
+
                 if (key[0] === 'STATES') {
                     const modifiedKey = [...key];
                     modifiedKey.shift();
@@ -53,6 +37,7 @@ const ElementMapping = (props) => {
                                 type: "docs",
                                 label: value.name,
                                 value: value._id,
+                                key: value._id,
                                 ...value
                             }
                         })
@@ -65,6 +50,7 @@ const ElementMapping = (props) => {
                                     type: "docs",
                                     label: value.name,
                                     value: value._id,
+                                    key: value._id,
                                     ...value
                                 }
                             }) : [{
@@ -84,6 +70,7 @@ const ElementMapping = (props) => {
                                     return {
                                         label: value,
                                         value: val,
+                                        key: val,
                                         notClickable: isNan,
                                     }
                                 });
@@ -91,29 +78,16 @@ const ElementMapping = (props) => {
 
                                 return pages;
                             }
-                            else {
-                                if (key[0] === 'docsLength' && colStates.documents)
-                                    return colStates.documents.length;
-                                else
-                                    return colStates[key[0]]
-                            }
+
                 }
             case 'Menu': case 'Flex': case 'Tabs': case 'Accordion': case 'Sider':
             case 'Grid': case 'Container': case 'Slider': case 'Gallery': case 'Dropdown':
             case 'Dropdown': case 'Observable': case 'Modal': case 'GoToTop':
-                if (key[0] === 'pages') {
-                    const value = _cstates[key[0]];
 
-                    if (value?.states)
-                        return value.states.map((value) => {
-                            return {
-                                type: "pages",
-                                label: value.name,
-                                value: value._id,
-                                ...value
-                            }
-                        })
-                } else if (key[0] === 'items') {
+            if (!_cstates)
+                return [];
+
+                if (key[0] === 'items') {
 
 
                     const currentPage = _cstates['currentIndex'] ? _cstates['currentIndex'].defaultValue : 1;
@@ -130,6 +104,7 @@ const ElementMapping = (props) => {
                         return {
                             label: value,
                             value: val,
+                            key: val,
                             notClickable: isNan,
                         }
                     });
@@ -165,53 +140,11 @@ const ElementMapping = (props) => {
         const options = node.options.split(",");
         return options.map((value) => {
             const val = value.split(":");
-            return { label: val[1], value: val[0] }
+            return { label: val[1], value: val[0], key: val[0] }
         })
 
     }, [node.options]);
 
-    // const childs = React.Children.map(children, (child) => {
-    //     return React.cloneElement(child, {
-    //         mapValue,
-    //         mapIndex
-    //     });
-    // })
-
-
-
-
-    // const elements = (node.layout == 'select' || node.tagName == 'select') ?
-    //     element(mapValue, mapIndex, [...options, ...nodes].map((mapValue, mapIndex) => {
-
-    //         return <ElementSetting
-    //             key={mapIndex}
-    //             states={states}
-    //             node={{ _uid: mapIndex + 1, tagName: 'option' }}
-    //             attributes={node.childAttributes}
-    //             classes={{}}
-    //             conditions={node.childConditions}
-    //             mapValue={mapValue}
-    //             mapIndex={mapIndex}
-    //         />
-    //     }
-    //     ))
-
-    //     : [...options, ...nodes].map((mapValue, mapIndex) => element(mapValue, mapIndex, React.Children.map(children, (child) => {
-    //         return React.cloneElement(child, {
-    //             key: mapIndex,
-    //             mapValue,
-    //             mapIndex,
-    //             colStates: { ...colStates, ...mapValue }
-    //         });
-    //     })))
-
-
-
-    // if ((node.layout == 'select' || node.tagName == 'select') && nodes.length > 0) {
-    //     options = nodes;
-    //     nodes = [];
-
-    // }
 
     return <ElementLayout
         {...props}
