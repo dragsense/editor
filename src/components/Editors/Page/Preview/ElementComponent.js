@@ -40,8 +40,6 @@ const ElementComponent = (props) => {
             return;
 
         setStates({ ...node.states });
-        const cascaderStates = generateCascader(node.states, node.name, node.cname);
-        onUpdateStates(node.cname, cascaderStates, setStates)
 
     }, [node]);
 

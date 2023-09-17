@@ -341,9 +341,12 @@
       "layout": "img",
       "html": "<img src='./images/default/default-img.png' style='width: 100%' alt='image'/>",
       "notaccept": [
+        "media",
         "texts",
-        "inputs",
-        "layouts"
+        "layouts",
+        "components",
+        "inputs"
+
       ]
     },
     {
@@ -353,9 +356,11 @@
 
       "layout": "video",
       "notaccept": [
+        "media",
         "texts",
-        "inputs",
-        "layouts"
+        "layouts",
+        "components",
+        "inputs"
       ]
     },
     {
@@ -365,9 +370,11 @@
       "html": "<audio style='width: 100%' controls><source type='audio/mpeg'>Your browser does not support the video tag.</audio>",
 
       "notaccept": [
+        "media",
         "texts",
-        "inputs",
-        "layouts"
+        "layouts",
+        "components",
+        "inputs"
       ]
     }
   ],

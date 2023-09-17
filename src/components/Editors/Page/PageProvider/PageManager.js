@@ -90,6 +90,11 @@ const reducer = (state, action) => {
                 ...state,
                 isChange: false,
             }
+        case "delete":
+            return {
+                ...state,
+                node: null,
+            }
         case "addSelector":
             return {
                 ...state,
@@ -901,6 +906,12 @@ export default function PageManger({ children }) {
                 type: 'updatePage', pageUpdated
             });
 
+            setTimeout(() => {
+                dispatch({
+                    type: 'delete'
+                });
+            })
+
             onAddAction({
                 action: 'add',
                 index,
@@ -1284,7 +1295,7 @@ export default function PageManger({ children }) {
                             message.success("Page Published.")
                         } catch (e) {
                             console.log(e)
-                            dispatch({ type: 'error', error: e?.message ||  'Something went wrong.' });
+                            dispatch({ type: 'error', error: e?.message || 'Something went wrong.' });
 
                         }
                     },
@@ -1308,7 +1319,7 @@ export default function PageManger({ children }) {
                 //     await updateStyleData({ type: key[0], elementType: key[1], ...selector }, key);
                 // }
 
-                const res = await savePage(page, type);
+                const res = await savePage(page, type, dispatch);
 
                 // onEdit(res[type], type);
                 dispatch({ type: 'savePage' });
@@ -1316,9 +1327,8 @@ export default function PageManger({ children }) {
 
 
         } catch (e) {
-            
-            dispatch({ type: 'error', error: e?.message  || 'Something went wrong.' });
 
+            dispatch({ type: 'error', error: e?.message || 'Something went wrong.' });
         } finally {
             dispatch({ type: 'finish' });
         }

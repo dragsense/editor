@@ -1,5 +1,5 @@
 
-import {  storePage, STYLE_STORE_NAME, clearStore, getAllData } from './db';
+import { storePage, STYLE_STORE_NAME, clearStore, getAllData, PAGE_STORE_NAME } from './db';
 import { fetcher } from "../fetch";
 
 
@@ -55,7 +55,7 @@ export const loadWithoutStyle = async (page, type, dispatch, clear = true) => {
     try {
         // Make the API request to retrieve project details.
         const response = await window.autocode.makeApiRequest();
-        
+
         // Destructure the project from the response.
         const { project } = response;
 
@@ -93,34 +93,34 @@ export const loadElements = async (project, page, type, dispatch, clear = false)
     const stream = new ReadableStream({
         start(controller) {
             fetch(sanitizedUrl, {
-                headers: { 
-                    'ngrok-skip-browser-warning': true, 
-                    'x-api-key': project.apikey 
+                headers: {
+                    'ngrok-skip-browser-warning': true,
+                    'x-api-key': project.apikey
                 }
             })
-            .then(response => {
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
+                .then(response => {
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
 
-                // Recursive function to process and decode chunks.
-                function processChunk(chunk) {
-                    const decodedChunk = decoder.decode(chunk.value, { stream: true });
-                    controller.enqueue(decodedChunk);
+                    // Recursive function to process and decode chunks.
+                    function processChunk(chunk) {
+                        const decodedChunk = decoder.decode(chunk.value, { stream: true });
+                        controller.enqueue(decodedChunk);
 
-                    if (chunk.done) {
-                        controller.close();
-                        return;
+                        if (chunk.done) {
+                            controller.close();
+                            return;
+                        }
+
+                        reader.read().then(processChunk);
                     }
 
                     reader.read().then(processChunk);
-                }
-
-                reader.read().then(processChunk);
-            })
-            .catch(error => {
-                controller.error(error);
-                dispatch({ type: 'error', error: error?.message || 'Something went wrong.' });
-            });
+                })
+                .catch(error => {
+                    controller.error(error);
+                    dispatch({ type: 'error', error: error?.message || 'Something went wrong.' });
+                });
         }
     }, { readableStrategy: { highWaterMark: 1 } });
 
@@ -178,34 +178,34 @@ export const loadStyles = async (project, page, type, dispatch, clear = false) =
     const stream = new ReadableStream({
         start(controller) {
             fetch(sanitizedUrl, {
-                headers: { 
-                    'ngrok-skip-browser-warning': true, 
-                    'x-api-key': project.apikey 
+                headers: {
+                    'ngrok-skip-browser-warning': true,
+                    'x-api-key': project.apikey
                 }
             })
-            .then(response => {
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
+                .then(response => {
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
 
-                // Recursive function to process and decode chunks.
-                function processChunk(chunk) {
-                    const decodedChunk = decoder.decode(chunk.value, { stream: true });
-                    controller.enqueue(decodedChunk);
-                    
-                    if (chunk.done) {
-                        controller.close();
-                        return;
+                    // Recursive function to process and decode chunks.
+                    function processChunk(chunk) {
+                        const decodedChunk = decoder.decode(chunk.value, { stream: true });
+                        controller.enqueue(decodedChunk);
+
+                        if (chunk.done) {
+                            controller.close();
+                            return;
+                        }
+
+                        reader.read().then(processChunk);
                     }
 
                     reader.read().then(processChunk);
-                }
-
-                reader.read().then(processChunk);
-            })
-            .catch(error => {
-                controller.error(error);
-                dispatch({ type: 'error', error: error?.message || 'Something went wrong.' });
-            });
+                })
+                .catch(error => {
+                    controller.error(error);
+                    dispatch({ type: 'error', error: error?.message || 'Something went wrong.' });
+                });
         }
     }, { readableStrategy: { highWaterMark: 1 } });
 
@@ -233,7 +233,7 @@ export const loadStyles = async (project, page, type, dispatch, clear = false) =
     });
 
     const reader = stream.pipeThrough(jsonStream).getReader();
-    
+
     if (clear) clearStore(STYLE_STORE_NAME);
 
     while (true) {
@@ -268,32 +268,32 @@ export const loadGlobalStyles = async (dispatch, clear = false) => {
     const stream = new ReadableStream({
         start(controller) {
             fetch(sanitizedUrl, {
-                headers: { 
-                    'ngrok-skip-browser-warning': true, 
-                    'x-api-key': project.apikey 
+                headers: {
+                    'ngrok-skip-browser-warning': true,
+                    'x-api-key': project.apikey
                 }
             })
-            .then(response => {
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
+                .then(response => {
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
 
-                // Recursive function to process and decode chunks.
-                function processChunk(chunk) {
-                    const decodedChunk = decoder.decode(chunk.value, { stream: true });
-                    controller.enqueue(decodedChunk);
-                    if (chunk.done) {
-                        controller.close();
-                        return;
+                    // Recursive function to process and decode chunks.
+                    function processChunk(chunk) {
+                        const decodedChunk = decoder.decode(chunk.value, { stream: true });
+                        controller.enqueue(decodedChunk);
+                        if (chunk.done) {
+                            controller.close();
+                            return;
+                        }
+                        reader.read().then(processChunk);
                     }
-                    reader.read().then(processChunk);
-                }
 
-                reader.read().then(processChunk);
-            })
-            .catch(error => {
-                controller.error(error);
-                dispatch({ type: 'error', error: error?.message || 'Something went wrong.' });
-            });
+                    reader.read().then(processChunk);
+                })
+                .catch(error => {
+                    controller.error(error);
+                    dispatch({ type: 'error', error: error?.message || 'Something went wrong.' });
+                });
         }
     }, { readableStrategy: { highWaterMark: 1 } });
 
@@ -357,32 +357,32 @@ export const loadAnimationStyles = async (dispatch, clear = false) => {
     const stream = new ReadableStream({
         start(controller) {
             fetch(sanitizedUrl, {
-                headers: { 
-                    'ngrok-skip-browser-warning': true, 
-                    'x-api-key': project.apikey 
+                headers: {
+                    'ngrok-skip-browser-warning': true,
+                    'x-api-key': project.apikey
                 }
             })
-            .then(response => {
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
+                .then(response => {
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
 
-                // Recursive function to process and decode chunks.
-                function processChunk(chunk) {
-                    const decodedChunk = decoder.decode(chunk.value, { stream: true });
-                    controller.enqueue(decodedChunk);
-                    if (chunk.done) {
-                        controller.close();
-                        return;
+                    // Recursive function to process and decode chunks.
+                    function processChunk(chunk) {
+                        const decodedChunk = decoder.decode(chunk.value, { stream: true });
+                        controller.enqueue(decodedChunk);
+                        if (chunk.done) {
+                            controller.close();
+                            return;
+                        }
+                        reader.read().then(processChunk);
                     }
-                    reader.read().then(processChunk);
-                }
 
-                reader.read().then(processChunk);
-            })
-            .catch(error => {
-                controller.error(error);
-                dispatch({ type: 'error', error: error?.message || 'Something went wrong.' });
-            });
+                    reader.read().then(processChunk);
+                })
+                .catch(error => {
+                    controller.error(error);
+                    dispatch({ type: 'error', error: error?.message || 'Something went wrong.' });
+                });
         }
     }, { readableStrategy: { highWaterMark: 1 } });
 
@@ -437,29 +437,35 @@ export const publishPage = async (page, type, dispatch) => {
         throw new Error("Project Not Found.");
     }
 
-    const { apiKey, creator } = project;
+    const { apikey, creator } = project;
 
     // Construct the URL for publishing.
     const url = `${project.url}/${type}s/publish/${page._id}`;
     const sanitizedUrl = sanitizeUrl(url);
 
-    // Send a POST request to publish the page.
-    await fetcher(sanitizedUrl, {
-        method: 'POST',
-        headers: { 
-            'ngrok-skip-browser-warning': true, 
-            'x-api-key': apiKey, 
-            'Content-Type': 'application/json' 
-        },
-        body: JSON.stringify({ updater: creator })
-    });
+    try {
+        // Send a POST request to publish the page.
+        await fetcher(sanitizedUrl, {
+            method: 'POST',
+            headers: {
+                'ngrok-skip-browser-warning': true,
+                'x-api-key': apikey,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ updater: creator })
+        });
+    } catch (e) {
+        dispatch({ type: 'error', error: e?.message || 'Something went wrong.' });
+
+    }
+
 }
 
 
 /**
  * Utility to filter non-deleted elements from the data.
  */
-const filterDeletedElements  = (data) => {
+const filterDeletedElements = (data) => {
     return Object.keys(data).reduce((filtered, key) => {
         const element = data[key];
         if (!element.deleted) filtered[key] = element;
@@ -470,35 +476,48 @@ const filterDeletedElements  = (data) => {
 /**
  * Handles the data fetching and saving process.
  */
-const fetchDataAndSave = async (type, endpoint, pageId, apiKey, updater, dispatch) => {
-    const url = `${type.url}/${endpoint}s/${pageId}`;
-    const sanitizedUrl = sanitizeUrl(url);
+const fetchDataAndSave = async (type, endpoint, pageId, project, dispatch) => {
 
-    let data = await getAllData(pageId, endpoint === "elements" ? null : STYLE_STORE_NAME);
+
+    const { apikey, creator, url } = project;
+
+    const apiUrl = `${url}/${type}s/${endpoint}/${pageId}`;
+    const sanitizedUrl = sanitizeUrl(apiUrl);
+
+    let data = await getAllData(pageId, endpoint === "elements" ? PAGE_STORE_NAME : STYLE_STORE_NAME);
 
     if (!data) {
         // If there's no data for the "elements" endpoint, dispatch an error action.
-        if (endpoint === "elements") {
-            dispatch({ type: 'error', error: 'Something went wrong.' });
-        }
+        dispatch({ type: 'error', error: 'Something went wrong.' });
+
         return;
     }
 
     let payload = {
-        updater
+
+        updater: creator
     };
 
-    if (endpoint === "elements" && typeof data.elements === 'object') {
-        payload[endpoint] = filterDeletedElements (data.elements);
-    } else {
-        payload[endpoint] = data.elements || {};
-    }
+    let elements = {};
+    if (typeof data.elements === 'object')
+        elements = filterDeletedElements(data.elements || {});
+
+    if (endpoint === "elements") {
+        payload._elements = elements;
+        payload._components = data.components || [];
+        payload._forms = data.forms || [];
+        payload._states = data.states;
+        payload._collStates = data.collStates;
+
+    } else
+        payload._styles = elements;
+
 
     await fetcher(sanitizedUrl, {
         method: 'POST',
         headers: {
             'ngrok-skip-browser-warning': true,
-            'x-api-key': apiKey,
+            'x-api-key': apikey,
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload)
@@ -513,7 +532,7 @@ const fetchDataAndSave = async (type, endpoint, pageId, apiKey, updater, dispatc
  * @param {Function} dispatch - A function to dispatch actions.
  * 
  * @returns {Promise<void>} - A promise that resolves when the saving operation is complete.
- */ 
+ */
 export const savePage = async (page, type, dispatch) => {
     try {
         // Fetch the project details.
@@ -523,16 +542,14 @@ export const savePage = async (page, type, dispatch) => {
             throw new Error("Project Not Found.");
         }
 
-        const { apiKey, creator } = project;
 
         // Fetch, process, and save element data.
-        await fetchDataAndSave(type, "elements", page._id, apiKey, creator, dispatch);
+        await fetchDataAndSave(type, "elements", page._id, project, dispatch);
 
         // Fetch, process, and save style data.
-        await fetchDataAndSave(type, "style", page._id, apiKey, creator, dispatch);
-        
+        await fetchDataAndSave(type, "styles", page._id, project, dispatch);
+
     } catch (error) {
-        console.error(error);
         // Dispatch a general error if something unexpected happens.
         dispatch({ type: 'error', error: error.message || 'Unexpected error occurred.' });
     }

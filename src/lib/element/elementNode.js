@@ -136,6 +136,11 @@ export const getStateRef = (key, states) => {
 
   let value = states[key[0]];
 
+  if (!value) {
+    return undefined;
+  }
+
+
   // If the state type is 'array' or 'images', return undefined.
   if (value.type === 'array' || value.type === 'images') {
     return undefined;

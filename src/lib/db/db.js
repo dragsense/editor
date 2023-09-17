@@ -636,17 +636,44 @@ export const storeActions = async (actions, STORE) => {
  * @returns {Promise<object>} - A promise that resolves with the latest action.
  */
 export const getAction = async (STORE) => {
-    const db = await openDB();
-    const store = db.transaction(STORE, 'readonly').objectStore(STORE);
 
-    const items = await store.getAllKeys();
+    return new Promise(async (resolve, reject) => {
 
-    if (items.length <= 0) {
-        return null;
-    }
+        const db = await openDB();
+        const transaction = db.transaction(STORE, 'readonly');
+        const store = transaction.objectStore(STORE);
 
-    const lastKey = items[items.length - 1];
-    return store.get(lastKey);
+        const mainRequest = store.getAllKeys();
+
+        mainRequest.onsuccess = (event) => {
+            const items = event.target.result;
+
+            if (items.length <= 0) {
+                resolve(null);
+                return;
+            }
+
+            const lastKey = items[items.length - 1];
+
+            const request = store.get(lastKey);
+
+            request.onsuccess = (event) => {
+                const item = event.target.result;
+                resolve(item);
+            };
+
+            request.onerror = () => {
+                reject(request.error);
+            };
+
+        };
+
+        mainRequest.onerror = () => {
+            reject(mainRequest.error);
+        };
+
+
+    });
 };
 
 /**
@@ -656,12 +683,38 @@ export const getAction = async (STORE) => {
  * @returns {Promise<void>} - A promise that resolves when the action has been deleted.
  */
 export const deleteAction = async (STORE) => {
-    const db = await openDB();
-    const store = db.transaction(STORE, 'readwrite').objectStore(STORE);
 
-    const items = await store.getAllKeys();
-    const lastKey = items[items.length - 1];
-    await store.delete(lastKey);
+
+    return new Promise(async (resolve, reject) => {
+
+        const db = await openDB();
+        const transaction = db.transaction(STORE, 'readwrite');
+        const store = transaction.objectStore(STORE);
+
+        const mainRequest = store.getAllKeys();
+
+        mainRequest.onsuccess = (event) => {
+            const items = event.target.result;
+            const lastKey = items[items.length - 1];
+
+            const request = store.delete(lastKey);
+            request.onsuccess = (event) => {
+                resolve();
+            };
+
+            request.onerror = () => {
+                reject(request.error);
+            };
+
+        };
+
+        mainRequest.onerror = () => {
+            reject(mainRequest.error);
+        };
+
+
+    });
+
 };
 
 /**
@@ -671,9 +724,22 @@ export const deleteAction = async (STORE) => {
  * @returns {Promise<Array>} - A promise that resolves with the list of actions.
  */
 export const getAllActions = async (STORE) => {
-    const db = await openDB();
-    const store = db.transaction(STORE, 'readonly').objectStore(STORE);
-    return store.getAll();
+    return new Promise(async (resolve, reject) => {
+        const db = await openDB();
+        const transaction = db.transaction(STORE, 'readonly');
+        const store = transaction.objectStore(STORE);
+
+        const request = store.getAll();
+
+        request.onsuccess = (event) => {
+            const items = event.target.result;
+            resolve(items);
+        };
+
+        request.onerror = () => {
+            reject(request.error);
+        };
+    });
 };
 
 /**
@@ -683,7 +749,19 @@ export const getAllActions = async (STORE) => {
  * @returns {Promise<void>} - A promise that resolves when all actions have been deleted.
  */
 export const deleteAllActions = async (STORE) => {
-    const db = await openDB();
-    const store = db.transaction(STORE, 'readwrite').objectStore(STORE);
-    await store.clear();
+    return new Promise(async (resolve, reject) => {
+        const db = await openDB();
+        const transaction = db.transaction(STORE, 'readwrite');
+        const store = transaction.objectStore(STORE);
+
+        const request = store.clear();
+
+        request.onsuccess = (event) => {
+            resolve();
+        };
+
+        request.onerror = () => {
+            reject(request.error);
+        };
+    });
 };

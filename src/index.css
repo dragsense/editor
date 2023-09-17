@@ -175,7 +175,10 @@ Editor  Ruler
   border-radius: 5px;
 }
 
-
+.ac-nav-tree-item .ant-radio-wrapper-checked {
+  color: #f88a24;
+  font-size: 600;
+}
 
 
 details {
@@ -200,6 +203,7 @@ summary {
   display: flex;
   align-items: center;
   font-size: 14px;
+  width: 100%;
 }
 
 details[open] > summary {
@@ -234,5 +238,5 @@ details:not([open]) .ac-nav-tree-item {
   overflow: hidden;
   white-space: nowrap; /* Prevent text from wrapping */
   text-overflow: ellipsis; /* Display ellipsis (...) when text overflows */
-  max-width: 100%; /* Ensure the text doesn't exceed the available space */
+  max-width: 102px; /* Ensure the text doesn't exceed the available space */
 }

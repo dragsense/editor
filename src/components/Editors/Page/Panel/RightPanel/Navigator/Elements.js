@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { getAllData, getData } from '../../../../../../lib/db';
-import { Button, Card, Checkbox, Popconfirm, Radio, theme } from 'antd';
+import { Card, Checkbox, Divider, Popconfirm, Radio, theme } from 'antd';
 import { CopyOutlined, DeleteOutlined } from '@ant-design/icons';
 export function InlineSkeleton() {
   return (
@@ -66,13 +66,11 @@ function TreeNode(props) {
     _id,
     pageUpdated,
     onMove,
-    currentNode,
-    setCurrentNode,
-    onAdd, onDelete, onCopy, onClickElement } = props;
-    
+    onAdd } = props;
+
 
   const {
-    token: { colorText, colorPrimary, colorError, colorPrimaryBg },
+    token: { colorPrimaryBg },
   } = theme.useToken();
 
 
@@ -89,52 +87,10 @@ function TreeNode(props) {
 
       setNode({ _uid: newNode._uid, name: newNode.name, tagName: newNode.tagName, page: node.page });
 
-      if(newNode.page)
-      return;
+      if (newNode.page)
+        return;
 
       setChildren([...newNode.childNodes])
-
-
-      // const unloadedNodes = newNode.childNodes.filter((key, i) => {
-      //   return !children.some((child) => {
-      //     const index = children.indexOf(child);
-      //     return child.props._uid === key && index == i;
-      //   });
-      // });
-
-      // const deletedNodes = children.filter((child) => {
-      //   return !newNode.childNodes.includes(child.props._uid);
-      // });
-
-      // setChildren((prevChildren) => {
-      //   const updatedChildren = prevChildren.filter((child) => !deletedNodes.includes(child));
-
-      //   unloadedNodes.forEach((key, i) => {
-      //     const index = newNode.childNodes.indexOf(key);
-      //     const childNode = (
-      //       <MemoizedTreeNode
-      //         {...props}
-      //         pageUpdated={{ ...pageUpdated, pos: pos + i }}
-      //         pageType={""}
-      //         _uid={key}
-      //         _id={_id}
-      //         key={key}
-      //         onCopy={onCopy}
-      //         onDelete={onDelete}
-      //         onMove={onMove}
-      //         onAdd={onAdd}
-      //         onClickElement={onClickElement}
-      //         currentNode={currentNode}
-      //         setCurrentNode={setCurrentNode}
-      //       />
-      //     );
-
-      //     updatedChildren[index] = childNode;
-      //   });
-
-      //   return updatedChildren;
-      //});
-
 
     }
 
@@ -158,7 +114,7 @@ function TreeNode(props) {
 
   }, [pageUpdated]);
 
- 
+
 
   const handleMenuItemDrop = (event, isTop) => {
 
@@ -229,7 +185,6 @@ function TreeNode(props) {
     </div>
     <details key={_uid}>
       {node.tagName ? <summary
-        style={currentNode === _uid ? { fontWeight: 600, color: '#f88a24' } : {}}
         onDrop={(e) => handleMenuItemDrop(e, false)}
         data-uid={_uid}
         data-pos={pos}
@@ -250,46 +205,32 @@ function TreeNode(props) {
 
         }}
       >
-        <Radio style={{ marginRight: 5 }} onClick={(e) => {
-          try {
-            e.stopPropagation();
-            if (_uid !== currentNode) {
-              onClickElement(null, _uid);
-              setCurrentNode(_uid);
-            }
-          } catch (e) {
+        <Radio style={{ marginRight: 5 }} value={_uid} key={_uid}>
+          <div className="tree-node-text" style={{ flex: 1, pointerEvents: 'none' }}>
+            {node.name || node.tagName}
 
-          }
 
-        }} checked={currentNode === _uid} />
+          </div>
 
-        <div className="tree-node-text" style={{ flex: 1, pointerEvents: 'none' }}>
-          {node.name || node.tagName}
-        </div>
 
-        {currentNode === _uid &&
-          <div style={{ textAlign: 'right', width: 70, zIndex: 0 }} >
-            <Toolbar
-              key={_uid}
-              id={_uid}
-              pos={pos}
-              onCopy={onCopy}
-              onDelete={onDelete}
-              colorError={colorError} /> </div>}
+
+        </Radio>
+
+
 
       </summary> : <InlineSkeleton />}
 
       <div className='ac-nav-tree-item'
       >
-       {children.map((key, i) => <MemoizedTreeNode
-        {...props}
-        pos={pos + i}
+        {children.map((key, i) => <MemoizedTreeNode
+          {...props}
+          pos={pos + i}
           pageUpdated={pageUpdated}
-        pageType={""}
-        _uid={key}
-        _id={_id}
-        key={key}
-      />)}
+          pageType={""}
+          _uid={key}
+          _id={_id}
+          key={key}
+        />)}
 
         {/* {children.map((child, i) => React.cloneElement(child, {
           _id,
@@ -308,7 +249,7 @@ const MemoizedTreeNode = React.memo(TreeNode, (prevProps, nextProps) => {
   const allUpdate = prevProps.pageUpdated?.allUpdate === nextProps.pageUpdated?.allUpdate;
   const currentNode = prevProps.currentNode === nextProps.currentNode;
 
-  return !matched1 && !matched2 && allUpdate && currentNode;
+  return !matched1 && !matched2 && allUpdate;
 });
 
 
@@ -318,7 +259,7 @@ export default function Elements({ pageUpdated, _id,
 
   const [pageType, setType] = useState(null);
 
-  const [currentNode, setCurrentNode] = useState(null);
+  const [currentNode, setCurrentNode] = useState(node?._uid);
 
   useEffect(() => {
 
@@ -333,26 +274,61 @@ export default function Elements({ pageUpdated, _id,
         return;
 
       const page = await getAllData(_id);
-        setType(page?.type || 'page');
+      setType(page?.type || 'page');
     }
 
 
     fetchNode();
   }, [_id]);
 
+  
+  const {
+    token: { colorError },
+  } = theme.useToken();
+
   return <>
-    {pageType && <div style={{ maxHeight: '62vh', overflow: 'auto' }}>
-      <Card> <div className='ac-nav-tree-item' style={{ marginLeft: 0 }}><MemoizedTreeNode
-        pageUpdated={pageUpdated}
-        pageType={pageType}
-        onAdd={onAdd}
-        onMove={onMove}
-        setCurrentNode={setCurrentNode}
-        currentNode={currentNode}
-        onDelete={onDelete}
-        onClickElement={onClickElement}
-        onCopy={onCopy}
-        pos={""}
-        _id={_id}
-        _uid={"0"} /></div></Card></div>}</>
+    {pageType && <div style={{ maxHeight: '74vh', overflow: 'auto', borderRadius: 10 }}>
+      <Card style={{ width: 'fit-content', minWidth: '100%' }}>
+
+   
+      {currentNode && <Divider>
+
+            <div style={{ textAlign: 'right', zIndex: 100 }}>
+              <Toolbar
+                key={currentNode}
+                id={currentNode}
+                pos={node?.node.dataset?.pos}
+                onCopy={onCopy}
+                onDelete={onDelete}
+                colorError={colorError} />
+            </div>
+            </Divider>}
+
+
+        <Radio.Group value={currentNode} onChange={(e) => {
+
+
+          if (node?._uid !== e.target.value) {
+            onClickElement(null, e.target.value)
+            setCurrentNode(e.target.value)
+          }
+        }
+        }>
+
+
+
+          <div className='ac-nav-tree-item' style={{ marginLeft: 0 }}>
+
+       
+
+            <MemoizedTreeNode
+              pageUpdated={pageUpdated}
+              pageType={pageType}
+              onAdd={onAdd}
+              onMove={onMove}
+              currentNode={currentNode}
+            
+              pos={""}
+              _id={_id}
+              _uid={"0"} /></div> </Radio.Group></Card> </div>}</>
 }

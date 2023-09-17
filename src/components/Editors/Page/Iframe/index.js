@@ -92,7 +92,7 @@ const InnerComponent = ({ children, document, onLoad, _id, type }) => {
           }
         res = await ThemeServices.getColors()
 
-        if (res.colors)
+        if (res.colors) 
           for await (let color of res.colors.data) {
             root.style.setProperty(color.variable, color.color);
           }
