@@ -5,7 +5,7 @@ import { getAllData, getData } from '../../../../lib/db';
 import ElementWrapper from './ElementWrapper';
 
 import SettingServices from '../../../../lib/services/setting';
-import { generateCascader } from '../../../../lib/element/elementNode';
+import { generateCascader, defaultDoc, pageSetting, generateCascadeRelationsStates } from '../../../../lib/element/elementNode';
 
 export function InlineSkeleton() {
   return (
@@ -80,7 +80,6 @@ function TreeNode(props) {
       // });
 
 
-
     }
 
 
@@ -100,7 +99,6 @@ function TreeNode(props) {
   const form = node.page?.pageType === 'form' ? node.page : null;
   const rootForm = pageType === 'form' ? { _id } : null;
 
-
   return <>
 
 
@@ -116,10 +114,8 @@ function TreeNode(props) {
       _props={_props}
       node={node}>
 
-
       {children.map((key, i) => <MemoizedTreeNode
         {...props}
-      
         pageType={""}
         _uid={key}
         _id={_id}
@@ -147,7 +143,6 @@ const MemoizedTreeNode = React.memo(TreeNode, (prevProps, nextProps) => {
     prevProps._props === nextProps._props &&
     prevProps.colStates === nextProps.colStates &&
     prevProps.fun === nextProps.fun &&
-
     prevProps._cstates === nextProps._cstates;
 
   const allUpdate = prevProps.pageUpdated?.allUpdate === nextProps.pageUpdated?.allUpdate;
@@ -172,10 +167,54 @@ export default function Elements({ _id }) {
       const page = await getAllData(_id);
       if (page) {
         setType(page.type);
+
+
+
+        let states = [];
+        let populatedRelationships = null;
+        let relationships = null;
+
+        if (page.type === 'collection') {
+
+      
+
+          if (page.populatedRelationships) {
+            
+            relationships = page.populatedRelationships.reduce((result, rel) => {
+              result[rel._id] = rel.name;
+              return result;
+          }, {});
+
+
+            populatedRelationships = page.populatedRelationships?.reduce((acc, collection) => {
+              acc[collection._id] = [collection];
+              return acc;
+            }, {});
+
+      
+          }
+
+          states = [
+            ...states,
+            {
+              label: "NEXTDOCUMNET", value: "NEXTDOCUMNET",
+              children: defaultDoc
+            },
+            {
+              label: "PREVDOCUMNET", value: "PREVDOCUMNET",
+              children: defaultDoc
+            }
+          ]
+        }
+
+        
+
         const res = await SettingServices.get();
         const data = {
+          _id: page._id, slug: page.slug,
           name: page.name, url: page.url, createdAt: page.createdAt, creator: page.creator,
-          ...(page.setting || {}), global: { ...res.setting }
+          states: page.states, populatedRelationships, relationships,
+          ...({ setting: page.setting } || {}), global: { ...res.setting }
         };
         setSetting(data)
       }
@@ -188,6 +227,7 @@ export default function Elements({ _id }) {
   return <>
     {setting && <MemoizedTreeNode
       pageType={pageType}
+      pos={""}
       setting={setting}
       _id={_id}
       _uid={"0"} />}</>

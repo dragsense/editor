@@ -13,7 +13,7 @@ export default function ElementMapping({ cascaderStates, state, setState, setIsC
   useEffect(() => {
     if (!cascaderStates) return;
 
-
+console.log(cascaderStates)
     setCurrentMap(
         cascaderStates
             .filter(state => ['Menu',
@@ -31,7 +31,7 @@ export default function ElementMapping({ cascaderStates, state, setState, setIsC
             'Sider',
             'STATES', 
             'PROPS', 
-            'GLOBAL', 
+            'PAGE',
             'COLLECTION'].includes(state.type))
             .map(state => ({
                 ...state,

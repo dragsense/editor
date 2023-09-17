@@ -1,43 +1,47 @@
+// Importing necessary libraries and components
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Card, Tooltip, theme, Modal } from "antd";
 import { ExclamationCircleFilled, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { FixedSizeGrid as Grid } from 'react-window';
 import { AiOutlineCheckCircle } from 'react-icons/ai';
 
+// Destructuring necessary components from libraries
 const { Meta } = Card;
 const { confirm } = Modal;
 
+// Defining constants for card and column width
 const ICON_CARD_WIDTH = 180;
 const MIN_COLUMN_WIDTH = 190;
 
+// Main function for handling icons list
 const IconsList = ({ icons, onEdit, onDelete, editor = false }) => {
 
+    // Extracting colorPrimary from theme
+    const { token: { colorPrimary } } = theme.useToken();
 
-    const {
-        token: { colorPrimary },
-    } = theme.useToken();
-
+    // Function to handle drag start event
     const onDragStart = useCallback((e, icon) => {
-        const iconClasses = icon.classes.split(" ").reduce((classesObj, className) => {
-            return [...classesObj, { name: className }];
-        }, []);
+        // Splitting icon classes into an array and mapping to an object
+        const iconClasses = icon.classes.split(" ").map(className => ({ name: className }));
 
-        if (editor)
+        // If editor is true, set data for drag event
+        if (editor) {
             e.dataTransfer.setData('text/plain', JSON.stringify({
                 tag: 'i', type: 'icons',
                 layout: icon.classes ? 'icon' : 'svg-icon',
                 nodeValue: icon.svg,
                 classes: icon.classes ? iconClasses : {}
             }));
+        }
 
     }, []);
 
-
+    // Initializing state and ref
     const containerRef = useRef(null);
     const [newCols, setNewCols] = useState(1);
     const [newHeight, setHeight] = useState(0);
 
-
+    // Effect to handle window resize event
     useEffect(() => {
         const updateCols = () => {
             if (containerRef.current) {
@@ -59,7 +63,7 @@ const IconsList = ({ icons, onEdit, onDelete, editor = false }) => {
         };
     }, [newCols]);
 
-
+    // Function to render grid cell
     const GridCell = ({ columnIndex, rowIndex, style }) => {
         const index = rowIndex * newCols + columnIndex;
         const icon = icons[index];
@@ -127,10 +131,7 @@ const IconsList = ({ icons, onEdit, onDelete, editor = false }) => {
         );
     };
 
-
-
-
-
+    // Render function
     return (
         <div ref={containerRef} style={{ width: '100%', height: "63vh", overflow: 'hidden' }} id="icons-container">
             <Grid
@@ -148,4 +149,5 @@ const IconsList = ({ icons, onEdit, onDelete, editor = false }) => {
     );
 };
 
+// Exporting IconsList as default
 export default IconsList;

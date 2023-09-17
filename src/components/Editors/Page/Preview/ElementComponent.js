@@ -110,7 +110,6 @@ const ElementComponent = (props) => {
         if (fun?.onChange)
             allvalues = fun.onChange(values, node, all)
 
-        console.log(allvalues)
 
         if (all) {
             let options = [];

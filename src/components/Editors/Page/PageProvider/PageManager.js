@@ -704,10 +704,18 @@ export default function PageManger({ children }) {
             parentElemet = await getData(state.page._id, parentElemet.parent);
 
 
+
+
         if (!parentElemet) {
             dispatch({ type: 'error', error: "Target element not found." });
             return false;
         }
+
+        if (parentElemet.page) {
+            dispatch({ type: 'error', error: 'Tag or Element not selected.' });
+            return false;
+        }
+
 
         if (!await onAddElement(parentElemet._uid, tag, state.page._id))
             return false;
@@ -1061,6 +1069,9 @@ export default function PageManger({ children }) {
         let _parentElemet = await getData(state.page._id, targetUid);
 
 
+
+
+
         try {
 
             if (!_parentElemet || !currentElement) {
@@ -1074,6 +1085,10 @@ export default function PageManger({ children }) {
             if (addToAbove)
                 _parentElemet = await getData(state.page._id, _parentElemet.parent);
 
+            if (_parentElemet.page) {
+                dispatch({ type: 'error', error: 'Tag or Element not selected.' });
+                return false;
+            }
 
             if (!_parentElemet) {
                 throw new Error('Target Element Or Element not found.');
@@ -1268,7 +1283,8 @@ export default function PageManger({ children }) {
                             const res = await publishPage(page, type, dispatch);
                             message.success("Page Published.")
                         } catch (e) {
-                            dispatch({ type: 'error', error: e?.message || 'Something went wrong.' });
+                            console.log(e)
+                            dispatch({ type: 'error', error: e?.message ||  'Something went wrong.' });
 
                         }
                     },
@@ -1300,7 +1316,8 @@ export default function PageManger({ children }) {
 
 
         } catch (e) {
-            dispatch({ type: 'error', error: e?.message || 'Something went wrong.' });
+            
+            dispatch({ type: 'error', error: e?.message  || 'Something went wrong.' });
 
         } finally {
             dispatch({ type: 'finish' });
@@ -1330,7 +1347,6 @@ export default function PageManger({ children }) {
             let node = iframeDocument.querySelector(`[data-id="${id}"]`);
 
 
-            console.log(id)
             if (!node) {
                 dispatch({ type: 'selectNode', node: null });
                 return;

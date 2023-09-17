@@ -1,7 +1,7 @@
 
 import React, { useEffect, useMemo } from "react";
 
-import { getStateValue, getStateStates, getPaginationRange } from '../../../../lib/element/elementNode';
+import { getStateValue, getStateStates, getPaginationRange, getPageStates } from '../../../../lib/element/elementNode';
 
 import ElementLayout from "./ElementLayout";
 
@@ -16,13 +16,22 @@ const ElementMapping = (props) => {
         switch (type) {
 
             case 'STATES':
+
                 return getStateStates(key, _states);
             case 'PROPS':
+
                 return getStateStates(key, _props);
+            case 'PAGE':
+                if (key[0] === 'RELATIONSHIPS' && setting.populatedRelationships) {
+                    const docs = setting.populatedRelationships[key[1]];
+               
+                    return getPageStates(docs, 'pages');
+                }
             case 'COLSTATES':
 
-            if (!colStates)
-                return [];
+
+                if (!colStates)
+                    return;
 
                 if (key[0] === 'STATES') {
                     const modifiedKey = [...key];
@@ -30,7 +39,6 @@ const ElementMapping = (props) => {
                     return getStateStates(modifiedKey, colStates.states);;
                 }
                 else {
-
                     if (key[0] === 'DOCUMENTS' && colStates.documents) {
                         return colStates.documents.map((value) => {
                             return {
@@ -42,21 +50,11 @@ const ElementMapping = (props) => {
                             }
                         })
                     } else
+                    
                         if (key[0] === 'RELATIONSHIPS' && colStates.populatedRelationships) {
-
                             const docs = colStates.populatedRelationships[key[1]];
-                            return docs?.length > 0 ? docs.map((value) => {
-                                return {
-                                    type: "docs",
-                                    label: value.name,
-                                    value: value._id,
-                                    key: value._id,
-                                    ...value
-                                }
-                            }) : [{
-                                label: '[Relation]',
-                                value: '',
-                            }]
+
+                            return getPageStates(docs, 'docs');
                         }
                         else
                             if (key[0] === 'PAGES') {
@@ -84,8 +82,8 @@ const ElementMapping = (props) => {
             case 'Grid': case 'Container': case 'Slider': case 'Gallery': case 'Dropdown':
             case 'Dropdown': case 'Observable': case 'Modal': case 'GoToTop':
 
-            if (!_cstates)
-                return [];
+                if (!_cstates)
+                    return;
 
                 if (key[0] === 'items') {
 

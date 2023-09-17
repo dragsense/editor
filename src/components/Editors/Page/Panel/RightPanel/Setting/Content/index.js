@@ -21,7 +21,8 @@ export default function Content({ state, onUpdate, onChange, cascaderStates }) {
     const [isChange, setIsChange] = useState(false);
 
 
-    const onChangeImportPath = (value) => {
+    const onChangeImportPath = (e) => {
+        const value = e.target.value;
         setContentState({ ...contentState, customPath: value })
         setIsChange(true);
     }

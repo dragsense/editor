@@ -4,7 +4,7 @@ import React, { useEffect, useMemo } from "react";
 
 
 import ElementSetting from "./ElementSetting";
-import { getStates, updateStateValue, generateCascaderCollStates, getStateRef, generateCascader } from '../../../../lib/element/elementNode';
+import { getStates } from '../../../../lib/element/elementNode';
 
 
 const CustomComponent = (props) => {

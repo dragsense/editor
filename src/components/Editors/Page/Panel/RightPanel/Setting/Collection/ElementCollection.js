@@ -191,6 +191,7 @@ export default function ElemnetCollection({
 
     };
 
+
     const handleLeftRangeChange = (value) => {
 
         if (!state.pagination)
@@ -242,6 +243,13 @@ export default function ElemnetCollection({
         setState({ ...state, loadMore: !state.loadMore });
         setIsChange(true);
 
+
+    };
+
+    
+    const handleRelatedChange = () => {
+        setState({ ...state, related: !state.related });
+        setIsChange(true);
 
     };
 
@@ -371,6 +379,11 @@ export default function ElemnetCollection({
                 <Option value="updatedAt">updatedAt</Option>
 
             </Select>
+        </Form.Item>
+
+        <Form.Item label="Related?">
+            <Checkbox onChange={handleRelatedChange}
+                checked={state.realted}>Yes</Checkbox>
         </Form.Item>
 
         <Form.Item label="Load More?">

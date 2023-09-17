@@ -2,8 +2,7 @@
 import React, { useMemo } from "react";
 
 import ElementValue from './ElementValue';
-import { getStateValue } from "../../../../lib/element/elementNode";
-import { formatDate, validateClassInput } from "../../../../lib/utils";
+import { getStateValue, getPageValue } from "../../../../lib/element/elementNode";
 import { message } from "antd";
 
 const ElementSetting = (props) => {
@@ -43,168 +42,42 @@ const ElementSetting = (props) => {
                             const image = images[key[2]] || {}
                             return {
                                 value: image?.src ? image.src : '/images/default/default-img.png',
-                                label: image === undefined ? '' : image?.alt || "Global Image"
+                                label: image === undefined ? `[${key[2]}]` : image?.alt || "Global Image"
                             }
 
                         }
 
                         return {
                             value: global[key[1]],
-                            label: global[key[1]] || ``
+                            label: global[key[1]] || `[global ${key[1]}]`
                         }
                     }
-                    else
-                        if (key[0] === "PAGE") {
-                            if (key[1] === 'image') {
-                                const image = setting[key[1]];
-                                return {
-                                    value: image?.src ? image.src : '/images/default/default-img.png',
-                                    label: image === undefined ? '' : image?.alt || 'Featured Image'
-                                }
-                            }
-                            if (key[1] === 'creator') {
-                                const creator = setting[key[1]];
+                    
 
-                                return {
-                                    value: creator?._id ? creator?._id : '',
-                                    label: creator?.name ? creator?.name : 'Unknown'
-                                }
-                            }
-                            if (key[1] === 'createdAt') {
-
-                                const createdAt = setting[key[1]];
-                                if (createdAt)
-                                    return formatDate(createdAt, key[2])
-                                else return ``
-                            }
-                            if (key[1] === 'status') {
-                                const status = setting[key[1]];
-
-                                return {
-                                    value: status,
-                                    label: status === undefined ? `` : status ? 'Published' : 'Draft'
-                                }
-                            }
-
-                            return {
-
-                                value: key[1] === 'content' ? key[1] : setting[key[1]],
-                                label: setting[key[1]] || ``
-                            }
-                        } else
-                            if (key[0] === "NEXTDOCUMNET" || key[0] === 'PREVDOCUMNET') {
-                                const doc = setting[key[0]];
-
-                                if (!doc) {
-                                    return {
-                                        value: ``,
-                                        label: `[document ${key[1]}]`
-                                    }
-                                }
-
-                                if (key[1] === 'image') {
-                                    const image = doc[key[1]];
-                                    return {
-                                        value: image?.src ? image.src : '/images/default/default-img.png',
-                                        label: image === undefined ? `` : image?.alt || 'Featured Image'
-                                    }
-                                }
-                                return {
-                                    value: doc[key[1]],
-                                    label: doc[key[1]] || ``
-                                }
-                            } else
-                                return {
-
-                                    value: setting[key[0]],
-                                    label: setting[key[0]] || ``
-                                }
             case 'PROPS':
-                return getStateValue(key, _props) || ``;
+                return getStateValue(key, _props) || `[props.${key}]`;
             case 'STATES':
                 return getStateValue(key, _states);
-
+                case 'PAGE':
+                    return getPageValue(key, setting);
             case 'COLSTATES':
 
-            if (!colStates)
-                return value;
 
-                if (key[0] === 'POPULATED')
-                    key.shift();
+                if (!colStates)
+                    return value;
 
 
-                if (key[0] === 'states' || key[0] === 'states' + mapIndex) {
-                    const modifiedKey = [...key];
-                    modifiedKey.shift();
-                    return getStateValue(modifiedKey, colStates.states);
-                }
+                if (key[0] === 'PAGES')
+                    return mapIndex + 1;
                 else
-                    if (key[0] === 'RELATIONSHIPS' && colStates.relationships) {
-                        if (colStates.relationships[key[1]])
-                            return colStates.relationships[key[1]];
-                        else
-                            return value;
-                    }
+                    if (key[0] === 'docsLength' && colStates.documents)
+                        return colStates.documents.length || '0';
                     else
-                        if (key[0] === 'PAGES') {
-                            return mapIndex + 1;
-                        }
+                        return getPageValue(key, colStates);
 
-                        else {
-                            if (key[0] === 'docsLength' && colStates.documents)
-                                return colStates.documents.length || '0';
-                            else
-                                if (key[0] === 'SETTING') {
-
-
-                                    const setting = colStates.setting;
-                                    if (setting) {
-                                        if (key[1] === 'image') {
-
-                                            if (colStates['populatedImage']) {
-                                                const image = colStates['populatedImage'][0] || {};
-
-                                                return {
-                                                    value: image?.src ? image.src : '/images/default/default-img.png',
-                                                    label: image === undefined ? `` : image?.alt || 'Featured Image'
-                                                }
-                                            }
-                                            return {
-                                                value: '/images/default/default-img.png',
-                                                label: 'Featured Image'
-                                            }
-                                        }
-
-                                        return {
-
-                                            value: setting[key[1]] || '',
-                                            label: setting[key[1]] || ``
-                                        }
-                                    } else return "";
-
-                                }
-                                else
-                                    if (key[0] === 'createdAt') {
-                                        if (colStates[key[0]])
-                                            return formatDate(colStates[key[0]], key[1])
-                                        else return ''
-                                    } else
-                                        if (key[0] === 'creator') {
-                                            const creator = colStates[key[0]];
-
-                                            return {
-                                                value: creator?._id ? creator?._id : '',
-                                                label: creator?.name ? creator?.name : 'Unknown'
-                                            }
-                                        }
-
-                                        else {
-                                            return colStates[key[0]]
-                                        }
-                        }
             case 'FORMSTATES':
                 if (_states && _states[key[0]])
-                    return _states[key[0]][key[1]] ||  '[form state]'
+                    return _states[key[0]][key[1]] || '[form state]'
 
             case 'MAPVALUE':
                 return mapValue;
@@ -239,7 +112,7 @@ const ElementSetting = (props) => {
             let cond = true;
 
             if (expression) {
-                let orignal = expression.replace(/\[value]/g, v);
+                let orignal = expression.replace(/\[state]/g, v);
                 orignal = orignal.replace(/\[key]/g, keyValue);
 
                 try {
@@ -380,7 +253,7 @@ const ElementSetting = (props) => {
             return resultString;
         }
 
-    }, [classes, colStates, , _cstates,_states, _props, mapIndex, mapValue, node.nodeValue]);
+    }, [classes, colStates, , _cstates, _states, _props, mapIndex, mapValue, node.nodeValue]);
 
     const fallbackImage = useMemo(() => {
 
@@ -411,15 +284,15 @@ const ElementSetting = (props) => {
 
         switch (node.tagName) {
             case 'img':
-                return { value: node.src ? node.src.src : fallbackImage, label: node.src?.alt };
+                return { value: node.src ? node.src.src : fallbackImage, label: node.src?.alt }
             case 'video':
                 return {
                     value: node.src ?
                         node.src.src : fallbackPoster,
                     label: node.src?.alt, srcs: node.srcs
-                };
+                }
             case 'audio':
-                return { value: './audios/default/sample.mp3', srcs: node.srcs };
+                return { value: './audios/default/sample.mp3', srcs: node.srcs }
             case 'input':
             case 'textarea':
             case 'option':

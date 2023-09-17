@@ -1,84 +1,130 @@
 
-import { storeData, storePage, STYLE_STORE_NAME, clearStore, getAllData, getAllCssData } from './db';
+import {  storePage, STYLE_STORE_NAME, clearStore, getAllData } from './db';
 import { fetcher } from "../fetch";
 
 
+/**
+ * Utility to sanitize URLs by removing extra forward slashes.
+ */
+const sanitizeUrl = (baseUrl) => baseUrl.replace(/([^:]\/)\/+/g, '$1');
+
+
+/**
+ * Loads a specific page's data including styles and elements.
+ *
+ * @param {string} page - The name or identifier of the page.
+ * @param {string} type - The type or category of the page.
+ * @param {Function} dispatch - The dispatcher function to update the state/store.
+ * @param {boolean} clear - Determines if previous data should be cleared before loading. Default is true.
+ * @throws {Error} Throws an error if the project is not found.
+ */
 export const loadPage = async (page, type, dispatch, clear = true) => {
+    try {
+        // Make the API request to retrieve project details.
+        const response = await window.autocode.makeApiRequest();
 
-    const response = await window.autocode.makeApiRequest();
+        // Destructure the project from the response.
+        const { project } = response;
 
-    const project = response?.project;
+        // If the project is not available, throw an error.
+        if (!project) {
+            throw new Error("Project Not Found.");
+        }
 
-    if (!project) {
-        throw new Error("Project Not Found.");
-        return;
+        // Load styles and elements for the specified page and type.
+        await loadStyles(project, page, type, dispatch, clear);
+        await loadElements(project, page, type, dispatch, clear);
+    } catch (error) {
+        // Handle the error as needed. This could be dispatching to a reducer, console logging, or other error handling mechanisms.
+        console.error("Error loading the page:", error.message);
+        throw error;  // Re-throwing the error to handle it further up the call chain if needed.
     }
-
-    await loadStyles(project, page, type, dispatch, clear)
-    await loadElements(project, page, type, dispatch, clear);
+};
 
 
-}
-
+/**
+ * Loads a specific page's elements without styles.
+ *
+ * @param {string} page - The name or identifier of the page.
+ * @param {string} type - The type or category of the page.
+ * @param {Function} dispatch - The dispatcher function to update the state/store.
+ * @param {boolean} clear - Determines if previous data should be cleared before loading. Default is true.
+ * @throws {Error} Throws an error if the project is not found.
+ */
 export const loadWithoutStyle = async (page, type, dispatch, clear = true) => {
+    try {
+        // Make the API request to retrieve project details.
+        const response = await window.autocode.makeApiRequest();
+        
+        // Destructure the project from the response.
+        const { project } = response;
 
-    const response = await window.autocode.makeApiRequest();
-    const project = response?.project;
+        // If the project is not available, throw an error.
+        if (!project) {
+            throw new Error("Project Not Found.");
+        }
 
-    if (!project) {
-        throw new Error("Project Not Found.");
-        return;
+        // Load elements for the specified page and type.
+        await loadElements(project, page, type, dispatch, clear);
+    } catch (error) {
+        // Handle the error as needed. This could be dispatching to a reducer, console logging, or other error handling mechanisms.
+        console.error("Error loading the page without style:", error.message);
+        throw error;  // Re-throwing the error to handle it further up the call chain if needed.
     }
-
-    await loadElements(project, page, type, dispatch, clear);
-
-
-}
-
-export const loadElements = async (project, page, type, dispatch, clear) => {
+};
 
 
+/**
+ * Loads elements data from a specified URL, processes the chunks of data from the stream, 
+ * parses JSON data, and stores the elements.
+ * 
+ * @param {Object} project - The project data containing API details.
+ * @param {Object} page - The page data, specifically needs the page's ID.
+ * @param {string} type - Type of the page.
+ * @param {Function} dispatch - A dispatcher function to send actions to a reducer.
+ * @param {boolean} clear - Flag to clear the store before storing new data. Defaults to false.
+ */
+export const loadElements = async (project, page, type, dispatch, clear = false) => {
+    // Construct the URL for fetching the elements.
     const url = `${project.url}/${type}s/elements/${page._id}`;
-    const apikey = project.apikey;
-    const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
+    const sanitizedUrl = sanitizeUrl(url);
 
-
+    // Create a readable stream for processing chunks of data.
     const stream = new ReadableStream({
         start(controller) {
-            fetch(`${sanitizedUrl}`, {
-                headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey },
-
+            fetch(sanitizedUrl, {
+                headers: { 
+                    'ngrok-skip-browser-warning': true, 
+                    'x-api-key': project.apikey 
+                }
             })
-                .then(response => {
-                    const reader = response.body.getReader();
-                    const decoder = new TextDecoder();
+            .then(response => {
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
 
-                    function processChunk(chunk) {
+                // Recursive function to process and decode chunks.
+                function processChunk(chunk) {
+                    const decodedChunk = decoder.decode(chunk.value, { stream: true });
+                    controller.enqueue(decodedChunk);
 
-
-                        const decodedChunk = decoder.decode(chunk.value, { stream: true });
-                        controller.enqueue(decodedChunk);
-                        if (chunk.done) {
-
-
-                            controller.close();
-                            return;
-                        }
-                        reader.read().then(processChunk);
+                    if (chunk.done) {
+                        controller.close();
+                        return;
                     }
 
-
                     reader.read().then(processChunk);
-                })
-                .catch(error => {
-                    controller.error(error);
-                    dispatch({ type: 'error', error: error?.message || 'Something went wrong.' });
+                }
 
-                });
+                reader.read().then(processChunk);
+            })
+            .catch(error => {
+                controller.error(error);
+                dispatch({ type: 'error', error: error?.message || 'Something went wrong.' });
+            });
         }
     }, { readableStrategy: { highWaterMark: 1 } });
 
-
+    // Create a transform stream to parse JSON chunks and enqueue them.
     const jsonStream = new TransformStream({
         start(controller) {
             this.buffer = '';
@@ -91,12 +137,10 @@ export const loadElements = async (project, page, type, dispatch, clear) => {
             for (const line of lines) {
                 const parsedData = JSON.parse(line);
                 controller.enqueue(parsedData);
-
             }
         },
         flush(controller) {
             if (this.buffer) {
-
                 const parsedData = JSON.parse(this.buffer);
                 controller.enqueue(parsedData);
             }
@@ -104,72 +148,68 @@ export const loadElements = async (project, page, type, dispatch, clear) => {
     });
 
     const reader = stream.pipeThrough(jsonStream).getReader();
-    await (async function () {
+    if (clear) clearStore();
 
-        if (clear)
-            clearStore();
-
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) {
-                break;
-            }
-            await storePage(value);
-        }
-
-
-    })();
-
-
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        await storePage(value);
+    }
 }
 
 
-export const loadStyles = async (project, page, type, dispatch, clear) => {
 
+/**
+ * Loads styles data from a specified URL, processes the chunks of data from the stream, 
+ * parses JSON data, and stores the styles.
+ * 
+ * @param {Object} project - The project data containing API details.
+ * @param {Object} page - The page data, specifically needs the page's ID.
+ * @param {string} type - Type of the page.
+ * @param {Function} dispatch - A dispatcher function to send actions to a reducer.
+ * @param {boolean} clear - Flag to clear the store before storing new data. Defaults to false.
+ */
+export const loadStyles = async (project, page, type, dispatch, clear = false) => {
+    // Construct the URL for fetching the styles.
     const url = `${project.url}/${type}s/style/${page._id}`;
-    const apikey = project.apikey;
-    const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
+    const sanitizedUrl = sanitizeUrl(url);
 
-
-
+    // Create a readable stream for processing chunks of data.
     const stream = new ReadableStream({
         start(controller) {
-            fetch(`${sanitizedUrl}`, {
-                headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey },
-
+            fetch(sanitizedUrl, {
+                headers: { 
+                    'ngrok-skip-browser-warning': true, 
+                    'x-api-key': project.apikey 
+                }
             })
-                .then(response => {
-                    const reader = response.body.getReader();
-                    const decoder = new TextDecoder();
+            .then(response => {
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
 
-                    function processChunk(chunk) {
-
-
-                        const decodedChunk = decoder.decode(chunk.value, { stream: true });
-                        controller.enqueue(decodedChunk);
-                        if (chunk.done) {
-
-
-                            controller.close();
-                            return;
-                        }
-                        reader.read().then(processChunk);
+                // Recursive function to process and decode chunks.
+                function processChunk(chunk) {
+                    const decodedChunk = decoder.decode(chunk.value, { stream: true });
+                    controller.enqueue(decodedChunk);
+                    
+                    if (chunk.done) {
+                        controller.close();
+                        return;
                     }
 
-
                     reader.read().then(processChunk);
-                })
-                .catch(error => {
-                    controller.error(error);
+                }
 
-
-                    dispatch({ type: 'error', error: error?.message || 'Something went wrong.' });
-
-                });
+                reader.read().then(processChunk);
+            })
+            .catch(error => {
+                controller.error(error);
+                dispatch({ type: 'error', error: error?.message || 'Something went wrong.' });
+            });
         }
     }, { readableStrategy: { highWaterMark: 1 } });
 
-
+    // Create a transform stream to parse JSON chunks and enqueue them.
     const jsonStream = new TransformStream({
         start(controller) {
             this.buffer = '';
@@ -182,12 +222,10 @@ export const loadStyles = async (project, page, type, dispatch, clear) => {
             for (const line of lines) {
                 const parsedData = JSON.parse(line);
                 controller.enqueue(parsedData);
-
             }
         },
         flush(controller) {
             if (this.buffer) {
-
                 const parsedData = JSON.parse(this.buffer);
                 controller.enqueue(parsedData);
             }
@@ -195,29 +233,26 @@ export const loadStyles = async (project, page, type, dispatch, clear) => {
     });
 
     const reader = stream.pipeThrough(jsonStream).getReader();
-    await (async function () {
-        if (clear)
-            clearStore(STYLE_STORE_NAME);
+    
+    if (clear) clearStore(STYLE_STORE_NAME);
 
-        while (true) {
-            const { done, value } = await reader.read();
-
-            if (done) {
-                break;
-            }
-            await storePage(value, STYLE_STORE_NAME);
-
-        }
-
-    })();
-
-
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        await storePage(value, STYLE_STORE_NAME);
+    }
 }
 
-export const loadGlobalStyles = async (dispatch, clear) => {
 
+/**
+ * Loads global styles from a specified URL, processes the chunks of data from the stream, 
+ * parses the JSON data, and stores the styles in the global style store.
+ * 
+ * @param {Function} dispatch - A dispatcher function to send actions to a reducer.
+ * @param {boolean} clear - Flag to clear the global styles store before storing new data. Defaults to false.
+ */
+export const loadGlobalStyles = async (dispatch, clear = false) => {
     const response = await window.autocode.makeApiRequest();
-
     const project = response?.project;
 
     if (!project) {
@@ -225,48 +260,44 @@ export const loadGlobalStyles = async (dispatch, clear) => {
         return;
     }
 
+    // Construct the URL for fetching global styles.
     const url = `${project.url}/theme/style/${project._id}`;
-    const apikey = project.apikey;
-    const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
+    const sanitizedUrl = sanitizeUrl(url);
 
+    // Create a readable stream for processing chunks of data.
     const stream = new ReadableStream({
         start(controller) {
-            fetch(`${sanitizedUrl}`, {
-                headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey },
-
+            fetch(sanitizedUrl, {
+                headers: { 
+                    'ngrok-skip-browser-warning': true, 
+                    'x-api-key': project.apikey 
+                }
             })
-                .then(response => {
-                    const reader = response.body.getReader();
-                    const decoder = new TextDecoder();
+            .then(response => {
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
 
-                    function processChunk(chunk) {
-
-
-                        const decodedChunk = decoder.decode(chunk.value, { stream: true });
-                        controller.enqueue(decodedChunk);
-                        if (chunk.done) {
-
-
-                            controller.close();
-                            return;
-                        }
-                        reader.read().then(processChunk);
+                // Recursive function to process and decode chunks.
+                function processChunk(chunk) {
+                    const decodedChunk = decoder.decode(chunk.value, { stream: true });
+                    controller.enqueue(decodedChunk);
+                    if (chunk.done) {
+                        controller.close();
+                        return;
                     }
-
-
                     reader.read().then(processChunk);
-                })
-                .catch(error => {
-                    controller.error(error);
+                }
 
-
-                    dispatch({ type: 'error', error: error?.message || 'Something went wrong.' });
-
-                });
+                reader.read().then(processChunk);
+            })
+            .catch(error => {
+                controller.error(error);
+                dispatch({ type: 'error', error: error?.message || 'Something went wrong.' });
+            });
         }
     }, { readableStrategy: { highWaterMark: 1 } });
 
-
+    // Create a transform stream to parse JSON chunks and enqueue them.
     const jsonStream = new TransformStream({
         start(controller) {
             this.buffer = '';
@@ -279,12 +310,10 @@ export const loadGlobalStyles = async (dispatch, clear) => {
             for (const line of lines) {
                 const parsedData = JSON.parse(line);
                 controller.enqueue(parsedData);
-
             }
         },
         flush(controller) {
             if (this.buffer) {
-
                 const parsedData = JSON.parse(this.buffer);
                 controller.enqueue(parsedData);
             }
@@ -292,32 +321,27 @@ export const loadGlobalStyles = async (dispatch, clear) => {
     });
 
     const reader = stream.pipeThrough(jsonStream).getReader();
-    await (async function () {
-        if (clear)
-            clearStore(STYLE_STORE_NAME);
 
-        while (true) {
-            const { done, value } = await reader.read();
+    if (clear) clearStore(STYLE_STORE_NAME);
 
-            if (done) {
-                break;
-            }
-
-            await storePage(value, STYLE_STORE_NAME);
-
-
-        }
-
-    })();
-
-
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        await storePage(value, STYLE_STORE_NAME);
+    }
 }
 
-export const loadAnimationStyles = async (dispatch, clear) => {
 
-
+/**
+ * Loads animation styles from a specified URL, processes the chunks of data from the stream, 
+ * parses the JSON data, and stores the animation styles in the style store.
+ * 
+ * @param {Function} dispatch - A dispatcher function to send actions to a reducer.
+ * @param {boolean} clear - Flag to clear the styles store before storing new data. Defaults to false.
+ */
+export const loadAnimationStyles = async (dispatch, clear = false) => {
+    // Make an API request to fetch the project details.
     const response = await window.autocode.makeApiRequest();
-
     const project = response?.project;
 
     if (!project) {
@@ -325,49 +349,44 @@ export const loadAnimationStyles = async (dispatch, clear) => {
         return;
     }
 
+    // Construct the URL for fetching animation styles.
     const url = `${project.url}/theme/animation/${project._id}`;
-    const apikey = project.apikey;
-    const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
+    const sanitizedUrl = sanitizeUrl(url);
 
-
+    // Create a readable stream for processing chunks of data.
     const stream = new ReadableStream({
         start(controller) {
-            fetch(`${sanitizedUrl}`, {
-                headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey },
-
+            fetch(sanitizedUrl, {
+                headers: { 
+                    'ngrok-skip-browser-warning': true, 
+                    'x-api-key': project.apikey 
+                }
             })
-                .then(response => {
-                    const reader = response.body.getReader();
-                    const decoder = new TextDecoder();
+            .then(response => {
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
 
-                    function processChunk(chunk) {
-
-
-                        const decodedChunk = decoder.decode(chunk.value, { stream: true });
-                        controller.enqueue(decodedChunk);
-                        if (chunk.done) {
-
-
-                            controller.close();
-                            return;
-                        }
-                        reader.read().then(processChunk);
+                // Recursive function to process and decode chunks.
+                function processChunk(chunk) {
+                    const decodedChunk = decoder.decode(chunk.value, { stream: true });
+                    controller.enqueue(decodedChunk);
+                    if (chunk.done) {
+                        controller.close();
+                        return;
                     }
-
-
                     reader.read().then(processChunk);
-                })
-                .catch(error => {
-                    controller.error(error);
+                }
 
-
-                    dispatch({ type: 'error', error: error?.message || 'Something went wrong.' });
-
-                });
+                reader.read().then(processChunk);
+            })
+            .catch(error => {
+                controller.error(error);
+                dispatch({ type: 'error', error: error?.message || 'Something went wrong.' });
+            });
         }
     }, { readableStrategy: { highWaterMark: 1 } });
 
-
+    // Create a transform stream to parse JSON chunks and enqueue them.
     const jsonStream = new TransformStream({
         start(controller) {
             this.buffer = '';
@@ -380,12 +399,10 @@ export const loadAnimationStyles = async (dispatch, clear) => {
             for (const line of lines) {
                 const parsedData = JSON.parse(line);
                 controller.enqueue(parsedData);
-
             }
         },
         flush(controller) {
             if (this.buffer) {
-
                 const parsedData = JSON.parse(this.buffer);
                 controller.enqueue(parsedData);
             }
@@ -393,189 +410,182 @@ export const loadAnimationStyles = async (dispatch, clear) => {
     });
 
     const reader = stream.pipeThrough(jsonStream).getReader();
-    await (async function () {
-        if (clear)
-            clearStore(STYLE_STORE_NAME);
 
-        while (true) {
-            const { done, value } = await reader.read();
+    if (clear) clearStore(STYLE_STORE_NAME);
 
-            if (done) {
-                break;
-            }
-
-
-            await storePage(value, STYLE_STORE_NAME);
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        await storePage(value, STYLE_STORE_NAME);
+    }
+}
 
 
+/**
+ * Publishes a page using a POST request to a specified URL.
+ * 
+ * @param {Object} page - The page object to be published.
+ * @param {string} type - The type of the page (e.g., 'article', 'blog').
+ * @param {Function} dispatch - A dispatcher function to send actions to a reducer.
+ */
+export const publishPage = async (page, type, dispatch) => {
+    // Make an API request to fetch the project details.
+    const response = await window.autocode.makeApiRequest();
+    const project = response?.project;
+
+    if (!project) {
+        throw new Error("Project Not Found.");
+    }
+
+    const { apiKey, creator } = project;
+
+    // Construct the URL for publishing.
+    const url = `${project.url}/${type}s/publish/${page._id}`;
+    const sanitizedUrl = sanitizeUrl(url);
+
+    // Send a POST request to publish the page.
+    await fetcher(sanitizedUrl, {
+        method: 'POST',
+        headers: { 
+            'ngrok-skip-browser-warning': true, 
+            'x-api-key': apiKey, 
+            'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify({ updater: creator })
+    });
+}
+
+
+/**
+ * Utility to filter non-deleted elements from the data.
+ */
+const filterDeletedElements  = (data) => {
+    return Object.keys(data).reduce((filtered, key) => {
+        const element = data[key];
+        if (!element.deleted) filtered[key] = element;
+        return filtered;
+    }, {});
+};
+
+/**
+ * Handles the data fetching and saving process.
+ */
+const fetchDataAndSave = async (type, endpoint, pageId, apiKey, updater, dispatch) => {
+    const url = `${type.url}/${endpoint}s/${pageId}`;
+    const sanitizedUrl = sanitizeUrl(url);
+
+    let data = await getAllData(pageId, endpoint === "elements" ? null : STYLE_STORE_NAME);
+
+    if (!data) {
+        // If there's no data for the "elements" endpoint, dispatch an error action.
+        if (endpoint === "elements") {
+            dispatch({ type: 'error', error: 'Something went wrong.' });
+        }
+        return;
+    }
+
+    let payload = {
+        updater
+    };
+
+    if (endpoint === "elements" && typeof data.elements === 'object') {
+        payload[endpoint] = filterDeletedElements (data.elements);
+    } else {
+        payload[endpoint] = data.elements || {};
+    }
+
+    await fetcher(sanitizedUrl, {
+        method: 'POST',
+        headers: {
+            'ngrok-skip-browser-warning': true,
+            'x-api-key': apiKey,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+    });
+};
+
+/**
+ * savePage - Asynchronously saves a page's content and style to a specified project URL.
+ *
+ * @param {Object} page - The page object.
+ * @param {String} type - The type of the content to be saved.
+ * @param {Function} dispatch - A function to dispatch actions.
+ * 
+ * @returns {Promise<void>} - A promise that resolves when the saving operation is complete.
+ */ 
+export const savePage = async (page, type, dispatch) => {
+    try {
+        // Fetch the project details.
+        const { project } = await window.autocode.makeApiRequest();
+
+        if (!project) {
+            throw new Error("Project Not Found.");
         }
 
-    })();
+        const { apiKey, creator } = project;
 
+        // Fetch, process, and save element data.
+        await fetchDataAndSave(type, "elements", page._id, apiKey, creator, dispatch);
 
+        // Fetch, process, and save style data.
+        await fetchDataAndSave(type, "style", page._id, apiKey, creator, dispatch);
+        
+    } catch (error) {
+        console.error(error);
+        // Dispatch a general error if something unexpected happens.
+        dispatch({ type: 'error', error: error.message || 'Unexpected error occurred.' });
+    }
 }
 
-
-export const publishPage = async (page, type, dispatch) => {
-
-
-    const response = await window.autocode.makeApiRequest();
-
-    const project = response?.project;
-
-    if (!project) {
-        throw new Error("Project Not Found.");
-        return;
-    }
-
-    let url = `${project.url}/${type}s/publish/${page._id}`;
-    const apikey = project.apikey;
-    let sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
-
-    await fetcher(`${sanitizedUrl}`, {
-        method: 'POST',
-        headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey, 'Content-Type': 'application/json', },
-        body: JSON.stringify({ updater: project.creator })
-    });
-
-
-}
-
-
-export const savePage = async (page, type, dispatch) => {
-
-
-    const response = await window.autocode.makeApiRequest();
-
-    const project = response?.project;
-
-    if (!project) {
-        throw new Error("Project Not Found.");
-        return;
-    }
-
-    let url = `${project.url}/${type}s/elements/${page._id}`;
-    const apikey = project.apikey;
-    let sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
-
-
-    let data = await getAllData(page._id);
-
-
-    if (!data) {
-        dispatch({ type: 'error', error: 'Something went wrong.' });
-        return;
-    }
-
-    let _elements = {};
-
-    if (data.elements && typeof data.elements === 'object') {
-        _elements = Object.keys(data.elements).reduce((filteredElements, key) => {
-            const element = data.elements[key];
-            if (!element.deleted) {
-                filteredElements[key] = element;
-            }
-            return filteredElements;
-        }, {});
-    }
-    const _components = data.components || [];
-    const _forms = data.forms || [];
-    const _collStates = data.collStates;
-    const _states = data.states || {};
-    const events = data.events ? { _events: data.events } : null;
-
-
-    await fetcher(`${sanitizedUrl}`, {
-        method: 'POST',
-        headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey, 'Content-Type': 'application/json', },
-        body: JSON.stringify({
-            _elements,
-            _states,
-            ...(events ? events : {}),
-            _collStates,
-            _components,
-            _forms,
-            updater: project.creator
-        })
-    });
-
-
-    data = await getAllData(page._id, STYLE_STORE_NAME);
-
-    if (!data) {
-        return;
-    }
-
-
-
-    url = `${project.url}/${type}s/style/${page._id}`;
-    sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
-
-    let _styles = data.elements || {};
-
-    if (_styles && typeof _styles === 'object') {
-        _styles = Object.keys(data.elements).reduce((filteredElements, key) => {
-            const element = data.elements[key];
-            if (!element.deleted) {
-                filteredElements[key] = element;
-            }
-            return filteredElements;
-        }, {});
-    }
-
-    await fetcher(`${sanitizedUrl}`, {
-        method: 'POST',
-        headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey, 'Content-Type': 'application/json', },
-        body: JSON.stringify({ _styles, updater: project.creator })
-    });
-
-
-
-
-}
-
+/**
+ * Save styles for a page.
+ *
+ * @param {object} page - The page object.
+ * @param {string} type - The type of style to save.
+ * @returns {Promise<void>} - A promise that resolves when the saving operation is complete.
+ */
 export const saveStyle = async (page, type) => {
+    try {
+        // Fetch data.
+        const data = await getAllData(page._id, STYLE_STORE_NAME);
 
+        // If data is not available, return.
+        if (!data) {
+            return;
+        }
 
+        // Fetch project information.
+        const response = await window.autocode.makeApiRequest();
+        const project = response?.project;
 
+        // If the project is not found, throw an error.
+        if (!project) {
+            throw new Error("Project Not Found.");
+        }
 
-    const data = await getAllData(page._id, STYLE_STORE_NAME);
+        // Extract API key and URL from the project.
+        const { apikey, url } = project;
 
-    if (!data) {
-        return;
+        // Sanitize the URL.
+        const sanitizedUrl = sanitizeUrl(`${url}/theme/${type}/${page._id}`);
+
+        // Filter deleted elements.
+        const styles = filterDeletedElements(data.elements || {});
+
+        // Make a POST request to save styles.
+        await fetcher(sanitizedUrl, {
+            method: 'POST',
+            headers: {
+                'ngrok-skip-browser-warning': true,
+                'x-api-key': apikey,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ styles }),
+        });
+    } catch (error) {
+        // Handle errors gracefully, e.g., log the error and show a user-friendly message.
+        console.error("Error while saving style:", error);
     }
+};
 
-    const response = await window.autocode.makeApiRequest();
-    const project = response?.project;
-
-    if (!project) {
-        throw new Error("Project Not Found.");
-        return;
-    }
-
-    const apikey = project.apikey;
-    const url = `${project.url}/theme/${type}/${page._id}`;
-    const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
-
-    let styles = data.elements || {};
-
-    if (styles && typeof styles === 'object') {
-        styles = Object.keys(data.elements).reduce((filteredElements, key) => {
-            const element = data.elements[key];
-            if (!element.deleted) {
-                filteredElements[key] = element;
-            }
-            return filteredElements;
-        }, {});
-    }
-
-    await fetcher(`${sanitizedUrl}`, {
-        method: 'POST',
-        headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey, 'Content-Type': 'application/json', },
-        body: JSON.stringify({ styles })
-    });
-
-
-
-
-}

@@ -700,8 +700,8 @@ export default function IFrame({
 
   const handleContextMenuMouseLeave = () => {
     if (!isPopupOpen) {
-    //  setContextMenuVisible(false);
-     // setGapBprPos(null);
+      setContextMenuVisible(false);
+      setGapBprPos(null);
     }
   }
 
@@ -982,7 +982,7 @@ export default function IFrame({
 
 
                         style={{ float: 'right', marginLeft: 3 }} size="small" icon=<BsArrowsMove size="1rem" /> />
-                    
+
 
                       <Popconfirm
                         onOpenChange={(open) => {
@@ -991,14 +991,19 @@ export default function IFrame({
 
                         placement="topRight"
                         title={"Are you sure to delete this element?"}
-                        onConfirm={() => onDelete({ dataset: { id: item.uid, pos: item.pos } })}
+                        onConfirm={() => {
+                          onDelete({ dataset: { id: item.uid, pos: item.pos } })
+                          setContextMenuVisible(false);
+                          setGapBprPos(null);
+                        }
+                        }
                         okText="Yes"
                         cancelText="No"
                       >
                         <Button
                           danger
                           type='text'
-                          style={{ float: 'right', marginLeft: 3  }} size="small" icon=<DeleteOutlined size="1rem" /> />
+                          style={{ float: 'right', marginLeft: 3 }} size="small" icon=<DeleteOutlined size="1rem" /> />
                       </Popconfirm>
                       {" "}
                       <Popconfirm
@@ -1034,7 +1039,7 @@ export default function IFrame({
                           }
 
 
-                          style={{ float: 'right', marginLeft: 3  }} size="small" icon=<CopyOutlined size="1rem" /> />
+                          style={{ float: 'right', marginLeft: 3 }} size="small" icon=<CopyOutlined size="1rem" /> />
 
                       </Popconfirm>
                       {" "}
@@ -1061,7 +1066,7 @@ export default function IFrame({
                         }}
 
 
-                        style={{ float: 'right',  }} size="small" icon=<PlusOutlined size="1rem" /> />
+                        style={{ float: 'right', }} size="small" icon=<PlusOutlined size="1rem" /> />
 
                     </>}
 

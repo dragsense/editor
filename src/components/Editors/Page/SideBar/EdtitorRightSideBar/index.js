@@ -24,7 +24,7 @@ import ComponentServices from '../../../../../lib/services/components';
 
 import LayoutStyle from '../../Element/LayoutStyle';
 import { FontColorsOutlined, SettingOutlined } from '@ant-design/icons';
-
+import { pageSetting } from '../../../../../lib/element/elementNode';
 
 const { Sider } = Layout;
 const menuKeys = ['sub1', 'sub3', 'sub4', 'sub2', 'sub5', 'sub6', 'sub7', 'sub8'];
@@ -40,6 +40,7 @@ const iconMap = {
     sub7: <AiOutlineFontSize size="1.5em" />,
     sub8: <FontColorsOutlined size="1.5em" />
 };
+
 
 
 let globalStates = [
@@ -105,58 +106,8 @@ let globalStates = [
                 ]
             },
             // { type: 'array', label: "PAGES", value: "PAGES" },
-            {
-                label: "PAGE", value: "PAGE",
-                children: [
-                    {
-                        label: 'TITLE',
-                        value: 'title'
-                    },
-                    {
-                        label: 'DESCRIPTION',
-                        value: 'desc'
-                    },
-                    {
-                        label: 'CONTENT',
-                        value: 'content'
-                    },
-                    {
-                        label: 'Excerpt',
-                        value: 'excerpt'
-                    },
-                    {
-                        label: 'IMAGE',
-                        value: 'image'
-                    },
-                    {
-                        label: 'STATUS',
-                        value: 'status'
-                    },
-                    {
-                        label: 'Creator',
-                        value: 'creator'
-                    },
+           
 
-                    {
-                        label: 'Created At', value: 'createdAt',
-                        children: [
-                            { label: "YYYY-MM-DD", value: "YYYY-MM-DD" },
-                            { label: "MM/DD/YYYY", value: "MM/DD/YYYY" },
-                            { label: "DD/MM/YYYY", value: "DD/MM/YYYY" },
-                            { label: "YYYY/MM/DD", value: "YYYY/MM/DD" },
-                            { label: "Month D, YYYY", value: "MMMM D, YYYY" },
-                            { label: "D MMM, YYYY", value: "D MMM, YYYY" },
-                            { label: "MMMM DD, YYYY", value: "MMMM DD, YYYY" },
-                            { label: "DD MMM, YYYY", value: "DD MMM, YYYY" },
-
-                        ]
-                    },
-                    {
-                        label: 'URL',
-                        value: 'url'
-                    },
-                ]
-            },
             // {label: 'Query', value: 'query' },
         ]
     },
@@ -209,6 +160,7 @@ const EditorRightSideBar = ({ onClickElement,
             let panelStates = globalStates;
             for (const key in states) {
                 const stateItem = states[key];
+
                 panelStates = [...panelStates, ...stateItem.states]
             }
 
@@ -249,9 +201,9 @@ const EditorRightSideBar = ({ onClickElement,
                                 icon={iconMap[key]}
                                 key={key}
                                 title={key === 'sub1' ? 'Navigator' :
-                                  
-                                        key === 'sub3' ? 'Element' :
-                                            key === 'sub4' ? 'Content' :
+
+                                    key === 'sub3' ? 'Element' :
+                                        key === 'sub4' ? 'Content' :
                                             key === 'sub2' ? 'Component' :
                                                 key === 'sub5' ? 'Collection' :
                                                     key === 'sub6' ? 'Form' :
@@ -278,7 +230,7 @@ const EditorRightSideBar = ({ onClickElement,
                                                 key === 'sub2' ? (state.node && <Component onAdd={onAdd}
                                                     onChange={onChange}
                                                     onUpdate={onUpdate}
-                                                    state={state} 
+                                                    state={state}
                                                     cascaderStates={cascaderStates} />) :
                                                     key === 'sub5' ? (state.node && <Collection onChange={onChange}
                                                         state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />) :

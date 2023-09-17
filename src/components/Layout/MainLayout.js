@@ -1,35 +1,40 @@
-import { Alert, Layout, theme } from 'antd';
 
+// Import necessary components from antd library
+import React from 'react';
+import { Alert, Layout } from 'antd';
+
+// Destructure Content from Layout for easier usage
 const { Content } = Layout;
 
+// MainLayout is a functional component that takes children as props
+const MainLayout = ({ children }) => {
 
-const MainLayout = ({
-    children,
-}) => {
-
-
-    const {
-        token: { colorBgContainer },
-    } = theme.useToken();
+    // Use React's useMemo hook to optimize performance by memoizing the style object
+    // This ensures that the style object is not recalculated on every render, only when dependencies change
+    const contentStyle = React.useMemo(() => ({
+        display: 'flex',
+        width: '100%',
+        justifyContent: 'center',
+        minHeight: '100vh' // Ensures that the layout takes up at least the full height of the viewport
+    }), []);
 
     return (
-        <Layout style={{  minHeight: '100vh' }}>
-            <Content
-                style={{
-                    display: 'flex',
-                  
-                    width: '100%',
-                    justifyContent: 'center'
-                }}>
-                   <Alert type="warning"
-                            closable
-                            style={{ marginBottom: 10 }} message={<><strong>Note:</strong> Our app is currently in testing mode to ensure a top-notch experience.</>} />
+        <Layout style={contentStyle}>
+            <Content>
+                {/* Alert component to display important messages to the user */}
+                <Alert 
+                    type="warning"
+                    closable
+                    style={{ marginBottom: 10 }}
+                    message={<><strong>Note:</strong> Our app is currently undergoing testing to ensure an optimal user experience.</>} 
+                />
 
-                {children}</Content>
-
+                {/* Render children inside Content */}
+                {children}
+            </Content>
         </Layout>
-
     );
 };
 
+// Export MainLayout as default export
 export default MainLayout;

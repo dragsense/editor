@@ -8,101 +8,13 @@ import { InlineSkeleton } from './Elements'
 import { getData, storeData, getAllData } from "../../../../lib/db";
 import { formatDate } from "../../../../lib/utils";
 
-import { getStateValue, updateStateValue, generateCascaderCollStates, getStateRef, generateCascader } from '../../../../lib/element/elementNode';
+import { getStateValue, updateStateValue, pageSetting, generateCascadeRelationsStates, generateCascaderCollStates, getStateRef, generateCascader } from '../../../../lib/element/elementNode';
 import DocumentServices from '../../../../lib/services/documents'
 
 
 const generateCollectionStates = async (collection) => {
 
-    const defaultValues = [{ label: '_ID', value: '_id' },
-    { label: 'NAME', value: 'name' },
-    {
-        label: 'SLUG', value: 'slug',
-    },
-    {
-        label: 'CREATOR', value: 'creator',
-    },
-    {
-        label: 'URL', value: 'url',
-    },
-    {
-        label: 'Created At', value: 'createdAt',
-        children: [
-            { label: "YYYY-MM-DD", value: "YYYY-MM-DD" },
-            { label: "MM/DD/YYYY", value: "MM/DD/YYYY" },
-            { label: "DD/MM/YYYY", value: "DD/MM/YYYY" },
-            { label: "YYYY/MM/DD", value: "YYYY/MM/DD" },
-            { label: "Month D, YYYY", value: "MMMM D, YYYY" },
-            { label: "D MMM, YYYY", value: "D MMM, YYYY" },
-            { label: "MMMM DD, YYYY", value: "MMMM DD, YYYY" },
-            { label: "DD MMM, YYYY", value: "DD MMM, YYYY" },
-
-        ]
-    },
-    {
-        label: 'SETTING', value: 'SETTING',
-        children: [
-            {
-                label: 'TITLE', value: 'title',
-            },
-            {
-                label: 'DESC', value: 'desc',
-            },
-            {
-                label: 'EXCERPT', value: 'excerpt',
-            },
-            {
-                label: 'CONTENT', value: 'content',
-            },
-            {
-                label: 'IMAGE', value: 'image',
-            }
-        ]
-    }
-
-    ];
-
-    let tempStates = [];
-    let relStates = [];
-    if (collection.populatedRelationships) {
-        await Promise.all(collection.populatedRelationships.map(async (relation, idx) => {
-
-
-            const current = generateCascader(
-                relation.states || {},
-                relation.name.toUpperCase(), relation._id);
-            tempStates = [...tempStates, ...current];
-
-
-        }));
-
-
-
-
-        relStates = [
-            {
-                label: 'POPULATED', value: 'POPULATED',
-                children: [...defaultValues, ...tempStates]
-            },
-            {
-                type: 'array', label: 'RELATIONSHIPS', value: 'RELATIONSHIPS',
-                children: collection.populatedRelationships.map((rel, idx) => {
-                    return {
-                        label: rel.name.toUpperCase(),
-                        value: rel._id,
-                        type: 'relations'
-                    }
-                })
-            },
-            {
-                type: 'array', label: 'PAGES', value: 'PAGES',
-                children: [{ label: 'INDEX', value: 'index' }
-                ]
-            },
-        ];
-    }
-
-
+    const relStates = await generateCascadeRelationsStates(collection)
     const collStates = generateCascaderCollStates({
         docsLength: 0,
         loading: 0,
@@ -115,7 +27,7 @@ const generateCollectionStates = async (collection) => {
 
     if (collStates.length > 0) {
         collStates[0].children = [
-            ...defaultValues,
+            ...pageSetting,
             { type: 'array', label: 'DOCUMENTS', value: 'DOCUMENTS' },
             ...collStates[0].children, ...relStates, { label: 'PAGE', value: 'page' },
             { label: 'LIMIT', value: 'limit' }
@@ -187,7 +99,7 @@ const generateFormStates = (form) => {
 
 const Component = (props) => {
 
-    const { component, node, _states, _setStates, children, _id, onUpdateStates } = props;
+    const { component, node, _states, _setStates, setting, children, _id, onUpdateStates } = props;
 
     const [states, setStates] = useState({});
     const [events, setEvents] = useState({});
@@ -209,6 +121,7 @@ const Component = (props) => {
             if (_id) {
 
                 const node = await getAllData(_id);
+
                 if (node) {
                     if (node.attached) {
                         const collection = await getAllData(node.attached);
@@ -227,6 +140,28 @@ const Component = (props) => {
                                 result[rel._id] = rel.name;
                                 return result;
                             }, {});
+
+                            if (setting?.populatedRelationships) {
+
+
+                                if (!colStates.filters)
+                                    colStates.filters = {};
+
+                                for (let i = 0; i <= collection.populatedRelationships?.length; i++) {
+                                    const rel = collection.populatedRelationships[i];
+                                    if (rel) {
+                                        colStates.filters[`__related_${i}__`] = {
+                                            name: 'Related',
+                                            type: 'RELATIONSHIPS',
+
+                                            filterKey: [rel._id],
+                                            defaultValue: setting.populatedRelationships[rel._id] ? setting.populatedRelationships[rel._id].map(v => v._id) : []
+
+                                        }
+                                    }
+                                }
+
+                            }
 
                             const states = {
                                 ...node.collStates,
@@ -285,7 +220,7 @@ const Component = (props) => {
 
             }
         } catch (e) {
-            message.error(e?.message, "Something was wrong.")
+            message.error("Something was wrong." || e?.message)
         } finally {
             setLoading(false)
 
@@ -365,7 +300,6 @@ const Component = (props) => {
 
             if (Array.isArray(docs) && docs?.length > 0) {
                 const res = await DocumentServices.getFilteredDocuments(collectionId, { documentIds: docs.map(doc => doc._id), filters, selectedRelationships, withRelationship });
-                console.log(res)
 
                 documents = Array.isArray(res.documents) ? res.documents : [];
                 maxPage = res.total;

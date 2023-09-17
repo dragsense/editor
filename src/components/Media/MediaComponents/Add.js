@@ -1,70 +1,70 @@
 import { useState, useEffect, useCallback } from "react";
-import { Form, Modal, Input, message, Checkbox } from "antd";
+import { Form, Modal, Input, message } from "antd";
 
-
+// This is a subcomponent to display media details.
+const MediaDetails = ({ media }) => (
+  <>
+    <p>File Size: <strong>{media?.size} Bytes </strong></p>
+    {media?.dimensions && (
+      <p>
+        Dimensions: <strong>{media.dimensions?.width} x {media.dimensions?.height}</strong>
+      </p>
+    )}
+  </>
+);
 
 export default function AddMedia({ media, onSubmit }) {
-
+    // State to handle the visibility of the modal.
     const [mediaModal, setMediaModalOpen] = useState(false);
     const [form] = Form.useForm();
 
-
+    // Whenever `media` prop changes, set form values and open the modal.
     useEffect(() => {
-
-        if (!media) {
-            return;
+        if (media) {
+            form.setFieldsValue(media);
+            setMediaModalOpen(true);
         }
+    }, [media, form]);
 
-        form.setFieldsValue(media);
-        setMediaModalOpen(true);
+    // Close modal handler
+    const onCancel = useCallback(() => {
+        setMediaModalOpen(false);
+    }, []);
 
-    }, [media]);
+    // Submit form handler
+    const onFormSubmit = useCallback(async () => {
+        try {
+            const values = await form.validateFields();
+            const isSuccess = await onSubmit(values);
+            if (isSuccess) {
+                form.resetFields();
+                setMediaModalOpen(false);
+            } else {
+                setMediaModalOpen(true);
+                message.error('Error while submitting.');
+            }
+        } catch (error) {
+            setMediaModalOpen(true);
+            message.error('Validation failed.');
+        }
+    }, [form, onSubmit]);
 
-
-    const onCancel = () => setMediaModalOpen(false);
-
-    return <>
+    return (
+      <>
         <Modal
-            open={mediaModal}
+            visible={mediaModal}
             title="Edit Media"
             okText="Save"
             cancelText="Cancel"
             onCancel={onCancel}
-            onOk={() => {
-                setMediaModalOpen(false);
-
-                form
-                    .validateFields()
-                    .then(async (values) => {
-
-                        if (await onSubmit({...values }))
-                            form.resetFields();
-                        else
-                            setMediaModalOpen(true);
-
-                    })
-                    .catch((info) => {
-                        setMediaModalOpen(true);
-
-                        message.error('Validate Failed.');
-
-                    });
-            }}
+            onOk={onFormSubmit}
         >
-            <Form form={form}
-                layout="vertical"
-                initialValues={{}} >
-
-                <p>File Size: <strong>{media?.size} Bytes </strong></p>
-                {media?.dimensions && (
-                    <p>
-                        Dimensions: <strong>{media.dimensions?.width} x {media.dimensions?.height}</strong>
-                    </p>
-                )}
-
-                <Form.Item label="Media Name"
+            <Form form={form} layout="vertical">
+                <MediaDetails media={media} />
+                
+                <Form.Item 
+                    label="Media Name"
                     name="name"
-
                     rules={[
                         {
                             required: true,
@@ -75,23 +75,15 @@ export default function AddMedia({ media, onSubmit }) {
                             message: 'Name must be at least 2 characters long',
                         }
                     ]}
-
-                    className="font-500">
-                    <Input placeholder="Name" name="name"
-                        required />
+                >
+                    <Input placeholder="Name" required />
                 </Form.Item>
 
-                <Form.Item label="Media Alt" name="alt" className="font-500">
-                    <Input placeholder="alt text" name="alt"
-                        required />
+                <Form.Item label="Media Alt" name="alt">
+                    <Input placeholder="Alt text" required />
                 </Form.Item>
-
             </Form>
         </Modal>
-    </>
-
-
-
-
+      </>
+    );
 };
-

@@ -12,182 +12,11 @@ import { getStateValue, updateStateValue, generateCascaderCollStates, getStateRe
 import DocumentServices from '../../../../lib/services/documents'
 
 
-const generateCollectionStates = async (collection) => {
 
-    const defaultValues = [{ label: '_ID', value: '_id' },
-    { label: 'NAME', value: 'name' },
-    {
-        label: 'SLUG', value: 'slug',
-    },
-    {
-        label: 'CREATOR', value: 'creator',
-    },
-    {
-        label: 'URL', value: 'url',
-    },
-    {
-        label: 'Created At', value: 'createdAt',
-        children: [
-            { label: "YYYY-MM-DD", value: "YYYY-MM-DD" },
-            { label: "MM/DD/YYYY", value: "MM/DD/YYYY" },
-            { label: "DD/MM/YYYY", value: "DD/MM/YYYY" },
-            { label: "YYYY/MM/DD", value: "YYYY/MM/DD" },
-            { label: "Month D, YYYY", value: "MMMM D, YYYY" },
-            { label: "D MMM, YYYY", value: "D MMM, YYYY" },
-            { label: "MMMM DD, YYYY", value: "MMMM DD, YYYY" },
-            { label: "DD MMM, YYYY", value: "DD MMM, YYYY" },
-
-        ]
-    },
-    {
-        label: 'SETTING', value: 'SETTING',
-        children: [
-            {
-                label: 'TITLE', value: 'title',
-            },
-            {
-                label: 'DESC', value: 'desc',
-            },
-            {
-                label: 'EXCERPT', value: 'excerpt',
-            },
-            {
-                label: 'CONTENT', value: 'content',
-            },
-            {
-                label: 'IMAGE', value: 'image',
-            }
-        ]
-    }
-
-    ];
-
-    let tempStates = [];
-    let relStates = [];
-    if (collection.populatedRelationships) {
-        await Promise.all(collection.populatedRelationships.map(async (relation, idx) => {
-
-
-            const current = generateCascader(
-                relation.states || {},
-                relation.name.toUpperCase(), relation._id);
-            tempStates = [...tempStates, ...current];
-
-
-        }));
-
-
-
-
-        relStates = [
-            {
-                label: 'POPULATED', value: 'POPULATED',
-                children: [...defaultValues, ...tempStates]
-            },
-            {
-                type: 'array', label: 'RELATIONSHIPS', value: 'RELATIONSHIPS',
-                children: collection.populatedRelationships.map((rel, idx) => {
-                    return {
-                        label: rel.name.toUpperCase(),
-                        value: rel._id,
-                        type: 'relations'
-                    }
-                })
-            },
-            {
-                type: 'array', label: 'PAGES', value: 'PAGES',
-                children: [{ label: 'INDEX', value: 'index' }
-                ]
-            },
-        ];
-    }
-
-
-    const collStates = generateCascaderCollStates({
-        docsLength: 0,
-        loading: 0,
-        error: 0,
-        maxPage: 0,
-        states: collection.states || {},
-    }, "COLLECTION", "COLSTATES")
-
-
-
-    if (collStates.length > 0) {
-        collStates[0].children = [
-            ...defaultValues,
-            { type: 'array', label: 'DOCUMENTS', value: 'DOCUMENTS' },
-            ...collStates[0].children, ...relStates, { label: 'PAGE', value: 'page' },
-            { label: 'LIMIT', value: 'limit' }
-        ]
-    }
-    return collStates;
-
-
-}
-
-const generateFormStates = (form) => {
-
-    let tempStates = [];
-    Object.values(form.states).map(async (state, idx) => {
-
-        const current = {
-            type: state.type, label: state.key.toUpperCase(), value: state.key,
-            children: [
-                {
-                    label: "KEY", value: 'key',
-                },
-                {
-                    label: 'VALUE', value: 'defaultValue',
-                },
-                {
-                    label: 'ERRORMSG', value: 'errorMessage',
-                },
-                {
-                    label: 'ERROR', value: 'error',
-                },
-            ]
-        }
-        tempStates = [...tempStates, current];
-
-    });
-
-    const current = {
-        label: 'SETTING', value: '__setting__',
-        children: [
-            {
-                label: "LOADING", value: 'loading',
-            },
-            {
-                label: 'SUCCESSMSG', value: 'successMessage',
-            },
-            {
-                label: "SUCCESS", value: 'success',
-            },
-            {
-                label: 'ERRORMSG', value: 'errorMessage',
-            },
-            {
-                label: 'ERROR', value: 'error',
-            },
-        ]
-    }
-    tempStates = [...tempStates, current];
-
-    const formStates = [{
-        type: 'array', label: 'FORM', value: 'FORMSTATES',
-        children: [
-
-            ...tempStates]
-    }]
-
-    return formStates;
-
-}
 
 const Component = (props) => {
 
-    const { component, node, _states, _setStates, children, _id } = props;
+    const { component, node, _states, setting, _setStates, children, _id } = props;
 
     const [states, setStates] = useState({});
     const [events, setEvents] = useState({});
@@ -215,11 +44,33 @@ const Component = (props) => {
                             node.collStates = {}
 
                         if (collection) {
-                         
+
                             const relationships = collection.populatedRelationships.reduce((result, rel) => {
                                 result[rel._id] = rel.name;
                                 return result;
                             }, {});
+
+                            if (setting?.populatedRelationships) {
+
+
+                                if (!node.collStates.filters)
+                                    node.collStates.filters = {};
+
+                                for (let i = 0; i <= collection.populatedRelationships?.length; i++) {
+                                    const rel = collection.populatedRelationships[i];
+                                    if (rel) {
+                                        node.collStates.filters[`__related_${i}__`] = {
+                                            name: 'Related',
+                                            type: 'RELATIONSHIPS',
+
+                                            filterKey: [rel._id],
+                                            defaultValue: setting.populatedRelationships[rel._id] ? setting.populatedRelationships[rel._id].map(v => v._id) : []
+
+                                        }
+                                    }
+                                }
+
+                            }
 
                             const states = {
                                 ...node.collStates,
@@ -252,7 +103,7 @@ const Component = (props) => {
                             }
                         } : {})
                     });
-              
+
                 }
 
 
@@ -465,29 +316,29 @@ const Component = (props) => {
 
     useEffect(() => {
         if (!events) return;
-      
+
         const iframe = document.querySelector("#ac-editor-iframe-doc");
-      
+
         const handleScroll = (e) => {
-          e.preventDefault();
-          for (const key in events) {
-            onScroll(events[key], iframe.contentWindow);
-          }
+            e.preventDefault();
+            for (const key in events) {
+                onScroll(events[key], iframe.contentWindow);
+            }
         };
-      
+
         if (iframe) {
-          const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-          iframeDocument.addEventListener('scroll', handleScroll);
-        }
-      
-        return () => {
-          const iframe = document.querySelector("#ac-editor-iframe-doc");
-          if (iframe) {
             const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-            iframeDocument.removeEventListener('scroll', handleScroll);
-          }
+            iframeDocument.addEventListener('scroll', handleScroll);
+        }
+
+        return () => {
+            const iframe = document.querySelector("#ac-editor-iframe-doc");
+            if (iframe) {
+                const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+                iframeDocument.removeEventListener('scroll', handleScroll);
+            }
         };
-      }, [events]);
+    }, [events]);
 
 
 
@@ -593,7 +444,7 @@ const Component = (props) => {
 
     }, [states, colStates, _states])
 
- 
+
     const onChange = useCallback(async (values, node, all = false) => {
 
         //const node = await getData(_id, id);
@@ -686,35 +537,35 @@ const Component = (props) => {
 
     const onSubmit = useCallback((states) => {
         setStates({ ...states });
-    }, [states])  
+    }, [states])
 
 
     return <> {loading ?
-            <InlineSkeleton />
-            :
-            <ElementMapping {...props} map={node.map}
-                _states={states}
-                _props={_states}
-                disabled={component.disabled}>
+        <InlineSkeleton />
+        :
+        <ElementMapping {...props} map={node.map}
+            _states={states}
+            _props={_states}
+            disabled={component.disabled}>
 
-                {React.Children.map(children, (child, index) => {
-                    return child && React.cloneElement(child, {
-                        key: child.props?._uid,
-                        fun: {
-                            onChange,
-                            onClick,
-                            onSubmit
-                        },
-                        disabled: component.disabled,
-                        _id: component._id,
-                        _states: states,
-                        _props: _states,
-                        onSetStates: onSetStates,
-                        _setStates: setStates,
-                        colStates: colStates
-                    })
-                })}
-            </ElementMapping>}
+            {React.Children.map(children, (child, index) => {
+                return child && React.cloneElement(child, {
+                    key: child.props?._uid,
+                    fun: {
+                        onChange,
+                        onClick,
+                        onSubmit
+                    },
+                    disabled: component.disabled,
+                    _id: component._id,
+                    _states: states,
+                    _props: _states,
+                    onSetStates: onSetStates,
+                    _setStates: setStates,
+                    colStates: colStates
+                })
+            })}
+        </ElementMapping>}
     </>
 
 
