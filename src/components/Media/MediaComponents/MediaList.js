@@ -4,138 +4,48 @@ import { FixedSizeList } from 'react-window';
 import Video from "../Video";
 import Audio from '../Audio'
 
+// Destructuring for cleaner code
 const { Meta } = Card;
 const { confirm } = Modal;
+
+// Constant for number of columns
 const COLS = 4;
 
+// MediaList component
 const MediaList = ({ media, type, onEdit, onDelete, onSelect, srcs }) => {
-    const {
-        token: { colorPrimary },
-    } = theme.useToken();
+    // Extract colorPrimary from theme
+    const { token: { colorPrimary } } = theme.useToken();
 
+    // List component for rendering media items
     const List = ({ index, style }) => {
+        // Calculate column index
         const colIndex = index * (COLS);
+        // Initialize items array
         const items = [];
 
-        items.push(media[colIndex] && media[colIndex]);
+        // Push media items into the array
+        for(let i = 0; i < COLS; i++) {
+            if(media[colIndex + i]) {
+                items.push(media[colIndex + i]);
+            }
+        }
 
-        if (media[colIndex + 1])
-            items.push(media[colIndex + 1]);
-        if (media[colIndex + 2])
-            items.push(media[colIndex + 2]);
-        if (media[colIndex + 3])
-            items.push(media[colIndex + 3]);
-
+        // Render media items
         return (
             <div style={{ ...style, width: '99.5%' }}>
                 <Row gutter={16}>
                     {items.map(item => {
+                        // Check if the item is selected
                         const isSelected = srcs.some(s => (s?._id == item._id || s?.src == item.src));
                         return (
-                            <Col key={item._id} span={6} style={{ marginBottom: 16 }}>
-                                <Badge.Ribbon text={isSelected ? 'Selected' : ''} color={isSelected ? 'green' : 'none'}>
-                                    <Card
-                                        className="actions-item-card"
-                                        style={{  height: 300 }}
-
-                                        cover={
-                                            item.type === 'images' ? (
-                                                <Image
-                                                    onClick={() => {
-                                                        if (onSelect) onSelect(item);
-                                                    }}
-                                                    style={{ width: '100%', height: '200px', objectFit: 'cover', objectPosition: 'center' }}
-                                                    preview={true}
-                                                    src={item.src}
-                                                    fallback="/images/default/default-img.png"
-                                                />
-                                            ) : item.type === 'videos' ? (
-                                                <Video src={item.src} alt={item.alt} mimetype={item.mimetype} />
-                                            ) : item.type === 'audios' ? (
-                                                <Audio src={item.src} alt={item.alt} />
-                                            ) : (
-                                                <a href={item.src} target="_blank" rel="noopener noreferrer">
-                                                    <FileOutlined style={{ fontSize: 48 }} />
-                                                </a>
-                                            )
-                                        }
-                                        actions={[
-                                            <Tooltip title="Download">
-                                                <DownloadOutlined
-                                                    className="ac-icon2"
-                                                    size="2em"
-                                                    key="download"
-                                                    style={{ fontSize: 20 }}
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        const downloadLink = document.createElement('a');
-                                                        downloadLink.href = item.src;
-                                                        downloadLink.target = '_blank';
-                                                        downloadLink.download = true;
-                                                        downloadLink.click();
-                                                    }}
-                                                />
-                                            </Tooltip>,
-                                            <Tooltip title="Edit">
-                                                <EditOutlined
-                                                    className="ac-icon2"
-                                                    size="2em"
-                                                    key="delete"
-                                                    style={{ fontSize: 20 }}
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        onEdit({ ...item });
-                                                    }}
-                                                />
-                                            </Tooltip>,
-                                            <Tooltip title="Delete">
-                                                <DeleteOutlined
-                                                    className="ac-icon2"
-                                                    size="2em"
-                                                    key="delete"
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        confirm({
-                                                            title: 'Are you sure to delete this item?',
-                                                            icon: <ExclamationCircleFilled />,
-                                                            okText: 'Yes',
-                                                            okType: 'danger',
-                                                            cancelText: 'No',
-                                                            onOk() {
-                                                                onDelete(item._id);
-                                                            },
-                                                            onCancel() { },
-                                                        });
-                                                    }}
-                                                />
-                                            </Tooltip>,
-                                        ]}
-                                        hoverable
-                                    >
-                                        <Meta
-                                            title={
-                                                <Button
-                                                    style={isSelected ? { color: colorPrimary, borderColor: colorPrimary } : {}}
-                                                    onClick={() => {
-                                                        if (onSelect) onSelect(item);
-                                                    }}
-                                                >
-                                                    {item.name}
-                                                </Button>
-                                            }
-                                            description={
-                                                <>
-                                                    {item.dimensions && (
-                                                        <p>
-                                                            Dimensions: {item.dimensions.width} x {item.dimensions.height}
-                                                        </p>
-                                                    )}
-                                                </>
-                                            }
-                                        />
-                                    </Card>
-                                </Badge.Ribbon>
-                            </Col>
+                            <MediaItem 
+                                item={item} 
+                                isSelected={isSelected} 
+                                colorPrimary={colorPrimary} 
+                                onEdit={onEdit} 
+                                onDelete={onDelete} 
+                                onSelect={onSelect} 
+                            />
                         );
                     })}
                 </Row>
@@ -143,6 +53,7 @@ const MediaList = ({ media, type, onEdit, onDelete, onSelect, srcs }) => {
         );
     };
 
+    // Render FixedSizeList with List component
     return (
         <FixedSizeList
             style={{ overflow: 'hidden auto' }}
@@ -153,6 +64,99 @@ const MediaList = ({ media, type, onEdit, onDelete, onSelect, srcs }) => {
         >
             {List}
         </FixedSizeList>
+    );
+};
+
+// MediaItem sub-component
+const MediaItem = ({ item, isSelected, colorPrimary, onEdit, onDelete, onSelect }) => {
+    // Render different types of media
+    const renderMedia = () => {
+        switch(item.type) {
+            case 'images':
+                return <Image onClick={() => onSelect(item)} style={{ width: '100%', height: '200px', objectFit: 'cover', objectPosition: 'center' }} preview={true} src={item.src} fallback="/images/default/default-img.png" />;
+            case 'videos':
+                return <Video src={item.src} alt={item.alt} mimetype={item.mimetype} />;
+            case 'audios':
+                return <Audio src={item.src} alt={item.alt} />;
+            default:
+                return <a href={item.src} target="_blank" rel="noopener noreferrer"><FileOutlined style={{ fontSize: 48 }} /></a>;
+        }
+    };
+
+    // Render actions for media item
+    const renderActions = () => {
+        return [
+            <Tooltip title="Download">
+                <DownloadOutlined className="ac-icon2" size="2em" key="download" style={{ fontSize: 20 }} onClick={(e) => downloadItem(e, item.src)} />
+            </Tooltip>,
+            <Tooltip title="Edit">
+                <EditOutlined className="ac-icon2" size="2em" key="edit" style={{ fontSize: 20 }} onClick={(e) => { e.preventDefault(); onEdit({ ...item }); }} />
+            </Tooltip>,
+            <Tooltip title="Delete">
+                <DeleteOutlined className="ac-icon2" size="2em" key="delete" style={{ fontSize: 20 }} onClick={(e) => deleteItem(e, item._id)} />
+            </Tooltip>,
+        ];
+    };
+
+    // Function to download item
+    const downloadItem = (e, src) => {
+        e.preventDefault();
+        const downloadLink = document.createElement('a');
+        downloadLink.href = src;
+        downloadLink.target = '_blank';
+        downloadLink.download = true;
+        downloadLink.click();
+    };
+
+    // Function to delete item
+    const deleteItem = (e, id) => {
+        e.preventDefault();
+        confirm({
+            title: 'Are you sure to delete this item?',
+            icon: <ExclamationCircleFilled />,
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk() {
+                onDelete(id);
+            },
+            onCancel() { },
+        });
+    };
+
+    // Render MediaItem
+    return (
+        <Col key={item._id} span={6} style={{ marginBottom: 16 }}>
+            <Badge.Ribbon text={isSelected ? 'Selected' : ''} color={isSelected ? 'green' : 'none'}>
+                <Card
+                    className="actions-item-card"
+                    style={{  height: 300 }}
+                    cover={renderMedia()}
+                    actions={renderActions()}
+                    hoverable
+                >
+                    <Meta
+                        title={
+                            <Button
+                                style={isSelected ? { color: colorPrimary, borderColor: colorPrimary } : {}}
+                                onClick={() => onSelect(item)}
+                            >
+                                {item.name}
+                            </Button>
+                        }
+                        description={
+                            <>
+                                {item.dimensions && (
+                                    <p>
+                                        Dimensions: {item.dimensions.width} x {item.dimensions.height}
+                                    </p>
+                                )}
+                            </>
+                        }
+                    />
+                </Card>
+            </Badge.Ribbon>
+        </Col>
     );
 };
 

@@ -5,14 +5,10 @@ import { MdDragIndicator } from "react-icons/md";
 
 const { confirm } = Modal;
 
-
-
 const ElementList = ({
     onDelete,
     state,
 }) => {
-
-
 
     return <List
         itemLayout={"horizontal"}
@@ -62,12 +58,7 @@ const ElementList = ({
 
                         }} />
                     </>
-
-
-
                 ]}
-
-
             >
                 <Skeleton loading={false}>
                     <List.Item.Meta
@@ -77,7 +68,6 @@ const ElementList = ({
             </List.Item>
         )}
     />
-
 
 };
 

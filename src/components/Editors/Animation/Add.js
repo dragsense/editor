@@ -1,11 +1,6 @@
-
-
-
 import { ExclamationCircleFilled } from '@ant-design/icons';
-
 import { RiDeleteBin2Line } from 'react-icons/ri';
-
-import React, { useState, useEffect, useMemo, useReducer } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Modal, Divider, Alert, Select, Button, Typography, theme, Tooltip } from "antd";
 import Fuse from "fuse.js";
 import { getAllData, getAllKeys, STYLE_STORE_NAME, updateData } from '../../../lib/db';
@@ -15,6 +10,7 @@ const { Option } = Select;
 const { Text } = Typography;
 const { confirm } = Modal;
 
+// Fuse options for search
 const fuseOptions = {
     tokenize: true,
     matchAllTokens: true,
@@ -23,43 +19,34 @@ const fuseOptions = {
     key: ['type']
 };
 
-
-
+// Main component
 export default function Animations({ onEdit, animation, onChange, state, onDelete }) {
 
     const [searchTerm, setSearchTerm] = useState("");
     const [validationResult, setValidationResult] = useState(null);
-
     const [animations, setAnimations] = useState([]);
 
     const {
         token: { colorError },
     } = theme.useToken();
 
+    // Search logic using Fuse
     const search = useMemo(() => {
         const fuse = new Fuse(animations, fuseOptions);
         const results = fuse.search(searchTerm);
         return results;
-    }, [animations]);
+    }, [animations, searchTerm]);
 
-
+    // Fetch data on component mount and when state changes
     useEffect(() => {
-
         if (!state.page?._id)
             return;
 
-
         const fetchData = async () => {
-
-
-
             const res = await getAllData(state.page._id, STYLE_STORE_NAME);
-
             const data = res?.elements ? res.elements : {};
             const elements = Object.values(data);
-
             setAnimations(elements)
-
         }
 
         fetchData();
@@ -69,25 +56,20 @@ export default function Animations({ onEdit, animation, onChange, state, onDelet
 
     }, [state.page, state.animationDeleted]);
 
-
-    function handleSelectOption(value) {
-
+    // Handle selection of option
+    const handleSelectOption = useCallback((value) => {
         if(!value) {
+            return;
         }
 
         const animation = animations.find(sel => sel._uid === value)
-
-
         onEdit(animation);
         setSearchTerm("");
+    }, [animations, onEdit]);
 
-    }
-
-    const handleAddNew = async () => {
-
-
+    // Handle addition of new animation
+    const handleAddNew = useCallback(async () => {
         const id = nanoid(8);
-
         const animation = {
             _uid: id,
             name: searchTerm,
@@ -101,42 +83,36 @@ export default function Animations({ onEdit, animation, onChange, state, onDelet
         }
 
         onEdit(animation);
-
         await updateData(state.page._id, animation, STYLE_STORE_NAME);
-        setAnimations([...animations, animation])
+        setAnimations(prevAnimations => [...prevAnimations, animation])
         onChange();
         setSearchTerm("");
+    }, [searchTerm, state.page._id, onEdit, onChange]);
 
-    };
-
-
-    function handleSearchInput(value) {
-
+    // Handle search input and validation
+    const handleSearchInput = useCallback((value) => {
         if (value && !validateSearchInput(value)) {
             return;
         }
 
         setSearchTerm(value);
         setValidationResult('');
+    }, []);
 
-    }
-
-    const validateSearchInput = (inputValue, option) => {
+    // Validate search input
+    const validateSearchInput = useCallback((inputValue, option) => {
         const regex = /^[a-zA-Z_-]+$/;
         const isValid = regex.test(inputValue);
         setValidationResult(isValid ? 'valid' : 'invalid');
         return isValid;
-    };
+    }, []);
 
-    const onClose = () => {
+    // Close validation result
+    const onClose = useCallback(() => {
         setValidationResult('')
-    };
-
-
-
+    }, []);
 
     return <>
-
         <Select
             style={{
                 width: '100%', marginRight: 10
@@ -147,40 +123,29 @@ export default function Animations({ onEdit, animation, onChange, state, onDelet
             placeholder="Please Select Animation"
             onSearch={handleSearchInput}
             onChange={handleSelectOption}
-
-
             dropdownRender={menu => (<>
-
-
                 {search.length === 0 &&
                     validationResult === 'invalid' ? (<>
                         <Alert style={{ margin: '5px 0' }} type="error" onClose={onClose} closable message={`Please enter a valid name (e.g my-snimstion).`}>
-
                         </Alert>
                         <Divider style={{ margin: '4px 0' }} />
                     </>) :
                     searchTerm !== '' && <div>
-                        <Button onClick={handleAddNew}>
+                        <Button onClick={handleAddNew} disabled={!searchTerm}>
                             Add new: {searchTerm}
                         </Button>
                         <Divider style={{ margin: '4px 0' }} />
                     </div>
                 }
-
                 {menu}
-
-
             </>)}
-
         >
-                <Option>None</Option>
+            <Option>None</Option>
             {animations.map(animation => <Option key={animation._uid} 
             value={animation._uid} label={animation.name}>
                 {animation.name}
             </Option>)}
         </Select>
-
-
         <Tooltip placement="top" title="Delete Animation">
             <Button
                 size='small'
@@ -188,11 +153,9 @@ export default function Animations({ onEdit, animation, onChange, state, onDelet
                 icon={<RiDeleteBin2Line style={{ color: colorError }} />}
                 onClick={(e) => {
                     e.preventDefault();
-
                     confirm({
                         title: 'Are you sure to delete this aniamtion?',
                         content: "This action can't be undo.",
-
                         icon: <ExclamationCircleFilled />,
                         okText: 'Yes',
                         okType: 'danger',
@@ -201,16 +164,11 @@ export default function Animations({ onEdit, animation, onChange, state, onDelet
                             onDelete(animation);
                         },
                         onCancel() {
-
                         },
                     });
                 }}
+                disabled={!animation}
             > </Button>
         </Tooltip>
-
-
-
     </>
-
 }
-

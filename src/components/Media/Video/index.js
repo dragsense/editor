@@ -3,7 +3,6 @@ import React from 'react';
 const Video = ({ src, alt, mimetype }) =>  {
 return <div style={{ position: 'relative', padding: '56.25% 0 0 0', height: 0 }}>
     <video
-      
       alt={alt}
       style={{
         position: 'absolute',

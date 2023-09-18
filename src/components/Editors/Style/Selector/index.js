@@ -1,20 +1,16 @@
-
-
-
-import React, { useState, useEffect, useCallback, useMemo, useReducer } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Modal, Divider, Alert, Select, Button, Typography } from "antd";
 import Fuse from "fuse.js";
 import { debounce } from '../../../../lib/utils';
-
-
 import { STYLE_STORE_NAME, getAllData, getData, searchSelector, updateData } from '../../../..//lib/db';
 import { nanoid } from "nanoid";
 
-
+// Antd components
 const { Option } = Select;
 const { Text } = Typography;
 const { confirm } = Modal;
 
+// Fuse.js options for fuzzy search
 const fuseOptions = {
     tokenize: true,
     matchAllTokens: true,
@@ -23,109 +19,84 @@ const fuseOptions = {
     key: ['selectorText']
 };
 
-
-
+// Main component
 function SearchableSelector({ state, onSelect, animation = false }) {
 
+    // State variables
     const [searchTerm, setSearchTerm] = useState("");
     const [validationResult, setValidationResult] = useState(null);
     const [selectors, setSelectors] = useState([]);
 
     const selector = state.selector;
 
+    // Memoized search function
     const search = useMemo(() => {
         const fuse = new Fuse(selectors, fuseOptions);
         const results = fuse.search(searchTerm);
         return results;
     }, [selectors]);
 
+    // Fetch data from the database
     const fetchData = async () => {
         const res = await getAllData(state.page._id, STYLE_STORE_NAME);
-
         const data = res?.elements ? res.elements : {};
-
         const filteredElements = Object.values(data)
             .filter((element) => element.type === state.elementType);
-
         setSelectors(filteredElements)
     }
 
-
-    const fetchAniamtionsData = async () => {
-
-
+    // Fetch animation data from the database
+    const fetchAnimationsData = async () => {
         const res = await getData(state.page._id, animation._uid, 'id', STYLE_STORE_NAME);
-
         const data = res?.style ? res.style : {};
-
         setSelectors(Object.values(data))
     }
 
-
+    // Use effect to fetch data on component mount and update
     useEffect(() => {
-
         if (!state.page)
             return;
-
-    
         if (animation)
-            fetchAniamtionsData();
+            fetchAnimationsData();
         else
             fetchData();
         return () => {
             setSelectors([])
         }
-
     }, [state.elementType, state.page, state.selectorDeleted, animation]);
 
+    // Use effect to handle selector deletion
     useEffect(() => {
-
         if (!state.selectorDeleted)
             return;
-
         const filterSelectors = selectors.filter(sel => sel._uid !== state.selectorDeleted)
         setSelectors(filterSelectors)
-
-
     }, [state.selectorDeleted]);
 
+    // Handle selection of an option
     function handleSelectOption(value) {
-
         const selector = selectors.find(sel => sel._uid === value)
-
-        console.log(selectors)
         if (!selector)
             return;
-
-            let selected = {};
-
+        let selected = {};
         if (animation) {
-
             if (!selector.style)
                 selector.style = {}
-
             if (!selector.style[selector.selectorText])
                 selector.style[selector.selectorText] = {}
-
             const properties = selector.style[selector.selectorText].properties || {};
-
             selected = {
                 store: STYLE_STORE_NAME,
                 properties,
                 selectorText: selector.selectorText
             }
-
         } else {
             const key = state.media || 'normal';
-
             if (!selector.style[key])
                 selector.style[key] = {}
-
             if (!selector.style[key]["root"])
                 selector.style[key]["root"] = {}
-
             const properties = selector.style[key]["root"].properties || {};
-
             selected = {
                 _uid: selector._uid,
                 store: STYLE_STORE_NAME,
@@ -133,57 +104,42 @@ function SearchableSelector({ state, onSelect, animation = false }) {
                 selectorText: selector.selectorText
             }
         }
-
         if (selector)
             onSelect(selected);
         else
             onSelect(null);
-
         setSearchTerm("");
-
     }
 
+    // Handle addition of a new selector
     const handleAddNew = async () => {
-
         try {
-
-
             const selectorText = searchTerm.trim();
             const id = nanoid(8);
-
-
             if (animation) {
                 if (!animation.style)
                     animation.style = {}
-
                 animation.style[selectorText] = {
                     selectorText,
                     _uid: id,
-
                     type: state.elementType,
                     properties: {
                     }
                 }
-
-
                 await updateData(state.page._id, animation, STYLE_STORE_NAME)
-
                 await onSelect({
                     selectorText,
                     _uid: id,
                     properties: {},
                 });
-
                 setSelectors([...selectors, {
                     selectorText,
                     _uid: id,
                     properties: {}
                 }])
-
             }
             else {
                 const id = nanoid(8);
-
                 const style = {
                     _uid: id,
                     selectorText,
@@ -191,27 +147,21 @@ function SearchableSelector({ state, onSelect, animation = false }) {
                     style: {
                     }
                 }
-
                 await onSelect({
                     selectorText,
                     _uid: id,
                     properties: {},
                 });
-
                 await updateData(state.page._id, style, STYLE_STORE_NAME)
                 setSelectors([...selectors, style])
             }
             setSearchTerm("");
-
-
-
         } catch (e) {
         } finally {
         }
-
-
     };
 
+    // Handle search input with debounce
     const handleSearchInput = useCallback(
         debounce(async (value) => {
             if (value && !validateSearchInput(value)) {
@@ -223,8 +173,7 @@ function SearchableSelector({ state, onSelect, animation = false }) {
         []
     );
 
-
-
+    // Validate search input
     const validateSearchInput = (inputValue, option) => {
         const regex = animation ? /^(100|[1-9][0-9]?|0)%|from|to$/ : /^(?:[^ ]* ?[^ ]*)?$/;
         const isValid = regex.test(inputValue);
@@ -232,13 +181,13 @@ function SearchableSelector({ state, onSelect, animation = false }) {
         return isValid;
     };
 
+    // Handle closing of validation result
     const onClose = () => {
         setValidationResult('')
     };
 
-
+    // Render component
     return (<>
-
         <Select
             style={{
                 width: '100%',
@@ -249,15 +198,11 @@ function SearchableSelector({ state, onSelect, animation = false }) {
             placeholder="Please Select Selector"
             onSearch={handleSearchInput}
             onChange={handleSelectOption}
-
             optionFilterProp="label"
             dropdownRender={menu => (<>
-
-
                 {search.length === 0 &&
                     validationResult === 'invalid' ? (<>
                         <Alert style={{ margin: '5px 0' }} type="error" onClose={onClose} closable message={`Please enter a valid CSS selector name ${animation ? '(e.g. to, from OR 0% - 100%)' : '(e.g. .my-class)'}.`}>
-
                         </Alert>
                         <Divider style={{ margin: '4px 0' }} />
                     </>) :
@@ -268,24 +213,15 @@ function SearchableSelector({ state, onSelect, animation = false }) {
                         <Divider style={{ margin: '4px 0' }} />
                     </div>
                 }
-
                 {menu}
-
-
             </>)}
-
         >
-
             {selectors.map((value, index) => <Option 
             key={index}
             value={value._uid} label={value.selectorText}>
                 {value.selectorText}
             </Option>)}
         </Select>
-
-
-
-
     </>
     );
 }

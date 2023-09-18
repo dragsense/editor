@@ -1,10 +1,9 @@
-import { Form, Space, Input, Button, message, Cascader, Select, } from "antd";
-import { useState, useReducer, useEffect } from "react";
-import { debounce, throttle } from '../../../../../../../lib/utils';
-
-
+import { Form, Input, Button, message, Cascader, Select } from "antd";
+import { useState, useReducer, useEffect, useCallback } from "react";
+import { debounce } from '../../../../../../../lib/utils';
 import DocumentServices from "../../../../../../../lib/services/documents";
 
+// Initial state for the reducer
 const initial = {
     documents: [],
     loading: false
@@ -12,15 +11,13 @@ const initial = {
 
 const { Option } = Select;
 
+// Reducer function to manage state
 const reducer = (state, action) => {
-
-
     switch (action.type) {
         case "start":
             return { ...state, loading: true }
-
         case "documents":
-            return { ...state, documents: action.data, }
+            return { ...state, documents: action.data }
         case "finish":
             return { ...state, loading: false }
         default:
@@ -37,134 +34,94 @@ export default function AddFilter({
     relationships,
     withRelationship = false }) {
 
-
     const [newFilter, setNewFilter] = useState(current);
-    const [documentSeacrh, setDocumentSeacrh] = useState('');
+    const [documentSearch, setDocumentSearch] = useState('');
     const [states, dispatch] = useReducer(reducer, initial);
 
-
-    const loadDocuments = async () => {
+    // Function to load documents
+    const loadDocuments = useCallback(async () => {
+        dispatch({ type: 'start' });
         try {
-
-            dispatch({ type: 'start' });
-
-
-            const promises = relationships.map(relationship => {
-                return DocumentServices.search(relationship, documentSeacrh);
-            });
-
+            const promises = relationships.map(relationship => DocumentServices.search(relationship, documentSearch));
             const results = await Promise.all(promises);
-
             const documents = results.map(result => result.documents);
-
             dispatch({ type: 'documents', data: documents });
-
-
         } catch (e) {
             message.error(e?.message || 'Something went wrong.');
         } finally {
-
             dispatch({ type: 'finish' });
-
         }
-    }
+    }, [relationships, documentSearch]);
 
-
+    // Effect to load documents when documentSearch changes
     useEffect(() => {
+        if (documentSearch && Array.isArray(relationships)) {
+            const delayedLoadDocuments = debounce(loadDocuments, 500);
+            delayedLoadDocuments();
+        }
+    }, [documentSearch, loadDocuments, relationships]);
 
-        if (!documentSeacrh || !Array.isArray(relationships))
-            return;
-
-
-        const delayedLoadDocuments = debounce(() => {
-            throttle(loadDocuments(), 500);
-        }, 500);
-
-        delayedLoadDocuments();
-
-
-    }, [documentSeacrh]);
-
+    // Function to handle filter key change
     const onChangeFilterKey = (keys) => {
-
-        if (keys === undefined || keys[0] === undefined)
+        if (!keys || !keys[0]) {
             setNewFilter({})
-        else {
-            const key = [...keys];
-            const first = key[0];
-            key.shift()
-            setNewFilter({ ...newFilter, filterKey: key, type: first })
+        } else {
+            const [first, ...rest] = keys;
+            setNewFilter({ ...newFilter, filterKey: rest, type: first })
         }
     }
 
-
+    // Function to handle trigger key change
     const onChangeTriggerKey = (keys) => {
-
-
         if (newFilter) {
-
-            if (keys === undefined || keys[0] === undefined) {
+            if (!keys || !keys[0]) {
                 setNewFilter({ ...newFilter, triggerType: undefined, triggerKey: [] });
             } else {
-                const value = [...keys];
-                value.shift();
-                setNewFilter({ ...newFilter, triggerType: keys[0], triggerKey: value })
+                const [first, ...rest] = keys;
+                setNewFilter({ ...newFilter, triggerType: first, triggerKey: rest })
             }
         }
     }
 
-
+    // Function to handle filter default relationships change
     const onChangeFilterDefaultRelationships = (e, options) => {
-
-
         if (newFilter && options) {
-
             newFilter.defaultRelationshipsFilter = options.map(val => { return { _id: val._id, name: val.label } });
-
             setNewFilter({ ...newFilter });
-
         }
-
     }
 
-
+    // Function to handle filter name change
     const onChangeFilterName = (e) => {
-
         if (newFilter) {
-            let value = e.target.value;
-            setNewFilter({ ...newFilter, name: value })
+            setNewFilter({ ...newFilter, name: e.target.value })
         }
-
     }
 
-
+    // Function to handle filter default value change
     const onChangeFilterDefault = (e) => {
-
         if (newFilter) {
-            let value = e.target.value;
-            setNewFilter({ ...newFilter, defaultValue: value });
+            setNewFilter({ ...newFilter, defaultValue: e.target.value });
         }
-
     }
 
-
-
-    const onSubmit =
-        async (e) => {
-            e.preventDefault();
-
+    // Function to handle form submission
+    const onSubmit = async (e) => {
+        e.preventDefault();
+        if (newFilter.name && newFilter.type) {
             await onAdd(newFilter);
-
         }
-
-    const dropdownRender = (menu) => {
-        return <>
-            {states.loading && <div>Loading...</div>}
-
-            {menu}
-        </>
     }
 
+    // Function to render dropdown
+    const dropdownRender = (menu) => {
+        return (
+            <>
+                {states.loading && <div>Loading...</div>}
+                {menu}
+            </>
+        );
+    }
 
     return (
         <>
@@ -177,18 +134,13 @@ export default function AddFilter({
             </Form.Item>
             <Form.Item label="Filter Key" >
                 <Cascader options={documentStates}
-                    value={newFilter ?
-                        [newFilter.type,
-                        ...(Array.isArray(newFilter.filterKey) ? newFilter.filterKey : [])] : [undefined]}
+                    value={newFilter ? [newFilter.type, ...(Array.isArray(newFilter.filterKey) ? newFilter.filterKey : [])] : [undefined]}
                     onChange={onChangeFilterKey} style={{ width: '100%' }}>
                 </Cascader>
             </Form.Item>
             {newFilter?.type && <>
-
-
                 <Form.Item label="Default Value" >
-
-                    {newFilter.type == '__relationship__' && withRelationship ? <Select
+                    {newFilter.type === '__relationship__' && withRelationship ? <Select
                         style={{ width: '100%' }}
                         placeholder="Select Relationship"
                         showSearch
@@ -196,11 +148,10 @@ export default function AddFilter({
                         mode="multiple"
                         onChange={onChangeFilterDefaultRelationships}
                         onSearch={(v) => {
-
-                            if (!states.loading)
-                                setDocumentSeacrh(v)
-                        }
-                        }
+                            if (!states.loading) {
+                                setDocumentSearch(v)
+                            }
+                        }}
                         dropdownRender={dropdownRender}
                         optionFilterProp="label"
                         value={Array.isArray(newFilter.defaultRelationshipsFilter) ? newFilter.defaultRelationshipsFilter.map(val => val._id) : []}
@@ -210,38 +161,24 @@ export default function AddFilter({
                                 key={index} disabled
                                 value={relationship._id}
                                 label={relationship.name}>{relationship.name}</Option>)}
-
                         <Option value="" label="">All</Option>
-
                         {states.documents.map(document => <Option key={document._id} value={document._id} label={document.name}>{document.name}</Option>)}
                     </Select> : <Input placeholder="Value"
                         onChange={onChangeFilterDefault}
                         value={newFilter.defaultValue}
                         required />}
-
-
                 </Form.Item>
-
-
-
                 <Form.Item label="Trigger Key" >
                     <Cascader options={componentStates}
-                        value={[newFilter.triggerType,
-                        ...(Array.isArray(newFilter.triggerKey) ? newFilter.triggerKey : [])]}
+                        value={[newFilter.triggerType, ...(Array.isArray(newFilter.triggerKey) ? newFilter.triggerKey : [])]}
                         onChange={onChangeTriggerKey} style={{ width: '100%' }}>
                     </Cascader>
                 </Form.Item>
-
-
-            </>
-            }
+            </>}
             <div style={{ textAlign: 'right' }}>
-
                 <Button type="default" onClick={() => { setCurrent(null) }}>Cancel</Button>   &nbsp;
-                <Button type="primary" onClick={onSubmit} disabled={!newFilter.name || !newFilter.type}> Add </Button> </div>
-
+                <Button type="primary" onClick={onSubmit} disabled={!newFilter.name || !newFilter.type}> Add </Button>
+            </div>
         </>
-
     );
 };
-

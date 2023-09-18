@@ -20,6 +20,11 @@ export const openDB = async () => {
         // Check for browser support and get the IndexedDB instance.
         const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
 
+        // If the browser doesn't support IndexedDB, reject the promise.
+        if (!indexedDB) {
+            reject("Your browser doesn't support a stable version of IndexedDB.");
+        }
+
         // Attempt to open the database.
         const request = indexedDB.open(DB_NAME);
 
@@ -61,12 +66,16 @@ export const openDB = async () => {
  * @param {string} [STORE=PAGE_STORE_NAME] - The name of the object store.
  */
 export const storePage = async (element, STORE = PAGE_STORE_NAME) => {
-    const db = await openDB();
-    const transaction = db.transaction([STORE], 'readwrite');
-    const store = transaction.objectStore(STORE);
+    try {
+        const db = await openDB();
+        const transaction = db.transaction([STORE], 'readwrite');
+        const store = transaction.objectStore(STORE);
 
-    await store.put(element);
-    await transaction.complete;
+        await store.put(element);
+        await transaction.complete;
+    } catch (error) {
+        console.error("Error storing page:", error);
+    }
 };
 
 /**
@@ -79,30 +88,33 @@ export const storePage = async (element, STORE = PAGE_STORE_NAME) => {
  */
 export const storeData = async (key, newElements, STORE = PAGE_STORE_NAME) => {
     return new Promise(async (resolve, reject) => {
-        const db = await openDB();
-        const transaction = db.transaction([STORE], 'readwrite');
-        const store = transaction.objectStore(STORE);
-        const cursorIndex = store.index("id");
-        const range = IDBKeyRange.only(key);
-        const request = cursorIndex.openCursor(range);
+        try {
+            const db = await openDB();
+            const transaction = db.transaction([STORE], 'readwrite');
+            const store = transaction.objectStore(STORE);
+            const cursorIndex = store.index("id");
+            const range = IDBKeyRange.only(key);
+            const request = cursorIndex.openCursor(range);
 
-        request.onsuccess = (event) => {
-            const cursor = event.target.result;
-            if (cursor) {
-                const elements = cursor.value.elements || {};
-                const updatedElements = Object.assign({}, elements, ...newElements);
-                const updateData = { ...cursor.value, elements: updatedElements };
-                const updateRequest = cursor.update(updateData);
+            request.onsuccess = (event) => {
+                const cursor = event.target.result;
+                if (cursor) {
+                    const elements = cursor.value.elements || {};
+                    const updatedElements = Object.assign({}, elements, ...newElements);
+                    const updateData = { ...cursor.value, elements: updatedElements };
+                    const updateRequest = cursor.update(updateData);
 
-                updateRequest.onsuccess = () => resolve(true);
-                updateRequest.onerror = () => reject(updateRequest.error);
-            }
-        };
+                    updateRequest.onsuccess = () => resolve(true);
+                    updateRequest.onerror = () => reject(updateRequest.error);
+                }
+            };
 
-        request.onerror = () => reject(request.error);
+            request.onerror = () => reject(request.error);
+        } catch (error) {
+            reject(error);
+        }
     });
 };
-
 /**
  * Delete page data for a specific key.
  * 
@@ -112,20 +124,24 @@ export const storeData = async (key, newElements, STORE = PAGE_STORE_NAME) => {
  */
 export const deletePageData = async (key, STORE = PAGE_STORE_NAME) => {
     return new Promise(async (resolve, reject) => {
-        const db = await openDB();
-        const transaction = db.transaction([STORE], 'readwrite');
-        const store = transaction.objectStore(STORE);
-        const cursorIndex = store.index("id");
-        const range = IDBKeyRange.only(key);
-        const request = cursorIndex.openCursor(range);
+        try {
+            const db = await openDB();
+            const transaction = db.transaction([STORE], 'readwrite');
+            const store = transaction.objectStore(STORE);
+            const cursorIndex = store.index("id");
+            const range = IDBKeyRange.only(key);
+            const request = cursorIndex.openCursor(range);
 
-        request.onsuccess = (event) => {
-            const cursor = event.target.result;
-            if (cursor) cursor.delete();
-            resolve(true);
-        };
+            request.onsuccess = (event) => {
+                const cursor = event.target.result;
+                if (cursor) cursor.delete();
+                resolve(true);
+            };
 
-        request.onerror = () => reject(request.error);
+            request.onerror = () => reject(request.error);
+        } catch (error) {
+            reject(error);
+        }
     });
 };
 
@@ -135,12 +151,16 @@ export const deletePageData = async (key, STORE = PAGE_STORE_NAME) => {
  * @param {string} [STORE=PAGE_STORE_NAME] - The name of the object store.
  */
 export const clearStore = async (STORE = PAGE_STORE_NAME) => {
-    const db = await openDB();
-    const transaction = db.transaction([STORE], 'readwrite');
-    const store = transaction.objectStore(STORE);
+    try {
+        const db = await openDB();
+        const transaction = db.transaction([STORE], 'readwrite');
+        const store = transaction.objectStore(STORE);
 
-    await store.clear();
-    await transaction.complete;
+        await store.clear();
+        await transaction.complete;
+    } catch (error) {
+        console.error("Error clearing the store:", error);
+    }
 };
 
 
@@ -156,21 +176,25 @@ export const getAllData = async (key, STORE = PAGE_STORE_NAME) => {
     if (!key) return null;
 
     return new Promise(async (resolve, reject) => {
-        // Initialize DB connection and get the specific object store
-        const db = await openDB();
-        const store = db.transaction(STORE).objectStore(STORE);
-        
-        // Request data for the given key from the indexed DB
-        const request = store.index("id").get(key);
+        try {
+            // Initialize DB connection and get the specific object store
+            const db = await openDB();
+            const store = db.transaction(STORE).objectStore(STORE);
+            
+            // Request data for the given key from the indexed DB
+            const request = store.index("id").get(key);
 
-        // Handle successful data retrieval
-        request.onsuccess = function (event) {
-            const data = event.target.result;
-            resolve(data || null);  // Resolve with data or null if not present
-        };
+            // Handle successful data retrieval
+            request.onsuccess = function (event) {
+                const data = event.target.result;
+                resolve(data || null);  // Resolve with data or null if not present
+            };
 
-        // Handle errors in data retrieval
-        request.onerror = () => reject(request.error);
+            // Handle errors in data retrieval
+            request.onerror = () => reject(request.error);
+        } catch (error) {
+            reject(error);
+        }
     });
 };
 
@@ -183,28 +207,32 @@ export const getAllData = async (key, STORE = PAGE_STORE_NAME) => {
  */
 export const getAllKeys = async (STORE = PAGE_STORE_NAME) => {
     return new Promise(async (resolve, reject) => {
-        // Initialize DB connection and get the specific object store
-        const db = await openDB();
-        const store = db.transaction([STORE], 'readonly').objectStore(STORE);
-        const index = store.index('type');
-        
-        // Request unique keys from the indexed DB
-        const getRequest = index.openCursor(null, 'nextunique');
-        const uniqueKeys = [];
+        try {
+            // Initialize DB connection and get the specific object store
+            const db = await openDB();
+            const store = db.transaction([STORE], 'readonly').objectStore(STORE);
+            const index = store.index('type');
+            
+            // Request unique keys from the indexed DB
+            const getRequest = index.openCursor(null, 'nextunique');
+            const uniqueKeys = [];
 
-        getRequest.onsuccess = (event) => {
-            const cursor = event.target.result;
-            if (cursor) {
-                const [, elementType] = cursor.key;
-                uniqueKeys.push(elementType);
-                cursor.continue();
-            } else {
-                resolve(uniqueKeys);
-            }
-        };
+            getRequest.onsuccess = (event) => {
+                const cursor = event.target.result;
+                if (cursor) {
+                    const [, elementType] = cursor.key;
+                    uniqueKeys.push(elementType);
+                    cursor.continue();
+                } else {
+                    resolve(uniqueKeys);
+                }
+            };
 
-        // Handle errors during the retrieval process
-        getRequest.onerror = () => reject(getRequest.error);
+            // Handle errors during the retrieval process
+            getRequest.onerror = () => reject(getRequest.error);
+        } catch (error) {
+            reject(error);
+        }
     });
 };
 
@@ -216,20 +244,25 @@ export const getAllKeys = async (STORE = PAGE_STORE_NAME) => {
  */
 export const getAllCssData = async (STORE = PAGE_STORE_NAME) => {
     return new Promise(async (resolve, reject) => {
-        // Initialize DB connection and get the specific object store
-        const db = await openDB();
-        const store = db.transaction([STORE], 'readonly').objectStore(STORE);
+        try {
+            // Initialize DB connection and get the specific object store
+            const db = await openDB();
+            const store = db.transaction([STORE], 'readonly').objectStore(STORE);
 
-        // Request all data from the indexed DB
-        const request = store.getAll();
+            // Request all data from the indexed DB
+            const request = store.getAll();
 
-        request.onsuccess = (event) => {
-            const records = event.target.result || [];
-            resolve(records);
-        };
+            request.onsuccess = (event) => {
+                const records = event.target.result || [];
+                resolve(records);
+            };
 
-        // Handle errors during the retrieval process
-        request.onerror = () => reject(request.error);
+    
+         // Handle errors during the retrieval process
+         request.onerror = () => reject(request.error);
+        } catch (error) {
+            reject(error);
+        }
     });
 };
 
@@ -244,26 +277,30 @@ export const getAllCssData = async (STORE = PAGE_STORE_NAME) => {
  */
 export const getData = async (key, _uid, index = 'id', STORE = PAGE_STORE_NAME) => {
     // If there's no key provided, resolve with null
-    if (!key) return null;
+    if (!key) return Promise.resolve(null);
 
     return new Promise(async (resolve, reject) => {
-        // Initialize DB connection and get the specific object store
-        const db = await openDB();
-        const store = db.transaction(STORE).objectStore(STORE);
-        const request = store.index(index).get(key);
+        try {
+            // Initialize DB connection and get the specific object store
+            const db = await openDB();
+            const store = db.transaction(STORE).objectStore(STORE);
+            const request = store.index(index).get(key);
 
-        request.onsuccess = async event => {
-            const data = event.target.result;
-            // Check if data exists and has the specified _uid
-            if (data && data.elements[_uid]) {
-                resolve(data.elements[_uid]);
-            } else {
-                resolve(null);
-            }
-        };
+            request.onsuccess = async event => {
+                const data = event.target.result;
+                // Check if data exists and has the specified _uid
+                if (data && data.elements[_uid]) {
+                    resolve(data.elements[_uid]);
+                } else {
+                    resolve(null);
+                }
+            };
 
-        // Handle errors during the retrieval process
-        request.onerror = () => reject(request.error);
+            // Handle errors during the retrieval process
+            request.onerror = () => reject(request.error);
+        } catch (error) {
+            reject(error);
+        }
     });
 };
 
@@ -549,7 +586,6 @@ export const deleteStyleData = async (key) => {
 }; */
 
 
-
 /**
  * Deletes specific data based on a key and uid from the specified store.
  * 
@@ -560,39 +596,47 @@ export const deleteStyleData = async (key) => {
  * @returns {Promise<boolean>} - A promise that resolves with a boolean indicating whether the delete was successful.
  */
 export const deleteData = async (key, _uid, STORE = PAGE_STORE_NAME) => {
-    return await new Promise(async (resolve, reject) => {
-        // Open database
-        const db = await openDB();
-        // Create a readwrite transaction on the specified store
-        const transaction = db.transaction([STORE], 'readwrite');
-        const objectStore = transaction.objectStore(STORE);
-        const cursorIndex = objectStore.index("id");
-        const range = IDBKeyRange.only(key);
+    return new Promise(async (resolve, reject) => {
+        try {
+            // Open database
+            const db = await openDB();
+            // Create a readwrite transaction on the specified store
+            const transaction = db.transaction([STORE], 'readwrite');
+            const objectStore = transaction.objectStore(STORE);
+            const cursorIndex = objectStore.index("id");
+            const range = IDBKeyRange.only(key);
 
-        const request = cursorIndex.openCursor(range);
+            const request = cursorIndex.openCursor(range);
 
-        request.onsuccess = (event) => {
-            const cursor = event.target.result;
-            if (cursor) {
-                const elements = cursor.value.elements || {};
-                if (elements[_uid]) {
-                    delete elements[_uid];
-                    const updateRequest = cursor.update({ ...cursor.value, elements });
+            request.onsuccess = (event) => {
+                const cursor = event.target.result;
+                if (cursor) {
+                    const elements = cursor.value.elements || {};
+                    if (elements[_uid]) {
+                        delete elements[_uid];
+                        const updateRequest = cursor.update({ ...cursor.value, elements });
 
-                    updateRequest.onsuccess = () => {
-                        resolve(true);
-                    };
+                        updateRequest.onsuccess = () => {
+                            resolve(true);
+                        };
 
-                    updateRequest.onerror = () => {
-                        reject(updateRequest.error);
-                    };
+                        updateRequest.onerror = () => {
+                            reject(updateRequest.error);
+                        };
+                    } else {
+                        resolve(false);
+                    }
+                } else {
+                    resolve(false);
                 }
-            }
-        };
+            };
 
-        request.onerror = () => {
-            reject(request.error);
-        };
+            request.onerror = () => {
+                reject(request.error);
+            };
+        } catch (error) {
+            reject(error);
+        }
     });
 };
 
@@ -603,12 +647,16 @@ export const deleteData = async (key, _uid, STORE = PAGE_STORE_NAME) => {
  * @param {string} STORE - The store in which the action will be stored.
  */
 export const storeAction = async (action, STORE) => {
-    const db = await openDB();
-    const transaction = db.transaction([STORE], 'readwrite');
-    const store = transaction.objectStore(STORE);
+    try {
+        const db = await openDB();
+        const transaction = db.transaction([STORE], 'readwrite');
+        const store = transaction.objectStore(STORE);
 
-    store.add(action);
-    await transaction.complete;
+        store.add(action);
+        await transaction.complete;
+    } catch (error) {
+        console.error("Error storing action:", error);
+    }
 };
 
 /**
@@ -618,15 +666,19 @@ export const storeAction = async (action, STORE) => {
  * @param {string} STORE - The store in which the actions will be stored.
  */
 export const storeActions = async (actions, STORE) => {
-    const db = await openDB();
-    const transaction = db.transaction(STORE, 'readwrite');
-    const store = transaction.objectStore(STORE);
+    try {
+        const db = await openDB();
+        const transaction = db.transaction(STORE, 'readwrite');
+        const store = transaction.objectStore(STORE);
 
-    actions.forEach((action) => {
-        store.add(action);
-    });
+        actions.forEach((action) => {
+            store.add(action);
+        });
 
-    await transaction.complete;
+        await transaction.complete;
+    } catch (error) {
+        console.error("Error storing actions:", error);
+    }
 };
 
 /**
@@ -638,44 +690,42 @@ export const storeActions = async (actions, STORE) => {
 export const getAction = async (STORE) => {
 
     return new Promise(async (resolve, reject) => {
+        try {
+            const db = await openDB();
+            const transaction = db.transaction(STORE, 'readonly');
+            const store = transaction.objectStore(STORE);
 
-        const db = await openDB();
-        const transaction = db.transaction(STORE, 'readonly');
-        const store = transaction.objectStore(STORE);
+            const mainRequest = store.getAllKeys();
 
-        const mainRequest = store.getAllKeys();
+            mainRequest.onsuccess = (event) => {
+                const items = event.target.result;
 
-        mainRequest.onsuccess = (event) => {
-            const items = event.target.result;
+                if (items.length <= 0) {
+                    resolve(null);
+                } else {
+                    const lastKey = items[items.length - 1];
 
-            if (items.length <= 0) {
-                resolve(null);
-                return;
-            }
+                    const request = store.get(lastKey);
 
-            const lastKey = items[items.length - 1];
+                    request.onsuccess = (event) => {
+                        const item = event.target.result;
+                        resolve(item);
+                    };
 
-            const request = store.get(lastKey);
-
-            request.onsuccess = (event) => {
-                const item = event.target.result;
-                resolve(item);
+                    request.onerror = () => {
+                        reject(request.error);
+                    };
+                }
             };
 
-            request.onerror = () => {
-                reject(request.error);
+            mainRequest.onerror = () => {
+                reject(mainRequest.error);
             };
-
-        };
-
-        mainRequest.onerror = () => {
-            reject(mainRequest.error);
-        };
-
-
+        } catch (error) {
+            reject(error);
+        }
     });
 };
-
 /**
  * Delete the latest action from the database.
  * 
@@ -683,38 +733,16 @@ export const getAction = async (STORE) => {
  * @returns {Promise<void>} - A promise that resolves when the action has been deleted.
  */
 export const deleteAction = async (STORE) => {
-
-
-    return new Promise(async (resolve, reject) => {
-
+    try {
         const db = await openDB();
         const transaction = db.transaction(STORE, 'readwrite');
         const store = transaction.objectStore(STORE);
-
-        const mainRequest = store.getAllKeys();
-
-        mainRequest.onsuccess = (event) => {
-            const items = event.target.result;
-            const lastKey = items[items.length - 1];
-
-            const request = store.delete(lastKey);
-            request.onsuccess = (event) => {
-                resolve();
-            };
-
-            request.onerror = () => {
-                reject(request.error);
-            };
-
-        };
-
-        mainRequest.onerror = () => {
-            reject(mainRequest.error);
-        };
-
-
-    });
-
+        const mainRequest = await store.getAllKeys();
+        const lastKey = mainRequest[mainRequest.length - 1];
+        await store.delete(lastKey);
+    } catch (error) {
+        console.error("Error deleting action:", error);
+    }
 };
 
 /**
@@ -724,22 +752,15 @@ export const deleteAction = async (STORE) => {
  * @returns {Promise<Array>} - A promise that resolves with the list of actions.
  */
 export const getAllActions = async (STORE) => {
-    return new Promise(async (resolve, reject) => {
+    try {
         const db = await openDB();
         const transaction = db.transaction(STORE, 'readonly');
         const store = transaction.objectStore(STORE);
-
-        const request = store.getAll();
-
-        request.onsuccess = (event) => {
-            const items = event.target.result;
-            resolve(items);
-        };
-
-        request.onerror = () => {
-            reject(request.error);
-        };
-    });
+        const actions = await store.getAll();
+        return actions;
+    } catch (error) {
+        console.error("Error retrieving all actions:", error);
+    }
 };
 
 /**
@@ -749,19 +770,12 @@ export const getAllActions = async (STORE) => {
  * @returns {Promise<void>} - A promise that resolves when all actions have been deleted.
  */
 export const deleteAllActions = async (STORE) => {
-    return new Promise(async (resolve, reject) => {
+    try {
         const db = await openDB();
         const transaction = db.transaction(STORE, 'readwrite');
         const store = transaction.objectStore(STORE);
-
-        const request = store.clear();
-
-        request.onsuccess = (event) => {
-            resolve();
-        };
-
-        request.onerror = () => {
-            reject(request.error);
-        };
-    });
+        await store.clear();
+    } catch (error) {
+        console.error("Error deleting all actions:", error);
+    }
 };

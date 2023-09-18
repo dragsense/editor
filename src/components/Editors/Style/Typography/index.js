@@ -232,13 +232,16 @@ export default function Typography({ style, fonts, variables, colors,
 
     return !isEmpty(style) ? <>
         <Collapse defaultActiveKey={['1']} accordion ghost>
+            {/* Color Panel */}
             <Panel header="Color" key="1">
 
                 <div style={{ marginBottom: "10px" }}>
                     <strong >Color:     </strong>
 
+                    {/* Tooltip for marking color as important */}
                     <Tooltip placement="top" title="important">
-                        <Checkbox style={{ marginLeft: 3 }}
+                        <Checkbox 
+                            style={{ marginLeft: 3 }}
                             name="color"
                             data-name="color"
                             checked={stylePriority.color === 'important'}
@@ -248,48 +251,53 @@ export default function Typography({ style, fonts, variables, colors,
                         </Checkbox>
                     </Tooltip>
 
+                    {/* Reset Button for color */}
                     <Tooltip placement="top" title="Reset">
                         <Button
                             style={{ float: "right" }}
-
                             size="small"
                             icon={<MdRestartAlt size="small" />}
                             onClick={(e) => {
                                 e.preventDefault();
 
+                                // Remove color property if it exists
                                 if (properties['color'])
                                     delete properties['color'];
 
+                                // Remove color from style and update
                                 style.removeProperty('color');
                                 onChangeStyle();
 
+                                // Reset color state
                                 setColor(null);
 
-
+                                // Reset color priority
                                 setStylePriority({ ...stylePriority, color: '' });
-
-
                             }}
                         ></Button>
                     </Tooltip>
                 </div>
 
-                <ColorPicker value={color}
+                {/* Color Picker */}
+                <ColorPicker 
+                    value={color}
                     allowClear={true}
                     format={"hex"}
                     onChangeComplete={(color, hex) => {
                         const metaColor = color.metaColor;
                         const rgbColor = `rgba(${metaColor.r}, ${metaColor.g}, ${metaColor.b}, ${metaColor.a})`;
 
+                        // Update color in style
                         onChange('color', 'color', rgbColor)
+                    }} 
+                />
 
-                    }} />
-
-
-
-
+                {/* Dropdown for global color selection */}
                 {colors && (
-                    <Dropdown menu={{ items, onClick: onChangeGlobalColor }} trigger={['click']}>
+                    <Dropdown 
+                        menu={{ items, onClick: onChangeGlobalColor }} 
+                        trigger={['click']}
+                    >
                         <a onClick={(e) => e.preventDefault()}>
                             <Space>
                                 <CgGlobeAlt

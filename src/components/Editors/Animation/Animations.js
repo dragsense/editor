@@ -1,11 +1,9 @@
-
 import {
   Button, Modal, Card, Spin, Alert, Tooltip, InputNumber,
   Radio, Select, Divider, ColorPicker, Layout, Input, Checkbox
 } from "antd";
 import { useState, useReducer, useEffect, useRef } from "react";
 import { ExclamationCircleFilled } from '@ant-design/icons';
-
 
 import { AnimationsIFrame } from "../../Iframe";
 
@@ -28,20 +26,20 @@ import {
 const { Option } = Select;
 const { confirm } = Modal;
 
-
+// Reducer function to manage state transitions
 const reducer = (state, action) => {
-
-
-
-
   switch (action.type) {
     case "start":
+      // When an operation starts, set loading to true
       return { ...state, loading: true }
     case "done":
+      // When an operation is done, set done to true
       return { ...state, done: true }
     case "load":
+      // Load page data into state
       return { ...state, page: action.page }
     case "edit":
+      // Edit an animation, reset selector and error
       return {
         ...state,
         animation: action.animation,
@@ -50,33 +48,39 @@ const reducer = (state, action) => {
         error: '',
       }
     case "add":
+      // Add a selector, reset error
       return {
         ...state,
         selector: action.selector,
         error: ''
       }
     case "delete":
+      // Delete a selector, reset error
       return { ...state, selector: null, error: '' }
     case "deleteSelector":
+      // Delete a selector, reset error and update selectorDeleted
       return { ...state, selector: null, error: '', selectorDeleted: action.selectorDeleted }
     case "deleteAnimation":
+      // Delete an animation, reset selector, error and update animationDeleted
       return {
         ...state, animation: {}, selector: null,
         animationDeleted: action.animationDeleted,
         error: ''
       }
     case "clearError":
+      // Clear any error messages
       return { ...state, error: '' }
     case "error":
+      // Set an error message
       return { ...state, error: action.error }
     case "finish":
+      // When an operation finishes, set loading to false
       return { ...state, loading: false }
     default:
+      // If the action type is not recognized, return the current state
       return state;
   }
 };
-
-
 
 export default function Animations({ menuKeys, children, onBack }) {
 
@@ -159,167 +163,142 @@ export default function Animations({ menuKeys, children, onBack }) {
       callback();
   }
 
-
+  // Function to handle editing of animations
   const onEdit = async (animation) => {
-
-    if (!animation || !state.page?._id)
-    {
-      
-    saveIsChange(() => {
-      dispatch({ type: 'edit', animation: null, elementType: '' });
-    });
-    return;
-
+    if (!animation || !state.page?._id) {
+      saveIsChange(() => {
+        dispatch({ type: 'edit', animation: null, elementType: '' });
+      });
+      return;
     }
-
     saveIsChange(() => {
       dispatch({ type: 'edit', animation: animation, elementType: animation.name });
     });
-
-
   }
 
-
+  // Function to handle changes before closing the window
   useEffect(() => {
     async function promptBeforeClose(event) {
       if (isChange) {
         event.preventDefault();
-
         const shouldSave = await window.autocode.checkUnsavedChanges(isChange);
-
         if (shouldSave) {
           await onSubmit();
         }
-
         setTimeout(() => {
           window.close();
         }, 100);
-
       }
-
       setIsChange(false);
-
-
-
-
     }
-
     window.addEventListener('beforeunload', promptBeforeClose);
-
     return () => {
       window.removeEventListener('beforeunload', promptBeforeClose);
     };
   }, [isChange]);
 
-
+  // Function to handle form submission
   const onSubmit = async () => {
-
-
     dispatch({ type: 'start' });
-
-
     try {
-
-
       if (isStyleChange)
         await onUpdateSelector(state.selector);
-
-
       const page = state.page;
       await saveStyle(page, 'animation');
       setIsChange(false)
-
       dispatch({
         type: 'clearError'
       })
-
     } catch (e) {
       dispatch({ type: 'error', error: e?.message || 'Something went wrong.' });
-
     } finally {
       dispatch({ type: 'finish' });
     }
-
-
   };
 
+  // Function to delete an animation
   const onDeleteAnimation = async (STORE = UNDO_STORE_NAME, redo) => {
     try {
-
-
+      // Check if animation exists
       if (!state.animation)
         throw new Error('Animation not selected!')
 
       const animation = state.animation;
 
+      // Get the iframe and its document
       const iframe = document.querySelector("#ac-editor-iframe-doc");
       let iframeDocument = iframe.contentDocument;
 
+      // Get the stylesheet and its rules
       const sheet = iframeDocument.styleSheets[0];
       const cssRules = sheet.cssRules || sheet.rules;
+
+      // Filter out the rules that are not keyframes
       const rules = Array.from(cssRules).filter(rule => rule.type === 7);
+
+      // Find the index of the rule with the same name as the animation
       const ruleIndex = rules.findIndex(item => item.name === animation.name);
 
+      // If the rule exists, delete it
       if (ruleIndex >= 0) {
         sheet.deleteRule(ruleIndex);
       }
 
+      // Delete the animation data
       await deleteData(state.page._id, animation._uid, STYLE_STORE_NAME);
 
+      // Dispatch the deleteAnimation action
       dispatch({
         type: 'deleteAnimation',
         animationDeleted: animation._uid
       })
 
+      // Set isChange to true to indicate that changes have been made
       setIsChange(true)
 
-
-
     } catch (e) {
+      // Dispatch the error action if an error occurs
       dispatch({ type: 'error', error: e?.message || 'Something went wrong.' });
 
     }
-    finally {
-    }
   };
 
-
-
+  // Function to select a selector
   const onSelectSelector = async (newSelector, STORE = UNDO_STORE_NAME, redo) => {
-
     try {
+      // Destructure the newSelector object
+      let { selectorText, properties = {}, store = STYLE_STORE_NAME, _uid } = newSelector;
 
-      let { selectorText, properties = {}, store = STYLE_STORE_NAME, _uid,
-      } = newSelector;
-
-
+      // Check if selectorText and animation exist
       if (!selectorText || !state.animation) {
         throw new Error('Animation || Selector not found.');
       }
 
       const animation = state.animation;
 
+      // Dispatch the start action
       dispatch({ type: 'start' });
 
-
-
+      // Validate the selectorText
       if (!validatClass(selectorText))
         throw new Error('Please Enter Valid Selector.');
 
-
+      // Get the iframe and its document
       const iframe = document.querySelector("#ac-editor-iframe-doc");
       let iframeDocument = iframe.contentDocument;
 
-
+      // Get the stylesheets
       const styleSheets = iframeDocument.styleSheets;
       let sheet = null;
 
+      // Find the stylesheet with the id 'ac-stylesheet-global'
       for (let i = 0; i < styleSheets.length; i++) {
         sheet = styleSheets[i];
         if (sheet.ownerNode.id === 'ac-stylesheet-global')
           break;
       }
 
+      // Get the css rules
       let cssRules = sheet.cssRules || sheet.rules;
 
       // Find the keyframes rule for the animation or create it if it doesn't exist
@@ -338,11 +317,11 @@ export default function Animations({ menuKeys, children, onBack }) {
         ruleIndex = sheet.insertRule(keyframesRule, cssRules.length);
       }
 
-
+      // Get the keyframes rules
       const keyframesRules = cssRules[ruleIndex];
+
       // Find the rule for the current selector or create it if it doesn't exist
       let index = -1
-
       for (let i = 0; i < keyframesRules.cssRules.length; i++) {
         const selector = keyframesRules.cssRules[i].keyText;
         if (selector === selectorText) {
@@ -350,7 +329,6 @@ export default function Animations({ menuKeys, children, onBack }) {
           break;
         }
       }
-
 
       let rule;
       if (index < 0) {
@@ -361,7 +339,7 @@ export default function Animations({ menuKeys, children, onBack }) {
       } else
         rule = keyframesRules.cssRules[index];
 
-
+      // Create the selector object
       const selector = {
         style: rule.style,
         properties,
@@ -370,66 +348,44 @@ export default function Animations({ menuKeys, children, onBack }) {
         store
       };
 
+      // Dispatch the add action
       dispatch({ type: 'add', selector });
 
     } catch (e) {
+      // Dispatch the error action if an error occurs
       dispatch({ type: 'error', error: e?.message || 'Something went wrong.' });
     } finally {
+      // Dispatch the finish action
       dispatch({ type: 'finish' });
     }
-
-
-
   };
 
-
-
-
+  // Function to delete a selector
   const onDeleteSelector = async (selector, STORE = UNDO_STORE_NAME, isRedo) => {
     try {
-
-
-
+      // Check if selector and animation exist
       if (!selector || !state.animation)
         throw new Error('Animation || Selector not found!');
 
-      const { store,
-        selectorText,
-      } = selector;
-
+      const { store, selectorText } = selector;
       const animation = state.animation;
 
-
+      // Get the iframe and its document
       const iframe = document.querySelector("#ac-editor-iframe-doc");
-      let iframeDocument = iframe.contentDocument;
+      const iframeDocument = iframe.contentDocument;
 
+      // Get the stylesheets
       const styleSheets = iframeDocument.styleSheets;
-      let sheet = null;
-
-      for (let i = 0; i < styleSheets.length; i++) {
-        sheet = styleSheets[i];
-        if (sheet.ownerNode.id === 'ac-stylesheet-global')
-          break;
-      }
+      let sheet = styleSheets.find(sheet => sheet.ownerNode.id === 'ac-stylesheet-global');
 
       let cssRules = sheet.cssRules || sheet.rules;
 
-
-      let ruleIndex = -1;
-      for (let i = 0; i < cssRules.length; i++) {
-        const rule = cssRules[i];
-        if (rule.type === 7 && rule.name === animation.name) {
-          ruleIndex = i;
-          break;
-        }
-      }
-
+      // Find the keyframes rule for the animation
+      let ruleIndex = Array.from(cssRules).findIndex(rule => rule.type === 7 && rule.name === animation.name);
 
       if (ruleIndex < 0) {
         throw new Error('Animation not found!');
       }
-
-
 
       let keyframeToDeleteKey = '';
 
@@ -442,15 +398,10 @@ export default function Animations({ menuKeys, children, onBack }) {
         }
       }
 
-
-      if (!animation.style)
-        animation.style = {}
-
+      // Delete the animation style
       delete animation.style[selectorText];
 
       await updateData(state.page._id, animation, STYLE_STORE_NAME)
-
-
 
       setIsChange(true)
       dispatch({ type: 'deleteSelector', selectorDeleted: selectorText });
@@ -461,23 +412,15 @@ export default function Animations({ menuKeys, children, onBack }) {
         throw new Error('Selector not found!');
       }
 
-
     } catch (e) {
       dispatch({ type: 'error', error: e?.message || 'Something went wrong.' });
-
-    }
-    finally {
     }
   };
 
-
-
+  // Function to update a selector
   const onUpdateSelector = async (selector, STORE = UNDO_STORE_NAME, isRedo) => {
-
-
-
     try {
-
+      // Check if selector and animation exist
       if (!selector || !state.animation) {
         throw new Error('Animation || Selector not found!');
       }
@@ -485,67 +428,42 @@ export default function Animations({ menuKeys, children, onBack }) {
 
       const animation = state.animation;
 
-
+      // Get the iframe and its document
       const iframe = document.querySelector("#ac-editor-iframe-doc");
-      let iframeDocument = iframe.contentDocument;
+      const iframeDocument = iframe.contentDocument;
 
-
+      // Get the stylesheets
       const styleSheets = iframeDocument.styleSheets;
-      let sheet = null;
-
-      for (let i = 0; i < styleSheets.length; i++) {
-        sheet = styleSheets[i];
-        if (sheet.ownerNode.id === 'ac-stylesheet-global')
-          break;
-      }
+      let sheet = styleSheets.find(sheet => sheet.ownerNode.id === 'ac-stylesheet-global');
 
       let cssRules = sheet.cssRules || sheet.rules;
 
-
-      // Find the keyframes rule for the animation or create it if it doesn't exist
-      let ruleIndex = -1;
-      for (let i = 0; i < cssRules.length; i++) {
-        const rule = cssRules[i];
-        if (rule.type === 7 && rule.name === animation.name) {
-          ruleIndex = i;
-          break;
-        }
-      }
+      // Find the keyframes rule for the animation
+      let ruleIndex = Array.from(cssRules).findIndex(rule => rule.type === 7 && rule.name === animation.name);
 
       if (ruleIndex < 0) {
         throw new Error('Animation not found!');
       }
 
+      // Find the rule for the current selector
+      let index = Array.from(cssRules[ruleIndex].cssRules).findIndex(sel => sel.keyText === selector.selectorText);
 
-      // Find the rule for the current selector or create it if it doesn't exist
-      let index = -1
-
-      for (let i = 0; i < cssRules[ruleIndex].cssRules.length; i++) {
-        const sel = cssRules[ruleIndex].cssRules[i].keyText;
-        if (sel === selector.selectorText) {
-          index = i;
-          break;
-        }
-      }
-
-
-      let rule;
       if (index < 0)
         throw new Error('Rule not found!');
 
-      rule = cssRules[ruleIndex].cssRules[index];
+      let rule = cssRules[ruleIndex].cssRules[index];
 
       if (rule) {
         // Remove existing properties
         const styleDeclaration = rule.style;
-        const properties = Array.from(styleDeclaration);
-        properties.forEach(property => {
+        Array.from(styleDeclaration).forEach(property => {
           styleDeclaration.removeProperty(property);
         });
 
         if (!selector.properties)
           selector.properties = {};
 
+        // Set new properties
         Object.keys(selector.properties).forEach(key => {
           const value = selector.properties[key]?.value;
           const priority = selector.properties[key]?.priority;
@@ -553,13 +471,8 @@ export default function Animations({ menuKeys, children, onBack }) {
         });
       }
 
-
-      if (!animation.style)
-        animation.style = {}
-
-      if (!animation.style[selector.selectorText])
-        animation.style[selector.selectorText] = {}
-
+      // Update the animation style
+      animation.style = { ...animation.style, [selector.selectorText]: {} };
 
       onAddAction({
         action: 'updateStyle',
@@ -570,124 +483,118 @@ export default function Animations({ menuKeys, children, onBack }) {
         },
       }, STORE, isRedo);
 
-
-
       animation.style[selector.selectorText].properties = selector.properties;
       animation.style[selector.selectorText].selectorText = selector.selectorText;
 
-
       await updateData(state.page._id, animation, selector.store);
-
 
       setIsStyleChange(false);
       setIsChange(true)
 
       dispatch({ type: 'updateStyle' });
 
-
     } catch (e) {
       dispatch({ type: 'error', error: e?.message || 'Something went wrong.' });
-
-    }
-    finally {
+    } finally {
       dispatch({ type: 'finish' });
-
     }
-
-
   };
 
 
+  // Function to add an action
   const onAddAction = async (action, STORE, isRedo) => {
-
+    // If it's not a redo action, delete all actions in the redo store
     if (!isRedo) {
-      // const actions = await getAllActions(REDO_STORE_NAME);
       await deleteAllActions(REDO_STORE_NAME);
-
-      //await storeActions(actions, UNDO_STORE_NAME)
     }
-
+    // Store the new action
     await storeAction(action, STORE);
   };
 
+  // Function to perform an action
   const performAction = async (STORE1, STORE2) => {
+    // Get the action from the store
     const action = await getAction(STORE1);
 
-    if (!action)
-      return;
+    // If there's no action, return
+    if (!action) return;
 
+    // Perform the action based on its type
     switch (action.action) {
       case 'updateStyle':
-        await onUpdateSelector(
-          action.selector,
-          STORE2, true);
+        await onUpdateSelector(action.selector, STORE2, true);
         break;
       default:
         break;
-
-
     }
 
+    // Delete the action from the store
     await deleteAction(STORE1);
   };
 
+  // Function to undo an action
   const undo = async () => {
     await performAction(UNDO_STORE_NAME, REDO_STORE_NAME);
   };
 
+  // Function to redo an action
   const redo = async () => {
     await performAction(REDO_STORE_NAME, UNDO_STORE_NAME);
-
   };
 
-
+  // Function to validate a class
   const validatClass = (inputValue) => {
     const regex = /^(100|[1-9][0-9]?|0)%|from|to$/;
     const isValid = regex.test(inputValue);
     return isValid;
   };
 
-
-
+  // Function to handle changes
   const onChange = async (name, value, priority, unit) => {
-
-    // state.selector.properties[name] = { value, priority, unit }
-
     setIsChange(true);
     setIsStyleChange(true)
   }
 
-  const LeftTools = () => <span>Setting: &nbsp;&nbsp;
+  // Function to render the left tools
+  const LeftTools = () => (
+    <span>Setting: &nbsp;&nbsp;
+      <ColorPicker 
+        value={backgroundColor}
+        allowClear={true}
+        format={"hex"}
+        onChangeComplete={(color, hex) => {
+          const metaColor = color.metaColor;
+          const rgbColor = `rgba(${metaColor.r}, ${metaColor.g}, ${metaColor.b}, ${metaColor.a})`;
+          setBackgroundColor(rgbColor)
+        }} 
+      />
+    </span>
+  )
 
-    <ColorPicker value={backgroundColor}
-      allowClear={true}
-      format={"hex"}
-      onChangeComplete={(color, hex) => {
-        const metaColor = color.metaColor;
-        const rgbColor = `rgba(${metaColor.r}, ${metaColor.g}, ${metaColor.b}, ${metaColor.a})`;
-        setBackgroundColor(rgbColor)
-      }} />
-  </span>
+  // Function to render the right tools
+  const RightTools = () => (
+    <>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginRight: 20 }}>
+        <Tooltip placement="bottom" title="Undo">
+          <Button
+            icon={<MdUndo size={20} />}
+            onClick={(e) => { e.preventDefault(); undo(); }}
+            disabled={!isChange} // Disable the button if there's no change
+          >  
+          </Button>
+        </Tooltip>
 
-  const RightTools = () => <>
-
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginRight: 20 }}>
-      <Tooltip placement="bottom" title="Undo">
-        <Button
-          icon={<MdUndo size={20} />}
-          onClick={(e) => { e.preventDefault(); undo(); }}
-        >  </Button>
-      </Tooltip>
-
-      <Tooltip placement="bottom" title="Redo">
-        <Button
-          icon={<MdRedo size={20} />}
-          onClick={(e) => { e.preventDefault(); redo(); }}
-        >  </Button>
-      </Tooltip>
-
-    </div>
-  </>
+        <Tooltip placement="bottom" title="Redo">
+          <Button
+            icon={<MdRedo size={20} />}
+            onClick={(e) => { e.preventDefault(); redo(); }}
+            disabled={!isChange} // Disable the button if there's no change
+          >  
+          </Button>
+        </Tooltip>
+      </div>
+    </>
+  )
 
   const [delay, setDelay] = useState(1);
   const [duration, setDuration] = useState(4);

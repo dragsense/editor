@@ -1,18 +1,11 @@
 import React, { Children, useEffect, useState } from 'react';
-
 import { Collapse, Layout, message, Tooltip, Button, theme, Modal } from 'antd';
-
-import { } from 'react-icons/md'
 import { ExclamationCircleFilled, ClearOutlined, DeleteOutlined } from '@ant-design/icons';
-
 import ThemeServices from '../../../../lib/services/theme';
-
-
 import SearchableSelector from '../Selector';
 import SearchableMediaQuery from '../MediaQuery';
 import { State } from '../State';
 import { Pseudo } from '../Pseudo';
-
 import Typography from '../Typography';
 import Size from '../Size';
 import Spacing from '../Spacing';
@@ -28,17 +21,14 @@ import Filter from '../Filter';
 import Svg from '../Svg';
 import List from '../List';
 import Cursor from '../Cursor';
-
-
 import { RiDeleteBin2Line, RiRestartLine } from 'react-icons/ri';
 import { STYLE_STORE_NAME, getData } from '../../../../lib/db';
 
 const { Sider } = Layout;
 const { Panel } = Collapse;
-
 const { confirm } = Modal;
 
-export default function RigthSideBar({
+export default function RightSideBar({
     children,
     state,
     selectorKey,
@@ -58,56 +48,46 @@ export default function RigthSideBar({
     const selector = state.selector;
 
     const [keys, setKeys] = useState(menuKeys);
-    const [elemetState, setState] = useState('');
-
-
+    const [elementState, setState] = useState('');
 
     const handleMenuOpenChange = (key) => {
-
-
         setKeys(key.length > 0 ? key : menuKeys);
     };
 
-    const onSelectState = async (elemetState, value) => {
-
+    const onSelectState = async (elementState, value) => {
         if (!selector)
             return;
 
         const newSelectorText = selector.selectorText;
-
         const key = state.media || 'normal';
-
         const currentElement = await getData(state.page._id, selector._uid, 'id', STYLE_STORE_NAME)
 
         if (!currentElement.style[key])
-        currentElement.style[key] = {}
+            currentElement.style[key] = {}
 
-        if (!currentElement.style[key][elemetState || 'root'])
-        currentElement.style[key][elemetState || 'root'] = {}
+        if (!currentElement.style[key][elementState || 'root'])
+            currentElement.style[key][elementState || 'root'] = {}
 
-        const properties = currentElement.style[key][elemetState || 'root'].properties || {};
+        const properties = currentElement.style[key][elementState || 'root'].properties || {};
 
-
-        onSelect({  ...selector, properties, selectorText: newSelectorText }, elemetState);
-
-        setState(elemetState);
-
+        onSelect({ ...selector, properties, selectorText: newSelectorText }, elementState);
+        setState(elementState);
     }
 
     useEffect(() => {
         if (!selector)
-        setState('');
+            setState('');
     }, [selector])
 
     const [fonts, setFonts] = useState([]);
     const [colors, setColors] = useState([]);
     const [variables, setVariables] = useState([]);
-    
+
     const load = async () => {
         try {
             const resFonts = await ThemeServices.getFonts();
             const resColors = await ThemeServices.getColors();
-            const resVaraibles = await ThemeServices.getVariables();
+            const resVariables = await ThemeServices.getVariables();
 
             if (resFonts.fonts)
                 setFonts(resFonts.fonts.data);
@@ -115,8 +95,8 @@ export default function RigthSideBar({
             if (resColors.colors)
                 setColors(resColors.colors.data);
 
-            if (resVaraibles.variables)
-                setVariables(resVaraibles.variables.data)
+            if (resVariables.variables)
+                setVariables(resVariables.variables.data)
 
         } catch (e) {
             message.error(e?.message || 'Something went wrong');
@@ -128,219 +108,176 @@ export default function RigthSideBar({
         load();
     }, []);
 
+    function renderSearchableSelector() {
+        return (
+            <div style={{
+                display: 'flex', gap: 5,
+                alignItems: 'center',
+                justifyContent: 'space-between'
+            }}>
+                <div style={{ flex: 1 }}>
+                    <SearchableSelector
+                        state={state}
+                        animation={animation}
+                        onSelect={onSelect} />
+                </div>
+            </div>
+        );
+    }
+
+    function renderDeleteSelectorButton() {
+        return (
+            <Tooltip placement="left" title="Delete Selector">
+                <Button
+                    size='small'
+                    ghost
+                    icon={<RiDeleteBin2Line style={{ color: colorError }} />}
+                    onClick={handleDeleteSelector}
+                > </Button>
+            </Tooltip>
+        );
+    }
+
+    function handleDeleteSelector(e) {
+        e.preventDefault();
+        confirm({
+            title: 'Are you sure to delete this selector?',
+            content: "This action can't be undo.",
+            icon: <ExclamationCircleFilled />,
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk() {
+                onDelete(selector);
+            },
+            onCancel() {
+            },
+        });
+    }
+
+    function renderStateAndPseudoSelectors() {
+        return (
+            <div style={{
+                marginTop: 6,
+                display: 'flex', gap: 5,
+                alignItems: 'end',
+                justifyContent: 'space-between'
+            }}>
+                <div>{!animation && <><span style={{ marginRight: 2 }}><State state={elementState} onSelectState={onSelectState} /></span>
+                    <Pseudo state={elementState} onSelectState={onSelectState} /></>}</div>
+            </div>
+        );
+    }
+
+    function renderResetStyleButton() {
+        return (
+            <Tooltip placement="left" title="Reset Current Style">
+                <Button
+                    ghost
+                    size='small'
+                    icon={<RiRestartLine style={{ color: colorWarning }} />}
+                    onClick={handleResetStyle}
+                > </Button>
+            </Tooltip>
+        );
+    }
+
+    function handleResetStyle(e) {
+        e.preventDefault();
+        confirm({
+            title: 'Are you sure to reset the class style?',
+            content: "This action can't be undo.",
+            icon: <ExclamationCircleFilled />,
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk() {
+                selector.properties = {}
+                if (selector?.style) {
+                    for (let i = selector.style.length; i--;) {
+                        const nameString = selector.style[i];
+                        selector.style.removeProperty(nameString);
+                    }
+                }
+                onChange();
+            },
+            onCancel() {
+            },
+        });
+    }
+
+    function renderCollapse() {
+        return (
+            <Collapse
+                style={{
+                    maxHeight: '100%',
+                    overflow: 'hidden',
+                    backgroundColor: colorBgElevated,
+                }}
+                onChange={handleMenuOpenChange}
+                accordion
+            >
+                {renderPanels()}
+            </Collapse>
+        );
+    }
+
+    function renderPanels() {
+        return (
+            <>
+                {renderPanel('1', 'Typography', Typography)}
+                {renderPanel('2', 'Size', Size)}
+                {renderPanel('3', 'Space', Spacing)}
+                {renderPanel('4', 'Border', Border)}
+                {renderPanel('5', 'Background', Background)}
+                {renderPanel('6', 'Position', Position)}
+                {renderPanel('7', 'Display', Display)}
+                {renderPanel('8', 'Shadow', Shadow)}
+                {renderPanel('9', 'Transform', Transform)}
+                {renderPanel('10', 'Transition', Transition)}
+                {keys.includes('11') && !animation && renderPanel('11', 'Animation', Animation)}
+                {renderPanel('12', 'Filter', Filter)}
+                {renderPanel('13', 'Svg', Svg)}
+                {renderPanel('14', 'List', List)}
+                {renderPanel('15', 'Cursor', Cursor)}
+            </>
+        );
+    }
+
+    function renderPanel(key, header, Component) {
+        if (keys.includes(key)) {
+            return (
+                <Panel showArrow={false}
+                    header={header}
+                    key={key}
+                    className='style-item-panel'
+                >
+                    <Component style={selector?.style}
+                        fonts={fonts} colors={colors} variables={variables}
+                        properties={selector?.properties} onChangeStyle={onChange} />
+                </Panel>
+            );
+        }
+    }
+
+
     return <>
-
-
-
         <Sider width={width} style={{
-
             borderRadius: 10,
             paddingBottom: 10
         }}>
-
             <div style={{ padding: 5 }}>
-                <div style={{
-                    display: 'flex', gap: 5,
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
-                }}>
-                    <div style={{ flex: 1 }}>
-
-                        <SearchableSelector
-
-                            state={state}
-                            animation={animation}
-                            onSelect={onSelect} />
-                    </div>
-
-
-                    <Tooltip placement="left" title="Delete Selector">
-                        <Button
-                            size='small'
-                            ghost
-                            icon={<RiDeleteBin2Line style={{ color: colorError }} />}
-                            onClick={(e) => {
-                                e.preventDefault();
-
-                                confirm({
-                                    title: 'Are you sure to delete this selector?',
-                                    content: "This action can't be undo.",
-
-                                    icon: <ExclamationCircleFilled />,
-                                    okText: 'Yes',
-                                    okType: 'danger',
-                                    cancelText: 'No',
-                                    onOk() {
-                                        onDelete(selector);
-                                    },
-                                    onCancel() {
-
-                                    },
-                                });
-                            }}
-                        > </Button>
-                    </Tooltip>
-
-
-
-
-                </div>
-                <div style={{
-                    marginTop: 6,
-                    display: 'flex', gap: 5,
-                    alignItems: 'end',
-                    justifyContent: 'space-between'
-                }}>
-                    <div>{!animation && <><span style={{marginRight: 2}}><State state={elemetState} onSelectState={onSelectState} /></span>
-                        <Pseudo state={elemetState} onSelectState={onSelectState} /></>}</div>
-
-                    <Tooltip placement="left" title="Reset Current Style">
-                        <Button
-                            ghost
-                            size='small'
-                            icon={<RiRestartLine style={{ color: colorWarning }} />}
-                            onClick={(e) => {
-                                e.preventDefault();
-
-                                confirm({
-                                    title: 'Are you sure to reset the class style?',
-                                    content: "This action can't be undo.",
-                                    icon: <ExclamationCircleFilled />,
-                                    okText: 'Yes',
-                                    okType: 'danger',
-                                    cancelText: 'No',
-                                    onOk() {
-                                        selector.properties = {}
-                                        if (selector?.style) {
-                                            for (let i = selector.style.length; i--;) {
-                                                const nameString = selector.style[i];
-                                                selector.style.removeProperty(nameString);
-                                            }
-                                        }
-                                        onChange();
-                                    },
-                                    onCancel() {
-
-                                    },
-                                });
-
-                            }}
-
-                        > </Button>
-                    </Tooltip>
-                </div>
+                {renderSearchableSelector()}
+                {renderDeleteSelectorButton()}
+                {renderStateAndPseudoSelectors()}
+                {renderResetStyleButton()}
             </div>
 
             <div style={{ maxHeight: '65vh', overflow: 'auto', padding: 5 }}>
-
-                <Collapse
-                    style={{
-                        maxHeight: '100%',
-                        overflow: 'hidden',
-                        backgroundColor: colorBgElevated,
-                    }}
-                    onChange={handleMenuOpenChange}
-                    accordion
-                    
-                >
-
-                    {keys.includes('1') && <Panel showArrow={false}
-                        header="Typeography"
-                        key="1"
-                        className='style-item-panel'
-                        >
-                        <Typography style={selector?.style} 
-                        fonts={fonts} colors={colors} variables={variables}
-                        properties={selector?.properties} onChangeStyle={onChange} />
-                    </Panel>}
-                    {keys.includes('2') && <Panel showArrow={false}
-                        header="Size"
-                        key="2"
-                        className='style-item-panel'
-                        >
-                        <Size style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
-                    </Panel>}
-                    {keys.includes('3') && <Panel showArrow={false}
-                        header="Space"
-                        key="3"       className='style-item-panel'>
-                        <Spacing style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
-                    </Panel>}
-                    {keys.includes('4') && <Panel showArrow={false}
-                        header="Border"
-                        key="4"       className='style-item-panel'>
-                        <Border style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
-                    </Panel>}
-                    {keys.includes('5') && <Panel showArrow={false}
-                        header="Background"
-                        key="5"       className='style-item-panel'>
-                        <Background style={selector?.style}
-                        fonts={fonts} colors={colors} variables={variables}
-                            properties={selector?.properties}
-                            onChangeStyle={onChange} />
-                    </Panel>}
-                    {keys.includes('6') && <Panel showArrow={false}
-                        header="Position"
-                        key="6"       className='style-item-panel'>
-                        <Position style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
-                    </Panel>}
-                    {keys.includes('7') && <Panel showArrow={false}
-                        header="Display"
-                        key="7"       className='style-item-panel'>
-                        <Display style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
-                    </Panel>}
-
-                    {keys.includes('8') && <Panel showArrow={false}
-                        header="Shadow"
-                        key="8"       className='style-item-panel'>
-                        <Shadow style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
-                    </Panel>}
-
-                    {keys.includes('9') && <Panel showArrow={false}
-                        header="Transform"
-                        key="9"       className='style-item-panel'>
-                        <Transform style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
-                    </Panel>}
-
-                    {keys.includes('10') && <Panel showArrow={false}
-                        header="Transition"
-                        key="10"       className='style-item-panel'>
-                        <Transition style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
-                    </Panel>}
-
-                    {(keys.includes('11') && !animation) && <Panel showArrow={false}
-                        header="Animation"
-                        key="11"       className='style-item-panel'>
-                        <Animation style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
-                    </Panel>}
-
-                    {(keys.includes('12')) && <Panel showArrow={false}
-                        header="Filter"
-                        key="12"       className='style-item-panel'>
-                        <Filter style={selector?.style} fonts={fonts} colors={colors} variables={variables} properties={selector?.properties} onChangeStyle={onChange} />
-                    </Panel>}
-                    {(keys.includes('13')) && <Panel showArrow={false}
-                        header="Svg"
-                        key="13"       className='style-item-panel'>
-                        <Svg style={selector?.style} fonts={fonts} colors={colors} variables={variables} onChangeStyle={onChange} properties={selector?.properties} />
-                    </Panel>}
-                    {(keys.includes('14')) && <Panel showArrow={false}
-                        header="List"
-                        key="14"       className='style-item-panel'>
-                        <List style={selector?.style} fonts={fonts} colors={colors} variables={variables} onChangeStyle={onChange} properties={selector?.properties} />
-                    </Panel>}
-                    {(keys.includes('15')) && <Panel showArrow={false}
-                        header="Cursor"
-                        key="15"       className='style-item-panel'>
-                        <Cursor style={selector?.style} fonts={fonts} colors={colors} variables={variables} onChangeStyle={onChange} properties={selector?.properties} />
-                    </Panel>}
-
-                </Collapse>
+                {renderCollapse()}
             </div>
             {children}
-
         </Sider>
-
     </>
-
 }
 

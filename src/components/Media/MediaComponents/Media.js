@@ -1,6 +1,6 @@
-import MediaList from './MediaList';
+// Importing necessary components and libraries
 import AddMedia from './Add';
-import UplaodComponent from './Upload';
+import UploadComponent from './Upload';
 import { Button, Spin, Divider, message, Input } from 'antd';
 import MediaServices from "../../../lib/services/media";
 import { useEffect, useReducer, useCallback, useState } from "react";
@@ -14,30 +14,36 @@ const initialState = {
     loading: false
 };
 
+// Limit for the number of media items to fetch in one request
 const LIMIT = 25;
 
-// Reducer for handling media-related actions
+// Reducer function for managing state
+// Handles various actions related to media items
 const mediaReducer = (state, action) => {
     switch (action.type) {
         case "start":
-            return { ...state, loading: true };
         // Loading and SearchLoading cases combined for cleaner code
         case "load":
         case "searchLoad":
-            return { ...state, media: action.data, total: action.total, loading: false };
         case "add":
+            // Add a new media item to the state
             return { ...state, media: [action.data, ...state.media], total: state.total + 1 };
         case "edit":
+            // Edit an existing media item
             return { ...state, single: action.data };
         case "close":
+            // Close the media item
             return { ...state, single: null };
         case "update":
+            // Update a media item in the state
             const updatedMedia = state.media.map(item => item._id === action.single._id ? action.single : item);
             return { ...state, media: updatedMedia };
         case "delete":
+            // Delete a media item from the state
             const filteredMedia = state.media.filter(item => item._id !== action.id);
             return { ...state, media: filteredMedia, total: state.total - 1 };
         case "finish":
+            // Finish loading
             return { ...state, loading: false };
         default:
             return state;
@@ -94,9 +100,8 @@ export default function Media({ type, srcs, onSelect }) {
         }
     }, [type, searchQuery, handleSearch, loadMedia]);
 
-
-     // Function to add a new media entry
-     const onAdd = (single) => {
+    // Function to add a new media entry
+    const onAdd = (single) => {
         dispatch({ type: 'add', data: single });
     };
 
@@ -141,9 +146,10 @@ export default function Media({ type, srcs, onSelect }) {
         }
     };
 
+    // Render the component
     return (
         <div style={{ textAlign: 'center' }}>
-            <UplaodComponent type={type} onAdd={onAdd} />
+            <UploadComponent type={type} onAdd={onAdd} />
             <Divider />
             <Input
                 type="text"

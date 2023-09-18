@@ -1,39 +1,38 @@
-
 import { Button, Divider, Card } from 'antd';
-import { useState, useEffect, Children } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import ElementForm from './ElementForm';
-
-
 import { getAllData } from "../../../../../../../lib/db";
 
-
-export default function Form({ state, cascaderStates }) {
-
-    const [formState, setState] = useState({});
-
-
-    const fetchForm = async () => {
-
-        const _id = state.page._id;
-        const node = await getAllData(_id);
-
-        if (!node || node.type !== 'form')
-            return;
-
-        setState({ ...node });
-    }
-
+// Memoized function to fetch form data
+const useFetchForm = (pageId) => {
+    const [formState, setFormState] = useState({});
 
     useEffect(() => {
+        const fetchForm = async () => {
+            const node = await getAllData(pageId);
 
-        if(!state.page)
-        return;
+            if (!node || node.type !== 'form')
+                return;
 
-        fetchForm();
+            setFormState({ ...node });
+        }
 
-    }, [state.page]);
+        if(pageId) {
+            fetchForm();
+        }
+    }, [pageId]);
 
+    return formState;
+}
 
+export default function Form({ state, cascaderStates }) {
+    // Destructure page from state
+    const { page } = state;
+
+    // Use memoized function to fetch form data
+    const formState = useFetchForm(page?._id);
+
+    // Render form if formState is valid
     return (formState._id && formState.type === 'form') ? <> 
         <Divider orientation="center" orientationMargin="0">Tag: {state.node.tagName} </Divider>
 

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 
 import { PlusOutlined, DragOutlined } from '@ant-design/icons';
@@ -8,12 +7,25 @@ import Draggable from 'react-draggable';
 
 import { TagComponent } from '../Panel/LeftPanel/Tag';
 
-
 import { ToolBarButton } from "./ToolBar";
 import Table from './Table'
 import Columns from './Columns';
 
+// Function to handle the addition of elements
+const handleAddElement = async (tag, before, currentElement, onAddElement) => {
+    let status = false;
+    if (tag) {
+        status = await onAddElement(tag, before, currentElement);
+    }
+    return status;
+}
 
+// Function to handle the saving of columns
+const handleSaveCols = async (cols, currentElement, onAddElement) => {
+    for (let i = 0; i < cols.count; i++) {
+        await onAddElement({ tag: 'div', type: 'layout', layout: "fg-child", width: cols.widths[i] }, undefined, currentElement);
+    }
+}
 
 function AddElement({ onAddElement, currentElement, setCurrentElement }) {
 
@@ -26,14 +38,12 @@ function AddElement({ onAddElement, currentElement, setCurrentElement }) {
 
     const [tag, setTag] = useState('');
 
-
-
     const onSelect = (tag) => {
         setTag(tag)
     }
 
     const [open, setOpen] = useState(false);
-    const [disabled, setDisabled] = useState(false);
+    const [disabled, setDisabled] = useState(true);
     const [bounds, setBounds] = useState({
         left: 0,
         top: 0,
@@ -42,77 +52,44 @@ function AddElement({ onAddElement, currentElement, setCurrentElement }) {
     });
 
     useEffect(() => {
-
-        if (currentElement?.dataset)
+        if (currentElement?.dataset) {
             showModal();
-        else
+        } else {
             setOpen(false);
-
+        }
     }, [currentElement]);
 
-
     const showModal = async () => {
-
-        if (currentElement.layout.toLowerCase() === 'list' || 
-        currentElement.layout.toLowerCase() === 'ul' ||
-        currentElement.layout.toLowerCase() === 'ol') {
+        if (['list', 'ul', 'ol'].includes(currentElement.layout.toLowerCase())) {
             await onAddElement({ tag: 'li' }, false, currentElement);
             onCancel();
-        }
-        else
+        } else {
             setOpen(true);
-    };
-    const onAddBefore = async (e) => {
-        let status = false;
-
-        if (tag) {
-            status = await onAddElement(tag, true, currentElement);
         }
-        onCancel();
+    };
 
+    const onAddBefore = async (e) => {
+        let status = await handleAddElement(tag, true, currentElement, onAddElement);
+        onCancel();
     };
 
     const onAdd = async (e) => {
-
-        let status = false;
-
-        if (tag) {
-
-            status = await onAddElement(tag, false, currentElement);
-        }
-
+        let status = await handleAddElement(tag, false, currentElement, onAddElement);
         onCancel();
-
-
     }
-
-
 
     const onCancel = () => {
         setCurrentElement({});
     };
 
-
-
     const onSaveTable = async (e) => {
-
-        let status = false;
-
-        status = await onAddElement({}, 1, currentElement, true);
-
+        let status = await onAddElement({}, 1, currentElement, true);
         setOpen(!status);
     };
 
     const onSaveCols = async (e) => {
-
-
-        for (let i = 0; i < cols.count; i++) {
-            await onAddElement({ tag: 'div', type: 'layout', layout: "fg-child", width: cols.widths[i] }, undefined, currentElement);
-        }
-
-
+        await handleSaveCols(cols, currentElement, onAddElement);
         onCancel();
-
     };
 
     const onStart = (_event, uiData) => {
@@ -130,9 +107,6 @@ function AddElement({ onAddElement, currentElement, setCurrentElement }) {
     };
 
     return <>
-
-
-
         <Modal
             title={
                 <div
@@ -148,10 +122,8 @@ function AddElement({ onAddElement, currentElement, setCurrentElement }) {
                     onMouseOut={() => {
                         setDisabled(true);
                     }}
-
                     onFocus={() => { }}
                     onBlur={() => { }}
-
                 >
                     <DragOutlined />
                 </div>
@@ -163,20 +135,15 @@ function AddElement({ onAddElement, currentElement, setCurrentElement }) {
             footer={
                 <div style={{ padding: 5 }}>
                     <Button onClick={onCancel}>Cancel</Button>
-              
-                    {/* {currentElement.layout == 'table' ? <Button type="primary" onClick={onSaveTable}>Save</Button>*/}
                     {currentElement.layout === 'Flex' || currentElement.layout === 'Grid' ?
-
-                        <Button type="primary" onClick={onSaveCols}>Add</Button>
+                        <Button type="primary" onClick={onSaveCols} disabled={!cols.count}>Add</Button>
                         :
                         <>
-                            <Button onClick={onAddBefore}>Before</Button>
-                            <Button type="primary" onClick={onAdd}>Append</Button>
-
+                            <Button onClick={onAddBefore} disabled={!tag}>Before</Button>
+                            <Button type="primary" onClick={onAdd} disabled={!tag}>Append</Button>
                         </>}
                 </div>
             }
-
             modalRender={(modal) => (
                 <Draggable
                     disabled={disabled}
@@ -188,29 +155,19 @@ function AddElement({ onAddElement, currentElement, setCurrentElement }) {
                     </div>
                 </Draggable>
             )}
-
-
         >
-
             <div style={{ height: '60vh', overflow: 'auto' }}>
-
-                {/* {currentElement.layout == 'table' ? <Table onSelect={onSelect} element={currentElement} /> : */}
-                    {currentElement.layout === 'Flex' || currentElement.layout === 'Grid' ?
-                        <Columns setCols={setCols} />
-                        : 
-
-                <TagComponent
-                    onSelect={onSelect}
-                    tag={tag}
-                    width={'100%'}
-                    gridStyle={{ width: '100%', textAlign: 'center' }} />}
+                {currentElement.layout === 'Flex' || currentElement.layout === 'Grid' ?
+                    <Columns setCols={setCols} />
+                    : 
+                    <TagComponent
+                        onSelect={onSelect}
+                        tag={tag}
+                        width={'100%'}
+                        gridStyle={{ width: '100%', textAlign: 'center' }} />}
             </div>
         </Modal>
-
-
-
     </>
-
 }
 
 export default AddElement;

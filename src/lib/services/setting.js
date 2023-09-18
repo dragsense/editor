@@ -1,29 +1,14 @@
-import { fetcher } from '../fetch';
+import { createApiRequest } from '../fetch';
 
+
+
+// This object provides a method to fetch the settings of the project
+// It uses the createApiRequest function to send the request
 const SettingServices = {
 
-    get: async function () {
-
-        const response = await window.autocode.makeApiRequest();
-
-
-        const project = response?.project;
-
-        if (!project) {
-            throw new Error("Project Not Found.");
-            return;
-        }
-
-        const url = project.url + `/settings`;
-        const apikey = project.apikey;
-        const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
-
-        return fetcher(`${sanitizedUrl}`, {
-            method: 'Get',
-            headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey },
-        });
-    },
-
+    // This method fetches the settings of the project
+    get: () => createApiRequest('settings')
+  
 
 }
 

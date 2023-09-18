@@ -1,11 +1,28 @@
-
-import React from "react";
+import React, { useCallback } from "react";
 import { Button, Tooltip } from "antd";
 import { MdUndo, MdRedo } from "react-icons/md";
 import BreakPoints from "../../BreakPoint";
 import { Link } from 'react-router-dom';
 import { EyeFilled, EyeOutlined } from "@ant-design/icons";
 
+// Splitting the code into smaller sub-components for better readability and maintainability
+const NavigationButtons = ({ undo, redo }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <Tooltip placement="bottom" title="Undo">
+            <Button
+                icon={<MdUndo size={20} />}
+                onClick={(e) => { e.preventDefault(); undo(); }}
+            >  </Button>
+        </Tooltip>
+
+        <Tooltip placement="bottom" title="Redo">
+            <Button
+                icon={<MdRedo size={20} />}
+                onClick={(e) => { e.preventDefault(); redo(); }}
+            >  </Button>
+        </Tooltip>
+    </div>
+);
 
 const EditorNav = ({
     onBack,
@@ -24,7 +41,8 @@ const EditorNav = ({
     children
 }) => {
 
-    const handleBackClick = async (e) => {
+    // Using useCallback to avoid unnecessary re-renders
+    const handleBackClick = useCallback(async (e) => {
         e.preventDefault();
         if (state.isChange) {
             const shouldSave = await window.autocode.checkUnsavedChanges(state.isChange);
@@ -41,7 +59,7 @@ const EditorNav = ({
 
         // Navigate back
         onBack();
-    };
+    }, [onBack, onSubmit, state.isChange]);
 
     return (<>
 
@@ -53,10 +71,7 @@ const EditorNav = ({
             padding: '5px 20px'
         }}>
 
-
-
             <img src="./images/logo/nav-logo.png" width="50" alt="autocode-logo" />
-
 
             <BreakPoints windowWidth={windowWidth} setWindowWidth={setWindowWidth}
                 minMax={minMax}
@@ -64,22 +79,7 @@ const EditorNav = ({
                 orientation={orientation}
                 setOrientation={setOrientation} />
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <Tooltip placement="bottom" title="Undo">
-                    <Button
-                        icon={<MdUndo size={20} />}
-                        onClick={(e) => { e.preventDefault(); undo(); }}
-                    >  </Button>
-                </Tooltip>
-
-                <Tooltip placement="bottom" title="Redo">
-                    <Button
-                        icon={<MdRedo size={20} />}
-                        onClick={(e) => { e.preventDefault(); redo(); }}
-                    >  </Button>
-                </Tooltip>
-
-            </div>
+            <NavigationButtons undo={undo} redo={redo} />
 
             <div>
 
@@ -125,7 +125,6 @@ export const EditorStyleNav = ({
     orientation,
     setOrientation, }) => {
 
-
     return (<>
 
         <div style={{
@@ -135,29 +134,13 @@ export const EditorStyleNav = ({
             width: '100%',
         }}>
 
-
             <BreakPoints windowWidth={windowWidth} setWindowWidth={setWindowWidth}
                 minMax={minMax}
                 setMinMax={setMinMax}
                 orientation={orientation}
                 setOrientation={setOrientation} />
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <Tooltip placement="bottom" title="Undo">
-                    <Button
-                        icon={<MdUndo size={20} />}
-                        onClick={(e) => { e.preventDefault(); undo(); }}
-                    >  </Button>
-                </Tooltip>
-
-                <Tooltip placement="bottom" title="Redo">
-                    <Button
-                        icon={<MdRedo size={20} />}
-                        onClick={(e) => { e.preventDefault(); redo(); }}
-                    >  </Button>
-                </Tooltip>
-
-            </div>
+            <NavigationButtons undo={undo} redo={redo} />
         </div>
 
     </>

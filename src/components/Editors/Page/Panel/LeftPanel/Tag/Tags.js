@@ -15,7 +15,6 @@ export default function Tags({ gridStyle, tag, onSelect, width }) {
     return (<div style={{ padding: 5, maxWidth: width ? width : '200px', maxHeight: '80vh', overflow: 'auto' }}><Tabs
         defaultActiveKey="1" tabBarStyle={{ background: colorBgBase, padding: 5 }}>
 
-
         <TabPane tab={<span>
             Layouts
         </span>} key="1">
@@ -43,8 +42,6 @@ export default function Tags({ gridStyle, tag, onSelect, width }) {
                     gridStyle={{ ...gridStyle, background: colorBgContainer }} />
             </div>
         </TabPane>
-
-
         <TabPane tab={<span>
             Texts
         </span>} key="3">
@@ -59,7 +56,6 @@ export default function Tags({ gridStyle, tag, onSelect, width }) {
                     gridStyle={{ ...gridStyle, background: colorBgContainer }} />
             </div>
         </TabPane>
-
         <TabPane tab={<span>
             Media
         </span>} key="4">
@@ -73,7 +69,6 @@ export default function Tags({ gridStyle, tag, onSelect, width }) {
                     gridStyle={{ ...gridStyle, background: colorBgContainer }} />
             </div>
         </TabPane>
-
         <TabPane tab={<span>
             I/O
         </span>} key="5">

@@ -1,11 +1,6 @@
-import { fetcher } from '../fetch';
-
-import axios from 'axios'
+import { createApiRequest } from '../fetch';
 
 const PageServices = {
-
-
-    
 }
 
 export default PageServices;

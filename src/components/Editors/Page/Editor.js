@@ -1,3 +1,4 @@
+// Importing necessary libraries and components
 import React, { useEffect, useState, useRef } from "react";
 import { Spin, Alert, Layout } from "antd";
 import { usePageStates } from "./PageProvider";
@@ -9,16 +10,20 @@ import CanvasEditor from "../Canvas";
 import Preview from './Preview';
 import { EditorNav } from '../../Nav';
 
+// Destructuring Content from Layout
 const { Content } = Layout;
 
-
+// Main Editor component
 export default function Editor({ children, _id, pageType, onBack }) {
 
+    // State for window width
     const [windowWidth, setWindowWidth] = useState("100%");
 
+    // State for minMax and orientation
     const [minMax, setMinMax] = useState('');
     const [orientation, setOrientation] = useState("");
 
+    // Using page states
     const { state,
         undo,
         redo,
@@ -40,11 +45,12 @@ export default function Editor({ children, _id, pageType, onBack }) {
         onChange,
         onEdit } = usePageStates();
 
+    // Effect to handle media change
     useEffect(() => {
         onChangeMedia(minMax, orientation, windowWidth);
     }, [minMax, orientation, windowWidth])
 
-
+    // Rendering the Editor component
     return <>
 
         <EditorNav
@@ -69,15 +75,9 @@ export default function Editor({ children, _id, pageType, onBack }) {
                 minHeight: 'calc(100vh - 56px)'
             }}>
                 <LeftPanelComponent />
-
-
                 <Content>
-
                     {(!state.page && state.loading) && <Alert style={{ margin: '10px' }} message="Please Select the Page Or Component" />}
-
-
                     <CanvasEditor windowWidth={windowWidth} setWindowWidth={setWindowWidth}>
-
                         <IFrame
                             _id={_id} pageType={pageType}
                             onLoad={onEdit} node={state.node}
@@ -85,33 +85,20 @@ export default function Editor({ children, _id, pageType, onBack }) {
                             onMove={onMove}
                             onDelete={onDelete}
                             onCopy={onCopy}
-
                             onChange={onChange}
                             onAdd={onAdd}
                             state={state}
                             onUpdateSelector={onUpdateSelector}
                             onUpdate={onUpdate}
                         >
-
                             {state.page &&
                                 <Elements page={state.page}
                                     onUpdateStates={onUpdateStates}
                                     pageUpdated={state.pageUpdated}
                                     loading={state.loading} />
                             }
-
-
-
-
                         </IFrame>
-
-
                     </CanvasEditor>
-
-
-
-
-
                 </Content>
 
                 {<RightPanelComponent
@@ -130,13 +117,11 @@ export default function Editor({ children, _id, pageType, onBack }) {
 
             </Layout>
 
-
             {previewMode && <div style={{
                 position: 'absolute',
                 background: "#fff", opacity: 1,
                 top: 115, left: 0, right: 0, bottom: 0
             }}><CanvasEditor windowWidth={windowWidth} setWindowWidth={setWindowWidth}>
-
                     <PreviewIFrame
                         _id={state.page?._id} pageType={state.type}
                         onLoad={onPreview}
@@ -144,14 +129,9 @@ export default function Editor({ children, _id, pageType, onBack }) {
                     >
                         <Preview page={state.page} loading={state.loading} preview={state.preview} />
                     </PreviewIFrame>
-
-
                 </CanvasEditor></div>}
 
         </EditorNav>
-
-
-
         {state.loading && <div style={{
             position: 'fixed',
             width: '100%',
@@ -180,10 +160,6 @@ export default function Editor({ children, _id, pageType, onBack }) {
             }}
         >
         </Spin>
-
     </>
-
-
-
 };
 

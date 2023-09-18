@@ -10,9 +10,6 @@ export default function Ruler({
     token: { colorText, colorBgBase, },
   } = theme.useToken();
 
-
-
-
   const isLightBackground = colorBgBase === "#fff";
 
   // Generate gradient colors based on the background color's luminance

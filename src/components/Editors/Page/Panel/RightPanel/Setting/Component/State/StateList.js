@@ -46,7 +46,7 @@ const StateList = ({ states, setNewState, onRemove }) => {
 
   return (
     states && <List
-      dataSource={Object.values(states)}
+      dataSource={Object.values(states || {})}
       renderItem={(item, index) => (
         <List.Item key={item.key}>
           <List.Item.Meta title={item.key || 'event'+index} description={`Type: ${item.type || 'scroll'}`} />

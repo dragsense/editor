@@ -1,42 +1,37 @@
-
 import React, { useMemo } from 'react';
 
+// Function to create custom attributes for the element
+const createCustomAttributes = ({ _uid, pos, name, onMouseMove, onClick }) => ({
+    onMouseMove: onMouseMove,
+    onClick: onClick,
+    key:_uid,
+    "data-id": _uid,
+    "data-pos": pos,
+    "data-name": name,
+    "draggable": false,
+});
+
+// Function to create a disabled style for the element
+const createDisabledStyles = () => ({
+    opacity: 0.2,
+    border: '1px dashed #ccc',
+});
+
 const CloseTag = (props) => {
-    const { _uid, pos, name, children, conds,
-        onMouseMove,
-        
-        onClick, disabled } = props;
+    const { _uid, pos, name, children, conds, onMouseMove, onClick, disabled } = props;
 
-    const disabledStyles = {
-        opacity: 0.2,
-        border: '1px dashed #ccc',
-    };
-    const CloseElement = React.cloneElement(children, {
-        customAttributes: {
-            onMouseMove: onMouseMove,
-            onClick: onClick,
+    // useMemo to optimize performance by memoizing the output of createCustomAttributes and createDisabledStyles
+    const customAttributes = useMemo(() => createCustomAttributes({ _uid, pos, name, onMouseMove, onClick }), [_uid, pos, name, onMouseMove, onClick]);
+    const disabledStyles = useMemo(createDisabledStyles, []);
 
-            key:_uid,
-            "data-id": _uid,
-            "data-pos": pos,
-            "data-name": name,
-            "draggable": false,
-        }
-    })
+    // Clone the children element with custom attributes
+    const CloseElement = React.cloneElement(children, { customAttributes });
 
-    const disabledElement = React.cloneElement(children, {
-        customAttributes: {
-            onMouseMove: onMouseMove,
+    // Clone the children element with custom attributes and disabled styles if conditions are not met
+    const disabledElement = React.cloneElement(children, { customAttributes: { ...customAttributes, style: conds ? {} : disabledStyles } });
 
-            onClick: onClick,
-            style: conds ? {} : disabledStyles
-        }
-    });
-
-
+    // Return the disabled element if disabled prop is true, else return the CloseElement
     return disabled ? disabledElement : CloseElement;
-
-
 };
 
 export default CloseTag;

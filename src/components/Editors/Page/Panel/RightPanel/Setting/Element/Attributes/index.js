@@ -2,7 +2,6 @@
 import attributes from './attributesList.json'
 import List from './List'
 
-
 export default function ElementAttribute({ cascaderStates, state, setState, setIsChange }) {
 
   return <List
@@ -13,8 +12,6 @@ export default function ElementAttribute({ cascaderStates, state, setState, setI
     setState={setState}
     setIsChange={setIsChange}
   />
-
-
 
 }
 

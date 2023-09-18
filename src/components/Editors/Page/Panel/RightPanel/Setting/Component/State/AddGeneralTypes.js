@@ -1,8 +1,5 @@
 import { Form, Space, Button, Select, Input, Checkbox, Modal, Image } from "antd";
-
-
-import { useState } from "react";
-
+import { useState, useEffect } from "react";
 import { TYPES } from '../ElementComponent';
 import MediaModal from "../../../../../../../Media";
 import Video from "../../../../../../../Media/Video";
@@ -12,6 +9,7 @@ import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
 const { Option } = Select;
 const { TextArea } = Input;
 
+// Initial state for the form
 const initialState = {
     key: '',
     defaultValue: null,
@@ -21,80 +19,99 @@ const initialState = {
     states: {}
 };
 
+// Function to handle form changes
+const handleFormChange = (state, setState, name, value) => {
+    setState({ ...state, [name]: value });
+}
+
+// Function to handle image changes
+const handleImageChange = (state, setState, type, media) => {
+    if (type == 'images') {
+        setState({
+            ...state,
+            defaultValue: media[0].src,
+            src: media[0]
+        });
+    } else {
+        setState({
+            ...state,
+            srcs: media
+        });
+    }
+}
+
+// Function to handle type changes
+const handleTypeChange = (state, setState, isChange, value) => {
+    if(isChange) {
+        Modal.confirm({
+            title: 'Switching Type',
+            content: 'Are you sure you want to switch to the type? Any unsaved changes may be lost.',
+            onOk: () => {
+                setState({ ...initialState,states: {}, key: state.key, new: state.new, type: value });
+            },
+            onCancel: () => {
+                // Do nothing when the user cancels the confirmation
+            },
+        });
+    } else {
+        setState({ ...state, type: value });
+    }
+}
 
 export default function AddGeneralTypes({ isChange, setState, state }) {
 
     const [mediaModal, setMediaModal] = useState(false);
     const [type, setType] = useState("images");
+    const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+
+    // Check if there is any change in the form to enable or disable the button
+    useEffect(() => {
+        setIsButtonDisabled(JSON.stringify(state) === JSON.stringify(initialState));
+    }, [state]);
 
     const onChange = (event) => {
         event.preventDefault();
-
         let value = event.target.value;
         const name = event.target.name;
-
-        setState({ ...state, [name]: value })
+        handleFormChange(state, setState, name, value);
     }
-
 
     const onChangeBoolean = (event) => {
         event.preventDefault();
-
-        setState({ ...state, defaultValue: !state.defaultValue })
+        handleFormChange(state, setState, 'defaultValue', !state.defaultValue);
     };
 
-
     const onChangeImage = (media) => {
-
-
-        if (type == 'images') {
-            setState({
-                ...state,
-                defaultValue: media[0].src,
-                src: media[0]
-            });
-        }
-        else {
-            setState({
-                ...state,
-                srcs: media
-            });
-        }
-
+        handleImageChange(state, setState, type, media);
     }
 
     const onChangeType = (value) => {
-
-        if(isChange)
-                Modal.confirm({
-                    title: 'Switching Type',
-                    content: 'Are you sure you want to switch to the type? Any unsaved changes may be lost.',
-                    onOk: () => {
-                     
-                        setState({ ...initialState,states: {}, key: state.key, new: state.new, type: value });
-                    },
-                    onCancel: () => {
-                        // Do nothing when the user cancels the confirmation
-                    },
-                });
-                else
-                setState({ ...state, type: value });
-
+        handleTypeChange(state, setState, isChange, value);
     }
 
-
     const srcs = type == 'images' ? state.src : [...(state.srcs ? state.srcs : [])];
+    // Function to handle media modal opening
+    const handleMediaModalOpen = (mediaType) => {
+        setType(mediaType);
+        setMediaModal(true);
+    }
+
+    // Function to handle media deletion
+    const handleMediaDelete = (index) => {
+        const newSrcs = [...state.srcs];
+        newSrcs.splice(index, 1);
+        setState({ ...state, srcs: newSrcs });
+    }
 
     return <>
 
         <Form.Item label="Select Type" className="font-500">
             <Select style={{ width: 120 }} value={state.type} defaultValue={state.type} onChange={onChangeType}>
-                {TYPES.map(type => <Option value={type.value}>{type.label}</Option>)}
-
+                {TYPES.map(type => <Option key={type.value} value={type.value}>{type.label}</Option>)}
             </Select>
-
         </Form.Item>
 
+        <Button disabled={isButtonDisabled}>Submit</Button>
 
         {state.type == 'boolean' ?
             <Form.Item label="Value" className="font-500">
@@ -106,11 +123,7 @@ export default function AddGeneralTypes({ isChange, setState, state }) {
 
                     <Image
 
-                        onClick={() => {
-                            setType('images')
-
-                            setMediaModal(true)
-                        }}
+                        onClick={() => handleMediaModalOpen('images')}
                         preview={false}
                         style={{
                             width: '120px',
@@ -126,22 +139,13 @@ export default function AddGeneralTypes({ isChange, setState, state }) {
                 : state.type == 'video' ?
                     <>
                         <Form.Item label="srcs:">
-                            <Button onClick={() => {
-                                setType('videos')
-
-                                setMediaModal(true)
-                            }} icon={<UploadOutlined />}>Upload</Button>
+                            <Button onClick={() => handleMediaModalOpen('videos')} icon={<UploadOutlined />}>Upload</Button>
                             <br />
                             <br />
                             <div style={{ display: 'flex', gap: 10 }}>
                                 {Array.isArray(state.srcs) && state.srcs.map((src, index) => (
                                     <div key={index} style={{ width: 320, position: 'relative' }}>
-                                        <DeleteOutlined style={{ position: 'absolute', top: -20, right: 0 }} onClick={() => {
-                                            state.srcs.splice(index, 1);
-                                            setState({
-                                                ...state
-                                            });
-                                        }} />
+                                        <DeleteOutlined style={{ position: 'absolute', top: -20, right: 0 }} onClick={() => handleMediaDelete(index)} />
                                         <Video src={src.src} alt={src.alt} mimetype={src.mimetype} />
                                     </div>
                                 ))}
@@ -150,11 +154,7 @@ export default function AddGeneralTypes({ isChange, setState, state }) {
                         <Form.Item label="Poster">
                             <Image
 
-                                onClick={() => {
-                                    setType('images')
-
-                                    setMediaModal(true)
-                                }}
+                                onClick={() => handleMediaModalOpen('images')}
                                 preview={false}
                                 style={{
                                     width: '100%',
@@ -170,22 +170,13 @@ export default function AddGeneralTypes({ isChange, setState, state }) {
                     </>
                     : state.type == 'audio' ?
                         <Form.Item label="srcs:">
-                            <Button onClick={() => {
-                                setType('audios')
-
-                                setMediaModal(true)
-                            }} icon={<UploadOutlined />}>Upload</Button>
+                            <Button onClick={() => handleMediaModalOpen('audios')} icon={<UploadOutlined />}>Upload</Button>
                             <br />
                             <br />
                             <div  style={{ display: 'flex', gap: 10 }}>
                                 {Array.isArray(state.srcs) && state.srcs.map((src, index) => (
                                     <div key={index} style={{ width: 360, position: 'relative' }}>
-                                        <DeleteOutlined style={{ position: 'absolute', top: -20, right: 0 }} onClick={() => {
-                                            state.srcs.splice(index, 1);
-                                            setState({
-                                                ...state
-                                            });
-                                        }} />
+                                        <DeleteOutlined style={{ position: 'absolute', top: -20, right: 0 }} onClick={() => handleMediaDelete(index)} />
 
                                         <Audio src={src.src} alt={src.alt} mimetype={src.mimetype} /></div>
                                 ))}
@@ -239,9 +230,6 @@ export default function AddGeneralTypes({ isChange, setState, state }) {
             onClose={() => setMediaModal(false)} srcs={srcs} onSelect={onChangeImage} />
 
     </>
-
-
-
 
 };
 

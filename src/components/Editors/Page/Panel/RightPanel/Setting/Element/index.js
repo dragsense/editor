@@ -1,4 +1,3 @@
-
 import { Button, Divider, Card } from 'antd';
 import { useState, useEffect, Children } from 'react';
 import ElementSetting from './Setting';
@@ -8,25 +7,38 @@ import ElementMapping from './Map';
 import ElementEvent from './Event';
 import ElementWrapping from './Wrapper';
 
+// Function to update the state node
+const updateStateNode = (state, settingState, settingOptionState) => {
+    for (const key in settingState) {
+        state.node[key] = settingState[key]
+    }
+
+    for (const key in settingOptionState) {
+        if (key == 'attributes')
+            state.node["childAttributes"] = settingOptionState[key]
+        else
+            state.node[key] = settingOptionState[key]
+    }
+
+    return state.node;
+}
 
 export default function Element({ state, onChange, onUpdate, cascaderStates }) {
 
     const [settingState, setSettingState] = useState({ attributes: {} });
     const [settingOptionState, setSettingOptionState] = useState({ attributes: {} });
 
-
     const [isChange, setIsChange] = useState(false);
 
+    // useEffect to handle changes
     useEffect(() => {
-
         if (!isChange)
             return;
-
         onChange(false);
     }, [isChange])
 
+    // useEffect to handle state node
     useEffect(() => {
-
         if (!state.node)
             return;
 
@@ -39,35 +51,16 @@ export default function Element({ state, onChange, onUpdate, cascaderStates }) {
             state.node.childAttributes = {};
 
         setSettingOptionState({ attributes: state.node.childAttributes })
-
-
-
-
     }, [state.node]);
 
-
     const onElementUpdate = async () => {
-
-        for (const key in settingState) {
-            state.node[key] = settingState[key]
-        }
-
-        for (const key in settingOptionState) {
-            if (key == 'attributes')
-                state.node["childAttributes"] = settingOptionState[key]
-            else
-                state.node[key] = settingOptionState[key]
-        }
-
-        onUpdate(state.node);
+        const updatedNode = updateStateNode(state, settingState, settingOptionState);
+        onUpdate(updatedNode);
         setIsChange(false);
     }
 
-
     return state.node ? <>
         <Divider orientation="center" orientationMargin="0">Tag: {state.node.tagName} </Divider>
-
-
 
         <Card>
             <div style={{ maxHeight: '62vh', overflow: 'auto' }}>
@@ -78,17 +71,11 @@ export default function Element({ state, onChange, onUpdate, cascaderStates }) {
                     state={settingState}
                     setState={setSettingState} />
 
-                {/* <Divider orientation="left" orientationMargin="0">Component Wrapper: </Divider>
-            <ElementWrapping setIsChange={setIsChange} state={state} setState={setState} />
-*/}
-
-
                 <Divider orientation="center" orientationMargin="0">Custom Attributes: </Divider>
                 <ElementAttribute cascaderStates={cascaderStates}
                     setIsChange={setIsChange}
                     state={settingState}
                     setState={setSettingState} />
-
 
                 {settingState.tagName === 'select' && <>
                     <Divider orientation="center" orientationMargin="0">Options Attributes: </Divider>
@@ -96,7 +83,6 @@ export default function Element({ state, onChange, onUpdate, cascaderStates }) {
                         setIsChange={setIsChange}
                         state={settingOptionState}
                         setState={setSettingOptionState} /></>}
-
 
                 <Divider orientation="center" orientationMargin="0">Events: </Divider>
                 <ElementEvent cascaderStates={cascaderStates}
@@ -111,9 +97,6 @@ export default function Element({ state, onChange, onUpdate, cascaderStates }) {
                 <Button disabled={!isChange} onClick={onElementUpdate} type='primary'>Update</Button>
             </div>
         </Card>
-
-
-
     </>
-        : <span>Please Select the node</span>
+        : <Card><span>Please Select the node</span></Card>
 }

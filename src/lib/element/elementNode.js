@@ -3,6 +3,8 @@ import { formatDate } from '../utils';
 
 /**
  * Get the value of a state based on its key.
+ * This function is used to retrieve the value of a state from a given states object.
+ * It uses the key array to navigate through the nested states object.
  *
  * @param {string[]} key - The key to access the state.
  * @param {object} states - The states object.
@@ -10,16 +12,20 @@ import { formatDate } from '../utils';
  */
 export const getStateValue = (key, states) => {
   try {
+    // If states object is not provided, return an empty string
     if (!states) {
       return "";
     }
 
+    // Get the reference to the state using the first element of the key array
     const stateRef = states[key[0]];
 
+    // If the state reference is not found, return an empty string
     if (!stateRef) {
       return "";
     }
 
+    // Depending on the type of the state, return the appropriate value
     switch (stateRef.type) {
       case 'image':
         return {
@@ -73,6 +79,7 @@ export const getStateValue = (key, states) => {
         return stateRef.defaultValue !== undefined ? stateRef.defaultValue : "";
     }
   } catch (e) {
+    // If an error occurs, display an error message and return an empty string
     message.error("Something went wrong.");
     return "";
   }
@@ -81,6 +88,8 @@ export const getStateValue = (key, states) => {
 
 /**
  * Get values from states based on a key.
+ * This function is used to retrieve an array of values from a given states object.
+ * It uses the key array to navigate through the nested states object.
  *
  * @param {string[]} key - The key to access the states.
  * @param {object} states - The states object.
@@ -90,16 +99,20 @@ export const getStateStates = (key, states) => {
   let values = [];
 
   try {
+    // If states object is not provided, return an empty array
     if (!states) {
       return values;
     }
 
+    // Get the value from the states object using the first element of the key array
     const value = states[key[0]];
 
+    // If the value is not found, return an empty array
     if (!value) {
       return values;
     }
 
+    // Depending on the type of the value, populate the values array
     if (value.type === 'array') {
       values = Object.values(value.states).flatMap((state) => {
         const val = state.value.split(":");
@@ -116,26 +129,33 @@ export const getStateStates = (key, states) => {
     // Add other conditions here for different state types if needed.
 
   } catch (e) {
+    // If an error occurs, display an error message
     message.error("Something went wrong.");
   }
 
+  // Return the values array
   return values;
 };
 
 /**
  * Get a state reference based on a key.
+ * This function is used to retrieve a reference to a state from a given states object.
+ * It uses the key array to navigate through the nested states object.
  *
  * @param {string[]} key - The key to access the state.
  * @param {object} states - The states object.
  * @returns {any} - The state reference or undefined if not found.
  */
 export const getStateRef = (key, states) => {
+  // If states object is not provided, return undefined
   if (!states) {
     return undefined;
   }
 
+  // Get the value from the states object using the first element of the key array
   let value = states[key[0]];
 
+  // If the value is not found, return undefined
   if (!value) {
     return undefined;
   }
@@ -151,12 +171,15 @@ export const getStateRef = (key, states) => {
     value = value.states[key[1]];
   }
 
+  // Return the value
   return value;
 };
 
 
 /**
  * Get the default value for a given state key.
+ * This function is used to retrieve the default value of a state from a given states object.
+ * It uses the key array to navigate through the nested states object.
  *
  * @param {string[]} key - The key to access the state.
  * @param {object} states - The states object.
@@ -164,36 +187,48 @@ export const getStateRef = (key, states) => {
  */
 export const getStates = (key, states) => {
   try {
+    // If states object is not provided, return an empty string
     if (!states) {
       return "";
     }
 
+    // Get the reference to the state using the first element of the key array
     const stateRef = states[key[0]];
 
+    // If the state reference is not found, return an empty string
     if (!stateRef) {
       return "";
     }
 
+    // Depending on the type of the state, return the appropriate default value
     switch (stateRef.type) {
+      // Handle image type
       case 'image':
+        const imageSrc = stateRef.src?.src || './images/default/default-img.png';
+        const imageLabel = stateRef.src?.alt || 'image';
         return {
-          value: stateRef.src?.src || './images/default/default-img.png',
-          label: stateRef.src?.alt || 'image'
+          value: imageSrc,
+          label: imageLabel
         };
 
+      // Handle video type
       case 'video':
+        const videoSrc = stateRef.src?.src || './images/default/default-poster.png';
+        const videoLabel = stateRef.src?.alt || 'video';
         return {
-          value: stateRef.src?.src || './images/default/default-poster.png',
-          label: stateRef.src?.alt || 'video',
+          value: videoSrc,
+          label: videoLabel,
           srcs: stateRef.srcs
         };
 
+      // Handle audio type
       case 'audio':
         return {
           value: './audios/default/sample.mp3',
           srcs: stateRef.srcs
         };
 
+      // Handle images type
       case 'images':
         if (stateRef.states && key[1]) {
           const index = isNaN(Number(key[1])) ? -1 : Number(key[1]);
@@ -213,6 +248,7 @@ export const getStates = (key, states) => {
         }
         return "";
 
+      // Handle array type
       case 'array':
         if (stateRef.states && key[1]) {
           const index = isNaN(Number(key[1])) ? -1 : Number(key[1]);
@@ -235,9 +271,11 @@ export const getStates = (key, states) => {
         }
         return "";
 
+      // Handle object type
       case 'object':
         return getStateValue([key[1]], stateRef.states);
 
+      // Handle default case
       default:
         return stateRef.defaultValue !== undefined ? stateRef.defaultValue : "";
     }
@@ -248,10 +286,10 @@ export const getStates = (key, states) => {
 };
 
 
-
-
 /**
  * Update the value of a state based on provided parameters.
+ * This function uses the eval function to evaluate the expression. 
+ * It's important to ensure that the expression is safe to evaluate.
  *
  * @param {object} elem - The element containing key and value expressions.
  * @param {string} withValue - The value to substitute for '[withkey]' in expressions.
@@ -271,27 +309,27 @@ export const updateStateValue = (elem, withValue, states, value, updateKey = "de
   }
 
   try {
-    let val = '';
+    let updatedValue = '';
 
     if (expression) {
-      let original = expression.replace(/\[withkey]/g, withValue);
-      original = original.replace(/\[value]/g, value);
-      original = original.replace(/\[key]/g, stateRef[updateKey]);
+      let originalExpression = expression.replace(/\[withkey]/g, withValue);
+      originalExpression = originalExpression.replace(/\[value]/g, value);
+      originalExpression = originalExpression.replace(/\[key]/g, stateRef[updateKey]);
 
-      val = eval(original);
+      updatedValue = eval(originalExpression);
     } else {
-      val = value;
+      updatedValue = value;
     }
 
     // Ensure the updated value is within the min and max limits.
-    if (val >= stateRef.max && updateKey !== 'max') {
-      val = stateRef.max;
-    } else if (val <= stateRef.min && updateKey !== 'min') {
-      val = stateRef.min;
+    if (updatedValue >= stateRef.max && updateKey !== 'max') {
+      updatedValue = stateRef.max;
+    } else if (updatedValue <= stateRef.min && updateKey !== 'min') {
+      updatedValue = stateRef.min;
     }
 
     // Update the state with the new value.
-    stateRef[updateKey] = val;
+    stateRef[updateKey] = updatedValue;
     return true;
   } catch (e) {
     message.error(e.message);
@@ -299,9 +337,10 @@ export const updateStateValue = (elem, withValue, states, value, updateKey = "de
   }
 };
 
-
 /**
  * Generate a cascading menu structure based on element states.
+ * This function maps over the element states and generates a cascading menu structure.
+ * It creates a new array with the transformed states and returns it.
  *
  * @param {object} elementStates - The states of elements.
  * @param {string} type - The type for the root item.
@@ -309,9 +348,11 @@ export const updateStateValue = (elem, withValue, states, value, updateKey = "de
  * @returns {Array} - An array representing the cascading menu structure.
  */
 export const generateCascader = (elementStates, type, value) => {
-  const cascader = Object.values(elementStates).map((state) => {
+  // Map over the element states and transform each state into a cascader item
+  const cascaderItems = Object.values(elementStates).map((state) => {
     let children = null;
 
+    // If the state has nested states, map over them and transform each into a cascader item
     if (state.states) {
       state.type = state.type || 'array';
       children = Object.keys(state.states).map((key) => ({
@@ -320,6 +361,7 @@ export const generateCascader = (elementStates, type, value) => {
       }));
     }
 
+    // Return the transformed state as a cascader item
     return {
       label: state.key.toUpperCase(),
       value: state.key,
@@ -328,12 +370,15 @@ export const generateCascader = (elementStates, type, value) => {
     };
   });
 
-  return [{ label: type, value, type, children: cascader }];
+  // Return the cascader structure with the root item
+  return [{ label: type, value, type, children: cascaderItems }];
 };
 
 
 /**
  * Generate a cascading menu structure for collection states.
+ * This function maps over the collection states and generates a cascading menu structure.
+ * It creates a new array with the transformed states and returns it.
  *
  * @param {object} elementStates - The collection states.
  * @param {string} type - The type for the root item.
@@ -341,25 +386,31 @@ export const generateCascader = (elementStates, type, value) => {
  * @returns {Array} - An array representing the cascading menu structure.
  */
 export const generateCascaderCollStates = (elementStates, type, value) => {
-  const states = Object.entries(elementStates).map(([key, value]) => {
+  // Map over the collection states and transform each state into a cascader item
+  const cascaderItems = Object.entries(elementStates).map(([key, value]) => {
+    // If the key is 'states', generate a cascader for it
     if (key === 'states') {
       return generateCascader(value, 'STATES', key)[0];
     }
 
-    const state = {
+    // Create a cascader item for the state
+    const cascaderItem = {
       label: key.toUpperCase(),
       value: key,
       type: key === 'documents' ? 'array' : undefined,
       children: null,
     };
 
-    return state;
+    // Return the cascader item
+    return cascaderItem;
   });
 
-  return [{ label: type, value, type, children: states }];
+  // Return the cascader structure with the root item
+  return [{ label: type, value, type, children: cascaderItems }];
 };
 
 
+// Define the default document structure
 export const defaultDoc = [
   { label: '_ID', value: '_id' },
   { label: 'NAME', value: 'name' },
@@ -383,6 +434,7 @@ export const defaultDoc = [
   },
 ]
 
+// Define the page settings structure
 export const pageSetting =
   [
     { label: '_ID', value: '_id' },
@@ -436,32 +488,34 @@ export const pageSetting =
 
   ];
 
-
 /**
  * Generate cascading relations states for a collection.
+ * This function maps over the populated relationships of the collection and generates a cascading menu structure.
+ * It creates a new array with the transformed states and returns it.
  *
  * @param {object} collection - The collection object containing relationships.
  * @returns {Array} - An array representing the cascading relations states.
  */
 export const generateCascadeRelationsStates = async (collection) => {
-  let tempStates = [];
-  let relStates = [];
+  let cascaderItems = [];
+  let relationsStates = [];
 
   if (collection.populatedRelationships) {
-    await Promise.all(collection.populatedRelationships.map(async (relation) => {
-      const current = generateCascader(
+    // Map over the populated relationships and generate a cascader for each
+    cascaderItems = await Promise.all(collection.populatedRelationships.map(async (relation) => {
+      return generateCascader(
         relation.states || {},
         relation.name.toUpperCase(),
         relation._id
-      );
-      tempStates = [...tempStates, ...current];
+      )[0];
     }));
 
-    relStates = [
+    // Construct the relations states with the cascader items
+    relationsStates = [
       {
         label: 'POPULATED',
         value: 'POPULATED',
-        children: [...tempStates],
+        children: cascaderItems,
       },
       {
         type: 'array',
@@ -482,12 +536,13 @@ export const generateCascadeRelationsStates = async (collection) => {
     ];
   }
 
-  return relStates;
+  return relationsStates;
 };
-
 
 /**
  * Get a range of page numbers for pagination.
+ * This function calculates a range of page numbers based on the current page, total pages, and pagination configuration.
+ * It returns an array of page numbers and ellipsis.
  *
  * @param {number} currentPage - The current page number.
  * @param {number} totalPages - The total number of pages.
@@ -515,7 +570,6 @@ export const getPaginationRange = (currentPage, totalPages, pagination) => {
 
   const leftRange = Array.from({ length: leftRangeLength }, (_, index) => index + 1);
   const rightRange = Array.from({ length: rightRangeLength }, (_, index) => totalPages - index);
-
   const nearbyRange = Array.from({ length: end - start + 1 }, (_, index) => start + index);
 
   if (start > leftRangeLength + 1) {
@@ -529,10 +583,10 @@ export const getPaginationRange = (currentPage, totalPages, pagination) => {
   return [...leftRange, ...nearbyRange, ...rightRange];
 };
 
-
-
 /**
  * Get a value from a nested object based on a key array.
+ * This function navigates through the settings object using the key array and returns the corresponding value.
+ * It handles different types of keys and returns the appropriate value.
  *
  * @param {Array} key - The key array to access the value.
  * @param {object} setting - The settings object.
@@ -549,27 +603,7 @@ export const getPageValue = (key, setting) => {
   } else if (key[0] === 'RELATIONSHIPS' && setting.relationships) {
     return setting.relationships[key[1]] || null;
   } else if (key[0] === 'SETTING') {
-    const _setting = setting.setting;
-    if (!_setting) return null;
-
-    if (key[1] === 'image') {
-      const image = _setting['populatedImage'];
-      return {
-        value: image?.src || '/images/default/default-img.png',
-        label: image === undefined ? `[featured image]` : image?.alt || 'Featured Image',
-      };
-    } else if (key[1] === 'status') {
-      const status = _setting[key[1]];
-      return {
-        value: status || `[page status]`,
-        label: status || `[page status]`,
-      };
-    } else {
-      return {
-        value: _setting[key[1]] || `[page ${key[1]}]`,
-        label: _setting[key[1]] || `[page ${key[1]}]`,
-      };
-    }
+    return getSettingValue(key, setting);
   } else if (key[0] === 'creator') {
     const creator = setting[key[0]] || {};
     return {
@@ -580,26 +614,7 @@ export const getPageValue = (key, setting) => {
     const createdAt = setting[key[0]];
     return createdAt ? formatDate(createdAt, key[1]) : `[page ${key[1]}]`;
   } else if (key[1] === 'NEXTDOCUMNET' || key[1] === 'PREVDOCUMNET') {
-    const doc = setting[key[1]] || {};
-    if (!doc) {
-      return {
-        value: `[document ${key[2]}]`,
-        label: `[document ${key[2]}]`,
-      };
-    }
-
-    if (key[2] === 'image') {
-      const image = doc['populatedImage'];
-      return {
-        value: image?.src || '/images/default/default-img.png',
-        label: image === undefined ? `[featured image]` : image?.alt || 'Featured Image',
-      };
-    } else {
-      return {
-        value: doc[key[2]] || `[document ${key[2]}]`,
-        label: doc[key[2]] || `[document ${key[2]}]`,
-      };
-    }
+    return getDocumentValue(key, setting);
   } else {
     return {
       value: setting[key[0]] || `[page ${key[0]}]`,
@@ -608,33 +623,33 @@ export const getPageValue = (key, setting) => {
   }
 };
 
-
 /**
  * Get an array of page states based on documents and a type.
+ * This function maps over the documents and transforms each document into a page state object.
+ * If no documents are provided, it returns an array with a single default page state object.
  *
- * @param {Array} docs - The array of documents.
- * @param {string} type - The type for the page states.
+ * @param {Array} documents - The array of documents.
+ * @param {string} pageType - The type for the page states.
  * @returns {Array} - An array of page states objects.
  */
-export const getPageStates = (docs, type) => {
-  if (docs?.length > 0) {
-    return docs.map((value) => ({
-      type,
-      label: value.name,
-      value: value._id,
-      key: value._id,
-      ...value,
-      setting: value.setting,
+export const getPageStates = (documents, pageType) => {
+  // If documents array is not empty, map over it and create page states
+  if (documents?.length > 0) {
+    return documents.map((document) => ({
+      type: pageType,
+      label: document.name,
+      value: document._id,
+      key: document._id,
+      ...document,
+      setting: document.setting,
     }));
-  } else {
-    return [
-      {
-        label: '[Relation]',
-        value: '',
-      },
-    ];
-  }
+  } 
+  
+  // If documents array is empty, return an array with a default page state
+  return [
+    {
+      label: '[Relation]',
+      value: '',
+    },
+  ];
 };
-
-
-

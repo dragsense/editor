@@ -17,7 +17,7 @@ const { Sider } = Layout;
 const { Panel } = Collapse;
 const menuKeys = ['pages', 'tags', 'components', 'collections', 'forms', 'elements'];
 
-
+// Initial state for the reducer
 const initial = {
     elements: [],
     error: '',
@@ -25,29 +25,24 @@ const initial = {
     loading: false
 }
 
-
-
-const reducer = (state, action) => {
-
-    const deleteElement = () => {
-        if (state.elements[action.index]) {
-            state.elements.splice(action.index, 1);
-        }
+// Function to delete an element from the state
+const deleteElement = (state, action) => {
+    if (state.elements[action.index]) {
+        const newState = {...state};
+        newState.elements.splice(action.index, 1);
+        return newState;
     }
+    return state;
+}
 
-
+// Reducer function to handle state changes
+const reducer = (state, action) => {
     switch (action.type) {
         case "start":
             return { ...state, loading: true }
-
         case "delete":
-            deleteElement();
-            return {
-                ...state, elements: [...state.elements],
-                error: ''
-            }
+            return deleteElement(state, action);
         case "add":
-
             return {
                 ...state, elements: [...state.elements, action.element],
                 error: ''
@@ -69,39 +64,35 @@ const EditorLeftSideBar = ({ }) => {
     const { onEdit, state } = usePageStates();
     const [elementState, dispatch] = useReducer(reducer, initial);
 
+    // Effect to handle initial setup
     useEffect(() => {
         const _id = localStorage.getItem('activePage');
         const type = localStorage.getItem('pageType');
 
-        //onEdit({ _id }, type);
         setSelectedKeys([type + 's']);
-
-
         storePage({ _id: elementState.pageId, elements: {} });
-
     }, []);
 
+    // Function to handle sidebar collapse
     const toggleCollapsed = () => {
         setCollapsed(!collapsed);
     };
 
+    // Function to handle page edit
     const onEditPage = (page, type) => {
         onEdit(page, type);
         setSelectedKeys([type + 's']);
     };
 
+    // Function to handle submenu open change
     const handleSubMenuOpenChange = (keys) => {
         setOpenKeys(keys.slice(-1));
         setKeys(keys.length > 0 ? [keys[keys.length - 1]] : menuKeys);
     };
 
-
-
-
     return (
         <Sider width={200} collapsible collapsed={collapsed}  onCollapse={toggleCollapsed}>
             <Menu
-               
                 mode="inline"
                 selectedKeys={selectedKeys}
                 defaultSelectedKeys={selectedKeys}
@@ -114,46 +105,34 @@ const EditorLeftSideBar = ({ }) => {
                         <PageComponent type={'page'} page={state.page} onEdit={onEditPage} />
                     </Menu.SubMenu>
                 )}
-
                 {(keys.includes('components') || collapsed) && (
                     <Menu.SubMenu icon={<MdWidgets size="1.5em" />} key="components" title="Components">
                         <PageComponent type={'component'} page={state.page} onEdit={onEditPage} />
                     </Menu.SubMenu>
                 )}
-
                 {(keys.includes('collections')|| collapsed) && (
                     <Menu.SubMenu icon={<FaCoins size="1.5em" />} key="collections" title="Collections">
                         <PageComponent type={'collection'} page={state.page} onEdit={onEditPage} />
                     </Menu.SubMenu>
                 )}
-
                 {(keys.includes('forms') || collapsed)&& (
                     <Menu.SubMenu icon={<FaRegEdit size="1.5em" />} key="forms" title="Forms">
                         <PageComponent type={'form'} page={state.page} onEdit={onEditPage} />
                     </Menu.SubMenu>
                 )}
-
-
-
-
-
                 {(keys.includes('tags')|| collapsed) && (
                     <Menu.SubMenu icon={<BsCodeSlash size="1.5em" />}
                         key="tags"
                         title="Tags">
                         <TagComponent gridStyle={{  textAlign: 'center' }} />
-
-                    </Menu.SubMenu>)}
-
+                    </Menu.SubMenu>)
+                }
                 {(keys.includes('elements')|| collapsed) && (
-
                     <Menu.SubMenu icon={<BsFillFileEarmarkTextFill size="1.5em" />} key="elements" title="Reusable">
                         <ElementsComponent state={elementState} dispatch={dispatch} pageId={state.page?._id} />
-                    </Menu.SubMenu>)}
-
-
+                    </Menu.SubMenu>)
+                }
             </Menu>
-
         </Sider>
     );
 }

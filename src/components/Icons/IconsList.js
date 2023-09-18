@@ -63,6 +63,54 @@ const IconsList = ({ icons, onEdit, onDelete, editor = false }) => {
         };
     }, [newCols]);
 
+    // Function to render icon
+    const renderIcon = (icon) => {
+        return icon?.svg ? (
+            <div className="icons-svg" style={{ textAlign: 'center', height: '100%', overflow: 'hidden' }}
+                dangerouslySetInnerHTML={{ __html: icon.svg }} />
+        ) : (
+            <AiOutlineCheckCircle style={{ fontSize: 48 }} />
+        );
+    };
+
+    // Function to render card actions
+    const renderCardActions = (icon) => {
+        return [
+            <Tooltip title="Edit">
+                <EditOutlined
+                    className="ac-icon2"
+                    size="2em"
+                    key="edit"
+                    style={{ fontSize: 20 }}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        onEdit({ ...icon });
+                    }}
+                />
+            </Tooltip>,
+            <Tooltip title="Delete">
+                <DeleteOutlined
+                    className="ac-icon2"
+                    size="2em"
+                    key="delete"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        confirm({
+                            title: 'Are you sure delete this item?',
+                            icon: <ExclamationCircleFilled />,
+                            okText: 'Yes',
+                            okType: 'danger',
+                            cancelText: 'No',
+                            onOk() {
+                                onDelete(icon._uid);
+                            },
+                        });
+                    }}
+                />
+            </Tooltip>
+        ];
+    };
+
     // Function to render grid cell
     const GridCell = ({ columnIndex, rowIndex, style }) => {
         const index = rowIndex * newCols + columnIndex;
@@ -71,58 +119,20 @@ const IconsList = ({ icons, onEdit, onDelete, editor = false }) => {
         if (!icon) return null;
 
         return (
-            <div style={{ ...style,  overflow:'hidden', width: ICON_CARD_WIDTH - 5, height: style.height }}>
+            <div style={{ ...style, overflow: 'hidden', width: ICON_CARD_WIDTH - 5, height: style.height }}>
                 <Card
                     key={icon._id}
                     className="actions-item-card"
-                    style={{ width: 'calc(100% - 10px)', height: 130  }} cover={
+                    style={{ width: 'calc(100% - 10px)', height: 130 }} cover={
                         <div
                             draggable={true}
                             onDragStart={e => onDragStart(e, icon)}
                             style={{ padding: 10, textAlign: 'center', height: 80 }}
                         >
-                            {icon?.svg ? (
-                                <div  className="icons-svg" style={{ textAlign: 'center',  height: '100%', overflow: 'hidden' }}
-                                 dangerouslySetInnerHTML={{ __html: icon.svg }} />
-                            ) : (
-                                <AiOutlineCheckCircle style={{ fontSize: 48 }} />
-                            )}
+                            {renderIcon(icon)}
                         </div>
                     }
-                    actions={[
-                        <Tooltip title="Edit">
-                            <EditOutlined
-                                className="ac-icon2"
-                                size="2em"
-                                key="edit"
-                                style={{ fontSize: 20 }}
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    onEdit({ ...icon });
-                                }}
-                            />
-                        </Tooltip>,
-                        <Tooltip title="Delete">
-                            <DeleteOutlined
-                                className="ac-icon2"
-                                size="2em"
-                                key="delete"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    confirm({
-                                        title: 'Are you sure delete this item?',
-                                        icon: <ExclamationCircleFilled />,
-                                        okText: 'Yes',
-                                        okType: 'danger',
-                                        cancelText: 'No',
-                                        onOk() {
-                                            onDelete(icon._uid);
-                                        },
-                                    });
-                                }}
-                            />
-                        </Tooltip>
-                    ]}
+                    actions={renderCardActions(icon)}
                     hoverable
                 >
                     <Meta title={icon.name} description={<></>} />
@@ -140,7 +150,6 @@ const IconsList = ({ icons, onEdit, onDelete, editor = false }) => {
                 height={newHeight}
                 rowCount={Math.ceil(icons.length / newCols)}
                 rowHeight={180}
-               
                 width={newCols * ICON_CARD_WIDTH - 1}
             >
                 {GridCell}

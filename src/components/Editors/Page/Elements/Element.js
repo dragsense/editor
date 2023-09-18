@@ -1,12 +1,20 @@
-
-
-import React, { useMemo } from 'react';
-
+jsx
+import React from 'react';
 import { InlineSkeleton } from './Elements';
 
-const Element = ({   tagName, customAttributes = {}, attributes, classes, children = null }) => {
 
-
+/**
+ * Element component renders a HTML element with given tagName and attributes.
+ * If tagName is not provided, it renders an InlineSkeleton component.
+ * 
+ * @param {string} tagName - The HTML tag name of the element to render.
+ * @param {object} customAttributes - Custom attributes to be added to the element.
+ * @param {object} attributes - Additional attributes to be added to the element.
+ * @param {string} classes - CSS classes to be added to the element.
+ * @param {React.ReactNode} children - The content to be rendered inside the element.
+ * @returns {React.ReactNode} The rendered element.
+ */
+const Element = ({ tagName, customAttributes = {}, attributes, classes, children = null }) => {
     return tagName ? React.createElement(
         tagName,
         {
@@ -15,7 +23,7 @@ const Element = ({   tagName, customAttributes = {}, attributes, classes, childr
             className: classes
         },
         children
-    ) : <InlineSkeleton />
+    ) : <InlineSkeleton />;
 };
 
 export default Element;

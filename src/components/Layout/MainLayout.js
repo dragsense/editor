@@ -3,7 +3,6 @@
 import React from 'react';
 import { Alert, Layout } from 'antd';
 
-// Destructure Content from Layout for easier usage
 const { Content } = Layout;
 
 // MainLayout is a functional component that takes children as props

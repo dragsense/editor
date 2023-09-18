@@ -1,34 +1,9 @@
-import { fetcher } from '../fetch';
+import { createApiRequest } from '../fetch';
 
+// FormServices object to handle form related operations
 const FormServices = {
-
- 
-    submit: async function(id, states) {
-
-        const response = await window.autocode.makeApiRequest();
-
-
-        const project = response?.project;
-
-        if (!project) {
-            throw new Error("Project Not Found.");
-            return;
-        }
-
-        const url = `${project.url}/forms/submit/${id}`;
-        const apikey = project.apikey;
-        const sanitizedUrl = url.replace(/([^:]\/)\/+/g, '$1');
-
-        return fetcher(`${sanitizedUrl}`, {
-            method: 'POST',
-             headers: { 'ngrok-skip-browser-warning': true, 'x-api-key': apikey },
-            body: states,
-        });
-
-
-    },
-  
-   
+    // Function to submit form data
+    submit: (formId, formStates) => createApiRequest(`forms/submit/${formId}`, 'POST', formStates, false)
 }
 
 export default FormServices;

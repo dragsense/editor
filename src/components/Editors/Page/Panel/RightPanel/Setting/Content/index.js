@@ -133,5 +133,5 @@ export default function Content({ state, onUpdate, onChange, cascaderStates }) {
 
 
     </>
-        : <span>Please Select the node</span>
+        :  <Card><span>Please Select the node</span></Card>
 }

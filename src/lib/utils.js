@@ -1,18 +1,21 @@
 
-
+// Function to check if a value is empty
 export function isEmpty(value) {
-
+  // If value is not defined or null, return true
   if (!value)
     return true;
 
+  // If value is an object, check if it has any keys. If not, return true
   return Object.keys(value).length === 0
     && value.constructor === Object;
 }
 
+// Function to limit the rate at which a function can fire
 export function throttle(func, limit) {
   let inThrottle;
   return function (...args) {
     const context = this;
+    // If not currently throttling, call the function and set the throttle
     if (!inThrottle) {
       func.apply(context, args);
       inThrottle = true;
@@ -23,50 +26,51 @@ export function throttle(func, limit) {
   };
 }
 
-
+// Function to delay the execution of a function until after wait milliseconds have elapsed since the last time it was invoked
 export function debounce(func, wait) {
   let timeoutId;
   return function (...args) {
     const context = this;
+    // Clear any existing timeout
     clearTimeout(timeoutId);
+    // Set a new timeout
     timeoutId = setTimeout(() => {
       func.apply(context, args);
     }, wait);
   };
 }
 
-
+// Function to format a date string into various formats
 export function formatDate(dateString, format) {
   const date = new Date(dateString);
 
   const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
   const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
 
-  if (format === 'YYYY-MM-DD') {
-    return formattedDate.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$1-$2');
-  } else if (format === 'MM/DD/YYYY') {
-    return formattedDate;
-  } else if (format === 'DD/MM/YYYY') {
-    return formattedDate.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$2/$1/$3');
-  } else if (format === 'YYYY/MM/DD') {
-    return formattedDate.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3/$1/$2');
-  } else if (format === 'Month D, YYYY') {
-    const options = { month: 'long', day: 'numeric', year: 'numeric' };
-    return new Intl.DateTimeFormat('en-US', options).format(date);
-  } else if (format === 'D MMM, YYYY') {
-    const options = { day: 'numeric', month: 'short', year: 'numeric' };
-    return new Intl.DateTimeFormat('en-US', options).format(date);
-  } else if (format === 'MMMM DD, YYYY') {
-    const options = { month: 'long', day: '2-digit', year: 'numeric' };
-    return new Intl.DateTimeFormat('en-US', options).format(date);
-  } else if (format === 'DD MMM, YYYY') {
-    const options = { day: 'numeric', month: 'short', year: 'numeric' };
-    return new Intl.DateTimeFormat('en-US', options).format(date);
-  } else {
-    return formattedDate;
+  // Switch case to handle various formats
+  switch(format) {
+    case 'YYYY-MM-DD':
+      return formattedDate.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$1-$2');
+    case 'MM/DD/YYYY':
+      return formattedDate;
+    case 'DD/MM/YYYY':
+      return formattedDate.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$2/$1/$3');
+    case 'YYYY/MM/DD':
+      return formattedDate.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3/$1/$2');
+    case 'Month D, YYYY':
+      return new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).format(date);
+    case 'D MMM, YYYY':
+      return new Intl.DateTimeFormat('en-US', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
+    case 'MMMM DD, YYYY':
+      return new Intl.DateTimeFormat('en-US', { month: 'long', day: '2-digit', year: 'numeric' }).format(date);
+    case 'DD MMM, YYYY':
+      return new Intl.DateTimeFormat('en-US', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
+    default:
+      return formattedDate;
   }
 }
 
+// Function to convert RGB color to Hexadecimal
 export function rgbToHex(color) {
   const hexRegex = /^#(?:[0-9a-fA-F]{3}){1,2}$/; // Regex to match hexadecimal color format
   const rgbRegex = /^rgb\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})\)$/; // Regex to match RGB color format
@@ -90,9 +94,8 @@ export function rgbToHex(color) {
   return null;
 }
 
+// Function to generate cascader data
 export const generateCascader = (elementStates, type, value) => {
-
-
 
   const states = Object.values(elementStates).map(state => {
     let children = null;
@@ -114,6 +117,7 @@ export const generateCascader = (elementStates, type, value) => {
   return [{ label: type, value: value, type: type, children: states }]
 }
 
+// Function to generate cascader data for collection states
 export const generateCascaderCollStates = (elementStates, type, value) => {
 
   const states = Object.entries(elementStates).map(([key, value]) => {
@@ -134,7 +138,7 @@ export const generateCascaderCollStates = (elementStates, type, value) => {
   return [{ label: type, value: value, type: type, children: states }]
 }
 
-
+// Function to generate pagination range
 export const getPaginationRange = (currentPage, totalPages, pagination) => {
   let leftRangeLength = pagination.leftRange || 1;
   let rightRangeLength = pagination.rightRange || 1;
@@ -193,6 +197,7 @@ export const getPaginationRange = (currentPage, totalPages, pagination) => {
 };
 
 
+// Function to validate class input
 export const validateClassInput = (inputValue) => {
 
   const regex = /^(?!.*\d\.{2,})(?=.*[a-zA-Z\[\]_-]).*$/;
@@ -203,6 +208,7 @@ export const validateClassInput = (inputValue) => {
 };
 
 
+// Function to get file extension
 export function getFileExtension(filename) {
   // Use the lastIndexOf method to find the last dot in the filename
   const lastDotIndex = filename.lastIndexOf('.');

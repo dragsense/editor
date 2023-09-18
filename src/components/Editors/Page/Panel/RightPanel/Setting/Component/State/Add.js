@@ -9,12 +9,14 @@ import MediaModal from "../../../../../../../Media";
 
 const { Option } = Select;
 
+// Define advanced types
 const ADVANCE_TYPES = [
     { value: 'array', label: 'ARRAY' },
     { value: 'images', label: 'IMAGES' },
     { value: 'object', label: 'OBJECT' },
 ];
 
+// Define initial state
 const initialState = {
     key: '',
     defaultValue: null,
@@ -24,6 +26,7 @@ const initialState = {
     states: {}
 };
 
+// Main component function
 export default function AddState({ newState, onAddNew, setNewState }) {
     const [types, setTypes] = useState(() =>
         ADVANCE_TYPES.some((t) => t.value === newState.type) ? 1 : 0
@@ -34,6 +37,7 @@ export default function AddState({ newState, onAddNew, setNewState }) {
     const [mediaModal, setMediaModal] = useState(false);
     const [isChange, setIsChange] = useState(false);
 
+    // Update state when newState changes
     useEffect(() => {
         if (!newState.states)
             newState.states = {}
@@ -41,8 +45,8 @@ export default function AddState({ newState, onAddNew, setNewState }) {
         form.setFieldsValue(newState);
     }, [newState]);
 
+    // Check if there is any change in the state
     useEffect(() => {
-
         if (Object.keys(state.states || {}).length > 0,
             state.key ||
             state.defaultValue
@@ -50,6 +54,7 @@ export default function AddState({ newState, onAddNew, setNewState }) {
             setIsChange(true);
     }, [state])
 
+    // Handle change event
     const onChange = (event) => {
         event.preventDefault();
         const value = event.target.value;
@@ -57,15 +62,14 @@ export default function AddState({ newState, onAddNew, setNewState }) {
         setState({ ...state, [name]: value });
     };
 
+    // Handle change in array value
     const onChangeArrayValue = (value, idx) => {
         state.states[idx] = { idx, value };
         setState({ ...state });
-
-
     };
 
+    // Handle change in image
     const onChangeImage = (images) => {
-
         images.forEach((value, index) => {
             state.states[index] = value;
         });
@@ -74,18 +78,15 @@ export default function AddState({ newState, onAddNew, setNewState }) {
             state.states = {}
 
         setState({ ...state });
-
-
     };
 
+    // Handle change in type
     const onChangeType = (value) => {
-
         if (isChange)
             Modal.confirm({
                 title: 'Switching Type',
                 content: 'Are you sure you want to switch to the type? Any unsaved changes may be lost.',
                 onOk: () => {
-
                     setState({ ...initialState, states: {}, key: state.key, new: state.new, type: value });
                 },
                 onCancel: () => {
@@ -94,20 +95,18 @@ export default function AddState({ newState, onAddNew, setNewState }) {
             });
         else
             setState({ ...state, type: value });
-
     };
 
+    // Handle addition of array value
     const onAddArrayValue = (values) => {
-
         state.states = {};
         values.forEach((value, idx) => {
             state.states[idx] = { idx, value };
         });
-
-
         setState({ ...state });
     };
 
+    // Handle removal of array value
     const onRemoveArrayValue = (idx) => {
         if (state.states[idx]) {
             delete state.states[idx];
@@ -115,14 +114,12 @@ export default function AddState({ newState, onAddNew, setNewState }) {
         setState({ ...state });
     };
 
+    // Handle addition of new state
     const onAdd = (e) => {
         form
             .validateFields()
             .then(async (values) => {
-
                 const key = state.key.toLowerCase().replace(/\s+/g, "-");
-
-
                 onAddNew({
                     key,
                     defaultValue: state.defaultValue,
@@ -141,6 +138,7 @@ export default function AddState({ newState, onAddNew, setNewState }) {
             });
     };
 
+    // Handle addition of state
     const onAddState = (value) => {
         if (state.states) {
             state.states = {};
@@ -149,6 +147,7 @@ export default function AddState({ newState, onAddNew, setNewState }) {
         setState({ ...state });
     };
 
+    // Handle removal of state
     const onRemoveState = (key) => {
         if (state.states[key]) {
             delete state.states[key];
@@ -156,6 +155,7 @@ export default function AddState({ newState, onAddNew, setNewState }) {
         setState({ ...state });
     };
 
+    // Render component
     return (
         <>
             <Form layout="vertical" form={form} initialValues={{}}>
@@ -176,7 +176,6 @@ export default function AddState({ newState, onAddNew, setNewState }) {
                 >
                     <Input
                         maxLength={60}
-
                         placeholder="Key"
                         name="key"
                         disabled={!state.new}
@@ -194,7 +193,6 @@ export default function AddState({ newState, onAddNew, setNewState }) {
                                     content: 'Are you sure you want to switch to the Advanced type? Any unsaved changes may be lost.',
                                     onOk: () => {
                                         setTypes(newType);
-
                                         setState({ ...initialState, states: {}, key: state.key, new: state.new, type: newType === 1 ? 'array' : 'text' });
                                     },
                                     onCancel: () => {
@@ -205,8 +203,6 @@ export default function AddState({ newState, onAddNew, setNewState }) {
                                 setTypes(newType);
                                 setState({ ...state, type: newType === 1 ? 'array' : 'text' });
                             }
-
-
                         }}
                         value={types}
                     >
@@ -237,15 +233,10 @@ export default function AddState({ newState, onAddNew, setNewState }) {
                             />
                         ) : state.type === 'images' ? (
                             <Form.Item label="Images">
-
                                 <Image.PreviewGroup>
                                     <div style={{ display: 'flex', gap: 10, marginTop: 20, flexWrap: 'wrap', position: 'relative' }}>
-
                                         {Object.values(state.states).map((src, idx) => <>
-
-
                                             <div key={idx} style={{ position: 'relative' }}>
-
                                                 <DeleteOutlined style={{ position: 'absolute', top: -20, right: 0 }} onClick={() => {
                                                     if (state.states[idx]) {
                                                         delete state.states[idx];
@@ -253,7 +244,6 @@ export default function AddState({ newState, onAddNew, setNewState }) {
                                                         ...state
                                                     });
                                                 }} />
-
                                                 <Image
                                                     preview={true}
                                                     style={{
@@ -265,9 +255,7 @@ export default function AddState({ newState, onAddNew, setNewState }) {
                                                     src={src?.src}
                                                     fallback="/images/default/default-img.png" />
                                             </div>
-                                        </>
-
-                                        )}
+                                        </>)}
                                         <Button
                                             type="dashed"
                                             onClick={() => setMediaModal(true)}
@@ -276,7 +264,6 @@ export default function AddState({ newState, onAddNew, setNewState }) {
                                         />
                                     </div>
                                 </Image.PreviewGroup>
-
                             </Form.Item>
                         ) : (
                             <Card

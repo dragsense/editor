@@ -3,65 +3,71 @@ import { Form, Input, Button, Popover } from 'antd';
 
 const { TextArea } = Input;
 
-const Setting = ({ onChange, node, onUpdate, setPopupOpen }) => {
+// Splitting the logic into smaller functions for better readability and performance
+const useNodeAttributes = (node, onChange) => {
   const [nodeName, setNodeName] = useState('');
-
   const [idValue, setIdValue] = useState('');
   const [hrefValue, setHrefValue] = useState('');
   const [srcValue, setSrcValue] = useState('');
   const [value, setValue] = useState('');
+  const [isModified, setIsModified] = useState(false);
 
-
+  // useEffect to update the state when node changes
   useEffect(() => {
     setNodeName(node.name || '');
-
     setIdValue(node.attributes?.id?.value || '');
     setHrefValue(node.attributes?.href?.value || '');
     setSrcValue(node.attributes?.src?.value || '');
-
     if (node.type === 'inputs') {
       setValue(node.nodeValue);
     }
+  }, [node]);
 
-
-
-  }, [node])
-
+  // Handlers for each attribute change
   const handleNameChange = (e) => {
     setNodeName(e.target.value);
+    setIsModified(true);
     onChange();
   };
 
   const handleIdChange = (e) => {
     setIdValue(e.target.value);
+    setIsModified(true);
     onChange();
-
   };
-
-
 
   const handleHrefChange = (e) => {
     setHrefValue(e.target.value);
+    setIsModified(true);
     onChange();
-
   };
 
   const handleSrcChange = (e) => {
     setSrcValue(e.target.value);
+    setIsModified(true);
     onChange();
-
   };
 
   const handleValueChange = (e) => {
     setValue(e.target.value);
+    setIsModified(true);
     onChange();
-
   };
 
+  return {
+    nodeName, idValue, hrefValue, srcValue, value, isModified,
+    handleNameChange, handleIdChange, handleHrefChange, handleSrcChange, handleValueChange
+  };
+};
+
+const Setting = ({ onChange, node, onUpdate, setPopupOpen }) => {
+  const {
+    nodeName, idValue, hrefValue, srcValue, value, isModified,
+    handleNameChange, handleIdChange, handleHrefChange, handleSrcChange, handleValueChange
+  } = useNodeAttributes(node, onChange);
 
   const handleSave = () => {
     node.name = nodeName;
-
 
     if (idValue) {
       node.attributes = {
@@ -91,7 +97,6 @@ const Setting = ({ onChange, node, onUpdate, setPopupOpen }) => {
     }
 
     if (value) {
-
       if (node.tagName === 'button') {
         node.nodeValue = value;
       }
@@ -101,7 +106,6 @@ const Setting = ({ onChange, node, onUpdate, setPopupOpen }) => {
           value: { key: 'value', value: value },
         };
     }
-
 
     onUpdate(node);
 
@@ -153,17 +157,13 @@ const Setting = ({ onChange, node, onUpdate, setPopupOpen }) => {
         </Form.Item>
       )}
 
-      <Button type="primary" size="small" onClick={handleSave}>
+      <Button type="primary" size="small" onClick={handleSave} disabled={!isModified}>
         Save
       </Button>
     </Form>
   );
 
   return content;
-  // <Popover content={content} title="Setting" trigger="click">
-  //   {children}
-  // </Popover>
-
 };
 
 export default Setting;

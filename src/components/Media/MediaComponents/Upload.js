@@ -1,109 +1,80 @@
-
 import { PlusOutlined } from "@ant-design/icons";
-import { Upload, Modal, message } from 'antd';
-import { useEffect, useState } from "react";
+import { Upload, message } from 'antd';
+import { useCallback, useState } from "react";
 import MediaServices from "../../../lib/services/media";
 
+// Define the types of files that can be uploaded
 const types = {
-    "images": [
-        'image/apng',
-        'image/avif',
-        'image/gif',
-        'image/jpeg',
-        'image/jpeg',
-        'image/png',
-        'image/svg+xml',
-        'image/webp',
-        'image/vnd.microsoft.icon'
-    ],
+    "images": ['image/apng', 'image/avif', 'image/gif', 'image/jpeg', 'image/png', 'image/svg+xml', 'image/webp', 'image/vnd.microsoft.icon'],
     "videos": ['video/x-msvideo', 'video/mpeg', 'video/mp4', 'video/ogg', 'video/3gpp2', 'video/3gpp'],
-    "docs": ['application/x-freearc',
-        'application/octet-stream',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.ms-fontobject',
-        'application/gzip',
-        'application/pdf',
-        'application/vnd.ms-powerpoint',
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'application/xml',
-        'text/csv',
-        'text/css',
-        'text/html',
-        'text/javascript'
-    ],
+    "docs": ['application/x-freearc', 'application/octet-stream', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-fontobject', 'application/gzip', 'application/pdf', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/xml', 'text/csv', 'text/css', 'text/html', 'text/javascript'],
     'audios': ['audio/mpeg', 'audio/3gpp', 'audio/ogg', 'audio/3gpp2', 'audio/wav', 'audio/webm'],
     'fonts': ['font/otf', 'font/ttf', 'font/woff', 'font/woff2', ""]
-
 }
 
+// Define the maximum number of files that can be uploaded
 const LIMIT = 10;
 
-export default function UplaodMedia({ type, onAdd }) {
-
-
+export default function UploadMedia({ type, onAdd }) {
+    // Use state to keep track of the list of files
     const [fileList, setFileList] = useState([]);
 
-    const handleUpload = async (options) => {
+    // Handle the upload of files
+    const handleUpload = useCallback(async (options) => {
         const { onSuccess, onError, file, onProgress } = options;
         try {
-
-
             const formData = new FormData();
             formData.append('file', file);
             const res = await MediaServices.upload(type, formData, onProgress);
             onAdd(res.media);
             onSuccess({ status: 'done' });
-
-
         } catch (e) {
             onError(e)
             message.error(e?.message || 'Upload failed.');
         }
-    };
+    }, [onAdd]);
 
-    const handleChange = ({ fileList: newFileList }) => {
+    // Handle the change of files
+    const handleChange = useCallback(({ fileList: newFileList }) => {
         setFileList(newFileList);
-    }
+    }, []);
 
-    const handleRemove = (file) => {
+    // Handle the removal of files
+    const handleRemove = useCallback((file) => {
         const index = fileList.indexOf(file);
         const newFileList = fileList.slice();
         newFileList.splice(index, 1);
         setFileList(newFileList);
-    };
+    }, [fileList]);
 
-    const handleSuccess = (response, file) => {
+    // Handle the success of file upload
+    const handleSuccess = useCallback((response, file) => {
         message.destroy();
         message.success(`${file.name} uploaded successfully`);
         handleRemove(file);
-    };
+    }, [handleRemove]);
 
-    const handleExceed = (files, fileList) => {
-        message.error(`You can only upload a maximum of 2 files.`);
-    };
+    // Handle the exceed of file limit
+    const handleExceed = useCallback((files, fileList) => {
+        message.error(`You can only upload a maximum of ${LIMIT} files.`);
+    }, []);
 
-    const handleBeforeUpload = (file, fileList) => {
+    // Handle the before upload of files
+    const handleBeforeUpload = useCallback((file, fileList) => {
         const isValid = types[type].includes(file.type);
         if (!isValid) {
-
             message.error(`You can only upload ${type} file!`);
             return false;
         }
-
         if (fileList.length > LIMIT) {
             message.destroy();
             message.warning(`You can only upload a maximum of ${LIMIT} files.`);
         }
-
         return true;
+    }, [type]);
 
-    };
-
-
-
-    const props = {
+    // Define the props for the Upload component
+    const uploadProps = {
         accept: types[type].join(','),
         onDrop: handleChange,
         customRequest: handleUpload,
@@ -117,9 +88,9 @@ export default function UplaodMedia({ type, onAdd }) {
         maxCount: LIMIT,
         multiple: true,
         timeout: 60000
-
     };
 
+    // Define the upload button
     const uploadButton = (
         <div>
             <PlusOutlined />
@@ -127,12 +98,10 @@ export default function UplaodMedia({ type, onAdd }) {
         </div>
     );
 
-    return <>
-        <Upload {...props} >
+    // Render the Upload component
+    return (
+        <Upload {...uploadProps} >
             {fileList.length < LIMIT && uploadButton}
         </Upload>
-    </>
-
-
+    );
 };
-

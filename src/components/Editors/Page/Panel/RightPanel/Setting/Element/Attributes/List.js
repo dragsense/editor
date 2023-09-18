@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Button, Form, Input, Select, theme, Popconfirm, List, Typography, Popover } from "antd";
 import { PlusOutlined, MinusCircleOutlined, EditOutlined } from '@ant-design/icons';
 
 import AddAttribute from "./Add";
 
-
+// Initial attribute and condition objects
 const initialAttribute = { key: '', value: '', type: '', conditions: {} };
 const initialCondition = { key: '', match: '', value: '' };
+
 export default function ElementAttribute({
   isCondtions = true,
   cascaderStates,
@@ -15,26 +16,30 @@ export default function ElementAttribute({
   state,
   setState,
   setIsChange }) {
+  
+  // Current attribute state
   const [currentAttribute, setCurrentAttribute] = useState(null);
 
+  // Extract attributes from state
   const attributes = state.attributes || {};
 
+  // Extract theme colors
   const {
     token: { colorText, colorPrimary, colorError },
   } = theme.useToken();
 
-
-  const onAdd = (attribute) => {
+  // Function to add attribute
+  const onAdd = useCallback((attribute) => {
     setState((prevState) => ({
       ...prevState,
       attributes: { ...prevState.attributes, [attribute.key]: attribute },
     }));
     setCurrentAttribute(null);
     setIsChange(true);
+  }, [setState, setIsChange]);
 
-  };
-
-  const onRemove = (key) => {
+  // Function to remove attribute
+  const onRemove = useCallback((key) => {
     const updatedAttributes = { ...state.attributes };
     delete updatedAttributes[key];
     setState((prevState) => ({
@@ -42,15 +47,15 @@ export default function ElementAttribute({
       attributes: updatedAttributes,
     }));
     setIsChange(true);
+  }, [setState, setIsChange]);
 
-  };
-
-  const onEdit = (key) => {
+  // Function to edit attribute
+  const onEdit = useCallback((key) => {
     setCurrentAttribute(attributes[key]);
     setIsChange(true);
+  }, [setIsChange, attributes]);
 
-  };
-
+  // Render AddAttribute component if currentAttribute is present, else render attribute list
   return currentAttribute ? (
     <AddAttribute
       isCondtions={isCondtions}
@@ -83,8 +88,7 @@ export default function ElementAttribute({
         </div>
       ))}
 
-
-      <Button type="dashed" style={{ margin: '5px 0' }} onClick={() => setCurrentAttribute(initialAttribute)} block icon={<PlusOutlined />}>
+      <Button type="dashed" style={{ margin: '5px 0' }} onClick={() => setCurrentAttribute(initialAttribute)} block icon={<PlusOutlined />} disabled={!isChange}>
         Add {label}
       </Button>
     </>
