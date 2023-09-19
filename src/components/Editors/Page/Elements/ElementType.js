@@ -14,8 +14,26 @@ const getTagType = (node, layout) => {
 }
 
 // Function to handle the rendering of different types of elements
-const renderElement = (tagType, props) => {
-    const { disabled, onChange, children, value, _uid, pos, options, conds, onClick, onMouseMove, attributes, mapValue, mapIndex, node, classes } = props;
+const renderElement = (tagType, layout, props) => {
+    const { 
+        disabled, 
+        onChange, 
+        children, 
+        value, 
+        _uid, 
+        pos, 
+        options, 
+        conds, 
+        onClick, 
+        onMouseMove, 
+        attributes, 
+        mapValue, 
+        mapIndex, 
+        node, 
+        onScroll,
+        setting,
+        classes } = props;
+
     const element = <Element key={_uid} classes={classes} attributes={attributes} tagName={node.tagName} />;
 
     switch (tagType) {
@@ -29,10 +47,10 @@ const renderElement = (tagType, props) => {
         case 'inputgroup':
             return <InputGroup disabled={disabled} type={attributes["type"]} onChange={onChange} value={value} mapValue={mapValue} labelPos={node.labelPos || 0} _uid={_uid} pos={pos} conds={conds} onClick={onClick} onMouseMove={onMouseMove} attributes={attributes} options={options}><Element classes={classes} tagName={'label'} /></InputGroup>;
         case 'img':
-            return <Image disabled={disabled} conds={conds} onClick={onClick} onMouseMove={onMouseMove} _uid={_uid} name={node.name || node.tagName} pos={pos} value={value}>{element}</Image>;
+            return <Image disabled={disabled} host={setting?.host || ''} conds={conds} onClick={onClick} onMouseMove={onMouseMove} _uid={_uid} name={node.name || node.tagName} pos={pos} value={value}>{element}</Image>;
         case 'video':
         case 'audio':
-            return <Media disabled={disabled} conds={conds} tag={node.tagName} _uid={_uid} pos={pos} onClick={onClick} onMouseMove={onMouseMove} value={value}>{element}</Media>;
+            return <Media disabled={disabled} host={setting?.host || ''} conds={conds} tag={node.tagName} _uid={_uid} pos={pos} onClick={onClick} onMouseMove={onMouseMove} value={value}>{element}</Media>;
         case 'close':
             return <CloseTag disabled={disabled} conds={conds} onClick={onClick} onMouseMove={onMouseMove} name={node.name || node.tagName} _uid={_uid} pos={pos}>{element}</CloseTag>;
         case 'icon':
@@ -49,7 +67,7 @@ const ElementType = (props) => {
     const {  node } = props;
     const layout = node.layout;
     const tagType = useMemo(() => getTagType(node, layout), [node, layout]); // useMemo for performance optimization
-    return renderElement(tagType, props);
+    return renderElement(tagType, layout, props);
 }
 
 export default ElementType;

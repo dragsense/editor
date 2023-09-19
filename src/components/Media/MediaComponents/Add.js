@@ -24,7 +24,7 @@ const MediaDetails = ({ media }) => (
 );
 
 // Function to handle form submission
-const handleFormSubmit = useCallback(async (form, onSubmit, setMediaModalOpen) => {
+const handleFormSubmit = async (form, onSubmit, setMediaModalOpen) => {
   try {
     const values = await form.validateFields();
     const isSuccess = await onSubmit(values);
@@ -39,7 +39,7 @@ const handleFormSubmit = useCallback(async (form, onSubmit, setMediaModalOpen) =
     setMediaModalOpen(true);
     message.error('Validation failed.');
   }
-}, []);
+}
 
 export default function AddMedia({ media, onSubmit }) {
   // State to handle the visibility of the modal.

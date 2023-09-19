@@ -381,7 +381,7 @@ const createTab = async (
     }
 
     // Create the tab content element and add it to the tabsContent childNodes
-    await createElement(tag, tabContent, false, null, pos, state, document, proeprties[tag.layout] || {})
+    await createElement(tag, tabContent, false, null, pos, state, document, properties[tag.layout] || {})
     tabsContent.childNodes = [...tabsContent.childNodes, tabContentUniqueId]
 
     // Update the tab button, tabs button, and tabs content in the database

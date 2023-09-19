@@ -3,7 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import {
     Slides, Tabs, TabsButton, TabsContent, Accordion, AccordionItems, Modal, Gallery,
     Sider,
-    Dropdown, Gototop, Menu, Observable, Searchable
+    Dropdown, Gototop, Menu, Observable
 } from './components';
 
 import ElementSetting from './ElementSetting';
@@ -148,13 +148,6 @@ const ElementLayout = (props) => {
                 element={handleElementSetting}
                 updateStates={updateStates}>{children}
             </Observable>;
-        case 'searchable':
-            return <Searchable
-                states={_cstates}
-                node={node}
-                element={handleElementSetting}
-                updateStates={updateStates}>{children}
-            </Searchable>;
         case 'menu':
             return <Menu states={_cstates}
                 node={node}

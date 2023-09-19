@@ -53,7 +53,7 @@ const General = ({ _uid, conds, disabled, onMouseMove, onClick, onScroll, name, 
     const disabledChild = useMemo(() => {
         return !innerWraaper ? [] : (<>
             {React.isValidElement(value) ? value : <span
-                dangerouslySetInnerHTML={{ __html: value }}
+                dangerouslySetInnerHTML={{ __html: value+disabled }}
             />}
             {innerWraaper}</>
         );

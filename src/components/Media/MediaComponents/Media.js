@@ -5,6 +5,7 @@ import { Button, Spin, Divider, message, Input } from 'antd';
 import MediaServices from "../../../lib/services/media";
 import { useEffect, useReducer, useCallback, useState } from "react";
 import { debounce } from '../../../lib/utils';
+import MediaList from './MediaList';
 
 // Initial state for the reducer
 const initialState = {
@@ -20,14 +21,21 @@ const LIMIT = 25;
 // Reducer function for managing state
 // Handles various actions related to media items
 const mediaReducer = (state, action) => {
+
+
     switch (action.type) {
         case "start":
         // Loading and SearchLoading cases combined for cleaner code
+        return { ...state, loading: true };
         case "load":
+            return { ...state, media: [...action.data, ...state.media], total: action.total }
         case "searchLoad":
+            return { ...state, media: action.data, total: action.total }
+
         case "add":
             // Add a new media item to the state
             return { ...state, media: [action.data, ...state.media], total: state.total + 1 };
+
         case "edit":
             // Edit an existing media item
             return { ...state, single: action.data };
@@ -36,6 +44,7 @@ const mediaReducer = (state, action) => {
             return { ...state, single: null };
         case "update":
             // Update a media item in the state
+            console.log(state.media)
             const updatedMedia = state.media.map(item => item._id === action.single._id ? action.single : item);
             return { ...state, media: updatedMedia };
         case "delete":
@@ -55,6 +64,7 @@ export default function Media({ type, srcs, onSelect }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [state, dispatch] = useReducer(mediaReducer, initialState);
     const [page, setPage] = useState(1);
+    const [host, setHost] = useState('');
 
     // Function to load media data from API
     const loadMedia = useCallback(async () => {
@@ -62,6 +72,8 @@ export default function Media({ type, srcs, onSelect }) {
         try {
             const res = await MediaServices.getAll(type, page, LIMIT);
             const data = Array.isArray(res.media.results) ? res.media.results : [];
+            setHost(res.host);
+            
             dispatch({ type: 'load', data, total: res.media.totalResults });
         } catch (e) {
             message.error(e?.message || 'Something went wrong.');
@@ -77,6 +89,7 @@ export default function Media({ type, srcs, onSelect }) {
             const res = await MediaServices.search(type, searchQuery);
             const data = Array.isArray(res.media.results) ? res.media.results : [];
             dispatch({ type: 'searchLoad', data, total: res.media.totalResults });
+
         } catch (e) {
             message.error(e?.message || 'Something went wrong.');
         } finally {
@@ -160,6 +173,7 @@ export default function Media({ type, srcs, onSelect }) {
             <Divider />
             <Spin tip="Loading" size="small" spinning={state.loading}>
                 <MediaList
+                    host={host}
                     setPage={setPage}
                     media={state.media}
                     onDelete={onDelete}
@@ -170,9 +184,9 @@ export default function Media({ type, srcs, onSelect }) {
                 />
             </Spin>
             <Divider />
-            {state.total > (page * LIMIT) && 
-                <Button disabled={state.loading} loading={state.loading} onClick={() => setPage(page + 1)}> 
-                    Load More 
+            {state.total > (page * LIMIT) &&
+                <Button disabled={state.loading} loading={state.loading} onClick={() => setPage(page + 1)}>
+                    Load More
                 </Button>
             }
             <AddMedia onSubmit={onSubmit} media={state.single} />

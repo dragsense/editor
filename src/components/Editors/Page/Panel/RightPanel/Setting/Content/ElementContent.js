@@ -7,85 +7,85 @@ import Video from "../../../../../../Media/Video";
 const { Text } = Typography;
 const { Option } = Select;
 
-// Splitting the main function into smaller functions for better readability and maintainability
-// Function to handle change in content
-const onChange = (content, state, setIsChange) => {
-    state = { ...state, nodeValue: content }
-    setIsChange(true);
-}
 
-// Function to handle change in value
-const onChangeValue = (value, state, setIsChange) => {
-    if (!state.attributes) {
-        state.attributes = {};
-    }
-    if (state.attributes['type']?.value !== "'number'")
-        state.attributes["value"] = { key: 'value', value: `'${value}'` };
-    else
-        state.attributes["value"] = { key: 'value', value };
-    state = { ...state };
-    setIsChange(true);
-}
-
-// Function to handle change in state
-const onChangeState = (keys, state, setIsChange) => {
-    if (keys === undefined || keys[0] === undefined)
-        state = { ...state, state: undefined }
-    else {
-        const key = [...keys];
-        const first = key[0];
-        key.shift()
-        state = { ...state, state: { key, type: first } }
-    }
-    setIsChange(true);
-}
-
-// Function to handle change in values
-const handleValuesChange = (e, state, setIsChange) => {
-    let values = e.target.value;
-    state.options = values;
-    state = { ...state };
-    setIsChange(true);
-};
-
-// Function to handle change in label position
-const onChangeLabelPos = (val, state, setIsChange) => {
-    state = { ...state, labelPos: val };
-    setIsChange(true);
-};
-
-// Function to handle change in media
-const onChangeMedia = (media, state, setIsChange, type) => {
-    if (type == 'images') {
-        state = {
-            ...state,
-            nodeValue: media[0].src,
-            src: media[0]
-        };
-    }
-    else {
-        state = {
-            ...state,
-            srcs: media
-        };
-    }
-    setIsChange(true);
-}
 
 // Main function
 export default function ElementContent({ cascaderStates, state, setState, setIsChange }) {
+
     const [mediaModal, setMediaModal] = useState(false);
     const [type, setType] = useState("images");
 
-    const srcs = type == 'images' ? state.src : [...(state.srcs ? state.srcs : [])];
+    const srcs = type === 'images' ? state.src : [...(state.srcs ? state.srcs : [])];
+    
+    // Splitting the main function into smaller functions for better readability and maintainability
+    // Function to handle change in content
+    const onChange = (content) => {
+        setState(prevState => ({ ...prevState, nodeValue: content }));
+        setIsChange(true);
+    }
 
-    // Call the smaller functions inside the main function
-    onChange(content, state, setIsChange);
-    onChangeValue(value, state, setIsChange);
-    onChangeState(keys, state, setIsChange);
-    handleValuesChange(e, state, setIsChange);
-    onChangeLabelPos(val, state, setIsChange);
-    onChangeMedia(media, state, setIsChange, type);
+    // Function to handle change in value
+    const onChangeValue = (value) => {
+        setState(prevState => {
+            if (!prevState.attributes) {
+                prevState.attributes = {};
+            }
+            if (prevState.attributes['type']?.value !== "'number'")
+                prevState.attributes["value"] = { key: 'value', value: `'${value}'` };
+            else
+                prevState.attributes["value"] = { key: 'value', value };
+            return { ...prevState };
+        });
+        setIsChange(true);
+    }
+
+    // Function to handle change in state
+    const onChangeState = (keys) => {
+        setState(prevState => {
+            if (keys === undefined || keys[0] === undefined)
+                return { ...prevState, state: undefined }
+            else {
+                const key = [...keys];
+                const first = key[0];
+                key.shift()
+                return { ...prevState, state: { key, type: first } }
+            }
+        });
+        setIsChange(true);
+    }
+
+    // Function to handle change in values
+    const handleValuesChange = (e) => {
+        let values = e.target.value;
+        setState(prevState => ({ ...prevState, options: values }));
+        setIsChange(true);
+    };
+
+    // Function to handle change in label position
+    const onChangeLabelPos = (val) => {
+        setState(prevState => ({ ...prevState, labelPos: val }));
+        setIsChange(true);
+    };
+
+    // Function to handle change in media
+    const onChangeMedia = (media, type) => {
+
+
+        if (type === 'images') {
+            setState(prevState => ({
+                ...prevState,
+                nodeValue: media[0].src,
+                src: media[0]
+            }));
+        }
+        else {
+            setState(prevState => ({
+                ...prevState,
+                srcs: media
+            }));
+        }
+        setIsChange(true);
+    }
 
     // Function to render form based on state attributes
     const renderForm = () => {
@@ -96,13 +96,13 @@ export default function ElementContent({ cascaderStates, state, setState, setIsC
 
     // Function to render form based on type
     const renderFormBasedOnType = () => {
-        if (["'checkbox'", "'radio'"].includes(state.attributes['type']?.value) || state.tagName == 'select') {
+        if (["'checkbox'", "'radio'"].includes(state.attributes['type']?.value) || state.tagName === 'select') {
             return renderCheckboxRadioSelect();
-        } else if (state.tagName == 'input' && state.attributes['type']?.value !== "'file'") {
+        } else if (state.tagName === 'input' && state.attributes['type']?.value !== "'file'") {
             return renderInput();
-        } else if (state.tagName == 'video' || state.tagName == 'audio') {
+        } else if (state.tagName === 'video' || state.tagName === 'audio') {
             return renderVideoAudio();
-        } else if (state.tagName == 'img') {
+        } else if (state.tagName === 'img') {
             return renderImage();
         } else if (state.attributes['type']?.value !== "'file'") {
             return renderContentEditor();
@@ -173,7 +173,7 @@ export default function ElementContent({ cascaderStates, state, setState, setIsC
         return (
             <>
                 {renderSrcs()}
-                {state.tagName == 'video' && renderPoster()}
+                {state.tagName === 'video' && renderPoster()}
             </>
         );
     }
@@ -247,10 +247,11 @@ export default function ElementContent({ cascaderStates, state, setState, setIsC
 
     // Function to render content editor
     const renderContentEditor = () => {
+        
         return (
             <Form.Item label="Content" className="font-500">
                 <ContentEditor
-                    disabled={state.tagName == 'hr'}
+                    disabled={state.tagName === 'hr'}
                     cascaderStates={cascaderStates}
                     state={state}
                     onChange={onChange} />
@@ -262,7 +263,7 @@ export default function ElementContent({ cascaderStates, state, setState, setIsC
     const renderCascader = () => {
         return (
             <Cascader
-                disabled={state.tagName == 'hr'}
+                disabled={state.tagName === 'hr'}
                 options={cascaderStates}
                 onChange={onChangeState}
                 value={state.state ?
@@ -277,7 +278,7 @@ export default function ElementContent({ cascaderStates, state, setState, setIsC
     const renderMediaModal = () => {
         return (
             <MediaModal open={mediaModal}
-                multiple={type == 'videos'}
+                multiple={type === 'videos'}
                 type={type}
                 onClose={() => setMediaModal(false)} srcs={srcs} onSelect={onChangeMedia} />
         );

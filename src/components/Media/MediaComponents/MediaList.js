@@ -12,7 +12,7 @@ const { confirm } = Modal;
 const COLS = 4;
 
 // MediaList component
-const MediaList = ({ media, type, onEdit, onDelete, onSelect, srcs }) => {
+const MediaList = ({ media, host, onEdit, onDelete, onSelect, srcs }) => {
     // Extract colorPrimary from theme
     const { token: { colorPrimary } } = theme.useToken();
 
@@ -24,8 +24,8 @@ const MediaList = ({ media, type, onEdit, onDelete, onSelect, srcs }) => {
         const items = [];
 
         // Push media items into the array
-        for(let i = 0; i < COLS; i++) {
-            if(media[colIndex + i]) {
+        for (let i = 0; i < COLS; i++) {
+            if (media[colIndex + i]) {
                 items.push(media[colIndex + i]);
             }
         }
@@ -34,17 +34,18 @@ const MediaList = ({ media, type, onEdit, onDelete, onSelect, srcs }) => {
         return (
             <div style={{ ...style, width: '99.5%' }}>
                 <Row gutter={16}>
-                    {items.map(item => {
+                {items.filter(item => item._id).map(item => {
                         // Check if the item is selected
                         const isSelected = srcs.some(s => (s?._id == item._id || s?.src == item.src));
                         return (
-                            <MediaItem 
-                                item={item} 
-                                isSelected={isSelected} 
-                                colorPrimary={colorPrimary} 
-                                onEdit={onEdit} 
-                                onDelete={onDelete} 
-                                onSelect={onSelect} 
+                            <MediaItem
+                                host={host}
+                                item={item}
+                                isSelected={isSelected}
+                                colorPrimary={colorPrimary}
+                                onEdit={onEdit}
+                                onDelete={onDelete}
+                                onSelect={onSelect}
                             />
                         );
                     })}
@@ -68,18 +69,18 @@ const MediaList = ({ media, type, onEdit, onDelete, onSelect, srcs }) => {
 };
 
 // MediaItem sub-component
-const MediaItem = ({ item, isSelected, colorPrimary, onEdit, onDelete, onSelect }) => {
+const MediaItem = ({ item, host, isSelected, colorPrimary, onEdit, onDelete, onSelect }) => {
     // Render different types of media
     const renderMedia = () => {
-        switch(item.type) {
+        switch (item.type) {
             case 'images':
-                return <Image onClick={() => onSelect(item)} style={{ width: '100%', height: '200px', objectFit: 'cover', objectPosition: 'center' }} preview={true} src={item.src} fallback="/images/default/default-img.png" />;
+                return <Image onClick={() => onSelect(item)} style={{ width: '100%', height: '200px', objectFit: 'cover', objectPosition: 'center' }} preview={true} src={host + item.src} fallback="/images/default/default-img.png" />;
             case 'videos':
-                return <Video src={item.src} alt={item.alt} mimetype={item.mimetype} />;
+                return <Video src={host + item.src} alt={item.alt} mimetype={item.mimetype} />;
             case 'audios':
-                return <Audio src={item.src} alt={item.alt} />;
+                return <Audio src={host + item.src} alt={item.alt} />;
             default:
-                return <a href={item.src} target="_blank" rel="noopener noreferrer"><FileOutlined style={{ fontSize: 48 }} /></a>;
+                return <a href={host + item.src} target="_blank" rel="noopener noreferrer"><FileOutlined style={{ fontSize: 48 }} /></a>;
         }
     };
 
@@ -130,7 +131,7 @@ const MediaItem = ({ item, isSelected, colorPrimary, onEdit, onDelete, onSelect 
             <Badge.Ribbon text={isSelected ? 'Selected' : ''} color={isSelected ? 'green' : 'none'}>
                 <Card
                     className="actions-item-card"
-                    style={{  height: 300 }}
+                    style={{ height: 300 }}
                     cover={renderMedia()}
                     actions={renderActions()}
                     hoverable

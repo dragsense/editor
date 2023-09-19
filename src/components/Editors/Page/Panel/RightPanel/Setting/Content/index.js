@@ -22,6 +22,8 @@ export default function Content({ state, onUpdate, onChange, cascaderStates }) {
 
 
     const onChangeImportPath = (e) => {
+
+
         const value = e.target.value;
         setContentState({ ...contentState, customPath: value })
         setIsChange(true);
@@ -38,6 +40,8 @@ export default function Content({ state, onUpdate, onChange, cascaderStates }) {
 
 
     useEffect(() => {
+
+
 
         if (!state.node)
             return;

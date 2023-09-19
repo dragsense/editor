@@ -50,7 +50,8 @@ export default function Editor({ children, _id, pageType, onBack }) {
         onChangeMedia(minMax, orientation, windowWidth);
     }, [minMax, orientation, windowWidth])
 
-    // Rendering the Editor component
+    
+        // Rendering the Editor component
     return <>
 
         <EditorNav

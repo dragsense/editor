@@ -73,7 +73,6 @@ export function Elements({ state, dispatch, pageId }) {
                 onAdd({ _uid: tag._uid, name: tag.name }, dispatch, pageId, state)
                 setIsDraggingOver(false);
             }} type="dashed" style={{ ...buttonStyle, margin: '10px 0', height: 50, width: '100%', textAlign: 'center' }}
-            disabled={!tag._uid || !tag.name} // Disable button if no input change
         >
             Drop Here <PlusOutlined />
         </Button>

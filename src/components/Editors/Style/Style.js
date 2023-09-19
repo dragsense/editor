@@ -1,3 +1,4 @@
+import React from "react";
 import { Button, Modal, Card, Spin, Alert, ColorPicker } from "antd";
 import { useState, useReducer, useEffect } from "react";
 import { ExclamationCircleFilled } from '@ant-design/icons';
@@ -311,7 +312,7 @@ export default function Style({ children, onBack }) {
                 let rule = null;
                 // If media is set in the state, get the CSS media rule and the rule from the media rules
                 if (state.media) {
-                    let cssMediaRule = getCssMediaRule(cssRules);
+                    let cssMediaRule = getCssMediaRule(cssRules, state.media, sheet);
                     let mediaRules = cssMediaRule.cssRules || cssMediaRule.rules;
                     rule = getRule(mediaRules, selectorText, elementState);
                     sheet = cssMediaRule;
@@ -382,7 +383,7 @@ export default function Style({ children, onBack }) {
     };
 
     // Function to get the CSS media rule from the cssRules
-    const getCssMediaRule = (cssRules, conditionText) => {
+    const getCssMediaRule = (cssRules, conditionText, sheet) => {
         let cssMediaRule = null;
         for (let i = 0; i < cssRules.length; i++) {
             let tempRule = cssRules[i];
@@ -554,7 +555,7 @@ export default function Style({ children, onBack }) {
             // Get the CSS rules from the stylesheet
             let cssRules = sheet.cssRules || sheet.rules;
             // Get the rule from the CSS rules and the selector
-            let rule = getRuleFromSheet(cssRules, selector);
+            let rule = getRuleFromSheet(cssRules, selector, sheet);
             // If the rule does not exist, create a new rule
             if (!rule) {
                 rule = createRuleInSheet(sheet, cssRules, selector);
@@ -564,7 +565,7 @@ export default function Style({ children, onBack }) {
             // Get the current element from the STYLE_STORE
             const currentElement = await getData(state.page._id, selector._uid, "id", STYLE_STORE_NAME);
             // Update the style of the current element
-            updateElementStyle(currentElement, selector);
+            updateElementStyle(currentElement, selector, STORE, isRedo);
             // Update the data of the current element in the STYLE_STORE
             await updateData(state.page._id, currentElement, STYLE_STORE_NAME);
             // Reset the style change state
@@ -583,11 +584,11 @@ export default function Style({ children, onBack }) {
     };
 
     // Function to get the rule from the CSS rules and the selector
-    const getRuleFromSheet = (cssRules, selector) => {
+    const getRuleFromSheet = (cssRules, selector, sheet) => {
         let rule = null;
         // If the key of the selector is not 'normal', get the rule from the media rules
         if (selector.key !== 'normal') {
-            let cssMediaRule = getCssMediaRule(cssRules, selector.key);
+            let cssMediaRule = getCssMediaRule(cssRules, selector.key, sheet);
             let mediaRules = cssMediaRule.cssRules || cssMediaRule.rules;
             rule = getRule(mediaRules, selector.selectorText, selector.selectorType);
         } else {
@@ -631,7 +632,7 @@ export default function Style({ children, onBack }) {
     };
 
     // Function to update the style of the current element
-    const updateElementStyle = (currentElement, selector) => {
+    const updateElementStyle = (currentElement, selector, STORE, isRedo) => {
         // Get the style of the current element or initialize it
         const style = currentElement.style || {};
         // Get the selector type or default to 'root'

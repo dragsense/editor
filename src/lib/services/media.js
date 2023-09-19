@@ -1,4 +1,4 @@
-import { createApiRequest } from '../fetch';
+import { createApiRequest, fetcher } from '../fetch';
 
 // Define MediaServices as an object to hold all media related functions
 const MediaServices = {
@@ -32,7 +32,8 @@ const MediaServices = {
     // Function to upload a new media
     upload: async (type, formData, onProgress) => {
 
-        const { sanitizedUrl, apikey } = await prepareUpload(type)
+        // Access the preparedUpload function using MediaServices.prepareUpload
+        const { sanitizedUrl, apikey } = await MediaServices.prepareUpload(type)
         
         return await fetcher(`${sanitizedUrl}`, {
             method: 'POST',

@@ -5,7 +5,7 @@ import Dropdown from './dropdown';
 const getDefaultValue = (states, key, defaultValue) => states[key] ? states[key].defaultValue : defaultValue;
 
 // Function to update states
-const updateState = (key, value, updateStates) => {
+const updateState = (key, value, states, updateStates) => {
     if(value !== states[key].defaultValue) {
         updateStates(key, value);
     }
@@ -36,13 +36,10 @@ const DropdownItem = (props) => {
 // Close dropdown function
   const closeDropdown = () => {
     if(openDropdown === 1)
-    updateState('openDropdown', 0, updateStates)
+    updateState('openDropdown', 0, states, updateStates)
   };
 
-// Disable button if no input change
-  const isButtonDisabled = useMemo(() => {
-    return Object.keys(states).every(key => states[key].defaultValue === states[key].value);
-  }, [states]);
+
 
   return <Dropdown
     openDropdown={openDropdown}
@@ -55,7 +52,7 @@ const DropdownItem = (props) => {
     expandValue={expandValue}
     leftOffset={leftOffset}
     topOffset={topOffset}
-    isButtonDisabled={isButtonDisabled}>{element({ ...node, state: undefined, map: undefined }, children)}</Dropdown>
+    >{element({ ...node, state: undefined, map: undefined }, children)}</Dropdown>
 };
 
 export default DropdownItem;

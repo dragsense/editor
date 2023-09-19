@@ -1,3 +1,9 @@
+import { message } from "antd";
+import { useMemo } from "react";
+
+import { getStateValue, getPageValue } from '../../../../lib/element/elementNode';
+import ElementValue from './ElementValue';
+
 /**
  * This is a React functional component called ElementSetting.
  * It renders an ElementValue component with certain props.
@@ -130,7 +136,7 @@ const ElementSetting = (props) => {
         if (types.includes(type)) {
             return getStateValue(key, _cstates);
         }
-        return value;
+        return '';
     };
 
     /**

@@ -24,6 +24,7 @@ const handleModalStateChange = (state, contentRef, type, setHtml) => {
     }
     if (state.visible && contentRef.current) {
         let existingChildren = state?.node.querySelector(`[data-child="child-${state._uid}"]`);
+        console.log(existingChildren)
         ContentEditor.destroy(null);
         if (type === 0) {
             contentRef.current.innerHTML = existingChildren ? existingChildren.innerHTML : state.nodeValue;

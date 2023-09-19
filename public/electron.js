@@ -3,74 +3,78 @@ const path = require('path')
 const url = require('url');
 const Store = require('electron-store')
 
+// Initialize the electron-store instance
 const store = new Store();
 
 let mainWindow;
 let argv = [];
 const customProtocol = 'autocode-editor';
 
+// Remove the app as the default protocol client
 app.removeAsDefaultProtocolClient(customProtocol);
 
+// Set the app as the default protocol client based on the environment
 if (process.defaultApp) {
   if (process.argv.length >= 2) {
     app.setAsDefaultProtocolClient(customProtocol, process.execPath, [path.resolve(process.argv[1])])
   }
 } else {
   argv = process.argv;
-
-
   app.setAsDefaultProtocolClient(customProtocol)
 }
 
-
+// Define prefixes based on the environment
 const prefix = app.isPackaged ? '__' : '';
 const prefixSecure = app.isPackaged ? 'Secure-' : '';
 const prefixHost = app.isPackaged ? 'Host-' : '';
 
+// Function to set the session
 const setSession = (argUrl) => {
-  const url = new URL(argUrl);
-  const queryParams = new URL(url).searchParams;
-  const cookies = JSON.parse(decodeURIComponent(queryParams.get('cookies')));
+  try {
+    const url = new URL(argUrl);
+    const queryParams = new URL(url).searchParams;
+    const cookies = JSON.parse(decodeURIComponent(queryParams.get('cookies')));
 
+    const sessionToken = cookies[prefix + prefixSecure + 'next-auth.session-token'];
+    const callbackUrl = cookies[prefix + prefixSecure + 'next-auth.callback-url'];
+    const csrfToken = cookies[prefix + prefixHost + 'next-auth.csrf-token'];
 
+    const info = JSON.parse(decodeURIComponent(queryParams.get('info')));
 
-  const sessionToken = cookies[prefix + prefixSecure + 'next-auth.session-token'];
-  const callbackUrl = cookies[prefix + prefixSecure + 'next-auth.callback-url'];
-  const csrfToken = cookies[prefix + prefixHost + 'next-auth.csrf-token'];
+    const projectId = info['projectId'];
+    const pageId = info['pageId'];
+    const pageType = info['pageType'];
+    const userName = info['userName'];
+    const apiUrl = info['url'];
 
-  const info = JSON.parse(decodeURIComponent(queryParams.get('info')));
+    // Store the session information
+    store.set('projectId', projectId || null);
+    store.set('pageId', pageId || null);
+    store.set('pageType', pageType || null);
+    store.set('userName', userName || null);
+    store.set('apiUrl', apiUrl || 'http://localhost:3000');
 
-  const projectId = info['projectId'];
-  const pageId = info['pageId'];
-  const pageType = info['pageType'];
-  const userName = info['userName'];
+    const ses = session.defaultSession;
+    ses.clearStorageData();
+    if (sessionToken && csrfToken && callbackUrl) {
 
-
-  store.set('projectId', projectId || null);
-  store.set('pageId', pageId || null);
-  store.set('pageType', pageType || null);
-  store.set('userName', userName || null);
-  store.set('apiUrl', callbackUrl || '');
-
-  const ses = session.defaultSession;
-  ses.clearStorageData();
-  if (sessionToken && csrfToken && callbackUrl) {
-
-    ses.cookies.set({ url: callbackUrl, name: prefixSecure + 'next-auth.session-token', value: sessionToken });
-    ses.cookies.set({ url: callbackUrl, name: prefixSecure + 'Secure-next-auth.callback-url', value: callbackUrl });
-    ses.cookies.set({ url: callbackUrl, name: prefixHost + 'Host-next-auth.csrf-token', value: csrfToken });
-    webContents.getAllWebContents().forEach((contents) => {
-      contents.send('session-update', { projectId, pageId, pageType, userName, session: true });
-    });
-  } else {
-    webContents.getAllWebContents().forEach((contents) => {
-      contents.send('session-update', { userName: 'Guset', session: false });
-    });
+      ses.cookies.set({ url: apiUrl, name: prefixSecure + 'next-auth.session-token', value: sessionToken });
+      ses.cookies.set({ url: apiUrl, name: prefixSecure + 'Secure-next-auth.callback-url', value: callbackUrl });
+      ses.cookies.set({ url: apiUrl, name: prefixHost + 'Host-next-auth.csrf-token', value: csrfToken });
+      webContents.getAllWebContents().forEach((contents) => {
+        contents.send('session-update', { projectId, pageId, pageType, userName, session: true });
+      });
+    } else {
+      webContents.getAllWebContents().forEach((contents) => {
+        contents.send('session-update', { userName: 'Guset', session: false });
+      });
+    }
+  } catch (error) {
+    console.error('Error setting session:', error);
   }
 }
 
-
-
+// Check if the app has the single instance lock
 const gotTheLock = app.requestSingleInstanceLock()
 
 if (!gotTheLock) {
@@ -87,7 +91,6 @@ if (!gotTheLock) {
 
     if (argUrl)
       setSession(argUrl)
-
 
     const options = {
       type: 'info',
@@ -126,9 +129,9 @@ if (!gotTheLock) {
     dialog.showErrorBox('Welcome Back', `You arrived from: ${url}`)
   })
 
-
 }
 
+// Function to create the main window
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -154,28 +157,20 @@ function createWindow() {
 
   mainWindow.loadURL(appURL);
 
-
 }
 
-
+// Function to handle API requests
 ipcMain.handle('makeApiRequest', async (event, apiEndpoint) => {
   try {
-
-
     const apiUrl = store.get('apiUrl');
     const ses = session.defaultSession;
     const cookies = await ses.cookies.get({ url: apiUrl });
-
 
     const cookieString = cookies
       .map((cookie) => `${prefix}${cookie.name}=${cookie.value}`)
       .join('; ');
 
-
-
-
     const projectId = store.get('projectId');
-
 
     const response = await fetch(`${apiUrl}/api/projects/` + projectId, {
       method: 'GET',
@@ -189,19 +184,17 @@ ipcMain.handle('makeApiRequest', async (event, apiEndpoint) => {
     if (!response.ok) {
       throw new Error('API request failed');
     }
-
     const responseData = await response.json();
     return responseData;
 
-
   } catch (error) {
     // Handle errors
-
     console.error('Error fetching data:', error.message);
     return {};
   }
 });
 
+// Function to get the store values
 ipcMain.handle('getStore', async (event, apiEndpoint) => {
 
   try {
@@ -226,6 +219,7 @@ ipcMain.handle('getStore', async (event, apiEndpoint) => {
 
 });
 
+// Function to prompt the user to save changes
 ipcMain.handle('prompt-to-save', async (event) => {
   const response = await dialog.showMessageBox({
     type: 'warning',
@@ -233,12 +227,10 @@ ipcMain.handle('prompt-to-save', async (event) => {
     buttons: ['Save', 'Don’t Save', 'Cancel'],
   });
 
-
   return response.response; // Return true if "Save" is selected
 });
 
-
-
+// Quit the app when all windows are closed
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit()
 })

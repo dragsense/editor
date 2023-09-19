@@ -8,7 +8,7 @@ const getTotalAndActiveIndex = (states) => {
 }
 
 // Function to flatten children
-const getFlattenedChildren = useCallback((nodes, element, node, children, total, updateStates) => {
+const getFlattenedChildren = (nodes, element, node, children, total, updateStates) => {
     const flattenedChildren = nodes.length > 0 ? nodes.map((mapValue, mapIndex) => element(
         { tagName: 'span', state: node.state },
         children[0],
@@ -21,10 +21,10 @@ const getFlattenedChildren = useCallback((nodes, element, node, children, total,
     if (length !== total)
         updateStates('items', length, 'states');
     return flattenedChildren;
-}, []);
+};
 
 // Function to render tabs button
-const getRenderTabsButton = useCallback((flattenedChildren, activeIndex) => {
+const getRenderTabsButton = (flattenedChildren, activeIndex) => {
     const tabsButton = [];
     const totalSlides = flattenedChildren.length;
     for (let i = 0; i < totalSlides; i++) {
@@ -32,7 +32,7 @@ const getRenderTabsButton = useCallback((flattenedChildren, activeIndex) => {
         tabsButton.push(React.cloneElement(flattenedChildren[i], { mapIndex: i, isActive }));
     }
     return tabsButton;
-}, []);
+};
 
 const TabsButton = (props) => {
     const { children,

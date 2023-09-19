@@ -88,7 +88,9 @@ export default function ElementAttribute({
         </div>
       ))}
 
-      <Button type="dashed" style={{ margin: '5px 0' }} onClick={() => setCurrentAttribute(initialAttribute)} block icon={<PlusOutlined />} disabled={!isChange}>
+      <Button type="dashed" style={{ margin: '5px 0' }} 
+      onClick={() => setCurrentAttribute(initialAttribute)} 
+      block icon={<PlusOutlined />}>
         Add {label}
       </Button>
     </>

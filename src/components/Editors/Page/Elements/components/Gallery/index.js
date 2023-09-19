@@ -3,10 +3,6 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 // Function to get default value from states
 const getDefaultValue = (states, key, defaultValue) => states[key] ? states[key].defaultValue : defaultValue;
 
-// Function to update states
-const updateState = useCallback((key, value) => {
-    updateStates(key, value, 'states');
-}, [updateStates]);
 
 const Gallery = ({ children, states, nodes, element, node, updateStates }) => {
     
@@ -28,7 +24,7 @@ const Gallery = ({ children, states, nodes, element, node, updateStates }) => {
         // Update total items if length is different
         const length = flattenedChildren.length;
         if (length !== total) {
-            updateState('items', length);
+            updateStates('items', length);
         }
 
         return flattenedChildren;
@@ -36,20 +32,22 @@ const Gallery = ({ children, states, nodes, element, node, updateStates }) => {
 
     // Update active item on active index change
     useEffect(() => {
-        updateState('activeItem', flattenedChildren[activeIndex]);
+        updateStates('activeItem', flattenedChildren[activeIndex]);
     }, [activeIndex]);
 
     // Open modal on active item or modal change
     useEffect(() => {
         if (modal) {
-            updateState('openModal', 1);
+            updateStates('openModal', 1, 'states');
+
         }
     }, [activeItem, modal]);
 
     // Reset current index on modal close
     useEffect(() => {
         if(openModal === 0) {
-            updateState('currentIndex', -1);
+            updateStates('currentIndex', -1);
+
         }
     }, [openModal]);
 

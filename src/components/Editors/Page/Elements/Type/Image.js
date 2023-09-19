@@ -8,11 +8,11 @@ const createImageObject = (value) => {
 }
 
 // Function to create custom attributes for image element
-const createCustomAttributes = (_uid, pos, name, onMouseMove, onClick, image, conds, disabledStyles) => {
+const createCustomAttributes = (_uid, pos, host, name, onMouseMove, onClick, image, conds, disabledStyles) => {
     return {
         onMouseMove: onMouseMove,
         onClick: onClick,
-        src: image.src, alt: image.alt,
+        src: host + image.src, alt: image.alt,
         "data-id": _uid,
         "data-pos": pos,
         "data-name": name,
@@ -22,7 +22,7 @@ const createCustomAttributes = (_uid, pos, name, onMouseMove, onClick, image, co
 }
 
 const Image = (props) => {
-    const { _uid, pos, conds, onMouseMove, onClick, value, name, children, disabled } = props;
+    const { _uid, pos, conds, onMouseMove, host, onClick, value, name, children, disabled } = props;
 
     // Styles for disabled image
     const disabledStyles = useMemo(() => ({
@@ -34,7 +34,7 @@ const Image = (props) => {
     const image = useMemo(() => createImageObject(value), [value]);
 
     // Create custom attributes for image element
-    const customAttributes = useMemo(() => createCustomAttributes(_uid, pos, name, onMouseMove, onClick, image, conds, disabledStyles), [_uid, pos, name, onMouseMove, onClick, image, conds, disabledStyles]);
+    const customAttributes = useMemo(() => createCustomAttributes(_uid, pos, name, host, onMouseMove, onClick, image, conds, disabledStyles), [_uid, pos, name, onMouseMove, onClick, image, conds, disabledStyles]);
 
     // Clone children and add custom attributes
     const ImageElement = useMemo(() => React.cloneElement(children, { customAttributes }), [children, customAttributes]);

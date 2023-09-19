@@ -27,13 +27,15 @@ export const fetcher = (...args) => {
 // The request is then sent using the fetcher function
 export const createApiRequest = async (endpoint, method = 'GET', body = null, isJson = true) => {
   // Fetch project details from autocode API
-  const { project: { url, apikey } } = await window.autocode.makeApiRequest();
+  const res = await window.autocode.makeApiRequest();
 
   // Throw an error if project is not found
-  if (!project) {
+  if (!res.project) {
     throw new Error("Project Not Found.");
     return;
   }
+
+  const { url, apikey } = res.project;
 
   // Construct the request URL by appending the endpoint to the project URL
   // The regex is used to remove any duplicate slashes in the URL

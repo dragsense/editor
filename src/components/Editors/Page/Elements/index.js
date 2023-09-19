@@ -4,6 +4,8 @@ import { useMemo } from 'react';
 
 export default function Page({ page, pageUpdated, onUpdateStates, loading }) {
 
+
+
     const memoizedPage = useMemo(() => {
         return pageUpdated ? <Elements
             _id={page._id}

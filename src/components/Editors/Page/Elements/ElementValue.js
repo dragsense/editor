@@ -17,6 +17,7 @@ const ElementValue = (props) => {
         _states,
         colStates,
         _props,
+        disabled,
         fun,
         _cstates,
         attributes,

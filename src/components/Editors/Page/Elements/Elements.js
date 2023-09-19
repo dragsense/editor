@@ -18,7 +18,10 @@ export const InlineSkeleton = () => (
 );
 
 // Component for rendering a tree node
-const TreeNode = ({ _uid, pos, _id, pageUpdated, pageType }) => {
+const TreeNode = (props) => {
+
+  const { _uid, pos, _id, pageUpdated, pageType } = props;
+
   const [children, setChildren] = useState([]);
   const [node, setNode] = useState({});
 
@@ -54,6 +57,7 @@ const TreeNode = ({ _uid, pos, _id, pageUpdated, pageType }) => {
       component={rootComponent || component}
       customPath={node.customPath}
       form={rootForm || form}
+      node={node}
     >
       {children.map((key, i) => (
         <MemoizedTreeNode
@@ -155,6 +159,7 @@ export default function Elements({ pageUpdated, _id, onUpdateStates }) {
         states: page.states,
         populatedRelationships,
         relationships,
+        host: page.host || '',
         ...({ setting: page.setting } || {}),
         global: { ...res.setting },
       };
@@ -165,6 +170,8 @@ export default function Elements({ pageUpdated, _id, onUpdateStates }) {
   useEffect(() => {
     fetchNode();
   }, [fetchNode]);
+
+
 
   return (
     <>

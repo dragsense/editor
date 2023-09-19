@@ -139,19 +139,12 @@ const ElementMapping = (props) => {
     let nodes = useMemo(getValues, [map, getValues]);
     let options = useMemo(getOptions, [node.options]);
 
-    // Disable the button if there are no changes in the input
-    const isButtonDisabled = useMemo(() => {
-        return nodes.length === 0 && options.length === 0;
-    }, [nodes, options]);
-
     return (
         <ElementLayout
             {...props}
             nodes={[...options, ...nodes]}
             layout={node.layout}
-            options={options}
-            disabled={isButtonDisabled}
-        >
+            options={options}>
             {children}
         </ElementLayout>
     );

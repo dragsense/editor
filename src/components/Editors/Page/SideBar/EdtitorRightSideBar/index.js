@@ -15,16 +15,13 @@ import Collection from '../../Panel/RightPanel/Setting/Collection';
 import Component from '../../Panel/RightPanel/Setting/Component';
 import Form from '../../Panel/RightPanel/Setting/Form';
 import Styling from '../../Panel/RightPanel/Setting/Styling';
-import { generateCascader, generateCascaderCollStates } from '../../../../../lib/utils';
-import { getAllData, getData } from '../../../../../lib/db';
+
 
 import Content from '../../Panel/RightPanel/Setting/Content';
-import ComponentServices from '../../../../../lib/services/components';
 
 
 import LayoutStyle from '../../Element/LayoutStyle';
 import { FontColorsOutlined, SettingOutlined } from '@ant-design/icons';
-import { pageSetting } from '../../../../../lib/element/elementNode';
 
 const { Sider } = Layout;
 const menuKeys = ['sub1', 'sub3', 'sub4', 'sub2', 'sub5', 'sub6', 'sub7', 'sub8'];
@@ -234,8 +231,8 @@ const EditorRightSideBar = ({ onClickElement,
                 collapsible collapsed={collapsed}
                 onCollapse={toggleCollapsed}
             >
-                {state.node && !collapsed && <Title level={4} style={{ padding: 4, margin: 0, textAlign: 'center' }}> Element:{" "}
-                    <span style={{ color: colorPrimary }}>{state.node.name || state.node.tagName}</span>
+                {!collapsed && <Title level={4} style={{ padding: 4, margin: 0, textAlign: 'center', minHeight: 30 }}> Element:{" "}
+                    <span style={{ color: colorPrimary }}>{state.node ? state.node.name || state.node.tagName : '' }</span>
                 </Title>}
                 <Menu
                     mode="inline"

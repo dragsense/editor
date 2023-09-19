@@ -24,6 +24,7 @@ export const pageContext = React.createContext({});
 const initial = {
     page: null,
     node: null,
+    pageUpdated: null,
     selector: null,
     isChange: false,
     isStyleChange: false,
@@ -39,7 +40,7 @@ const reducer = (state, action) => {
     // Using a lookup object for better performance
     const actions = {
         "start": () => ({ ...state, loading: true, error: '' }),
-        "laod": () => ({ ...state, pageUpdated: action.pageUpdated }),
+        "load": () => ({ ...state, pageUpdated: action.pageUpdated }),
         "preview": () => ({ ...state, preview: action.preview }),
         "edit": () => ({ ...state, page: action.page, type: action.pageType, isChange: false }),
         "updatePage": () => ({ ...state, pageUpdated: action.pageUpdated, isChange: true }),
@@ -55,10 +56,12 @@ const reducer = (state, action) => {
         "error": () => ({ ...state, error: action.error }),
         "finish": () => ({ ...state, loading: false })
     };
+    
 
     // Check if the action type exists in the lookup object
     if (actions[action.type]) {
         // If it does, execute the corresponding function
+
         return actions[action.type]();
     } else {
         // If it doesn't, return the current state
@@ -232,8 +235,6 @@ const copyChildElement = async (child, state, deep, iFrameDocument) => {
         await updateChildStyle(child, state, iFrameDocument);
     }
 
-    child.parent = currentElement._uid;
-
     await onCopyElement(child, state, deep, iFrameDocument);
     await updateData(state.page._id, child);
     return unique_id;
@@ -250,6 +251,7 @@ const onCopyElement = async (currentElement, state, deep = false, iFrameDocument
     if (Array.isArray(currentElement.childNodes)) {
         const newChilds = await Promise.all(currentElement.childNodes.map(async (_uid) => {
             const child = await getData(state.page._id, _uid);
+            child.parent = currentElement._uid;
             return await copyChildElement(child, state, deep, iFrameDocument);
         }));
         currentElement.childNodes = newChilds;
@@ -633,7 +635,7 @@ export default function PageManger({ children }) {
 
 
     // Helper function to update the original node
-    const updateOriginalNode = async (orignalNode) => {
+    const updateOriginalNode = async (orignalNode, pos) => {
         if (!orignalNode) {
             throw new Error('Element not found.');
         }
@@ -649,7 +651,7 @@ export default function PageManger({ children }) {
 
         try {
             // Update the original node and get the updated data
-            const { orignal, pageUpdated } = await updateOriginalNode(orignalNode);
+            const { orignal, pageUpdated } = await updateOriginalNode(orignalNode, pos);
 
             // Add an 'update' action to the undo/redo store
             onAddAction({ action: 'update', ...pageUpdated, orignal }, STORE, isRedo);
@@ -680,14 +682,14 @@ export default function PageManger({ children }) {
         }
 
         // Fetch the page data associated with the tag
-        let page = await getPageData(tag.page._id);
+        let page = await getAllData(tag.page._id);
 
         // If the page data doesn't exist, load the page without style and add the component
         if (!page) {
             await loadPageWithoutStyle(tag.page, tag.page.pageType);
             const res = await getPageCss(tag.page.pageType, tag.page._id);
             await addStylesToIframeDocument(iFramedocument, res, tag.page._id);
-            page = await getPageData(tag.page._id);
+            page = await getAllData(tag.page._id);
             await addComponent(tag);
         }
 
@@ -733,7 +735,7 @@ export default function PageManger({ children }) {
         }
 
         // Fetch the current page data
-        const page = await getPageData(state.page._id);
+        const page = await getAllData(state.page._id);
 
         // Check if the page data exists
         if (!page) {

@@ -2,14 +2,14 @@ import React, { useMemo, useCallback } from 'react';
 import { nanoid } from 'nanoid';
 
 // Function to create poster object
-const createPoster = (value, tag) => {
-    return value.value ? { src: value.value, alt: value.label || tag } : { src: value, alt: tag };
+const createPoster = (value, tag, host) => {
+    return value.value ? { src: host + value.value, alt: value.label || tag } : { src: value, alt: tag };
 }
 
 // Function to create sources array
-const createSources = (srcs, poster, tag) => {
+const createSources = (srcs, poster, tag, host) => {
     let sources = srcs.map((media, index) => {
-        return <source key={index} src={media.src} type={media.mimetype} />
+        return <source key={index} src={host+media.src} type={media.mimetype} />
     });
 
     if (srcs.length <= 0 && tag === 'audio') {
@@ -28,15 +28,15 @@ const createDisabledStyles = () => {
 }
 
 const Media = (props) => {
-    const { tag, pos, _uid, value, conds, onMouseMove, onClick, children, disabled } = props;
+    const { tag, pos, _uid, host, value, conds, onMouseMove, onClick, children, disabled } = props;
 
     // useMemo to avoid unnecessary re-renders and improve performance
-    const poster = useMemo(() => createPoster(value, tag), [value, tag]);
+    const poster = useMemo(() => createPoster(value, tag, host), [value, tag]);
 
     const srcs = Array.isArray(value.srcs) ? value.srcs : [];
 
     // useMemo to avoid unnecessary re-renders and improve performance
-    const sources = useMemo(() => createSources(srcs, poster, tag), [srcs, poster, tag]);
+    const sources = useMemo(() => createSources(srcs, poster, tag, host), [srcs, poster, tag]);
 
     // useMemo to avoid unnecessary re-renders and improve performance
     const key = useMemo(() => nanoid(4), [value.srcs]);

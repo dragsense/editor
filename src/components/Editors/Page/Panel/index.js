@@ -1,3 +1,4 @@
+import React from "react";
 import { EdtitorLeftSideBar } from "../SideBar";
 import { EditorRightSideBar } from "../SideBar";
 

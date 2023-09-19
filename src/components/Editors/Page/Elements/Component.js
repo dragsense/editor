@@ -1,16 +1,16 @@
 
 
 // Importing necessary libraries and components
-import React, { useEffect, forwardRef, useState, useMemo, Children, useCallback } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { message } from 'antd';
 import ElementMapping from './ElementMapping';
 
 import { InlineSkeleton } from './Elements'
-import { getData, storeData, getAllData } from "../../../../lib/db";
-import { formatDate } from "../../../../lib/utils";
+import {  getAllData } from "../../../../lib/db";
 
 import { getStateValue, updateStateValue, pageSetting, generateCascadeRelationsStates, generateCascaderCollStates, getStateRef, generateCascader } from '../../../../lib/element/elementNode';
-import DocumentServices from '../../../../lib/services/documents'
+import DocumentServices from '../../../../lib/services/documents';
+import { debounce } from "../../../../lib/utils";
 
 // Function to generate collection states
 const generateCollectionStates = async (collection) => {
@@ -392,7 +392,11 @@ const Component = (props) => {
         e.preventDefault();
         // Loop through each event and call onScroll function
         for (const key in events) {
-            onScroll(events[key], iframe.contentWindow);
+            const iframe = document.querySelector("#ac-editor-iframe-doc");
+            if (iframe) {
+                const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+                onScroll(events[key], iframeDocument);
+            }
         }
     }, [events]);
 

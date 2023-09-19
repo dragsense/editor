@@ -584,6 +584,80 @@ export const getPaginationRange = (currentPage, totalPages, pagination) => {
 };
 
 /**
+ * Retrieve a value from a nested object based on a key array.
+ * This function traverses the settings object using the key array and fetches the corresponding value.
+ * It handles different types of keys and returns the appropriate value.
+ *
+ * @param {Array} key - The key array to access the value.
+ * @param {object} setting - The settings object.
+ * @returns {object|null} - The value based on the key or null if not found.
+ */
+export const getSettingValue = (key, setting) => {
+  // Extract the setting object
+  const _setting = setting.setting;
+  // If the setting object is not defined, return null
+  if (!_setting) return null;
+
+  // If the key is 'image', return the image source and alt text
+  if (key[1] === 'image') {
+    const image = _setting["populatedImage"];
+    return {
+      value: image?.src || '/images/default/default-img.png',
+      label: image?.alt || '[featured image]'
+    }
+  }
+
+  // If the key is 'status', return the status value and label
+  if (key[1] === 'status') {
+    const status = _setting[key[1]];
+    return {
+      value: status,
+      label: status || '[page status]'
+    }
+  }
+
+  // For other keys, return the value and label from the setting object
+  return {
+    value: key[1] === 'content' ? key[1] : _setting[key[1]],
+    label: _setting[key[1]] || `[page ${key[1]}]`
+  }
+};
+
+
+/**
+ * Retrieve a value from a document based on a key array.
+ * This function fetches the corresponding value from the document using the key array.
+ *
+ * @param {Array} key - The key array to access the value.
+ * @param {object} setting - The settings object.
+ * @returns {object|null} - The value based on the key or null if not found.
+ */
+const getDocumentValue = (key, setting) => {
+  // Extract the document object
+  const doc = setting[key[0]];
+  // If the document object is not defined, return null
+  if (!doc) {
+    return null;
+  }
+
+  // If the key is 'image', return the image source and alt text
+  if (key[1] === 'image') {
+    const image = doc['image'];
+    return {
+      value: image?.src || '/images/default/default-img.png',
+      label: image?.alt || 'Featured Image'
+    }
+  }
+
+  // For other keys, return the value and label from the document object
+  return {
+    value: doc[key[1]],
+    label: doc[key[1]] || `[document ${key[1]}]`
+  }
+};
+
+
+/**
  * Get a value from a nested object based on a key array.
  * This function navigates through the settings object using the key array and returns the corresponding value.
  * It handles different types of keys and returns the appropriate value.

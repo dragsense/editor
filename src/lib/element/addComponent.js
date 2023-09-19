@@ -37,39 +37,7 @@ const addComponent = async (tag, state, document) => {
     }
 }
 
-// Function to get a component based on its type
-const getComponent = async (tag, state, document) => {
-    switch (tag.component) {
-        case 'menu':
-            return await createMenu(tag, state, document);
-        case 'flex':
-            return await createFlex(state, document);
-        case 'grid':
-            return await createGrid(state, document);
-        case 'container':
-            return await createContainer(state, document);
-        case 'slider':
-            return await createSlider(state, document);
-        case 'tabs':
-            return await createTabs(state, document);
-        case 'accordion':
-            return await createAccordion(state, document);
-        case 'gallery':
-            return await createGallery(state, document);
-        case 'modal':
-            return await createModalTrigger(state, document);
-        case 'sider':
-            return await createSider(state, document);
-        case 'dropdown':
-            return await createDropownTrigger(state, document);
-        case 'gototop':
-            return await createGoToTop(state, document);
-        case 'observable':
-            return await createObservable(state, document);
-        default: 
-            return '';
-    }
-}
+
 
 
 
@@ -423,238 +391,805 @@ const createContainer = async (state, document) => {
 
 
 
-// Function to create a Slider component
 const createSlider = async (state, document) => {
     // Merge global and slider specific states
     const componentStates = { ...states['global'], ...states['slider'] };
 
     // Generate a unique id for the slider
-    const sliderId = nanoid(8);
-    const className = `ac-slider-${sliderId}`;
+    let id = nanoid(8);
+    const className = "ac" + "-slider-" + id;
 
-    // Create a unique slide element
-    const slideUniqueId = uuid();
-    const slideElement = createSlideElement(slideUniqueId, className);
+    // Create a slide element
+    const slide_unique_id = uuid();
+    const slideElement = {
+        _uid: slide_unique_id,
+        tagName: 'div',
+        name: 'slide',
+        type: 'layouts',
+        layout: 'slide',
+        nodeValue: '',
+        childNodes: [],
+        className: "slide",
+        selector: "." + className + " .slides .slide"
+    }
 
-    // Create a unique slides container
-    const slidesContainerUniqueId = uuid();
-    const slidesContainerElement = createSlidesContainerElement(slidesContainerUniqueId, slideUniqueId, className);
+    // Create a slides container
+    const slides_unique_id = uuid();
+    const slidesElement = {
+        _uid: slides_unique_id,
+        tagName: 'div',
+        name: 'slides',
+        type: 'layouts',
+        layout: 'slides',
+        nodeValue: '',
+        childNodes: [slide_unique_id],
+        className: "slides",
+        selector: "." + className + " .slides"
+    }
 
-    // Set parent of slide element
-    slideElement.parent = slidesContainerUniqueId;
+    // Set the parent of the slide element to be the slides container
+    slideElement.parent = slides_unique_id;
 
-    // Create navigation buttons for the slider
-    const leftButtonUniqueId = uuid();
-    const rightButtonUniqueId = uuid();
-    const leftButtonElement = createButtonElement(leftButtonUniqueId, className, 'Left', '[key] - 1');
-    const rightButtonElement = createButtonElement(rightButtonUniqueId, className, 'Right', '[key] + 1');
+    // Create a left button for the slider
+    const left_btn_unique_id = uuid();
+    const slidesLeftButton = {
+        _uid: left_btn_unique_id,
+        tagName: 'button',
+        name: 'Left',
+        type: 'inputs',
+        layout: 'button',
+        nodeValue: 'Left',
+        childNodes: [],
+        // Define the onClick event to decrease the currentIndex
+        onClick: {
+            "key": ["currentIndex"],
+            'type': "Sider",
+            "value": "[key] - 1"
+        },
+        className: "slider-left-btn",
+        selector: "." + className + " .slider-left-btn"
+    }
 
-    // Create navigation dots for the slider
-    const dotUniqueId = uuid();
-    const dotsContainerUniqueId = uuid();
-    const dotElement = createDotElement(dotUniqueId, className);
-    const dotsContainerElement = createDotsContainerElement(dotsContainerUniqueId, dotUniqueId, className);
+    // Create a right button for the slider
+    const right_btn_unique_id = uuid();
+    const slidesRightButton = {
+        _uid: right_btn_unique_id,
+        tagName: 'button',
+        name: 'Right',
+        type: 'inputs',
+        layout: 'button',
+        nodeValue: 'Right',
+        // Define the onClick event to increase the currentIndex
+        onClick: {
+            "key": ["currentIndex"],
+            'type': "Sider",
+            "value": "[key] + 1"
+        },
+        childNodes: [],
+        className: "slider-right-btn",
+        selector: "." + className + " .slider-right-btn"
+    }
 
-    // Set parent of dots container
-    dotElement.parent = dotsContainerUniqueId;
+    // Create a dot for the slider
+    const slider_dot_unique_id = uuid();
+    const slidesDots = {
+        _uid: slider_dot_unique_id,
+        tagName: 'div',
+        name: 'Slide dot',
+        type: 'layouts',
+        layout: 'div',
+        // Define the onClick event to set the currentIndex to the clicked dot's index
+        onClick: {
+            "key": ["currentIndex"],
+            'type': "Sider",
+            "statetype": "MAPINDEX",
+            "value": "[value]"
+        },
+        // Define the map property to map the dots to the items
+        map: {
+            "key": ["items"],
+            "type": "Sider"
+        },
+        childNodes: [],
+        nodeValue: '',
+        className: "slide-nav-item",
+        selector: "." + className + " .slide-nav-item"
+    }
 
-    // Define child nodes of the slider
-    const childNodes = [slidesContainerUniqueId, dotsContainerUniqueId, leftButtonUniqueId, rightButtonUniqueId];
+    // Create a container for the dots
+    const dots_conatienr_id = uuid();
+    const slidesDotsContainer = {
+        _uid: dots_conatienr_id,
+        tagName: 'div',
+        name: 'Slides Dots',
+        type: 'layouts',
+        layout: 'div',
+        childNodes: [slider_dot_unique_id],
+        nodeValue: '',
+        className: "slider-nav-container",
+        selector: "." + className + " .slider-nav-container"
+    }
+    // Set the parent of the dots to be the dots container
+    slidesDots.parent = dots_conatienr_id;
+    // Define the child nodes of the slider
+    const childNodes = [slides_unique_id, dots_conatienr_id, left_btn_unique_id, right_btn_unique_id];
 
-    // Create a unique wrapper for the slider
-    const wrapperUniqueId = uuid();
-    setParents([leftButtonElement, rightButtonElement, dotsContainerElement, slidesContainerElement], wrapperUniqueId);
+    // Create a wrapper for the slider
+    const wrraper_unique_id = uuid();
+    slidesLeftButton.parent = wrraper_unique_id;
+    slidesRightButton.parent = wrraper_unique_id;
+    slidesDotsContainer.parent = wrraper_unique_id;
+    slidesElement.parent = wrraper_unique_id;
 
-    // Create the wrapper element for the slider
-    const wrapperElement = createWrapperElement(wrapperUniqueId, className, 'Slider', childNodes, componentStates);
+    // Define the wrapper element structure
+    const wrapperElement = {
+        _uid: wrraper_unique_id,
+        tagName: "div",
+        name: "Slider",
+        cname: "Slider",
+        layout: "slider",
+        nodeValue: "",
+        type: "component",
+        childNodes: childNodes,
+        className: className,
+        selector: "." + className,
+        states: componentStates
 
-    // Define and apply CSS properties for each element
-    await applyCSSAndData(document, state.page._id, [
-        { element: slideElement, properties: slideProperties },
-        { element: slidesContainerElement, properties: slidesContainerProperties },
-        { element: leftButtonElement, properties: leftButtonProperties },
-        { element: rightButtonElement, properties: rightButtonProperties },
-        { element: dotElement, properties: dotProperties },
-        { element: dotsContainerElement, properties: dotsContainerProperties },
-        { element: wrapperElement, properties: wrapperProperties }
-    ]);
+    };
 
-    // Return the wrapper element
+
+    let properties = {
+        'height': {
+            value: '100%'
+        },
+    }
+    await addCSS(document, properties, slideElement, state.page._id);
+
+
+    await updateData(state.page._id, slideElement);
+
+
+    properties = {
+        'position': {
+            value: 'relative'
+        },
+        'height': {
+            value: '400px',
+        },
+    }
+    await addCSS(document, properties, slidesElement, state.page._id);
+
+
+    await updateData(state.page._id, slidesElement);
+
+
+    properties = {
+        position: {
+            value: 'absolute',
+        },
+        top: {
+            value: '50%',
+        },
+        left: {
+            value: '10px',
+        },
+        transform: {
+            value: 'translateY(-50%)',
+        },
+    }
+    await addCSS(document, properties, slidesLeftButton, state.page._id);
+
+    await updateData(state.page._id, slidesLeftButton);
+
+
+    properties = {
+
+        position: {
+            value: 'absolute',
+        },
+        top: {
+            value: '50%',
+        },
+        right: {
+            value: '10px',
+        },
+        transform: {
+            value: 'translateY(-50%)',
+        },
+    }
+    await addCSS(document, properties, slidesRightButton, state.page._id);
+
+    await updateData(state.page._id, slidesRightButton);
+
+
+
+    properties = {
+
+        'width': {
+            value: '10px'
+        },
+        'height': {
+            value: '10px'
+        },
+        'border-radius': {
+            value: '50%'
+        },
+        ' background-color': {
+            value: '#ccc;'
+        },
+        'margin': {
+            value: '0 5px'
+        },
+        'cursor': {
+            value: 'pointer'
+        },
+    }
+    await addCSS(document, properties, slidesDots, state.page._id);
+
+    await updateData(state.page._id, slidesDots);
+
+
+    properties = {
+
+        'position': {
+            value: 'absolute'
+        },
+        'bottom': {
+            value: '10px'
+        },
+        'left': {
+            value: '50%'
+        },
+        'transform': {
+            value: 'translateX(-50%)'
+        },
+        'display': {
+            value: 'flex'
+        },
+    }
+    await addCSS(document, properties, slidesDotsContainer, state.page._id);
+
+    await updateData(state.page._id, slidesDotsContainer);
+
+
+    properties = {
+
+        'position': {
+            value: 'relative'
+        },
+    }
+    await addCSS(document, properties, wrapperElement, state.page._id);
+
+    await updateData(state.page._id, wrapperElement);
+
+
     return wrapperElement;
 }
 
 
-// Function to create a Tabs component
 const createTabs = async (state, document) => {
-    // Merge global and tabs specific states
+
     const componentStates = { ...states['global'], ...states['tabs'] };
 
-    // Generate a unique id for the tabs component
-    const id = nanoid(8);
-    const className = `ac-tabs-${id}`;
 
-    // Create unique ids for tab button and tabs button
-    const tabButtonId = uuid();
-    const tabsButtonId = uuid();
+    let id = nanoid(8);
+    const className = "ac" + "-tabs-" + id;
 
-    // Define the structure of a tab button
-    const tabButton = createTabButton(tabButtonId, className, tabsButtonId);
+    const tab_btn_unique_id = uuid();
 
-    // Define the structure of tabs button
-    const tabsButton = createTabsButton(tabsButtonId, className, tabButtonId);
+    const tabButton = {
+        _uid: tab_btn_unique_id,
+        tagName: 'button',
+        name: 'Tab Button',
+        type: 'inputs',
+        layout: 'button',
+        nodeValue: 'Tab Button',
+        childNodes: [],
+      
+        onClick: {
+            key: ["currentIndex"],
+            'type': "Tabs",
+            "value": "0"
+        },
+        className: "tab-btn",
+        selector: "." + className + " .tabs-btn .tab-btn"
 
-    // Create unique ids for tab content and tabs content
-    const tabContentId = uuid();
-    const tabsContentId = uuid();
+    }
 
-    // Define the structure of a tab content
-    const tabContent = createTabContent(tabContentId, className, tabsContentId);
+    const tabs_btn_unique_id = uuid();
 
-    // Define the structure of tabs content
-    const tabsContent = createTabsContent(tabsContentId, className, tabContentId);
+    const tabsButton = {
+        _uid: tabs_btn_unique_id,
+        tagName: 'div',
+        name: 'Tabs Button',
+        type: 'layouts',
+        layout: 'tabs-btn',
+        nodeValue: '',
+        childNodes: [tab_btn_unique_id],
+        className: "tabs-btn",
+        selector: "." + className + " .tabs-btn"
 
-    // Create a unique id for the tabs
-    const tabsId = uuid();
+    }
+    tabButton.parent = tabs_btn_unique_id;
 
-    // Define the structure of tabs
-    const tabs = createTabs(tabsId, className, tabsButtonId, tabsContentId);
+    const tab_content_unique_id = uuid();
+    const tabContent = {
+        _uid: tab_content_unique_id,
+        tagName: 'div',
+        name: 'Tab Content',
+        type: 'layouts',
+        layout: 'tab-content',
+        nodeValue: 'Tab Content',
+        childNodes: [],
 
-    // Create a unique id for the wrapper
-    const wrapperId = uuid();
+        className: "tab-content",
+        selector: "." + className + " .tabs-content .tab-content"
 
-    // Define the structure of the wrapper
-    const wrapperElement = createWrapper(wrapperId, className, tabsId, componentStates);
+    }
 
-    // Define and apply CSS properties for each element
-    await applyCSSAndData(document, state.page._id, [
-        { element: tabButton, properties: tabButtonProperties },
-        { element: tabsButton, properties: tabsButtonProperties },
-        { element: tabContent, properties: tabContentProperties },
-        { element: tabsContent, properties: tabsContentProperties },
-        { element: tabs, properties: tabsProperties },
-        { element: wrapperElement, properties: wrapperProperties }
-    ]);
+    const tabs_content_unique_id = uuid();
+    tabsButton.contentRef = tabs_content_unique_id;
 
-    // Return the wrapper element
+    const tabsContentElement = {
+        _uid: tabs_content_unique_id,
+        tagName: 'div',
+        name: 'Tabs Content',
+        type: 'layouts',
+        layout: 'tabs-content',
+        nodeValue: '',
+        childNodes: [tab_content_unique_id],
+        className: "tabs-content",
+        selector: "." + className + " .tabs-content"
+
+    }
+    tabContent.parent = tabs_content_unique_id;
+    tabsContentElement.btnRef = tabs_btn_unique_id;
+
+    const tabs_unique_id = uuid();
+
+    const tabs = {
+        _uid: tabs_unique_id,
+        tagName: 'div',
+        name: 'Tabs Body',
+        type: 'layouts',
+        layout: 'tabs',
+        nodeValue: '',
+        childNodes: [tabs_btn_unique_id, tabs_content_unique_id],
+        className: "tabs",
+        selector: "." + className + " .tabs"
+
+    }
+    tabs.btnRef = tabs_btn_unique_id;
+    tabs.contentRef = tabs_content_unique_id;
+
+
+    const wrraper_unique_id = uuid();
+
+    tabs.parent = wrraper_unique_id;
+    const childNodes = [tabs_unique_id];
+
+
+    const wrapperElement = {
+        _uid: wrraper_unique_id,
+        tagName: "div",
+        name: "Tabs",
+        cname: "Tabs",
+
+        type: "layouts",
+        layout: "tabs",
+        nodeValue: "",
+        type: "component",
+        childNodes: childNodes,
+        className: className,
+        selector: "." + className,
+        states: componentStates
+
+    };
+
+
+    let properties = {
+
+        border: {
+            value: 'none',
+        },
+        outline: {
+            value: 'none',
+        },
+        "background-color": {
+            value: '#f2f2f2',
+        },
+
+        padding: {
+            value: '10px 20px',
+        },
+        cursor: {
+            value: 'pointer',
+        },
+    }
+
+    await addCSS(document, properties, tabButton, state.page._id);
+
+
+    await updateData(state.page._id, tabButton);
+
+
+    properties = {
+    }
+
+    await addCSS(document, properties, tabsButton, state.page._id);
+    await updateData(state.page._id, tabsButton);
+
+
+    properties = {
+        padding: {
+            value: '20px',
+        },
+        border: {
+            value: '1px solid #ccc',
+        },
+        "background-color": {
+            value: '#f2f2f2',
+        },
+
+    }
+
+    await addCSS(document, properties, tabContent, state.page._id);
+    await updateData(state.page._id, tabContent);
+
+
+    properties = {
+
+    }
+
+    await addCSS(document, properties, tabsContentElement, state.page._id);
+    await updateData(state.page._id, tabsContentElement);
+
+
+    properties = {
+
+    }
+    await addCSS(document, properties, tabs, state.page._id);
+
+    await updateData(state.page._id, tabs);
+
+
+    properties = {
+        'position': {
+            value: 'relative'
+        },
+        'height': {
+            value: '400px',
+        },
+    }
+
+    await addCSS(document, properties, wrapperElement, state.page._id);
+    await updateData(state.page._id, wrapperElement);
+
+
     return wrapperElement;
 }
 
-// Function to create an Accordion component
 const createAccordion = async (state, document) => {
-    // Merge global and accordion specific states
+
     const componentStates = { ...states['global'], ...states['accordion'] };
 
-    // Generate a unique id for the accordion
-    const accordionId = nanoid(8);
-    const className = `ac-accordion-${accordionId}`;
+    let id = nanoid(8);
+    const className = "ac" + "-accordion-" + id;
 
-    // Create unique ids for accordion content and header
-    const accordionContentId = uuid();
-    const accordionHeaderId = uuid();
+    const accordion_content_unique_id = uuid();
 
-    // Define the structure of accordion content and header
-    const accordionContent = createAccordionContent(accordionContentId, className);
-    const accordionHeader = createAccordionHeader(accordionHeaderId, className, accordionContentId);
+    const accordionContent = {
+        _uid: accordion_content_unique_id,
+        tagName: 'div',
+        name: 'Accordion Content',
+        type: 'layouts',
+        layout: 'div',
+        nodeValue: '',
+        childNodes: [],
 
-    // Create a unique id for the accordion element
-    const accordionElementId = uuid();
+        className: "accordion-content",
+        selector: "." + className + " .accordion .accordion-content"
 
-    // Define the structure of accordion element
-    const accordionElement = createAccordionElement(accordionElementId, className, accordionHeaderId, accordionContentId);
+    }
 
-    // Set parent of accordion header and content
-    setParents([accordionHeader, accordionContent], accordionElementId);
+    const accordion_header_unique_id = uuid();
 
-    // Create a unique id for the accordions element
-    const accordionsElementId = uuid();
+    const accordionHeader = {
+        _uid: accordion_header_unique_id,
+        tagName: 'div',
+        name: 'Accordion Header',
+        type: 'inputs',
+        layout: 'div',
+        nodeValue: 'Accordion Header',
+        childNodes: [],
+        className: "accordion-header",
+        selector: "." + className + " .accordion .accordion-header",
+        onClick: {
+            key: ["currentIndex"],
+            'type': "Accordion",
+            "value": "[value]",
+            "statetype": "MAPINDEX",
+        },
 
-    // Define the structure of accordions element
-    const accordionsElement = createAccordionsElement(accordionsElementId, className, accordionElementId);
+    }
 
-    // Set parent of accordion element
-    accordionElement.parent = accordionsElementId;
 
-    // Create a unique id for the wrapper
-    const wrapperId = uuid();
 
-    // Define the structure of the wrapper
-    const wrapperElement = createWrapper(wrapperId, className, accordionsElementId, componentStates);
+    const accordion_unique_id = uuid();
 
-    // Define and apply CSS properties for each element
-    await applyCSSAndData(document, state.page._id, [
-        { element: accordionHeader, properties: accordionHeaderProperties },
-        { element: accordionContent, properties: accordionContentProperties },
-        { element: accordionElement, properties: accordionElementProperties },
-        { element: accordionsElement, properties: accordionsElementProperties },
-        { element: wrapperElement, properties: wrapperProperties }
-    ]);
+    const accordionElement = {
+        _uid: accordion_unique_id,
+        tagName: 'div',
+        name: 'Accordion Item',
+        type: 'layouts',
+        layout: 'accordion',
+        nodeValue: '',
+        childNodes: [accordion_header_unique_id, accordion_content_unique_id],
+        className: "accordion",
+        selector: "." + className + " .accordion"
 
-    // Return the wrapper element
+    }
+    accordionHeader.parent = accordion_unique_id;
+    accordionContent.parent = accordion_unique_id;
+
+    const accordions_unique_id = uuid();
+
+    const accordionsElement = {
+        _uid: accordions_unique_id,
+        tagName: 'div',
+        name: 'Accordion Body',
+        type: 'layouts',
+        layout: 'accordions',
+        nodeValue: '',
+        childNodes: [accordion_unique_id],
+        className: "accordion-items",
+        selector: "." + className + " .accordions-items"
+
+    }
+    accordionElement.parent = accordions_unique_id;
+
+
+    const wrraper_unique_id = uuid();
+    accordionsElement.parent = wrraper_unique_id;
+    const childNodes = [accordions_unique_id];
+
+    const wrapperElement = {
+        _uid: wrraper_unique_id,
+        tagName: "div",
+        name: "Accordion",
+        cname: "Accordion",
+
+        type: "layouts",
+        layout: "component",
+        nodeValue: "",
+        type: "component",
+        childNodes: childNodes,
+        className: className,
+        selector: "." + className,
+        states: componentStates
+
+    };
+
+    let properties = {
+
+        display: {
+            value: 'flex',
+        },
+        "align-items": {
+            value: 'center',
+        },
+        "background-color": {
+            value: '#f2f2f2',
+        },
+
+        padding: {
+            value: '10px',
+        },
+        cursor: {
+            value: 'pointer',
+        },
+    }
+    await addCSS(document, properties, accordionHeader, state.page._id);
+    await updateData(state.page._id, accordionHeader);
+
+
+    properties = {
+
+        "background-color": {
+            value: '#fff',
+        },
+
+        padding: {
+            value: '10px',
+        },
+    }
+    await addCSS(document, properties, accordionContent, state.page._id);
+    await updateData(state.page._id, accordionContent);
+
+    properties = {
+
+        "margin-bottom": {
+            value: '10px',
+        },
+
+    }
+    await addCSS(document, properties, accordionElement, state.page._id);
+    await updateData(state.page._id, accordionElement);
+
+
+    properties = {
+
+
+    }
+    await addCSS(document, properties, accordionsElement, state.page._id);
+    await updateData(state.page._id, accordionsElement);
+
+
+    properties = {
+
+        'position': {
+            value: 'relative'
+        },
+    }
+    await addCSS(document, properties, wrapperElement, state.page._id);
+    await updateData(state.page._id, wrapperElement);
+
+
     return wrapperElement;
 }
 
 
-// Function to create a Gallery component
 const createGallery = async (state, document) => {
-    // Merge global and gallery specific states
+
     const componentStates = { ...states['global'], ...states['gallery'] };
 
-    // Generate a unique id for the gallery
-    const galleryId = nanoid(8);
-    const className = `ac-gallery-${galleryId}`;
+    let id = nanoid(8);
+    const className = "ac" + "-gallery-" + id;
 
-    // Create unique ids for image and gallery item
-    const imageUniqueId = uuid();
-    const galleryItemUniqueId = uuid();
+    const img_unique_id = uuid();
 
-    // Define the structure of an image
-    const imageElement = createImageElement(imageUniqueId, className);
+    const image = {
+        _uid: img_unique_id,
+        tagName: 'img',
+        name: 'Image',
+        type: 'media',
+        layout: 'img',
+        nodeValue: '',
+        childNodes: [],
+        className: "gallery-img",
+        selector: "." + className + " .gallery .gallery-img"
 
-    // Define the structure of a gallery item
-    const galleryItemElement = createGalleryItemElement(galleryItemUniqueId, className, imageUniqueId);
+    }
 
-    // Set parent of image element
-    imageElement.parent = galleryItemUniqueId;
+    const gallery_item_unique_id = uuid();
 
-    // Create a unique id for the gallery
-    const galleryUniqueId = uuid();
+    const galleryItem = {
+        _uid: gallery_item_unique_id,
+        tagName: 'div',
+        name: 'Gallery Item',
+        type: 'layouts',
+        layout: 'div',
+        nodeValue: '',
+        childNodes: [img_unique_id],
+        className: "gallery-item",
+        selector: "." + className + " .gallery .gallery-item",
+        onClick: {
+            key: ["currentIndex"],
+            'type': "Gallery",
+            "value": "[value]",
+            "statetype": "MAPINDEX",
 
-    // Define the structure of gallery
-    const galleryElement = createGalleryElement(galleryUniqueId, className, galleryItemUniqueId);
+        },
 
-    // Set parent of gallery item
-    galleryItemElement.parent = galleryUniqueId;
+    }
+    image.parent = gallery_item_unique_id;
 
-    // Create a unique id for the wrapper
-    const wrapperUniqueId = uuid();
 
-    // Create a modal element
+    const gallery_unique_id = uuid();
+
+    const galleryElement = {
+        _uid: gallery_unique_id,
+        tagName: 'div',
+        name: 'Gallery Body',
+        type: 'layouts',
+        layout: 'gallery',
+        nodeValue: '',
+        childNodes: [gallery_item_unique_id],
+        className: "gallery",
+        selector: "." + className + " .gallery"
+
+    }
+
+    galleryItem.parent = gallery_unique_id;
+
+
+    const wrraper_unique_id = uuid();
+
     const modalElement = await createModal(state, document, className, {
         key: ["activeItem"],
         'type': "Gallery",
-    });
+    },);
 
-    // Set parent of modal and gallery elements
-    setParents([modalElement, galleryElement], wrapperUniqueId);
+    modalElement.parent = wrraper_unique_id;
+    galleryElement.parent = wrraper_unique_id;
+    const childNodes = [gallery_unique_id, modalElement._uid];
 
-    // Define child nodes of the wrapper
-    const childNodes = [galleryUniqueId, modalElement._uid];
 
-    // Define the structure of the wrapper
-    const wrapperElement = createWrapperElement(wrapperUniqueId, className, 'Gallery', childNodes, componentStates);
+    const wrapperElement = {
+        _uid: wrraper_unique_id,
+        tagName: "div",
+        name: "Gallery",
+        cname: "Gallery",
 
-    // Update the data for the modal element
+        type: "layouts",
+        layout: "div",
+        nodeValue: "",
+        type: "component",
+        childNodes: childNodes,
+        className: className,
+        selector: "." + className,
+        states: componentStates
+
+    };
+
+
+
+
+
     await updateData(state.page._id, modalElement);
 
-    // Define and apply CSS properties for each element
-    await applyCSSAndData(document, state.page._id, [
-        { element: imageElement, properties: imageProperties },
-        { element: galleryItemElement, properties: galleryItemProperties },
-        { element: galleryElement, properties: galleryProperties },
-        { element: wrapperElement, properties: wrapperProperties }
-    ]);
+    let properties = {
 
-    // Return the wrapper element
+        'max-width': {
+            value: '100%'
+        },
+        'height': {
+            value: '100%'
+        },
+    }
+    await addCSS(document, properties, image, state.page._id);
+
+    await updateData(state.page._id, image);
+
+
+    properties = {
+
+        "margin-bottom": {
+            value: '10px',
+        },
+
+    }
+    await addCSS(document, properties, galleryItem, state.page._id);
+    await updateData(state.page._id, galleryItem);
+
+
+    properties = {
+        "display": {
+            value: 'grid',
+        },
+
+        "grid-template-columns": {
+            value: 'repeat(auto-fill, minmax(250px, 1fr))',
+        },
+        "grid-gap": {
+            value: '10px',
+        }
+
+    }
+    await addCSS(document, properties, galleryElement, state.page._id);
+    await updateData(state.page._id, galleryElement);
+
+
+    properties = {
+        'position': {
+            value: 'relative'
+        },
+
+    }
+    await addCSS(document, properties, wrapperElement, state.page._id);
+    await updateData(state.page._id, wrapperElement);
+
+
     return wrapperElement;
 }
 
@@ -665,7 +1200,8 @@ const createModalTrigger = async (state, document) => {
     // Merge global and modal specific states
     const modalTriggerStates = { ...state.global, ...state.modal };
 
-
+    let id = nanoid(8);
+    const className = "ac" + "-modal-" + id;
     // Create unique id for the modal trigger
     const modalTriggerUniqueId = uuid();
 
@@ -749,93 +1285,317 @@ const createModalTrigger = async (state, document) => {
     return wrapperElement;
 }
 
-// Function to create a Modal
 const createModal = async (state, document, className, valueState) => {
 
-    // Generate unique ids for modal elements
-    const modalCloseUniqueId = uuid();
-    const modalUniqueId = uuid();
-    const modalCloserUniqueId = uuid();
-    const modalElementUniqueId = uuid();
 
-    // Define the structure of the modal close button
-    const modalClose = createModalClose(modalCloseUniqueId, className, modalUniqueId);
 
-    // Define the structure of the modal body
-    const modal = createModalBody(modalUniqueId, className, modalCloseUniqueId, valueState);
+    const modal_close_unique_id = uuid();
 
-    // Define the structure of the modal closer
-    const modalCloserElement = createModalCloser(modalCloserUniqueId, className, modalElementUniqueId);
+    const modalClose = {
+        _uid: modal_close_unique_id,
+        tagName: 'span',
+        name: 'Modal Close',
+        type: 'text',
+        layout: 'text',
+        nodeValue: '&times;',
+        childNodes: [],
+        className: "modal-close",
+        selector: "." + className + " .modal-close",
+        onClick: {
+            key: ["openModal"],
+            'type': "Modal",
+            "value": "'close'",
+        },
 
-    // Define the structure of the modal wrapper
-    const modalElement = createModalWrapper(modalElementUniqueId, className, modalUniqueId, modalCloserUniqueId);
+    }
 
-    // Set parent-child relationships between modal elements
-    setModalParentChildRelationships(modalClose, modal, modalCloserElement, modalElement);
+    const modal_unique_id = uuid();
+    modalClose.parent = modal_unique_id;
 
-    // Define CSS properties for each modal element
-    const modalProperties = getModalProperties();
-    const modalCloserProperties = getModalCloserProperties();
-    const modalElementProperties = getModalElementProperties();
-    const modalCloseProperties = getModalCloseProperties();
+    const modal = {
+        _uid: modal_unique_id,
+        tagName: 'div',
+        name: 'Modal Body',
+        type: 'layouts',
+        layout: 'div',
+        nodeValue: '',
+        childNodes: [modal_close_unique_id],
+        className: "modal-body",
+        selector: "." + className + " .modal .modal-body",
+        state: valueState
 
-    // Apply CSS properties to each modal element
-    await applyCSSAndData(document, state.page._id, [
-        { element: modal, properties: modalProperties },
-        { element: modalCloserElement, properties: modalCloserProperties },
-        { element: modalElement, properties: modalElementProperties },
-        { element: modalClose, properties: modalCloseProperties }
-    ]);
+    }
 
-    // Return the modal wrapper element
+    const modal_closer_unique_id = uuid();
+
+    const modalCloserElement = {
+        _uid: modal_closer_unique_id,
+        tagName: 'div',
+        name: 'Modal Closer',
+        type: 'layouts',
+        layout: 'empty',
+        nodeValue: '',
+        childNodes: [],
+        className: "modal-close-wrapper",
+        selector: "." + className + " .modal .modal-close-wrapper",
+
+        onClick: {
+            key: ["openModal"],
+            'type': "Modal",
+            "withtype": "Modal",
+            "withkey": ["closable"],
+            "value": "[withkey] ? 'close' : 'open'",
+        },
+
+    }
+
+    const modal_element_unique_id = uuid();
+    modal.parent = modal_element_unique_id;
+    modalCloserElement.parent = modal_element_unique_id;
+
+    const modalElement = {
+        _uid: modal_element_unique_id,
+        tagName: 'div',
+        name: 'Modal Wrapper',
+        type: 'layouts',
+        layout: 'modal',
+        bodyRef: modal_unique_id,
+        nodeValue: '',
+
+        childNodes: [modal_unique_id, modal_closer_unique_id],
+        className: "modal",
+        selector: "." + className + " .modal",
+
+    }
+
+
+
+    let properties = {
+        "position": {
+            value: 'relative',
+        },
+        'background-color': {
+            value: '#fefefe'
+        },
+        'padding': {
+            value: '20px'
+        },
+        'border-radius': {
+            value: '4px'
+        },
+        'width': {
+            value: '50%'
+        },
+        'height': {
+            value: '50%'
+        },
+        'z-index': {
+            value: 1
+        }
+
+    }
+    await addCSS(document, properties, modal, state.page._id);
+    await updateData(state.page._id, modal);
+
+
+    properties = {
+        "position": {
+            value: 'absolute',
+        },
+        'left': {
+            value: '0'
+        },
+        'top': {
+            value: '0'
+        },
+        'width': {
+            value: '100%'
+        },
+        'height': {
+            value: '100%'
+        },
+
+    }
+    await addCSS(document, properties, modalCloserElement, state.page._id);
+    await updateData(state.page._id, modalCloserElement);
+
+
+    properties = {
+        'width': {
+            value: '100%'
+        },
+        'height': {
+            value: '100%'
+        },
+        ' background-color': {
+            value: 'rgba(0, 0, 0, 0.5)'
+        },
+        'display': {
+            value: 'flex'
+        },
+        'justify-content': {
+            value: 'center'
+        },
+        'align-items': {
+            value: 'center'
+        },
+        "position": {
+            value: 'relative',
+        },
+
+    }
+    await addCSS(document, properties, modalElement, state.page._id);
+    await updateData(state.page._id, modalElement);
+
+
+
+
+    properties = {
+        "position": {
+            value: 'absolute',
+        },
+        "top": {
+            value: '10px',
+        },
+        "right": {
+            value: '10px',
+        },
+        "font-size": {
+            value: 'absolute',
+        },
+        "cursor": {
+            value: 'pointer',
+        },
+
+    }
+    await addCSS(document, properties, modalClose, state.page._id);
+    await updateData(state.page._id, modalClose);
+
+
+
     return modalElement;
 }
 
-// Function to create a Sider component
 const createSider = async (state, document) => {
 
-    // Merge global and sider specific states
-    const siderStates = { ...states['sider'] };
+    const componentStates = { ...states['sider'] };
 
-    // Generate a unique id for the sider
-    const id = nanoid(8);
-    const className = `ac-sider-${id}`;
+    let id = nanoid(8);
+    const className = "ac" + "-sider-" + id;
 
-    // Create unique ids for sider content and trigger
-    const siderContentId = uuid();
-    const siderTriggerId = uuid();
+    const sider_content_unique_id = uuid();
 
-    // Define the structure of the sider content
-    const siderContent = createSiderContent(siderContentId, className);
+    const siderContent = {
+        _uid: sider_content_unique_id,
+        tagName: 'div',
+        name: 'Sider Content',
+        type: 'layouts',
+        layout: 'sider',
+        nodeValue: '',
+        childNodes: [],
 
-    // Define the structure of the sider trigger
-    const siderTrigger = createSiderTrigger(siderTriggerId, className);
+        className: "sider-content",
+        selector: "." + className + " .sider-content"
 
-    // Create a unique id for the wrapper
-    const wrapperId = uuid();
+    }
 
-    // Set parent of sider content and trigger
-    setParents([siderContent, siderTrigger], wrapperId);
+    const sider_trigger_unique_id = uuid();
 
-    // Define child nodes of the wrapper
-    const childNodes = [siderTriggerId, siderContentId];
+    const siderTrigger = {
+        _uid: sider_trigger_unique_id,
+        tagName: 'button',
+        name: 'Sider Trigger',
+        type: 'inputs',
+        layout: 'button',
+        nodeValue: 'Sider Button',
+        childNodes: [],
+        className: "sider-trigger",
+        selector: "." + className + " .sider-trigger",
+        onClick: {
+            key: ["openSider"],
+            'type': "Sider",
+            "value": "![key]",
+        },
 
-    // Define the structure of the wrapper
-    const wrapperElement = createWrapper(wrapperId, className, 'Sider', childNodes, siderStates);
+    }
 
-    // Define CSS properties for each element
-    const siderContentProperties = getSiderContentProperties();
-    const siderTriggerProperties = getSiderTriggerProperties();
-    const wrapperProperties = getWrapperProperties();
 
-    // Apply CSS properties and update data for each element
-    await applyCSSAndData(document, state.page._id, [
-        { element: siderContent, properties: siderContentProperties },
-        { element: siderTrigger, properties: siderTriggerProperties },
-        { element: wrapperElement, properties: wrapperProperties }
-    ]);
 
-    // Return the wrapper element
+
+    const wrraper_unique_id = uuid();
+    siderTrigger.parent = wrraper_unique_id;
+    siderContent.parent = wrraper_unique_id;
+    const childNodes = [sider_trigger_unique_id, sider_content_unique_id];
+
+    const wrapperElement = {
+        _uid: wrraper_unique_id,
+        tagName: "div",
+        name: "Sider",
+        cname: "Sider",
+
+        type: "layouts",
+        layout: "div",
+        nodeValue: "",
+        type: "component",
+        childNodes: childNodes,
+        className: className,
+        selector: "." + className,
+        states: componentStates
+
+    };
+
+
+    let properties = {
+        width: {
+            value: '100%',
+        },
+        height: {
+            value: '100%',
+        },
+        'background-color': {
+            value: '#f2f2f2',
+        },
+        'overflow': {
+            value: 'hideen'
+        },
+        "padding": {
+            value: '5px',
+        }
+
+    }
+    await addCSS(document, properties, siderContent, state.page._id);
+    await updateData(state.page._id, siderContent);
+
+
+    properties = {
+        "margin": {
+            value: '10px',
+        },
+        "padding": {
+            value: '5px',
+        }
+    }
+    await addCSS(document, properties, siderTrigger, state.page._id);
+
+    await updateData(state.page._id, siderTrigger);
+
+
+
+    properties = {
+        'position': {
+            value: 'relative'
+        },
+        'display': {
+            value: 'inline-block'
+        },
+        'background-color': {
+            value: '#fff',
+        },
+    }
+    await addCSS(document, properties, wrapperElement, state.page._id);
+    await updateData(state.page._id, wrapperElement);
+
+
     return wrapperElement;
 }
 
@@ -1076,7 +1836,7 @@ const processNestedMenu = async (listItem, element, parentElement, state, allChi
     }
     // If the element has children, create a nested menu
     else if (element.children && element.children.length > 0) {
-        listItem = await createNestedMenu(listItem, element, parentElement, state, document);
+        listItem = await processNestedMenu(listItem, element, parentElement, state, element.children);
     }
     // Return allChilds array
     return allChilds;
@@ -1375,6 +2135,41 @@ const states = {
     },
     menu: {
         items: { key: 'items', type: 'array', defaultValue: "", states: [], text: "Menu Item" },
+    }
+}
+
+
+// Function to get a component based on its type
+const getComponent = async (tag, state, document) => {
+    switch (tag.component) {
+        case 'menu':
+            return await createMenu(tag, state, document);
+        case 'flex':
+            return await createFlex(state, document);
+        case 'grid':
+            return await createGrid(state, document);
+        case 'container':
+            return await createContainer(state, document);
+        case 'slider':
+            return await createSlider(state, document);
+        case 'tabs':
+            return await createTabs(state, document);
+        case 'accordion':
+            return await createAccordion(state, document);
+        case 'gallery':
+            return await createGallery(state, document);
+        case 'modal':
+            return await createModalTrigger(state, document);
+        case 'sider':
+            return await createSider(state, document);
+        case 'dropdown':
+            return await createDropdownTrigger(state, document);
+        case 'gototop':
+            return await createGoToTop(state, document);
+        case 'observable':
+            return await createObservable(state, document);
+        default: 
+            return '';
     }
 }
 

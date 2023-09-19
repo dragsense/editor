@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 
 import { Button, Card, Popconfirm, Popover, Menu, Tree, message, theme } from 'antd';
@@ -18,74 +18,9 @@ import { BsArrowsMove } from 'react-icons/bs';
 // InnerComponent is responsible for loading CSS styles and calling the onLoad function
 const InnerComponent = ({ children, document, onLoad, _id, type }) => {
 
-  // useEffect hook to load CSS styles and call onLoad function when _id changes
-  useEffect(() => {
-    if (_id)
-      loadCSSStyles().then((status) => {
-        onLoad({ _id }, type, document);
-      }).catch((e) => {
-        message.error(e?.message || 'Something went wrong!');
-      });
-    else
-      onLoad(null, '', document);
-  }, [_id]);
 
-  // Function to load CSS styles
-  const loadCSSStyles = async () => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        // Fetch settings and append scripts to document head
-        let res = await SettingServices.get();
-        if (res?.setting) {
-          document.head.insertAdjacentHTML("beforeend", res.setting.scripts?.head);
-          document.body.insertAdjacentHTML("beforeend", res.setting.scripts?.footer);
-        }
-        // Fetch fonts and append to document head
-        res = await ThemeServices.getFonts();
-        if (res.fonts)
-          res.fonts.data.forEach(loadFont);
-
-        // Set font styles to root
-        const root = document.documentElement;
-        if (res.fonts)
-          for await (let font of res.fonts.data) {
-            root.style.setProperty(font.variable, font.fontFamily);
-          }
-
-        // Fetch colors and set to root
-        res = await ThemeServices.getColors()
-        if (res.colors)
-          for await (let color of res.colors.data) {
-            root.style.setProperty(color.variable, color.color);
-          }
-
-        // Fetch variables and set to root
-        res = await ThemeServices.getVariables()
-        if (res.variables)
-          for await (let variable of res.variables.data) {
-            root.style.setProperty(variable.variable, variable.value);
-          }
-
-        // Append custom styles to document head
-        appendCustomStyles();
-
-        // Fetch custom CSS and append to document head
-        res = await ThemeServices.getCss();
-        if (res.css) {
-          const style = document.createElement('style');
-          style.textContent = res.css;
-          document.head.appendChild(style);
-        }
-
-        resolve(true);
-      } catch (e) {
-        reject(e?.message);
-      }
-    })
-  }
-
-  // Function to load a single font
-  const loadFont = async (font) => {
+   // Function to load a single font
+   const loadFont = async (font) => {
     const { _uid, fontFamily, fontSrc, src, isGoogleFont } = font;
     if (isGoogleFont && src) {
       const linkElement = document.createElement('div');
@@ -135,22 +70,97 @@ const InnerComponent = ({ children, document, onLoad, _id, type }) => {
     document.head.appendChild(style);
   }
 
+  // Function to load CSS styles
+  const loadCSSStyles = async () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // Fetch settings and append scripts to document head
+        let res = await SettingServices.get();
+
+        if (res?.setting) {
+          document.head.insertAdjacentHTML("beforeend", res.setting.scripts?.head);
+          document.body.insertAdjacentHTML("beforeend", res.setting.scripts?.footer);
+        }
+
+        //Fetch fonts and append to document head
+        res = await ThemeServices.getFonts();
+        if (res.fonts)
+          res.fonts.data.forEach(loadFont);
+
+        // Set font styles to root
+        const root = document.documentElement;
+        if (res.fonts)
+          for await (let font of res.fonts.data) {
+            root.style.setProperty(font.variable, font.fontFamily);
+          }
+
+        // Fetch colors and set to root
+        res = await ThemeServices.getColors()
+        if (res.colors)
+          for await (let color of res.colors.data) {
+            root.style.setProperty(color.variable, color.color);
+          }
+
+        // Fetch variables and set to root
+        res = await ThemeServices.getVariables()
+        if (res.variables)
+          for await (let variable of res.variables.data) {
+            root.style.setProperty(variable.variable, variable.value);
+          }
+
+        // Append custom styles to document head
+        appendCustomStyles();
+
+        // Fetch custom CSS and append to document head
+        res = await ThemeServices.getCss();
+        if (res.css) {
+          const style = document.createElement('style');
+          style.textContent = res.css;
+          document.head.appendChild(style);
+        }
+
+        resolve(true);
+      } catch (e) {
+        reject(e?.message);
+      }
+    })
+  }
+
+   // useEffect hook to load CSS styles and call onLoad function when _id changes
+   useEffect(() => {
+
+    if (_id)
+      loadCSSStyles().then((status) => {
+        onLoad({ _id }, type, document);
+      }).catch((e) => {
+        
+        message.error(e?.message || 'Something went wrong!');
+      });
+    else
+      onLoad(null, '', document);
+  }, [_id]);
+
+
   return children;
 };
 
 
 // ShadowRootComponent is a wrapper component that provides a shadow root for its children
 const ShadowRootComponent = ({ children }) => {
-  const rootRef = useRef();
+  // const rootRef = useRef();
 
-  useEffect(() => {
-    if (rootRef.current) {
-      const shadowRoot = rootRef.current.attachShadow({ mode: 'open' });
-      shadowRoot.appendChild(children);
-    }
-  }, [children]);
+  // useEffect(() => {
+  //   if (rootRef.current) {
+  //     if (!rootRef.current.shadowRoot) {
+  //       const shadowRoot = rootRef.current.attachShadow({ mode: 'open' });
+  //       ReactDOM.render(children, shadowRoot);
+  //     } else {
+  //       ReactDOM.render(children, rootRef.current.shadowRoot);
+  //     }
+  //   }
+  // }, [children]);
 
-  return <div ref={rootRef} />;
+  return children;//<div style={{height: '100%', width: '100%'}} ref={rootRef} />;
 };
 
 export default function IFrame({
@@ -248,6 +258,99 @@ export default function IFrame({
     setContainer({ window: iframeWindow, mountTarget: iframeDocument.body, document: iframeDocument });
   }, [iframeRef.current])
 
+  const iframe = iframeRef.current;
+  const iframeDocument = iframe?.contentDocument || iframe?.contentWindow.document;
+  const iframeWindow = iframe?.contentWindow;
+
+  const getValidElement = (target) => {
+    if (!target.dataset.id) 
+      return target.parentNode
+    
+
+    return target;
+  }
+
+  const getElementDetails = (target) => {
+
+    const id = target.dataset.id || target.dataset.rootid;
+
+    if (target === iframeDocument.body || !id) {
+      id = '';
+    }
+
+    return {
+      id
+    }
+  }
+
+  let isTop = false;
+
+  const setGapBarPosition = (event, name, rect) => {
+
+    const hoverMiddleY = 10;
+
+    const hoverClientY = event.clientY - rect.top;
+
+    if (hoverClientY < hoverMiddleY) {
+
+      setGapBarPos({
+        value: name,
+        left: rect.left,
+        width: rect.width,
+        top: rect.top - 5, height: 5,
+        background: colorPrimaryBg,
+        borderBottom: `2px solid ${colorPrimary}`,
+        display: 'initial'
+      });
+      return true;
+    }
+    else {
+      setGapBarPos({
+        value: name,
+        border: `2px solid ${colorPrimary}`, display: 'initial',
+        left: rect.left - 2, width: rect.width, top: rect.top - 2, height: rect.height
+      });
+
+      return false;
+    }
+  }
+
+  const isSameElement = (id) => {
+    return id === state.node?._uid;
+  }
+
+  const handleTagAction = (tag, id, isTop, pos, iframeDocument) => {
+
+    if (tag.copy)
+      onCopy({
+        dataset: {
+          pageId: tag.pageId,
+          targetId: id,
+          id: tag._uid,
+          pos,
+          addToAbove: isTop,
+          copy: true
+        }
+      }, false);
+    else
+      if (tag.move)
+        onMove(id, tag._uid, isTop, pos, tag.dragPos, iframeDocument);
+      else
+        onAdd(tag, id, isTop, pos, iframeDocument);
+  }
+
+  const adjustOverlayPosition = () => {
+    const scrollTop = iframeWindow.pageYOffset;
+    const scrollLeft = iframeWindow.pageXOffset;
+    const top = (scrollTop + 44) + 'px';
+    const left = (scrollLeft) + 'px';
+
+    overlayRef2.current.style.top = top;
+    overlayRef2.current.style.left = left;
+  }
+
+
+
   // Function to handle drag over event
   const onDragOverHandle = useCallback((event) => {
     event.preventDefault();
@@ -258,10 +361,15 @@ export default function IFrame({
       }
       const currentElement = getValidElement(event.target);
       if (!currentElement) return;
-      const { id, name, rect } = getElementDetails(currentElement);
-      isTop = setGapBarPosition(event, name, rect);
+
+      const name = currentElement.dataset.name || currentElement.tagName;
+      const rect = currentElement.getBoundingClientRect();
+
+      const { id } = getElementDetails(currentElement);
+      if (id)
+        isTop = setGapBarPosition(event, name, rect);
     } catch (e) {
-      setGapBprPos(null)
+      setGapBarPos(null)
     }
   }, [iframeDocument, createContextMenu]);
 
@@ -272,9 +380,9 @@ export default function IFrame({
       if (editing) return;
       if (event.target === iframeDocument.body) return;
       isTop = false;
-      setGapBprPos(null);
     } catch (e) {
-      setGapBprPos(null)
+    } finally {
+      setGapBarPos(null);
     }
   }, [editing, iframeDocument]);
 
@@ -288,13 +396,18 @@ export default function IFrame({
       }
       const currentElement = getValidElement(event.target);
       if (!currentElement) return;
-      const { id, pos } = getElementDetails(currentElement);
+      const { id } = getElementDetails(currentElement);
+
+      if (!id) throw new Error("id not found");
+
+      const pos = currentElement.dataset.pos || '';
       const tag = JSON.parse(event.dataTransfer.getData('text/plain'));
       handleTagAction(tag, id, isTop, pos, iframeDocument);
-      resetGapBarPosition();
+
     } catch (e) {
       console.log(e?.message, "Something Wrong")
-      resetGapBarPosition();
+    } finally {
+      setGapBarPos(null);
     }
   }, [editing, iframeDocument, handleTagAction]);
 
@@ -303,6 +416,7 @@ export default function IFrame({
     try {
       adjustOverlayPosition();
       const currentElement = getValidElement(event.target);
+
       if (!currentElement) return;
       const { id } = getElementDetails(currentElement);
       if (isSameElement(id) || !id) return;
@@ -313,9 +427,9 @@ export default function IFrame({
       onClickElement(iframeDocument, id);
       ContentEditor.destroy();
     } catch (e) {
-      resetGapBarPosition();
+      setGapBarPos(null);
     }
-  }, [editing, iframeDocument, onClickElement, adjustOverlayPosition]);
+  }, [editing, iframeDocument, iframeWindow, onClickElement, adjustOverlayPosition]);
 
   // Function to handle double click event
   const onDbClickHandle = useCallback((event) => {
@@ -332,7 +446,7 @@ export default function IFrame({
         setEditing(true)
       }
     } catch (e) {
-      resetGapBarPosition();
+      setGapBarPos(null);
     }
   }, [editing, ContentEditor, overlayRef2]);
 
@@ -346,7 +460,7 @@ export default function IFrame({
       onChange();
     } catch (e) {
     } finally {
-      resetGapBarPosition();
+      setGapBarPos(null);
       setEditing(false)
     }
   }, [editing, state.node, onUpdate, onChange, ContentEditor]);
@@ -355,7 +469,7 @@ export default function IFrame({
   const onScrollHandle = useCallback((event) => {
     event.preventDefault();
     adjustOverlayPosition();
-  }, [adjustOverlayPosition]);
+  }, [adjustOverlayPosition, iframeWindow]);
 
   // Function to handle context menu event
   const onContextMenu = useCallback((event) => {
@@ -385,6 +499,9 @@ export default function IFrame({
 
     return () => {
       if (!iframeRef.current) return;
+      const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document;
+      if (!iframeDocument) return;
+
       iframeRef.current.contentWindow.removeEventListener('scroll', onScrollHandle);
       iframeDocument.body.removeEventListener("dragover", onDragOverHandle);
       iframeDocument.body.removeEventListener("drop", onDropHandle);
@@ -393,7 +510,7 @@ export default function IFrame({
       iframeDocument.body.removeEventListener('dblclick', onDbClickHandle);
       iframeDocument.body.removeEventListener('keydown', onKeyPress);
       iframeDocument.removeEventListener('contextmenu', onContextMenu);
-      setGapBprPos(null)
+      setGapBarPos(null)
     }
 
   }, [state.page, state.node, editing]);
@@ -419,7 +536,7 @@ export default function IFrame({
   const handleContextMenuMouseLeave = () => {
     if (!isPopupOpen) {
       setContextMenuVisible(false);
-      setGapBprPos(null);
+      setGapBarPos(null);
     }
   }
 
@@ -437,12 +554,28 @@ export default function IFrame({
     const name = element.dataset?.name || element.tagName;
     const rect = element.getBoundingClientRect();
 
-    setGapBprPos(isTop ? getTopGapBarPosition(name, rect, colorPrimaryBg, colorPrimary) : getBottomGapBarPosition(name, rect, colorPrimary));
+    if (isTop)
+      setGapBarPos({
+        value: name,
+        left: rect.left,
+        width: rect.width,
+        top: rect.top - 5, height: 5,
+        background: colorPrimaryBg,
+        borderBottom: `2px solid ${colorPrimary}`,
+        display: 'initial'
+      });
+    else
+      setGapBarPos({
+        value: name,
+        border: `2px solid ${colorPrimary}`, display: 'initial',
+        left: rect.left - 2, width: rect.width, top: rect.top - 2, height: rect.height
+      });
+
   }, [container, colorPrimaryBg, colorPrimary]);
 
   // Function to handle mouse leave event on menu item
   const handleMenuItemMouseLeave = useCallback(() => {
-    setGapBprPos(null);
+    setGapBarPos(null);
   }, []);
 
   // Function to handle drag over event on menu item
@@ -577,8 +710,8 @@ export default function IFrame({
 
 
   // Define the MenuItemActions component
-  const MenuItemActions = ({ item, handleMenuItemMouseEnter, handleMenuItemMouseLeave, setPopupOpen, onDelete, setContextMenuVisible, setGapBprPos, onCopy, setCurrentElement }) => {
-    
+  const MenuItemActions = ({ item, handleMenuItemMouseEnter, handleMenuItemMouseLeave, setPopupOpen, onDelete, setContextMenuVisible, setGapBarPos, onCopy, setCurrentElement }) => {
+
     // Function to handle drag start event
     const handleDragStart = (e) => {
       e.dataTransfer.setData('text/plain', JSON.stringify({
@@ -593,7 +726,7 @@ export default function IFrame({
     const handleDeleteConfirm = () => {
       onDelete({ dataset: { id: item.uid, pos: item.pos } });
       setContextMenuVisible(false);
-      setGapBprPos(null);
+      setGapBarPos(null);
     }
 
     // Function to handle copy confirmation
@@ -746,7 +879,7 @@ export default function IFrame({
             setPopupOpen={setPopupOpen}
             onDelete={onDelete}
             setContextMenuVisible={setContextMenuVisible}
-            setGapBprPos={setGapBprPos}
+            setGapBarPos={setGapBarPos}
             onCopy={onCopy}
             setCurrentElement={setCurrentElement}
           />
@@ -771,7 +904,7 @@ export default function IFrame({
           onDragLeave={handleContextMenuMouseLeave}
           onClick={() => {
             setContextMenuVisible(false);
-            setGapBprPos(null);
+            setGapBarPos(null);
           }}
           icon=<CloseOutlined size="1rem" />></Button></>}
         bordered={false}
@@ -839,15 +972,19 @@ export default function IFrame({
   }
 
   return (
-    <ShadowRootComponent>
+    <>
       {renderOverlay()}
       {renderContextMenu()}
-      {renderIframe()}
+      <ShadowRootComponent>
+        {renderIframe()}
+      </ShadowRootComponent>
       <AddElement
         onAddElement={onAddElement}
         currentElement={currentElement}
         setCurrentElement={setCurrentElement} />
-    </ShadowRootComponent>
+    </>
+
+
   );
 }
 

@@ -231,12 +231,12 @@ export default function Elements({ pageUpdated, _id,
   return <>
     {pageType && <div style={{ maxHeight: '74vh', overflow: 'auto', borderRadius: 10 }}>
       <Card style={{ width: 'fit-content', minWidth: '100%' }}>
-      {currentNode && <Divider>
+      {(currentNode && node) && <Divider>
             <div style={{ textAlign: 'right', zIndex: 100 }}>
               <Toolbar
                 key={currentNode}
                 id={currentNode}
-                pos={node?.node.dataset?.pos}
+                pos={node.node?.dataset?.pos}
                 onCopy={onCopy}
                 onDelete={onDelete}
                 colorError={colorError} />

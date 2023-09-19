@@ -7,7 +7,7 @@ import { createApiRequest } from '../fetch';
 const SettingServices = {
 
     // This method fetches the settings of the project
-    get: () => createApiRequest('settings')
+    get: async () => await createApiRequest('settings')
   
 
 }
