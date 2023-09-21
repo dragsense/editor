@@ -19,7 +19,7 @@ const Element = ({ tagName, customAttributes = {}, attributes, classes, children
         {
             ...customAttributes,
             ...attributes,
-            className: classes
+            className: classes || undefined
         },
         children
     ) : <InlineSkeleton />;

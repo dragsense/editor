@@ -696,7 +696,7 @@ const createElement = async (tag, parentElement, addToAbove, currentUid, positio
 
     // Return the position, parent ID, and new ID of the new element
     return {
-        position: position,
+        pos: position,
         parentId: parentElement._uid,
         newId: newElement._uid
     };

@@ -22,6 +22,7 @@ import Content from '../../Panel/RightPanel/Setting/Content';
 
 import LayoutStyle from '../../Element/LayoutStyle';
 import { FontColorsOutlined, SettingOutlined } from '@ant-design/icons';
+import { getAllData } from '../../../../../lib/db';
 
 const { Sider } = Layout;
 const menuKeys = ['sub1', 'sub3', 'sub4', 'sub2', 'sub5', 'sub6', 'sub7', 'sub8'];
@@ -103,7 +104,7 @@ let globalStates = [
                 ]
             },
             // { type: 'array', label: "PAGES", value: "PAGES" },
-           
+
 
             // {label: 'Query', value: 'query' },
         ]
@@ -131,6 +132,9 @@ const EditorRightSideBar = ({ onClickElement,
     // State for keys in the menu
     const [keys, setKeys] = useState(menuKeys);
 
+    const [host, setHost] = useState(menuKeys);
+
+
     // Function to toggle sidebar collapse
     const toggleCollapsed = () => {
         setCollapsed(!collapsed);
@@ -139,7 +143,7 @@ const EditorRightSideBar = ({ onClickElement,
     // Function to handle submenu open change
     const handleSubMenuOpenChange = (keys) => {
         setOpenKeys(keys.slice(-1));
-        setKeys(keys.length > 0 && !collapsed ? [keys[keys.length - 1]] : menuKeys);
+        // setKeys(keys.length > 0 && !collapsed ? [keys[keys.length - 1]] : menuKeys);
     };
 
     // Get color tokens from theme
@@ -149,6 +153,21 @@ const EditorRightSideBar = ({ onClickElement,
 
     // State for cascader states
     const [cascaderStates, setCascaderStates] = useState(globalStates);
+
+    useEffect(() => {
+
+        if(!state.page)
+        return;
+
+        const fetchPage = async () => {
+            const page = await getAllData(state.page._id);
+            
+            if(page)
+            setHost(page.host || '')
+        }
+        fetchPage();
+
+    }, [state.page]);
 
     // Fetch data on component mount and when state.states changes
     useEffect(() => {
@@ -168,58 +187,68 @@ const EditorRightSideBar = ({ onClickElement,
 
     // Render function for menu items
     const renderMenuItems = (key) => {
-        switch(key) {
-            case 'sub1':
-                return <Navigator
-                    page={state.page}
+        return (
+            <>
+          
+                <div key='sub1' style={{ display: key === 'sub1' ? 'block' : 'none' }}>
+                    {state.node && <Navigator
+                        page={state.page}
+                        onAdd={onAdd}
+                        onMove={onMove}
+                        onDelete={onDelete}
+                        onCopy={onCopy}
+                        node={state.node}
+                        onClickElement={onClickElement}
+                        pageUpdated={state.pageUpdated}
+                        loading={state.loading}
+                    />}
+                </div>
+                <div key='sub2' style={{ display: key === 'sub3' && state.node ? 'block' : 'none' }}>
+                    {state.node && <Element onChange={onChange}
+                        state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />}
+                </div>
+                <div key='sub3' style={{ display: key === 'sub4' && state.node ? 'block' : 'none' }}>
+                    {state.node && <Content
+                    host={host}
+                        onChange={onChange}
+                        state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />}
+                </div>
+                <div key='sub4' style={{ display: key === 'sub2' && state.node ? 'block' : 'none' }}>
+                    {state.node && <Component 
                     onAdd={onAdd}
-                    onMove={onMove}
-                    onDelete={onDelete}
-                    onCopy={onCopy}
-                    node={state.node}
-                    onClickElement={onClickElement}
-                    pageUpdated={state.pageUpdated}
-                    loading={state.loading}
-                />;
-            case 'sub3':
-                return state.node && <Element onChange={onChange}
-                    state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />;
-            case 'sub4':
-                return state.node && <Content
-                    onChange={onChange}
-                    state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />;
-            case 'sub2':
-                return state.node && <Component onAdd={onAdd}
-                    onChange={onChange}
-                    onUpdate={onUpdate}
-                    state={state}
-                    cascaderStates={cascaderStates} />;
-            case 'sub5':
-                return state.node && <Collection onChange={onChange}
-                    state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />;
-            case 'sub6':
-                return state.node && <Form onChange={onChange}
-                    state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />;
-            case 'sub7':
-                return state.node && <Styling
-                    onDeleteSelector={onDeleteSelector}
-                    onUpdateSelector={onUpdateSelector}
-                    state={state}
-                    onChangeStyle={onChange}
-                    onSelectSelector={onSelectSelector} />;
-            case 'sub8':
-                return state.node &&
-                    <LayoutStyle
+                        onChange={onChange}
+                        onUpdate={onUpdate}
+                        state={state}
+                        cascaderStates={cascaderStates} />}
+                </div>
+                <div key='sub5' style={{ display: key === 'sub5' && state.node ? 'block' : 'none' }}>
+                    {state.node && <Collection onChange={onChange}
+                        state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />}
+                </div>
+                <div key='sub6' style={{ display: key === 'sub6' && state.node ? 'block' : 'none' }}>
+                    {state.ndoe && <Form onChange={onChange}
+                        state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />}
+                </div>
+                <div key='sub7' style={{ display: key === 'sub7' && state.node ? 'block' : 'none' }}>
+                    {state.node && <Styling
+                        onDeleteSelector={onDeleteSelector}
+                        onUpdateSelector={onUpdateSelector}
+                        state={state}
+                        onChangeStyle={onChange}
+                        onSelectSelector={onSelectSelector} />}
+                </div>
+                <div key='sub8' style={{ display: key === 'sub8' && state.node ? 'block' : 'none' }}>
+                    {state.node && <LayoutStyle
                         onUpdate={onUpdateSelector}
                         selector={state.selector}
                         onChange={onChange}
                         isStyleChange={state.isStyleChange}
                         layout={state.node.layout}>
                         <SettingOutlined style={{ color: colorPrimary }} />
-                    </LayoutStyle>;
-            default:
-                return null;
-        }
+                    </LayoutStyle>}
+                </div>
+            </>
+        );
     }
 
     return (
@@ -231,9 +260,11 @@ const EditorRightSideBar = ({ onClickElement,
                 collapsible collapsed={collapsed}
                 onCollapse={toggleCollapsed}
             >
+
                 {!collapsed && <Title level={4} style={{ padding: 4, margin: 0, textAlign: 'center', minHeight: 30 }}> Element:{" "}
-                    <span style={{ color: colorPrimary }}>{state.node ? state.node.name || state.node.tagName : '' }</span>
+                    <span style={{ color: colorPrimary }}>{state.node ? state.node.name || state.node.tagName : ''}  </span>
                 </Title>}
+
                 <Menu
                     mode="inline"
                     direction="rtl"
@@ -241,9 +272,11 @@ const EditorRightSideBar = ({ onClickElement,
                     style={{ height: '100%', overflow: 'auto', background: colorPrimary }}
                     onOpenChange={handleSubMenuOpenChange}
                 >
+
                     {keys.map((key) => {
                         return (
                             <Menu.SubMenu
+                                style={{ display: (openKeys[0] === key || openKeys.length <= 0) ? 'block' : 'none' }}
                                 icon={iconMap[key]}
                                 key={key}
                                 title={key === 'sub1' ? 'Navigator' :

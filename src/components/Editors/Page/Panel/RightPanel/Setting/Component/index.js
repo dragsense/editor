@@ -63,9 +63,9 @@ const onAddMenus = async (state, menus, onAdd) => {
 }
 
 // Function to update nodes
-const onUpdateNNodes = (state, type, data, onUpdate) => {
+const onUpdateNNodes = (state, type, data,  onUpdate, onAdd) => {
     if (type === 'menu')
-        onAddMenus(state, data);
+        onAddMenus(state, data, onAdd);
     else {
         state.node.states = data
         onUpdate(state.node);
@@ -103,7 +103,10 @@ export default function Component({ state, cascaderStates, onChange, onUpdate, o
         setFilterStates(cascaderStates.filter(state => state.type === 'STATES' || state.type === 'PROPS'))
     }, [state.page]);
 
-    return (component && state.node.type !== 'component') ? <>
+    const { layout, type } = state.node;
+
+
+    return (component && type !== 'component' && layout !== 'menu') ? <>
         <Divider orientation="center" orientationMargin="0">Tag: {state.node.tagName} </Divider>
         <Card>
             <ElementComponent
@@ -114,9 +117,9 @@ export default function Component({ state, cascaderStates, onChange, onUpdate, o
         </Card>
     </>
     : <>        
-        <Card bodyStyle={{ padding: 0 }}>
+        <Card>
             <LayoutContent state={state}
-                onUpdate={(type, data) => onUpdateNNodes(state, type, data, onUpdate)} />
+                onUpdate={(type, data) => onUpdateNNodes(state, type, data, onUpdate, onAdd)} />
         </Card>
     </>
 }

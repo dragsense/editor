@@ -7,14 +7,19 @@ const disabledStyles = {
 };
 
 // Function to create custom attributes for the element
-const createCustomAttributes = (_uid, pos, onMouseMove, onClick, onScroll, conds, disabledStyles) => {
+const createCustomAttributes = (_uid, pos,  onMouseMove, name, onClick, onScroll, conds, disabledStyles) => {
     return {
         onMouseMove,
         onScroll,
         onClick: onClick ? onClick : (e) => {
+            const currentElement = e.target;  
+            if (currentElement.tagName.toLowerCase() === 'a' ||
+            currentElement.parentNode.tagName.toLowerCase() === 'a') {
             // Prevent the default behavior for anchor links
             e.preventDefault();
+            }
         },
+        "data-name": name,
         "data-id": _uid,
         "data-pos": pos,
         "draggable": false,
@@ -39,14 +44,12 @@ const Component = ({
     const spanElement = useMemo(() => {
         return innerWraaper.length > 0 && innerWraaper ? innerWraaper : <span
             data-child={`child-muted`}
-            dangerouslySetInnerHTML={{ __html: value }}
-            style={{ userSelect: 'none', color: "#cccccc" }}></span>;
+            style={{ userSelect: 'none', color: "#cccccc" }}>add content here</span>;
     }, [innerWraaper, value]);
 
-    // Clone the element with custom attributes
-    const clonedElement = useMemo(() => {
-        return React.cloneElement(children, createCustomAttributes(_uid, pos, onMouseMove, onClick, onScroll, conds, disabledStyles), spanElement);
-    }, [children, _uid, pos, onMouseMove, onClick, onScroll, conds, disabledStyles, spanElement]);
+    const customAttributes = createCustomAttributes(_uid, pos, onMouseMove, name, onClick, onScroll, conds, disabledStyles);
+
+    const clonedElement = useMemo(() => React.cloneElement(children, { customAttributes }, spanElement), [children, customAttributes, spanElement]);
 
     // Clone the element with custom attributes and disabled child
     const disabledElement = useMemo(() => {

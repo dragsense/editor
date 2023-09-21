@@ -90,7 +90,8 @@ const Component = ({ states, onSave, skippedProperties }) => {
   // Render the component
   return (
     <>
-      <div style={{ maxHeight: '65vh', overflow: 'auto', padding: 16 }}>
+    
+      <div style={{ maxHeight: '65vh', overflow: 'auto' }}>
         <Form layout="vertical">
           {Object.values(propertyValues || {})
             .filter((property) => !skippedProperties.includes(property.key))
@@ -101,7 +102,7 @@ const Component = ({ states, onSave, skippedProperties }) => {
             ))}
         </Form>
       </div>
-      <div style={{  textAlign: 'right', padding: 16 }}>
+      <div style={{  textAlign: 'right' }}>
         <Button type="primary" onClick={handleSave} disabled={!change}>
           Update
         </Button>

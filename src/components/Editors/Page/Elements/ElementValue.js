@@ -28,7 +28,7 @@ const ElementValue = (props) => {
         children 
     } = props;
 
-   
+
     // Function to handle global type
     const handleGlobalType = (key) => {
         if (key[0] === "WEBSITE") {
@@ -71,10 +71,11 @@ const ElementValue = (props) => {
             case 'GLOBAL':
                 return handleGlobalType(key);
             case 'PROPS':
-                return getStateValue(key, _props) || `[props.${key}]`;
+                return getStateValue(key, _props, setting?.host) || `[props.${key}]`;
             case 'STATES':
-                return getStateValue(key, _states);
+                return getStateValue(key, _states,setting?.host);
             case 'PAGE':
+
                 return getPageValue(key, setting);
             case 'COLSTATES':
                 return handleColStatesType(key, value);
@@ -98,10 +99,12 @@ const ElementValue = (props) => {
 
     // Function to get value based on state
     const getValueBasedOnState = useCallback(() => {
+    
         if (!state) return nodeValue;
         const value = getValue(state, nodeValue);
         return value || nodeValue;
-    }, [state, nodeValue]);
+
+    }, [state, nodeValue, _states, _props]);
 
     // useMemo hook to optimize performance by memoizing the value
     // It will only recompute the memoized value when one of the dependencies has changed
@@ -149,9 +152,12 @@ const ElementValue = (props) => {
 
     // Function to handle onChange event
     const handleOnChange = (onChangeEvent, value, node, all) => {
+
+
         // Check if onChange function exists in fun object
         if (fun?.onChange) {
             // Call the onChange function with the required parameters
+
             fun.onChange([{ elem: onChangeEvent, value }], node, all);
         }
     }
@@ -159,12 +165,17 @@ const ElementValue = (props) => {
     // Function to validate onChange event
     const validateOnChange = (onChangeEvent) => {
         // Check if onChangeEvent has a value or if it doesn't exist
-        return onChangeEvent?.value || !onChangeEvent;
+        return onChangeEvent?.value;
     }
 
     const onChangeNode = (value, all) => {
+
+
+
         // Extract onChange event from node
         const onChangeEvent = node.onChange;
+
+
         try {
             // Validate onChange event
             if (validateOnChange(onChangeEvent)) {

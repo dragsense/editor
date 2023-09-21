@@ -50,6 +50,9 @@ const TreeNode = (props) => {
   const form = node.page?.pageType === 'form' ? { ...node.page, disabled: true } : null;
   const rootForm = pageType === 'form' ? { _id } : null;
 
+
+
+
   return (
     <ElementWrapper
       key={_uid}
@@ -63,6 +66,7 @@ const TreeNode = (props) => {
         <MemoizedTreeNode
           {...props}
           _uid={key}
+          pageType={""}
           pos={pos + i}
           key={key}
         />
@@ -83,6 +87,7 @@ const MemoizedTreeNode = memo(TreeNode, (prevProps, nextProps) => {
     prevProps.fun === nextProps.fun &&
     prevProps._cstates === nextProps._cstates;
   const allUpdate = prevProps.pageUpdated?.allUpdate === nextProps.pageUpdated?.allUpdate;
+
   return !matched1 && !matched2 && states && allUpdate;
 });
 

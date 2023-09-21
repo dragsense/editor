@@ -10,7 +10,7 @@ const { Option } = Select;
 
 
 // Main function
-export default function ElementContent({ cascaderStates, state, setState, setIsChange }) {
+export default function ElementContent({ cascaderStates, host, state, setState, setIsChange }) {
 
     const [mediaModal, setMediaModal] = useState(false);
     const [type, setType] = useState("images");
@@ -68,9 +68,7 @@ export default function ElementContent({ cascaderStates, state, setState, setIsC
     };
 
     // Function to handle change in media
-    const onChangeMedia = (media, type) => {
-
-
+    const onChangeMedia = (media) => {
         if (type === 'images') {
             setState(prevState => ({
                 ...prevState,
@@ -104,7 +102,7 @@ export default function ElementContent({ cascaderStates, state, setState, setIsC
             return renderVideoAudio();
         } else if (state.tagName === 'img') {
             return renderImage();
-        } else if (state.attributes['type']?.value !== "'file'") {
+        } else if (state.attributes['type']?.value !== "'file'" && state.tagName !== 'hr') {
             return renderContentEditor();
         }
     }
@@ -189,7 +187,7 @@ export default function ElementContent({ cascaderStates, state, setState, setIsC
                 <br />
                 <br />
                 {Array.isArray(state.srcs) && state.srcs.map((src, index) => (
-                    <Video src={src.src} alt={src.alt} mimetype={src.mimetype} />
+                    <Video src={host+src.src} alt={src.alt} mimetype={src.mimetype} />
                 ))}
             </Form.Item>
         );
@@ -199,6 +197,7 @@ export default function ElementContent({ cascaderStates, state, setState, setIsC
     const renderPoster = () => {
         return (
             <Form.Item label="Poster">
+
                 <Image
                     width="100%"
                     onClick={() => {
@@ -214,7 +213,7 @@ export default function ElementContent({ cascaderStates, state, setState, setIsC
                         cursor: 'pointer'
                     }}
                     alt="video poster"
-                    src={state.src?.src}
+                    src={host+state.src?.src}
                     fallback="./images/default/default-poster.png" />
             </Form.Item>
         );
@@ -224,6 +223,7 @@ export default function ElementContent({ cascaderStates, state, setState, setIsC
     const renderImage = () => {
         return (
             <Form.Item label="Image">
+         
                 <Image
                     width="100%"
                     onClick={() => {
@@ -239,7 +239,7 @@ export default function ElementContent({ cascaderStates, state, setState, setIsC
                         cursor: 'pointer'
                     }}
                     alt={state.src?.alt}
-                    src={state.src?.src}
+                    src={host+state.src?.src}
                     fallback="./images/default/default-img.png" />
             </Form.Item>
         );
@@ -250,8 +250,8 @@ export default function ElementContent({ cascaderStates, state, setState, setIsC
         
         return (
             <Form.Item label="Content" className="font-500">
+          
                 <ContentEditor
-                    disabled={state.tagName === 'hr'}
                     cascaderStates={cascaderStates}
                     state={state}
                     onChange={onChange} />

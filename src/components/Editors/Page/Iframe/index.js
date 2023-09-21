@@ -19,8 +19,8 @@ import { BsArrowsMove } from 'react-icons/bs';
 const InnerComponent = ({ children, document, onLoad, _id, type }) => {
 
 
-   // Function to load a single font
-   const loadFont = async (font) => {
+  // Function to load a single font
+  const loadFont = async (font) => {
     const { _uid, fontFamily, fontSrc, src, isGoogleFont } = font;
     if (isGoogleFont && src) {
       const linkElement = document.createElement('div');
@@ -126,14 +126,14 @@ const InnerComponent = ({ children, document, onLoad, _id, type }) => {
     })
   }
 
-   // useEffect hook to load CSS styles and call onLoad function when _id changes
-   useEffect(() => {
+  // useEffect hook to load CSS styles and call onLoad function when _id changes
+  useEffect(() => {
 
     if (_id)
       loadCSSStyles().then((status) => {
         onLoad({ _id }, type, document);
       }).catch((e) => {
-        
+
         message.error(e?.message || 'Something went wrong!');
       });
     else
@@ -256,66 +256,25 @@ export default function IFrame({
     const iframeWindow = iframe.contentWindow;
 
     setContainer({ window: iframeWindow, mountTarget: iframeDocument.body, document: iframeDocument });
+
   }, [iframeRef.current])
 
-  const iframe = iframeRef.current;
-  const iframeDocument = iframe?.contentDocument || iframe?.contentWindow.document;
-  const iframeWindow = iframe?.contentWindow;
+
 
   const getValidElement = (target) => {
-    if (!target.dataset.id) 
+    if (!target.dataset.id)
       return target.parentNode
-    
 
     return target;
   }
 
-  const getElementDetails = (target) => {
 
-    const id = target.dataset.id || target.dataset.rootid;
 
-    if (target === iframeDocument.body || !id) {
-      id = '';
-    }
 
-    return {
-      id
-    }
-  }
-
-  let isTop = false;
-
-  const setGapBarPosition = (event, name, rect) => {
-
-    const hoverMiddleY = 10;
-
-    const hoverClientY = event.clientY - rect.top;
-
-    if (hoverClientY < hoverMiddleY) {
-
-      setGapBarPos({
-        value: name,
-        left: rect.left,
-        width: rect.width,
-        top: rect.top - 5, height: 5,
-        background: colorPrimaryBg,
-        borderBottom: `2px solid ${colorPrimary}`,
-        display: 'initial'
-      });
-      return true;
-    }
-    else {
-      setGapBarPos({
-        value: name,
-        border: `2px solid ${colorPrimary}`, display: 'initial',
-        left: rect.left - 2, width: rect.width, top: rect.top - 2, height: rect.height
-      });
-
-      return false;
-    }
-  }
 
   const isSameElement = (id) => {
+    if (state.node?.node)
+      state.node.node.style.outline = '#2fc1ff dotted 3px';
     return id === state.node?._uid;
   }
 
@@ -339,7 +298,9 @@ export default function IFrame({
         onAdd(tag, id, isTop, pos, iframeDocument);
   }
 
-  const adjustOverlayPosition = () => {
+
+
+  const adjustOverlayPosition = (iframeWindow) => {
     const scrollTop = iframeWindow.pageYOffset;
     const scrollLeft = iframeWindow.pageXOffset;
     const top = (scrollTop + 44) + 'px';
@@ -350,144 +311,200 @@ export default function IFrame({
   }
 
 
-
-  // Function to handle drag over event
-  const onDragOverHandle = useCallback((event) => {
-    event.preventDefault();
-    try {
-      if (event.ctrlKey) {
-        const elements = Array.from(iframeDocument.elementsFromPoint(event.clientX, event.clientY));
-        createContextMenu(elements, { x: event.clientX + 10, y: event.clientY + 10 });
-      }
-      const currentElement = getValidElement(event.target);
-      if (!currentElement) return;
-
-      const name = currentElement.dataset.name || currentElement.tagName;
-      const rect = currentElement.getBoundingClientRect();
-
-      const { id } = getElementDetails(currentElement);
-      if (id)
-        isTop = setGapBarPosition(event, name, rect);
-    } catch (e) {
-      setGapBarPos(null)
-    }
-  }, [iframeDocument, createContextMenu]);
-
-  // Function to handle drag leave event
-  const onDragLeaveHandle = useCallback((event) => {
-    event.preventDefault();
-    try {
-      if (editing) return;
-      if (event.target === iframeDocument.body) return;
-      isTop = false;
-    } catch (e) {
-    } finally {
-      setGapBarPos(null);
-    }
-  }, [editing, iframeDocument]);
-
-  // Function to handle drop event
-  const onDropHandle = useCallback((event) => {
-    event.preventDefault();
-    try {
-      if (editing) {
-        message.warning("please escape to save!")
-        return;
-      }
-      const currentElement = getValidElement(event.target);
-      if (!currentElement) return;
-      const { id } = getElementDetails(currentElement);
-
-      if (!id) throw new Error("id not found");
-
-      const pos = currentElement.dataset.pos || '';
-      const tag = JSON.parse(event.dataTransfer.getData('text/plain'));
-      handleTagAction(tag, id, isTop, pos, iframeDocument);
-
-    } catch (e) {
-      console.log(e?.message, "Something Wrong")
-    } finally {
-      setGapBarPos(null);
-    }
-  }, [editing, iframeDocument, handleTagAction]);
-
-  // Function to handle click event
-  const onClickHandle = useCallback(async (event) => {
-    try {
-      adjustOverlayPosition();
-      const currentElement = getValidElement(event.target);
-
-      if (!currentElement) return;
-      const { id } = getElementDetails(currentElement);
-      if (isSameElement(id) || !id) return;
-      if (editing) {
-        message.warning("please escape to save!")
-        return;
-      }
-      onClickElement(iframeDocument, id);
-      ContentEditor.destroy();
-    } catch (e) {
-      setGapBarPos(null);
-    }
-  }, [editing, iframeDocument, iframeWindow, onClickElement, adjustOverlayPosition]);
-
-  // Function to handle double click event
-  const onDbClickHandle = useCallback((event) => {
-    try {
-      if (editing) return;
-      const currentElement = getValidElement(event.target);
-      if (!currentElement) return;
-      const { id } = getElementDetails(currentElement);
-      if (!isSameElement(id) || !id) return;
-      const existingChildren = currentElement.querySelector(`[data-child="child-${id}"]`);
-      if (existingChildren) {
-        existingChildren.focus();
-        ContentEditor.start(existingChildren, overlayRef2.current, 'editor');
-        setEditing(true)
-      }
-    } catch (e) {
-      setGapBarPos(null);
-    }
-  }, [editing, ContentEditor, overlayRef2]);
-
-  // Function to handle key press event
-  const onKeyPress = useCallback(async (event) => {
-    if (!editing || event.keyCode !== 27) return;
-    try {
-      ContentEditor.destroy();
-      state.node.updateHTML = true;
-      await onUpdate(state.node);
-      onChange();
-    } catch (e) {
-    } finally {
-      setGapBarPos(null);
-      setEditing(false)
-    }
-  }, [editing, state.node, onUpdate, onChange, ContentEditor]);
-
-  // Function to handle scroll event
-  const onScrollHandle = useCallback((event) => {
-    event.preventDefault();
-    adjustOverlayPosition();
-  }, [adjustOverlayPosition, iframeWindow]);
-
-  // Function to handle context menu event
-  const onContextMenu = useCallback((event) => {
-    event.preventDefault();
-    if (editing) {
-      message.warning("please escape to save!")
-      return;
-    }
-    const elements = Array.from(iframeDocument.elementsFromPoint(event.clientX, event.clientY));
-    const mousePosition = { x: event.clientX, y: event.clientY, visible: false };
-    createContextMenu(elements, mousePosition);
-  }, [editing, iframeDocument, createContextMenu]);
-
   // Effect to handle events
   useEffect(() => {
-    if (!iframeRef.current) return;
+    if (!container) return;
     const iframe = iframeRef.current;
-    const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+    const iframeDocument = container.document;
+    const iframeWindow = container.window
+
+    let isTop = false;
+
+    adjustOverlayPosition(iframeWindow);
+
+
+    // Function to handle drag over event
+    const onDragOverHandle = (event) => {
+      event.preventDefault();
+      try {
+        if (event.ctrlKey) {
+          const elements = Array.from(iframeDocument.elementsFromPoint(event.clientX, event.clientY));
+          createContextMenu(elements, { x: event.clientX + 10, y: event.clientY + 10 });
+        }
+
+        let currentElement = event.target;
+
+        if (!currentElement.dataset.id)
+          currentElement = currentElement.parentNode;
+
+        const id = currentElement.dataset.id || currentElement.dataset.rootid;
+
+        if (currentElement === iframeDocument.body || !id) {
+          return;
+        }
+
+        const name = currentElement.dataset.name || currentElement.tagName;
+        const rect = currentElement.getBoundingClientRect();
+
+
+        const hoverMiddleY = 10;
+
+        const hoverClientY = event.clientY - rect.top;
+
+        if (hoverClientY < hoverMiddleY) {
+
+          setGapBarPos({
+            value: name,
+            left: rect.left,
+            width: rect.width,
+            top: rect.top - 5, height: 5,
+            background: colorPrimaryBg,
+            borderBottom: `2px solid ${colorPrimary}`,
+            display: 'initial'
+          });
+
+          isTop = true;
+
+        }
+        else {
+          setGapBarPos({
+            value: name,
+            border: `2px solid ${colorPrimary}`, display: 'initial',
+            left: rect.left - 2, width: rect.width, top: rect.top - 2, height: rect.height
+          });
+          isTop = false;
+
+
+        }
+      } catch (e) {
+        setGapBarPos(null)
+      }
+    };
+
+    // Function to handle drag leave event
+    const onDragLeaveHandle = (event) => {
+      event.preventDefault();
+      try {
+        if (editing) return;
+        if (event.target === iframeDocument.body) return;
+        isTop = false;
+      } catch (e) {
+      } finally {
+        setGapBarPos(null);
+      }
+    };
+
+    // Function to handle drop event
+    const onDropHandle = (event) => {
+      event.preventDefault();
+      try {
+        if (editing) {
+          message.warning("please escape to save!")
+          return;
+        }
+        let currentElement = getValidElement(event.target);
+        if (!currentElement) return;
+
+        if (!currentElement.dataset.id && !currentElement.dataset.rootid)
+          currentElement = currentElement.closest('[data-id]');
+
+        const id = currentElement.dataset.id || currentElement.dataset.rootid;
+        if (currentElement === iframeDocument.body || !id) {
+          throw new Error("id not found");
+        }
+
+
+        const pos = currentElement.dataset.pos || '';
+        const tag = JSON.parse(event.dataTransfer.getData('text/plain'));
+        handleTagAction(tag, id, isTop, pos, iframeDocument);
+
+      } catch (e) {
+        message.error(e?.message, "Something Wrong")
+      } finally {
+        setGapBarPos(null);
+      }
+    };
+
+    // Function to handle click event
+    const onClickHandle = async (event) => {
+      try {
+        adjustOverlayPosition(iframeWindow);
+        const currentElement = getValidElement(event.target);
+
+        if (!currentElement) return;
+        const id = currentElement.dataset.id || currentElement.dataset.rootid;
+        if (isSameElement(id) || !id) {
+
+          return;
+
+        }
+        if (editing) {
+          message.warning("please escape to save!")
+          return;
+        }
+        onClickElement(iframeDocument, id);
+        ContentEditor.destroy();
+      } catch (e) {
+        setGapBarPos(null);
+      }
+    };
+
+    // Function to handle double click event
+    const onDbClickHandle = (event) => {
+      try {
+        if (editing) return;
+        const currentElement = getValidElement(event.target);
+        if (!currentElement) return;
+        const id = currentElement.dataset.id || currentElement.dataset.rootid;
+
+        if (!id) return;
+        const existingChildren = currentElement.querySelector(`[data-child="child-${id}"]`);
+
+
+        if (existingChildren) {
+          existingChildren.focus();
+          ContentEditor.start(existingChildren, overlayRef2.current, 'editor');
+          setEditing(true)
+        }
+      } catch (e) {
+        setGapBarPos(null);
+      }
+    };
+
+    // Function to handle key press event
+    const onKeyPress = async (event) => {
+      if (!editing || event.keyCode !== 27) return;
+      try {
+        ContentEditor.destroy();
+        state.node.updateHTML = true;
+        await onUpdate(state.node);
+        onChange();
+      } catch (e) {
+      } finally {
+        setGapBarPos(null);
+        setEditing(false)
+      }
+    };
+
+    // Function to handle scroll event
+    const onScrollHandle = (event) => {
+      event.preventDefault();
+      adjustOverlayPosition(iframeWindow);
+    };
+
+    // Function to handle context menu event
+    const onContextMenu = (event) => {
+      event.preventDefault();
+      if (editing) {
+        message.warning("please escape to save!")
+        return;
+      }
+      const elements = Array.from(iframeDocument.elementsFromPoint(event.clientX, event.clientY));
+      const mousePosition = { x: event.clientX, y: event.clientY, visible: false };
+      createContextMenu(elements, mousePosition);
+    };
+
+
     iframeDocument.body.addEventListener("dragover", onDragOverHandle);
     iframeDocument.body.addEventListener("dragleave", onDragLeaveHandle);
     iframeDocument.body.addEventListener("drop", onDropHandle);
@@ -513,7 +530,7 @@ export default function IFrame({
       setGapBarPos(null)
     }
 
-  }, [state.page, state.node, editing]);
+  }, [state.page, state.node, editing, container]);
 
   // Reset editing state when page is updated
   useEffect(() => {
@@ -541,7 +558,7 @@ export default function IFrame({
   }
 
   // Function to handle mouse enter event on menu item
-  const handleMenuItemMouseEnter = useCallback((uid, isTop) => {
+  const handleMenuItemMouseEnter = (uid, isTop) => {
     if (!container?.document)
       return;
 
@@ -571,12 +588,11 @@ export default function IFrame({
         left: rect.left - 2, width: rect.width, top: rect.top - 2, height: rect.height
       });
 
-  }, [container, colorPrimaryBg, colorPrimary]);
+  };
 
   // Function to handle mouse leave event on menu item
-  const handleMenuItemMouseLeave = useCallback(() => {
-    setGapBarPos(null);
-  }, []);
+  const handleMenuItemMouseLeave = () => {
+  };
 
   // Function to handle drag over event on menu item
   const handleMenuItemDragOver = useCallback((e) => {
@@ -710,7 +726,7 @@ export default function IFrame({
 
 
   // Define the MenuItemActions component
-  const MenuItemActions = ({ item, handleMenuItemMouseEnter, handleMenuItemMouseLeave, setPopupOpen, onDelete, setContextMenuVisible, setGapBarPos, onCopy, setCurrentElement }) => {
+  const MenuItemActions = ({ item, setPopupOpen, onDelete, setContextMenuVisible, setGapBarPos, onCopy, setCurrentElement }) => {
 
     // Function to handle drag start event
     const handleDragStart = (e) => {
@@ -751,14 +767,7 @@ export default function IFrame({
       <>
         {/* Button for dragging the item */}
         <Button
-          onMouseEnter={(e) => {
-            e.preventDefault();
-            handleMenuItemMouseEnter(item.uid);
-          }}
-          onMouseLeave={(e) => {
-            e.preventDefault();
-            handleMenuItemMouseLeave();
-          }}
+
           draggable={true}
           onDragStart={handleDragStart}
           style={{ float: 'right', marginLeft: 3 }}
@@ -796,14 +805,7 @@ export default function IFrame({
           cancelText="Create Selector"
         >
           <Button
-            onMouseEnter={(e) => {
-              e.preventDefault();
-              handleMenuItemMouseEnter(item.uid);
-            }}
-            onMouseLeave={(e) => {
-              e.preventDefault();
-              handleMenuItemMouseLeave();
-            }}
+
             style={{ float: 'right', marginLeft: 3 }}
             size="small"
             icon=<CopyOutlined size="1rem" />
@@ -814,14 +816,7 @@ export default function IFrame({
         {/* Button for adding a new item */}
         <Button
           type='dashed'
-          onMouseEnter={(e) => {
-            e.preventDefault();
-            handleMenuItemMouseEnter(item.uid);
-          }}
-          onMouseLeave={(e) => {
-            e.preventDefault();
-            handleMenuItemMouseLeave();
-          }}
+
           onClick={handleAddItemClick}
           style={{ float: 'right', }}
           size="small"
@@ -838,9 +833,9 @@ export default function IFrame({
     if (!contextMenuVisible) return null;
 
     // Function to handle drag enter event on menu item
-    const handleDragEnter = (e, item) => {
+    const handleDragEnter = (e, item, isTop) => {
       e.target.style.backgroundColor = colorPrimaryBg;
-      handleMenuItemMouseEnter(item.uid, true)
+      handleMenuItemMouseEnter(item.uid, isTop)
       e.preventDefault();
     }
 
@@ -852,11 +847,11 @@ export default function IFrame({
     }
 
     // Function to handle mouse enter event on menu item
-    const handleMouseEnter = (e, item) => {
+    const handleMouseEnter = (e, item, isTop) => {
       e.preventDefault();
       if (state?.node?._uid !== item.uid)
         e.target.style.backgroundColor = colorPrimaryBg;
-      handleMenuItemMouseEnter(item.uid)
+      handleMenuItemMouseEnter(item.uid, isTop)
     }
 
     // Function to handle mouse leave event on menu item
@@ -919,13 +914,13 @@ export default function IFrame({
               <li
                 key={item.uid + index}
                 onDragOver={handleMenuItemDragOver}
-                onDragEnter={(e) => handleDragEnter(e, item)}
+                onDragEnter={(e) => handleDragEnter(e, item, true)}
                 onDragLeave={handleDragLeave}
                 style={{
                   borderRadius: '5px',
                   height: 10,
                 }}
-                onDrop={(e) => handleMenuItemDrop(e, true)}
+                onDrop={(e) => handleMenuItemDrop(e, true, true)}
                 data-uid={item.uid}
                 data-pos={item.pos}
               >
@@ -951,17 +946,18 @@ export default function IFrame({
                     marginRight: 5,
                     backgroundColor: state?.node?._uid === item.uid ? colorPrimaryBg : 'transparent',
                   }}>
-                  {item.name} {" "} {state?.node?._uid === item.uid && <Popover
-                    onOpenChange={(open) => {
-                      setPopupOpen(open);
-                    }}
-                    content={<Setting
-                      onChange={onChange}
-                      setPopupOpen={setPopupOpen}
-                      node={state.node} onUpdate={onUpdate} />} title="Setting" trigger="click">
-                    <EditOutlined />
-                  </Popover>}
+                  {item.name} {" "}
                 </div>
+                {state?.node?._uid === item.uid && <Popover
+                  onOpenChange={(open) => {
+                    setPopupOpen(open);
+                  }}
+                  content={<Setting
+                    onChange={onChange}
+                    setPopupOpen={setPopupOpen}
+                    node={state.node} onUpdate={onUpdate} />} title="Setting" trigger="click">
+                  <EditOutlined />
+                </Popover>}
                 {renderMenuItemActions(item)}
               </li>
             </>

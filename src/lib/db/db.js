@@ -32,7 +32,7 @@ export const openDB = async () => {
         // Here we'll set up the object stores and their indexes.
         request.onupgradeneeded = () => {
             const db = request.result;
-            
+
             // Create the PAGE_STORE_NAME object store and its index.
             const pageStore = db.createObjectStore(PAGE_STORE_NAME, { keyPath: '_id' });
             pageStore.createIndex('id', '_id');
@@ -180,7 +180,7 @@ export const getAllData = async (key, STORE = PAGE_STORE_NAME) => {
             // Initialize DB connection and get the specific object store
             const db = await openDB();
             const store = db.transaction(STORE).objectStore(STORE);
-            
+
             // Request data for the given key from the indexed DB
             const request = store.index("id").get(key);
 
@@ -212,7 +212,7 @@ export const getAllKeys = async (STORE = PAGE_STORE_NAME) => {
             const db = await openDB();
             const store = db.transaction([STORE], 'readonly').objectStore(STORE);
             const index = store.index('type');
-            
+
             // Request unique keys from the indexed DB
             const getRequest = index.openCursor(null, 'nextunique');
             const uniqueKeys = [];
@@ -257,9 +257,9 @@ export const getAllCssData = async (STORE = PAGE_STORE_NAME) => {
                 resolve(records);
             };
 
-    
-         // Handle errors during the retrieval process
-         request.onerror = () => reject(request.error);
+
+            // Handle errors during the retrieval process
+            request.onerror = () => reject(request.error);
         } catch (error) {
             reject(error);
         }
@@ -343,7 +343,7 @@ export const searchData = async (searchText, limit = 25, STORE = PAGE_STORE_NAME
                     if (title.indexOf(searchText) > -1) {
                         results.push(record);
                         count++;
-                        
+
                         if (count < limit) {
                             lastResult = cursor.key;
                             cursor.continue();
@@ -733,16 +733,36 @@ export const getAction = async (STORE) => {
  * @returns {Promise<void>} - A promise that resolves when the action has been deleted.
  */
 export const deleteAction = async (STORE) => {
-    try {
-        const db = await openDB();
-        const transaction = db.transaction(STORE, 'readwrite');
-        const store = transaction.objectStore(STORE);
-        const mainRequest = await store.getAllKeys();
-        const lastKey = mainRequest[mainRequest.length - 1];
-        await store.delete(lastKey);
-    } catch (error) {
-        console.error("Error deleting action:", error);
-    }
+
+    return new Promise(async (resolve, reject) => {
+        try {
+            const db = await openDB();
+            const transaction = db.transaction(STORE, 'readwrite');
+            const store = transaction.objectStore(STORE);
+            const mainRequest = await store.getAllKeys();
+
+            mainRequest.onsuccess = (event) => {
+                const items = event.target.result;
+                const lastKey = items[items.length - 1];
+
+                const request = store.delete(lastKey);
+                request.onsuccess = (event) => {
+                    resolve();
+                };
+
+                request.onerror = () => {
+                    reject(request.error);
+                };
+
+            };
+
+            mainRequest.onerror = () => {
+                reject(mainRequest.error);
+            };
+        } catch (error) {
+            reject("Error deleting action:", error);
+        }
+    });
 };
 
 /**

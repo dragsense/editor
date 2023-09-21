@@ -143,9 +143,6 @@ const Slides = (props) => {
 
     const isSlide = type === 'slide';
     const cols = isSlide ? numColumns : 1;
-
-
-
     let moves = isSlide ? moveColumns : 1;
 
     if (moves > cols)

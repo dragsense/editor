@@ -99,7 +99,7 @@ export default function RightSideBar({
                 setVariables(resVariables.variables.data)
 
         } catch (e) {
-            message.error(e?.message || 'Something went wrong');
+            console.error(e?.message || 'Something went wrong');
         } finally {
         }
     }
@@ -121,6 +121,8 @@ export default function RightSideBar({
                         animation={animation}
                         onSelect={onSelect} />
                 </div>
+                {renderDeleteSelectorButton()}
+               
             </div>
         );
     }
@@ -165,6 +167,7 @@ export default function RightSideBar({
             }}>
                 <div>{!animation && <><span style={{ marginRight: 2 }}><State state={elementState} onSelectState={onSelectState} /></span>
                     <Pseudo state={elementState} onSelectState={onSelectState} /></>}</div>
+                    {renderResetStyleButton()}
             </div>
         );
     }
@@ -268,9 +271,9 @@ export default function RightSideBar({
         }}>
             <div style={{ padding: 5 }}>
                 {renderSearchableSelector()}
-                {renderDeleteSelectorButton()}
+               
                 {renderStateAndPseudoSelectors()}
-                {renderResetStyleButton()}
+             
             </div>
 
             <div style={{ maxHeight: '65vh', overflow: 'auto', padding: 5 }}>

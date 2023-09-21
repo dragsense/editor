@@ -84,7 +84,7 @@
  
     {
       "tag": "footer",
-      "type": "layout",
+      "type": "layouts",
       "layout": "footer",
 
       "notaccept": [

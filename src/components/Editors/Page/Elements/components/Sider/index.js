@@ -20,11 +20,7 @@ const Slides = (props) => {
   const duration = useMemo(() => getDefaultValue(states['duration'], 300), [states]);
 
 // Disable the Sider if no input change
-  const [isDisabled, setIsDisabled] = useState(true);
-  useEffect(() => {
-    setIsDisabled(!states);
-  }, [states]);
-
+ 
   return (
     <Sider 
       openSider={openSider} 
@@ -32,7 +28,6 @@ const Slides = (props) => {
       duration={duration}
       initialValue={initialValue} 
       expandValue={expandValue}
-      disabled={isDisabled}
     >
       {element({ ...node, state: undefined, map: undefined }, children)}
     </Sider>

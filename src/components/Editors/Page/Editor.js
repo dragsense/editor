@@ -124,7 +124,8 @@ export default function Editor({ children, _id, pageType, onBack }) {
                 top: 115, left: 0, right: 0, bottom: 0
             }}><CanvasEditor windowWidth={windowWidth} setWindowWidth={setWindowWidth}>
                     <PreviewIFrame
-                        _id={state.page?._id} pageType={state.type}
+                        _id={state.page?._id} 
+                        pageType={state.type}
                         onLoad={onPreview}
                         loading={state?.loading}
                     >

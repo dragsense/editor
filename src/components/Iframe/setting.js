@@ -84,16 +84,16 @@ const InnerComponent = ({ children, document, onLoad }) => {
 
 // ShadowRootComponent is a wrapper component that provides a shadow root for its children
 const ShadowRootComponent = ({ children }) => {
-  const rootRef = useRef();
+  // const rootRef = useRef();
   
-  useEffect(() => {
-    if (rootRef.current) {
-      const shadowRoot = rootRef.current.attachShadow({ mode: 'open' });
-      shadowRoot.appendChild(children);
-    }
-  }, [children]);
+  // useEffect(() => {
+  //   if (rootRef.current) {
+  //     const shadowRoot = rootRef.current.attachShadow({ mode: 'open' });
+  //     shadowRoot.appendChild(children);
+  //   }
+  // }, [children]);
   
-  return <div ref={rootRef} />;
+  return children;//<div ref={rootRef} />;
 };
 
 // IFrame is a component that provides an isolated context for its children

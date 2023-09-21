@@ -19,6 +19,11 @@ const MenuTree = ({ children, node, onSave }) => {
     const [selectedKeys, setSelectedKeys] = useState([]);
     const [editingNode, setEditingNode] = useState(null);
 
+    const [visible, setVisible] = useState(false);
+    const [visible1, setVisible1] = useState(false);
+    const [visible2, setVisible2] = useState(false);
+
+
     // Function to update a node by its key
     const updateNodeByKey = useCallback((data, key, updates) => {
         return data.map((node, i) => {
@@ -138,7 +143,10 @@ const MenuTree = ({ children, node, onSave }) => {
             }
 
             setEditingNode(null);
+            setVisible(false);
+            setVisible2(false)
             setChange(true)
+            setVisible1(false)
         }).catch((e) => {
             message.error(e?.message, 'Validations failed.')
         });
@@ -170,21 +178,6 @@ const MenuTree = ({ children, node, onSave }) => {
 
     }, [form]);
 
-    // Function to handle the Delete button click
-    const onDeleteNode = useCallback((node) => {
-
-        handleDeleteModalOk(node);
-    }, [handleDeleteModalOk]);
-
-    // Function to handle the Save button click
-    const onSaveNode = useCallback((e) => {
-        e.preventDefault();
-        onSave(gData);
-
-        setChange(false)
-
-    }, [gData, onSave]);
-
     // Function to handle the OK button click in the delete modal
     const handleDeleteModalOk = useCallback((node) => {
         // Find the selected item and remove it from the data
@@ -205,6 +198,23 @@ const MenuTree = ({ children, node, onSave }) => {
         setChange(true)
     }, [gData]);
 
+    // Function to handle the Delete button click
+    const onDeleteNode = useCallback((node) => {
+
+        handleDeleteModalOk(node);
+    }, [handleDeleteModalOk]);
+
+    // Function to handle the Save button click
+    const onSaveNode = useCallback((e) => {
+        e.preventDefault();
+        onSave(gData);
+
+        setChange(false)
+
+    }, [gData, onSave]);
+
+
+
     // Form content for the edit modal
     const formContent = <Form form={form} onFinish={onEditModalOk} layout="vertical">
         <Form.Item name="title" label="Label" rules={[{ required: true, message: 'Required' }]}>
@@ -217,8 +227,15 @@ const MenuTree = ({ children, node, onSave }) => {
             <Input />
         </Form.Item>
 
-        <Form.Item>
-            <Button type="primary" size='small' htmlType='submit' disabled={!change}>
+        <Form.Item style={{ textAlign: 'right' }}>
+            <Button style={{ marginRight: 5 }} size='small' onClick={(e) => {
+                e.preventDefault();
+                setEditingNode(null);
+                setVisible(false);
+                setVisible2(false);
+                setVisible1(false);
+            }}> Close </Button>
+            <Button type="primary" size='small' htmlType='submit'>
                 {editingNode ? 'Update' : 'Add'}  </Button>
         </Form.Item>
     </Form>
@@ -229,13 +246,21 @@ const MenuTree = ({ children, node, onSave }) => {
             <span>{node.title}</span>
             <div style={{ width: '50%', display: "inline-flex", alignItems: "center", justifyContent: 'space-between', gap: 5, padding: 2 }}>
                 {node.level < 2 && (
-                    <Popover content={formContent} title="Add" trigger="click" onOpenChange={(open) => onAddButtonClick({ parent: node })}>
+                    <Popover open={visible} content={formContent} title="Add" trigger="click" onOpenChange={(open) => {
+                             setVisible1(true)
+                        onAddButtonClick({ parent: node })}
+                    }
+                        >
                         <Button type="dashed" size='small' disabled={node.level >= 3}>
                             <PlusOutlined />
                         </Button>
                     </Popover>
                 )}
-                <Popover content={formContent} title={editingNode ? "Edit" : "Add"} trigger="click" onOpenChange={(open) => onEditNode(open, node)}>
+                <Popover content={formContent} open={visible2} title={editingNode ? "Edit" : "Add"} trigger="click" onOpenChange={(open) => {
+                     setVisible2(true)
+                    onEditNode(open, node)}
+                }
+                    >
                     <Button size='small' type="text" ghost><EditOutlined style={{ color: colorPrimary }} /></Button>
                 </Popover>
                 <Popconfirm
@@ -266,7 +291,7 @@ const MenuTree = ({ children, node, onSave }) => {
     // Content of the MenuTree component
     const content = <>
 
-        <div style={{ maxHeight: '60vh', overflow: 'auto', padding: 16 }}>
+        <div style={{ maxHeight: '60vh', overflow: 'auto' }}>
             <Tree
                 selectedKeys={selectedKeys}
 
@@ -281,8 +306,12 @@ const MenuTree = ({ children, node, onSave }) => {
             </Tree>
         </div>
 
-        <div style={{   padding: 16 }}>
-            <Popover content={formContent} title={"Add"} trigger="click" onOpenChange={(open) => onAddButtonClick(null)}>
+        <div>
+            <Popover content={formContent} open={visible1} title={"Add"} trigger="click" onOpenChange={(open) => {
+                setVisible1(true)
+                onAddButtonClick(null)
+            }
+            }>
                 <Button type="dashed">
                     <PlusOutlined />
                 </Button>

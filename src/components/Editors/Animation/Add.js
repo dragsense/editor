@@ -82,8 +82,9 @@ export default function Animations({ onEdit, animation, onChange, state, onDelet
             }
         }
 
-        onEdit(animation);
+
         await updateData(state.page._id, animation, STYLE_STORE_NAME);
+        onEdit(animation);
         setAnimations(prevAnimations => [...prevAnimations, animation])
         onChange();
         setSearchTerm("");

@@ -3,10 +3,14 @@ import { debounce } from '../../../../../lib/utils'
 
 // Function to handle onChange event
 const handleOnChange = (e, onChange) => {
+
+
     let selectedValues = Array.from(e.target.selectedOptions).map(option => option.value);
 
     if (selectedValues.includes("all"))
         selectedValues = ['all'];
+
+
 
     onChange(selectedValues.join(','), selectedValues.includes("all"));
 }
@@ -39,8 +43,11 @@ const Select = (props) => {
     const [values, setValues] = useState('');
 
     const onChangeValue = (e) => {
+
+
         if (onChange)
-            debounce(() => handleOnChange(e, onChange), 300)
+        handleOnChange(e, onChange)
+            //debounce(() => handleOnChange(e, onChange), 300)
     }
 
     useEffect(() => {

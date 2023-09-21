@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import ElementMapping from './ElementMapping';
+import { debounce } from "../../../../lib/utils";
 
 import { getData, getAllData } from "../../../../lib/db";
 import { updateStateValue, getStateRef, generateCascader } from '../../../../lib/element/elementNode';
@@ -7,6 +8,7 @@ import { updateStateValue, getStateRef, generateCascader } from '../../../../lib
 // Splitting the logic into smaller functions for better readability and performance
 // Function to handle state updates
 const handleStateUpdates = (elem, withValue, states, value, setStates) => {
+
     updateStateValue(elem, withValue, states, value);
     setStates(prevStates => ({ ...prevStates }));
 }
@@ -21,6 +23,7 @@ const handleOnClick = (node, stateValue, withValue, fun, setState) => {
             fun.onClick(node, stateValue, withValue);
     }
 }
+
 
 // Function to handle onChange events
 const handleOnChange = (values, node, all, fun, states, setValue) => {
@@ -67,6 +70,9 @@ const handleOnChange = (values, node, all, fun, states, setValue) => {
         allvalues = options;
     }
 
+    const debouncedSetValue = debounce((onChange, value) => {
+        setValue(onChange, value, '');
+    }, 100); // 300ms delay
     for (const elem of values) {
         let value = elem.value;
         const onChange = elem.elem;
@@ -74,7 +80,8 @@ const handleOnChange = (values, node, all, fun, states, setValue) => {
         if (value === 'all')
             value = allvalues.join(",");
 
-        setValue(onChange, value, '');
+            debouncedSetValue(onChange, value);
+
     }
 }
 
@@ -85,7 +92,7 @@ const ElementComponent = (props) => {
     const [states, setStates] = useState(node.states);
     const [state, setState] = useState(null);
 
-    const setValue = useCallback((elem, value, withValue) => {
+    const setValue = (elem, value, withValue) => {
         const type = elem.type;
         const key = elem.key;
 
@@ -108,7 +115,7 @@ const ElementComponent = (props) => {
             default:
                 return;
         }
-    }, [states]);
+    };
 
     useEffect(() => {
         if (!node)
@@ -123,7 +130,7 @@ const ElementComponent = (props) => {
             return;
         const { elem, stateValue, withValue } = state;
         setValue(elem, stateValue, withValue);
-    }, [state, setValue]);
+    }, [state]);
 
     const onClick = useCallback((node, stateValue, withValue) => {
         handleOnClick(node, stateValue, withValue, fun, setState);

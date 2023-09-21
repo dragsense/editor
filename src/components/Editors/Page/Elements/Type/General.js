@@ -1,7 +1,7 @@
 import React, { Children, useMemo, useCallback } from 'react';
 
 // Function to create custom attributes for the element
-const createCustomAttributes = (_uid, pos, onMouseMove, onClick, onScroll, conds, disabledStyles) => {
+const createCustomAttributes = (_uid, pos, onMouseMove, name, onClick, onScroll, conds, disabledStyles) => {
     return {
         onMouseMove,
         onScroll,
@@ -13,6 +13,7 @@ const createCustomAttributes = (_uid, pos, onMouseMove, onClick, onScroll, conds
             e.preventDefault();
             }
         },
+        "data-name": name,
         "data-id": _uid,
         "data-pos": pos,
         "draggable": false,
@@ -29,11 +30,11 @@ const General = ({ _uid, conds, disabled, onMouseMove, onClick, onScroll, name, 
     }), []);
 
     // Create custom attributes for the element
-    const customAttributes = createCustomAttributes(_uid, pos, onMouseMove, onClick, onScroll, conds, disabledStyles);
+    const customAttributes = createCustomAttributes(_uid, pos, onMouseMove, name, onClick, onScroll, conds, disabledStyles);
 
     // Create span element based on the innerWrapper
     const spanElement = useMemo(() => {
-        return innerWraaper ? (<>
+        return (value || innerWraaper) ?  (<>
             {React.isValidElement(value) ? value : <div
                 dangerouslySetInnerHTML={{ __html: value }}
                 data-child={`child-${_uid}`}
@@ -43,7 +44,7 @@ const General = ({ _uid, conds, disabled, onMouseMove, onClick, onScroll, name, 
                 }}
             />}
             {innerWraaper}</>
-        ) : <span style={{ userSelect: 'none', color: "#cccccc" }}>{name}</span>;
+        ) : <span style={{ userSelect: 'none', color: "#cccccc" }}>no content</span>;
     }, [innerWraaper, value, _uid, name]);
 
     // Clone the element with custom attributes and span element
@@ -53,7 +54,7 @@ const General = ({ _uid, conds, disabled, onMouseMove, onClick, onScroll, name, 
     const disabledChild = useMemo(() => {
         return !innerWraaper ? [] : (<>
             {React.isValidElement(value) ? value : <span
-                dangerouslySetInnerHTML={{ __html: value+disabled }}
+                dangerouslySetInnerHTML={{ __html: value }}
             />}
             {innerWraaper}</>
         );

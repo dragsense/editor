@@ -38,13 +38,17 @@ export default function Collection({ state, onChange, cascaderStates }) {
     const [isChange, setIsChange] = useState(false);
 
     useEffect(() => {
+
+        if(!state.page)
+        return;
+
         const fetchData = async () => {
             const _id = state.page._id;
             const collectionData = await fetchCollectionData(_id);
             setState(collectionData);
         }
         fetchData();
-    }, []);
+    }, [state.page]);
 
     const onElementUpdate = async () => {
         if (!collectionState)

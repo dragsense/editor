@@ -16,7 +16,7 @@ const Input = (props) => {
         const newValue = e.target.value;
         if (onChange) {
             // Debounce to limit the rate at which function is executing
-            debounce(onChange(newValue), 500)
+            onChange(newValue)
         }
         setV(newValue);
     }, [onChange]);
@@ -33,9 +33,9 @@ const Input = (props) => {
             "data-pos": pos,
             "data-name": 'input',
             "draggable": false,
-            onClick: onClick,
-            onChange: onChangeValue, 
-            value: type === 'file' ? '' : v
+            onClick: type === 'file' ? undefined : onClick,
+            onChange:  onChangeValue, 
+            value: v
         }
     });
 
@@ -49,7 +49,7 @@ const Input = (props) => {
     const disabledElement = React.cloneElement(children, {
         customAttributes: {
             key: _uid,
-            onClick: onClick,
+            onClick: type === 'file' ? undefined : onClick,
             onChange: onChangeValue, 
             value: v,
             style: conds ? {} : disabledStyles

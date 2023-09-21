@@ -32,9 +32,7 @@ const reducer = (state, action) => {
     case "start":
       // When an operation starts, set loading to true
       return { ...state, loading: true }
-    case "done":
-      // When an operation is done, set done to true
-      return { ...state, done: true }
+   
     case "load":
       // Load page data into state
       return { ...state, page: action.page }
@@ -101,7 +99,6 @@ export default function Animations({ menuKeys, children, onBack }) {
     error: ''
   });
 
-  const pageIdRef = useRef(null);
 
   useEffect(() => {
 
@@ -113,7 +110,6 @@ export default function Animations({ menuKeys, children, onBack }) {
         await clearStore(UNDO_STORE_NAME);
         await clearStore(REDO_STORE_NAME);
         await loadAnimationStyles(dispatch, true);
-        dispatch({ type: 'done' });
 
       } finally {
 
@@ -126,19 +122,12 @@ export default function Animations({ menuKeys, children, onBack }) {
 
   }, [])
 
-  useEffect(() => {
-
-    if (!state.done)
-      return;
-
-    dispatch({ type: 'load', page: { _id: pageIdRef.current } });
-
-  }, [state.done])
+ 
 
   const onLoad = async (_id) => {
-    pageIdRef.current = _id;
-
-  }
+ 
+    dispatch({ type: 'load', page: { _id } });
+}
 
   const saveIsChange = (callback) => {
 
@@ -376,7 +365,13 @@ export default function Animations({ menuKeys, children, onBack }) {
 
       // Get the stylesheets
       const styleSheets = iframeDocument.styleSheets;
-      let sheet = styleSheets.find(sheet => sheet.ownerNode.id === 'ac-stylesheet-global');
+      let sheet = null;
+
+      for (let i = 0; i < styleSheets.length; i++) {
+        sheet = styleSheets[i];
+        if (sheet.ownerNode.id === 'ac-stylesheet-global')
+          break;
+      }
 
       let cssRules = sheet.cssRules || sheet.rules;
 
@@ -434,8 +429,13 @@ export default function Animations({ menuKeys, children, onBack }) {
 
       // Get the stylesheets
       const styleSheets = iframeDocument.styleSheets;
-      let sheet = styleSheets.find(sheet => sheet.ownerNode.id === 'ac-stylesheet-global');
+      let sheet = null;
 
+      for (let i = 0; i < styleSheets.length; i++) {
+        sheet = styleSheets[i];
+        if (sheet.ownerNode.id === 'ac-stylesheet-global')
+          break;
+      }
       let cssRules = sheet.cssRules || sheet.rules;
 
       // Find the keyframes rule for the animation

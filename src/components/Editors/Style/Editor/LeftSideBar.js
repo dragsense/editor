@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+
 import { Menu, Layout, Divider } from 'antd';
 
 const { Sider } = Layout;
@@ -47,44 +48,42 @@ const elements = [
     'input[type="submit"]', // 36
 ]
 
-// Define the keys for the menu items
 const menuKeys = ['sub1', 'sub2', 'sub3', 'sub4'];
 
-// This component represents the left sidebar of the editor
 export default function LeftSideBar({ onEdit, elementType }) {
 
-    // State for the selected element key
-    const [selectedElementKey, setSelectedElementKey] = useState(["0"]);
-    // State for the open keys in the menu
+    const [selectedElementKey, setElementSelectedKey] = useState(["0"]);
     const [openKeys, setOpenKeys] = useState([]);
-    // State for the keys in the menu
     const [keys, setKeys] = useState(menuKeys);
 
-    // Handler for selecting an element in the menu
+
     const handleElementSelect = (event) => {
-        // If the selected element is not the current element type
+
+
         if (elementType !== elements[event.key]) {
-            // Get the selected element
-            let selectedElement = elements[event.key];
-            // Call the onEdit function with the selected element
-            onEdit(selectedElement);
-            // Set the selected element key state
-            setSelectedElementKey([event.key]);
-        }
-    };
+            let element = elements[event.key];
+                onEdit(element);
+                setElementSelectedKey([event.key]);
 
-    // Handler for opening and closing submenus in the menu
-    const handleSubMenuOpenChange = (keys) => {
-        // Set the open keys state to the last key in the keys array
-        setOpenKeys(keys.slice(-1));
-        // Set the keys state to the last key in the keys array if there are keys, otherwise set it to the menu keys
-        setKeys(keys.length > 0 ? [keys[keys.length - 1]] : menuKeys);
-    };
+            }
 
-    // Render the left sidebar
-    return (
-        <Sider width={180} theme="light">
+        };
+        const handleSubMenuOpenChange = (keys) => {
+            setOpenKeys(keys.slice(-1));
+
+            setKeys(keys.length > 0 ? [keys[keys.length - 1]] : menuKeys);
+
+        };
+
+        return <Sider width={180}
+            theme="light"
+
+        >
+
             <Divider orientation="center"> {"Preview: "} {elements[selectedElementKey]} </Divider>
+
+
+
             <Menu
                 theme='light'
                 mode="inline"
@@ -93,24 +92,74 @@ export default function LeftSideBar({ onEdit, elementType }) {
                 selectedKeys={selectedElementKey}
                 onClick={handleElementSelect}
                 onOpenChange={handleSubMenuOpenChange}
+
             >
                 <Menu.Item key="0">Default</Menu.Item>
-                {keys.includes('sub1') && <SubMenu key="sub1" title="Layout" items={elements.slice(1, 11)} />}
-                {keys.includes('sub2') && <SubMenu key="sub2" title="Typography" items={elements.slice(11, 25)} />}
-                {keys.includes('sub3') && <SubMenu key="sub3" title="Media" items={elements.slice(25, 28)} />}
-                {keys.includes('sub4') && <SubMenu key="sub4" title="Form" items={elements.slice(28, 37)} />}
+
+                {keys.includes('sub1') && <Menu.SubMenu key="sub1" title="Layout">
+                    <Menu.Item key="1">Body</Menu.Item>
+                    <Menu.Item key="2">Nav</Menu.Item>
+                    <Menu.Item key="3">Header</Menu.Item>
+                    <Menu.Item key="4">Aside</Menu.Item>
+                    <Menu.Item key="5">Main</Menu.Item>
+                    <Menu.Item key="6">Hr</Menu.Item>
+                    <Menu.Item key="7">Article</Menu.Item>
+                    <Menu.Item key="8">Section</Menu.Item>
+                    <Menu.Item key="9">Div</Menu.Item>
+                    <Menu.Item key="10">Footer</Menu.Item>
+
+
+
+
+                </Menu.SubMenu>}
+                {keys.includes('sub2') && <Menu.SubMenu key="sub2" title="Typeography">
+                    <Menu.Item key="11">Heading 1</Menu.Item>
+                    <Menu.Item key="12">Heading 2</Menu.Item>
+                    <Menu.Item key="13">Heading 3</Menu.Item>
+                    <Menu.Item key="14">Heading 4</Menu.Item>
+                    <Menu.Item key="15">Heading 5</Menu.Item>
+                    <Menu.Item key="16">Heading 6</Menu.Item>
+                    <Menu.Item key="17">Paragraph</Menu.Item>
+                    <Menu.Item key="18">List</Menu.Item>
+                    <Menu.Item key="19">Order List</Menu.Item>
+                    <Menu.Item key="20">List Item</Menu.Item>
+                    <Menu.Item key="21">Another Link</Menu.Item>
+                    <Menu.Item key="22">Blockquote</Menu.Item>
+                    <Menu.Item key="23">Span</Menu.Item>
+                    <Menu.Item key="24">Button</Menu.Item>
+
+
+
+
+                </Menu.SubMenu>}
+                {keys.includes('sub3') && <Menu.SubMenu key="sub3" title="Meida">
+
+
+                    <Menu.Item key="25">Image</Menu.Item>
+                    <Menu.Item key="26">Video</Menu.Item>
+                    <Menu.Item key="27">Audio</Menu.Item>
+
+
+                </Menu.SubMenu>}
+
+                {keys.includes('sub4') && <Menu.SubMenu key="sub4" title="Form">
+
+                    <Menu.Item key="28">Form</Menu.Item>
+                    <Menu.Item key="29">Label</Menu.Item>
+                    <Menu.Item key="30">Input</Menu.Item>
+                    <Menu.Item key="31">File</Menu.Item>
+                    <Menu.Item key="32">Color</Menu.Item>
+                    <Menu.Item key="33">Select</Menu.Item>
+                    <Menu.Item key="34">Multi Select</Menu.Item>
+                    <Menu.Item key="35">TextArea</Menu.Item>
+                    <Menu.Item key="36">Submit</Menu.Item>
+
+                </Menu.SubMenu>}
+
             </Menu>
         </Sider>
-    );
-}
 
-// SubMenu component for rendering the submenus in the menu
-function SubMenu({ key, title, items }) {
-    return (
-        <Menu.SubMenu key={key} title={title}>
-            {items.map((item, index) => (
-                <Menu.Item key={index}>{item}</Menu.Item>
-            ))}
-        </Menu.SubMenu>
-    );
-}
+
+
+    }
+

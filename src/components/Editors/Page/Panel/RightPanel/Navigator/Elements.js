@@ -127,23 +127,21 @@ function TreeNode(props) {
 
   // Handle drag over event on menu item
   const handleMenuItemDragOver = (e) => {
+    e.currentTarget.style.backgroundColor = colorPrimaryBg;
+    e.currentTarget.parentElement.setAttribute('open', 'true');
     e.preventDefault();
   };
 
   return <>
     <div
       onDragOver={handleMenuItemDragOver}
-      onDragEnter={(e) => {
-        e.target.style.backgroundColor = '#2fc1ff';
-        e.preventDefault();
-      }}
       onDragLeave={(e) => {
         e.target.style.backgroundColor = 'transparent';
         e.preventDefault();
       }}
       style={{
         borderRadius: '5px',
-        height: 3,
+        height: 4,
       }}
       onDrop={(e) => handleMenuItemDrop(e, true)}
       data-uid={_uid}
@@ -156,11 +154,7 @@ function TreeNode(props) {
         data-uid={_uid}
         data-pos={pos}
         onDragOver={handleMenuItemDragOver}
-        onDragEnter={(e) => {
-          e.currentTarget.style.backgroundColor = colorPrimaryBg;
-          e.currentTarget.parentElement.setAttribute('open', 'true');
-          e.preventDefault();
-        }}
+     
         onDragLeave={(e) => {
           e.currentTarget.style.backgroundColor = 'transparent';
           e.preventDefault();

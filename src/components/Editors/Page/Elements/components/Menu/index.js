@@ -7,7 +7,7 @@ const getDefaultValue = (states, key, defaultValue) => states[key] ? states[key]
 const createMenuItems = (nodes, element, children, node) => {
     return nodes.length > 0
         ? nodes.map((mapValue, mapIndex) =>
-            element({ tagName: 'li', state: node.state }, children, mapValue, mapIndex)
+            element({ tagName: 'li', className: "menu-item" }, <><a className="menu-link" href={`${mapValue.value || mapValue}`}>{mapValue.label || mapValue}</a></>, mapValue, mapIndex)
         )
         : React.Children.toArray(children);
 };

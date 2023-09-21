@@ -10,8 +10,7 @@ const ThemeServices = {
     getCss: async () => createApiRequest('theme/css'),
     getAnimationsCss: async () => {
         const res = await createApiRequest('theme/css/animation');
-        const { _id } = await window.autocode.makeApiRequest().project;
-        return { css: res.css, _id };
+        return { css: res.css, _id: res._id };
     },
     getAnimationsNames: async () => createApiRequest('theme/css/animation/names'),
     getStyle: async () => createApiRequest('theme/style'),

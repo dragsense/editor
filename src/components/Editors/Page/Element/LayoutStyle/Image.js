@@ -75,6 +75,7 @@ function Image({ children, selector, setChange }) {
                             style={{ width: 70 }}
                         >
                             <Option value="px">px</Option>
+                            <Option value="%">%</Option>
                             <Option value="em">em</Option>
                             <Option value="rem">rem</Option>
                         </Select>} />
@@ -124,6 +125,8 @@ function Image({ children, selector, setChange }) {
                             style={{ width: 70 }}
                         >
                             <Option value="px">px</Option>
+                            
+                            <Option value="%">%</Option>
                             <Option value="em">em</Option>
                             <Option value="rem">rem</Option>
                         </Select>} />

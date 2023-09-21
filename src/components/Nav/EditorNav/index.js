@@ -105,7 +105,7 @@ const EditorNav = ({
                 <Button type="primary"
                     disabled={!state?.isChange && !previewMode}
                     loading={state?.loading}
-                    onClick={(e) => { e.preventDefault(); onSubmit(previewMode) }}>{!previewMode ? 'Save' : 'Publish'}</Button>
+                    onClick={(e) => { e.preventDefault(); onSubmit(previewMode) }}>{!previewMode ? 'Save' : 'Publish Changes'}</Button>
             </div>
         </div>
 

@@ -12,7 +12,7 @@ const { Option } = Select
 
 const { Text } = Typography;
 
-export default function Content({ state, onUpdate, onChange, cascaderStates }) {
+export default function Content({ state, host, onUpdate, onChange, cascaderStates }) {
 
     const [contentState, setContentState] = useState({ attributes: {}, conditions: {} });
     const [optionState, setOptionState] = useState({ conditions: {} });
@@ -99,7 +99,7 @@ export default function Content({ state, onUpdate, onChange, cascaderStates }) {
 
                 <Divider orientation="center" orientationMargin="0">Custom Content: </Divider>
 
-                <ElementContent setIsChange={setIsChange}
+                <ElementContent host={host} setIsChange={setIsChange}
                     cascaderStates={cascaderStates}
                     state={contentState}
                     setState={setContentState} />

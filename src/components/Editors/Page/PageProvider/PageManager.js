@@ -56,7 +56,7 @@ const reducer = (state, action) => {
         "error": () => ({ ...state, error: action.error }),
         "finish": () => ({ ...state, loading: false })
     };
-    
+
 
     // Check if the action type exists in the lookup object
     if (actions[action.type]) {
@@ -355,6 +355,10 @@ export default function PageManger({ children }) {
     }, [state.isChange]); // The effect depends on the 'isChange' state
 
 
+    useEffect(() => {
+        if(!previewMode)
+        dispatch({ type: 'preview', preview: 0 });
+    }, [previewMode])
 
     // Function to load elements for preview
     const loadElements = async (page, type, iframeDocument) => {
@@ -746,12 +750,10 @@ export default function PageManger({ children }) {
         const pageType = tag.page.pageType;
 
         // Check if the page type exists in the page data
-        if (!page[pageType]) {
-            page[pageType] = [];
-        }
-
+        if (!Array.isArray(page[`${pageType}s`]))
+            page[`${pageType}s`] = [];
         // Add the component to the page data
-        addComponentToPageData(page, pageType, tag.page._id);
+        addComponentToPageData(page, pageType+"s", tag.page._id);
 
         // Store the updated page data
         await storePage(page);
@@ -1102,6 +1104,9 @@ export default function PageManger({ children }) {
         // Check if node is provided
         if (!node) return;
 
+        dispatch({ type: 'start' });
+        try {
+
         // Extract the currentUid, targetUid, addToAbove, copy, and pageId from the node
         const currentUid = node.dataset.id;
         const targetUid = node.dataset.targetId;
@@ -1143,8 +1148,6 @@ export default function PageManger({ children }) {
         if (!await onAddElement(parentElement._uid, { tag: currentElement.tagName }, state.page._id))
             return false;
 
-        // Start the copy process
-        dispatch({ type: 'start' });
 
         // Generate a unique id for the new element
         let id = nanoid(8);
@@ -1214,8 +1217,29 @@ export default function PageManger({ children }) {
 
         }
 
+        await updateData(state.page._id, currentElement);
         // Update the parent element data
         await updateData(state.page._id, parentElement);
+
+        const pageUpdated = {
+            pos,
+            parentId: parentElement._uid,
+            newId: unique_id
+        }
+
+        dispatch({
+            type: 'updatePage',
+            pageUpdated
+        });
+
+    } catch (e) {
+        // If an error occurs during the delete process, dispatch an 'error' action with the error message
+        dispatch({ type: 'error', error: e?.message || 'Something went wrong.' });
+
+    } finally {
+        // Finally, after completing or encountering an error during the delete process, dispatch a 'finish' action
+        dispatch({ type: 'finish' });
+    }
 
         // Update the current element data
     }, [state.page]);
@@ -1446,14 +1470,15 @@ export default function PageManger({ children }) {
             // If preview mode is enabled, confirm before publishing the page
             if (previewMode) {
                 Modal.confirm({
-                    title: 'Publish Page',
-                    content: 'Are you sure you want to publish this page?',
+                    title: 'Publish Page Changes',
+                    content: 'Are you sure you want to publish?',
+                    okText:"Publish",
+                    
                     onOk: async () => {
                         try {
                             const res = await publishPage(page, type, dispatch);
                             message.success("Page Published.")
                         } catch (e) {
-                            console.log(e)
                             dispatch({ type: 'error', error: e?.message || 'Something went wrong.' });
                         }
                     },
@@ -1815,9 +1840,9 @@ export default function PageManger({ children }) {
         }
     }
 
-   
 
-    
+
+
     // Function to insert a new CSS rule
     const insertUpdatedNewRule = (sheet, cssRules, selectorText, properties) => {
         const newIndex = cssRules.length;
@@ -1832,7 +1857,7 @@ export default function PageManger({ children }) {
         return cssRules[newIndex];
     }
 
-   
+
 
     // Function to update the CSS rule
     const updateCssRule = (rule, properties) => {
@@ -1910,10 +1935,22 @@ export default function PageManger({ children }) {
             await updateStylesData(selector, currentElement);
 
             // Add a 'updateStyle' action to the undo/redo store
+
+            const style = currentElement.style || {};
+
+            const selectorType = selector.selectorType || 'root';
+
+            if (!style[selector.key])
+                style[selector.key] = { [selectorType]: {} }
+
+
+            if (!style[selector.key][selectorType])
+                style[selector.key][selectorType] = {}
+
             onAddAction({
                 action: 'updateStyle',
                 selector: {
-                    properties: currentElement.style[selector.key][selector.selectorType].properties || {},
+                    properties: style[selector.key][selectorType].properties || {},
                     key: selector.key,
                     selectorText: selector.selectorText,
                     selectorType: selector.selectorType,
@@ -2076,11 +2113,11 @@ export function usePageStates() {
 
     // Return the state and functions
     return {
-        state, 
-        onEdit, 
+        state,
+        onEdit,
         onAdd,
-        onClickElement, 
-        onMove, 
+        onClickElement,
+        onMove,
         onDelete,
         onSelectSelector,
         onDeleteSelector,
@@ -2091,11 +2128,11 @@ export function usePageStates() {
         onUpdateSelector,
         onChange,
         onChangeMedia,
-        onAddTemplate, 
-        onCopy, 
-        onSubmit, 
-        onUpdate, 
-        undo, 
+        onAddTemplate,
+        onCopy,
+        onSubmit,
+        onUpdate,
+        undo,
         redo
     }
 }

@@ -1,65 +1,45 @@
+import React, { useEffect, useState, useCallback } from 'react';
+import { debounce } from '../../../../../lib/utils'
 
-import React, { useEffect, useMemo, useState } from 'react';
-
+// Input component
 const Input = (props) => {
 
+    const {  onChange, value, type, onClick, children, disabled } = props;
 
-
-    const {  onChange, value,
-
-        onClick, children, conds } = props;
-
+    // State for input value
     const [v, setV] = useState(value);
 
-    const onChangeValue = (e) => {
+    // Function to handle input value change
+    const onChangeValue = useCallback((e) => {
         e.preventDefault();
 
-
-
-        const v = e.target.value;
+        const newValue = e.target.value;
         if (onChange) {
-            onChange(v);
+            // Debounce to limit the rate at which function is executing
+            onChange(newValue)
         }
-        setV(v);
+        setV(newValue);
+    }, [onChange]);
 
-    }
-
-
+    // Update state when value prop changes
     useEffect(() => {
         setV(value);
-
     }, [value])
 
-
-    // const InputElement = <div style={{ display: 'inline-block' }}><div data-id={_uid}
-    //     data-pos={pos} draggable={false} style={{
-    //         outline: '1px dashed #bdbdbd', cursor: 'pointer',
-    //         padding: '10px',
-    //         borderRadius: 5,
-    //         display: 'inherit',
-    //     }} className="ac-000-yrbQEpZzT">
-
-    //     {}
-
-
-    // </div>
-    // </div>
-
+    // Clone children with custom attributes
     const InputElement = React.cloneElement(children, {
         customAttributes: {
-
-      
-            onClick: onClick,
-            onChange: onChangeValue, value: v
+   
+            onClick: type === 'file' ? undefined : onClick,
+            onChange:  onChangeValue, 
+            value: v
         }
     });
 
- 
 
 
-    return conds ? InputElement : null;
-
-
+    // Return disabled or cloned element based on disabled state
+    return disabled ? InputElement : null;
 
 };
 

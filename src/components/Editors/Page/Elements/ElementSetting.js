@@ -58,9 +58,9 @@ const ElementSetting = (props) => {
             case 'GLOBAL':
                 return handleGlobalType(key, value);
             case 'PROPS':
-                return getStateValue(key, _props) || `[props.${key}]`;
+                return getStateValue(key, _props, setting?.host) || `[props.${key}]`;
             case 'STATES':
-                return getStateValue(key, _states);
+                return getStateValue(key, _states, setting?.host);
             case 'PAGE':
                 return getPageValue(key, setting);
             case 'COLSTATES':
@@ -127,7 +127,9 @@ const ElementSetting = (props) => {
 
     // Handle 'FORMSTATES' type
     const handleFormStatesType = (key) => {
-        if (_states && _states[key[0]]) return _states[key[0]][key[1]] || '[form state]';
+        if (_states && _states[key[0]]) return _states[key[0]][key[1]] || "''"
+
+        
     };
 
     // Handle default type
@@ -153,7 +155,7 @@ const ElementSetting = (props) => {
         try {
             return eval(original);
         } catch (e) {
-            message.error("Invalid expression: " + e?.message);
+            message.error("Invalid expression:" + e?.message);
             return true;
         }
     };
@@ -168,7 +170,7 @@ const ElementSetting = (props) => {
         if (!conditions || !node._uid) return true;
         return Object.values(conditions).reduce((prev, condition) => {
             const value = getValue(condition);
-            const keyValue = value?.value !== undefined ? value?.value : value;
+            const keyValue = value?.value !== undefined ? value.value : value;
             const stateValue = getValue(condition.valueState, '');
             const v = stateValue?.value !== undefined ? stateValue.value : stateValue;
             let cond = true;
@@ -259,12 +261,14 @@ const ElementSetting = (props) => {
 
     // useMemo to calculate class names only when dependencies change
     const clss = useMemo(() => {
-        if (!classes) return node.className;
+        let mainClass = node.className || '';
+
+        if (!classes) return mainClass;
         try {
             const list = reduceClassNames(classes);
-            return node.className + " " + list;
+            return mainClass + " " + list;
         } catch (e) {
-            return node.className;
+            return mainClass;
         }
     }, [classes, colStates, _cstates, _states, _props, mapValue, node._uid, node.className]);
 
@@ -274,36 +278,36 @@ const ElementSetting = (props) => {
     // Function to replace placeholders in the node value with their corresponding values
     const replacePlaceholders = (inputString) => {
         let resultString = inputString;
-        let match;
-        try {
-            while ((match = resultString.match(pattern))) {
-                const matchedText = match[0];
-                const keysString = matchedText.substring(2, matchedText.length - 2);
-                const keys = keysString.split('/');
-                const modifiedKey = [...keys];
-                modifiedKey.shift();
-                const elem = { type: keys[0], key: modifiedKey };
-                let value = getValue(elem, '');
-                value = value?.value || value || '';
-                const replacementValue = '[' + value + ']';
-                resultString = resultString.replace(matchedText, replacementValue);
-            }
-        } catch (e) {
-            console.error(e);
-        }
+        // let match;
+        // try {
+        //     while ((match = resultString.match(pattern))) {
+        //         const matchedText = match[0];
+        //         const keysString = matchedText.substring(2, matchedText.length - 2);
+        //         const keys = keysString.split('/');
+        //         const modifiedKey = [...keys];
+        //         modifiedKey.shift();
+        //         const elem = { type: keys[0], key: modifiedKey };
+        //         let value = getValue(elem, '');
+        //         value = value?.value || value || '';
+        //         const replacementValue = '[' + value + ']';
+        //         resultString = resultString.replace(matchedText, replacementValue);
+        //     }
+        // } catch (e) {
+        //     console.error(e);
+        // }
         return resultString;
     };
 
     // useMemo to calculate node value only when dependencies change
     const nodeValue = useMemo(() => {
-        if (!node.nodeValue) return node.layout || node.tagName;
+        if (!node.nodeValue) return '';
         const inputString = node.nodeValue;
         return replacePlaceholders(inputString);
     }, [classes, colStates, _cstates, _states, _props, mapIndex, mapValue, node.nodeValue]);
 
     // useMemo to calculate fallback image only when setting changes
     const fallbackImage = useMemo(() => {
-        let defaultImage = './images/default/default-img.png';
+        let defaultImage = '/images/default/default-img.png';
         if (setting && setting['images']?.placeholder.src) return setting['images']?.placeholder.src;
         return defaultImage;
     }, [setting]);
@@ -327,7 +331,7 @@ const ElementSetting = (props) => {
                     srcs: node.srcs
                 };
             case 'audio':
-                return { value: './audios/default/sample.mp3', srcs: node.srcs };
+                return { value: '/audios/default/sample.mp3', srcs: node.srcs };
             case 'input':
             case 'textarea':
             case 'option':
@@ -343,7 +347,7 @@ const ElementSetting = (props) => {
         state={node.state}
         nodeValue={withFallBackNodeValue}
         attributes={attr}
-        classes={clss}
+        classes={clss.trim()}
         conds={conds}
     >{children}</ElementValue>;
 

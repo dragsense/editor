@@ -4,99 +4,46 @@ import { message } from 'antd';
 import ThemeServices from '../../../..//lib/services/theme';
 import SettingServices from '../../../../lib/services/setting';
 
-// Function to load CSS styles
-const loadCSSStyles = async () => {
-    try {
-        let res = await SettingServices.get();
-        if (res?.setting) {
-            document.head.insertAdjacentHTML("beforeend", res.setting.scripts?.head);
-            document.body.insertAdjacentHTML("beforeend", res.setting.scripts?.footer);
-        }
-        res = await ThemeServices.getFonts();
-        loadFonts(res);
-        const root = document.documentElement;
-        loadFontStyles(res, root);
-        res = await ThemeServices.getColors();
-        loadColorStyles(res, root);
-        res = await ThemeServices.getVariables();
-        loadVariableStyles(res, root);
-        let style = document.createElement('style');
-        style.textContent = getAnimationStyles();
-        document.head.appendChild(style);
-        res = await ThemeServices.getCss();
-        if (res.css) {
-            style = document.createElement('style');
-            style.textContent = res.css;
-            document.head.appendChild(style);
-        }
-        return true;
-    } catch (e) {
-        throw new Error(e?.message);
-    }
-}
+// InnerComponent is responsible for loading CSS styles and calling the onLoad function
+const InnerComponent = ({ children, document, onLoad, _id, type }) => {
 
-// Function to load fonts
-const loadFonts = (res) => {
-    if (res.fonts)
-        res.fonts.data.forEach(loadFont);
-}
 
-// Function to load a single font
-const loadFont = async (font) => {
-    const { _uid, fontFamily, fontSrc, src, isGoogleFont } = font;
-    if (isGoogleFont && src) {
+    // Function to load a single font
+    const loadFont = async (font) => {
+      const { _uid, fontFamily, fontSrc, src, isGoogleFont } = font;
+      if (isGoogleFont && src) {
         const linkElement = document.createElement('div');
         linkElement.id = 'google-font-' + _uid;
         linkElement.innerHTML = src;
         document.head.appendChild(linkElement);
-    }
-    else if (Array.isArray(fontSrc)) {
+      }
+      else if (Array.isArray(fontSrc)) {
         try {
-            const styleElement = document.createElement('style');
-            styleElement.textContent = '';
-            for (const src of fontSrc) {
-                if (src.src)
-                    styleElement.textContent += `
-                  @font-face {
-                    font-family: "${fontFamily}";
-                    src: url("${src.src}");
-                  }
-                `;
-            }
-            document.head.appendChild(styleElement);
+          const styleElement = document.createElement('style');
+          styleElement.textContent = '';
+          for (const src of fontSrc) {
+            if (src.src)
+              styleElement.textContent += `
+                @font-face {
+                  font-family: "${fontFamily}";
+                  src: url("${src.src}");
+                }
+              `;
+          }
+          document.head.appendChild(styleElement);
         } catch (error) {
-            message.error(`Failed to load ${fontFamily} font: ${error}`);
+          message.error(`Failed to load ${fontFamily} font: ${error}`);
         }
+      }
     }
-}
-
-// Function to load font styles
-const loadFontStyles = async (res, root) => {
-    if (res.fonts)
-        for await (let font of res.fonts.data) {
-            root.style.setProperty(font.variable, font.fontFamily);
+  
+    // Function to append custom styles to document head
+    const appendCustomStyles = () => {
+      const style = document.createElement('style');
+      style.textContent = `
+        .cke_editable.ae-editable, .cke_editable.ae-editable *{
+          background: #fff !important;
         }
-}
-
-// Function to load color styles
-const loadColorStyles = async (res, root) => {
-    if (res.colors)
-        for await (let color of res.colors.data) {
-            root.style.setProperty(color.variable, color.color);
-        }
-}
-
-// Function to load variable styles
-const loadVariableStyles = async (res, root) => {
-    if (res.variables)
-        for await (let variable of res.variables.data) {
-            root.style.setProperty(variable.variable, variable.value);
-        }
-}
-
-// Function to get animation styles
-const getAnimationStyles = () => {
-    return `
         @keyframes ac-001-pulse {
           0% {
             opacity: 1;
@@ -108,36 +55,101 @@ const getAnimationStyles = () => {
             opacity: 1;
           }
         }
-    `;
-}
-
-// Inner component
-const InnerComponent = ({ children, document, onLoad, _id, type }) => {
+      `;
+      document.head.appendChild(style);
+    }
+  
+    // Function to load CSS styles
+    const loadCSSStyles = async () => {
+      return new Promise(async (resolve, reject) => {
+        try {
+          // Fetch settings and append scripts to document head
+          let res = await SettingServices.get();
+  
+          if (res?.setting) {
+            document.head.insertAdjacentHTML("beforeend", res.setting.scripts?.head);
+            document.body.insertAdjacentHTML("beforeend", res.setting.scripts?.footer);
+          }
+  
+          //Fetch fonts and append to document head
+          res = await ThemeServices.getFonts();
+          if (res.fonts)
+            res.fonts.data.forEach(loadFont);
+  
+          // Set font styles to root
+          const root = document.documentElement;
+          if (res.fonts)
+            for await (let font of res.fonts.data) {
+              root.style.setProperty(font.variable, font.fontFamily);
+            }
+  
+          // Fetch colors and set to root
+          res = await ThemeServices.getColors()
+          if (res.colors)
+            for await (let color of res.colors.data) {
+              root.style.setProperty(color.variable, color.color);
+            }
+  
+          // Fetch variables and set to root
+          res = await ThemeServices.getVariables()
+          if (res.variables)
+            for await (let variable of res.variables.data) {
+              root.style.setProperty(variable.variable, variable.value);
+            }
+  
+          // Append custom styles to document head
+          appendCustomStyles();
+  
+          // Fetch custom CSS and append to document head
+          res = await ThemeServices.getCss();
+          if (res.css) {
+            const style = document.createElement('style');
+            style.textContent = res.css;
+            document.head.appendChild(style);
+          }
+  
+          resolve(true);
+        } catch (e) {
+          reject(e?.message);
+        }
+      })
+    }
+  
+    // useEffect hook to load CSS styles and call onLoad function when _id changes
     useEffect(() => {
-        if (!_id)
-            return;
+  
+      if (_id)
         loadCSSStyles().then((status) => {
-            onLoad({ _id }, type, document);
+          onLoad({ _id }, type, document);
         }).catch((e) => {
-            message.error(e?.message || 'Something went wrong!');
+  
+          message.error(e?.message || 'Something went wrong!');
         });
+      else
+        onLoad(null, '', document);
     }, [_id]);
+  
+  
     return children;
-};
+  };
 
 // ShadowRootComponent is a wrapper component that provides a shadow root for its children
 const ShadowRootComponent = ({ children }) => {
-    const rootRef = useRef();
-
-    useEffect(() => {
-        if (rootRef.current) {
-            const shadowRoot = rootRef.current.attachShadow({ mode: 'open' });
-            shadowRoot.appendChild(children);
-        }
-    }, [children]);
-
-    return <div ref={rootRef} />;
-};
+    // const rootRef = useRef();
+  
+    // useEffect(() => {
+    //   if (rootRef.current) {
+    //     if (!rootRef.current.shadowRoot) {
+    //       const shadowRoot = rootRef.current.attachShadow({ mode: 'open' });
+    //       ReactDOM.render(children, shadowRoot);
+    //     } else {
+    //       ReactDOM.render(children, rootRef.current.shadowRoot);
+    //     }
+    //   }
+    // }, [children]);
+  
+    return children //<div style={{height: '100%', width: '100%'}} ref={rootRef} />;
+  };
 
 // Preview iframe component
 export default function PreviewIFrame({

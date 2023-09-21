@@ -6,7 +6,7 @@ import { message } from 'antd';
 import ElementMapping from './ElementMapping';
 
 import { InlineSkeleton } from './Elements'
-import {  getAllData } from "../../../../lib/db";
+import { getAllData } from "../../../../lib/db";
 
 import { getStateValue, updateStateValue, pageSetting, generateCascadeRelationsStates, generateCascaderCollStates, getStateRef, generateCascader } from '../../../../lib/element/elementNode';
 import DocumentServices from '../../../../lib/services/documents';
@@ -236,7 +236,7 @@ const Component = (props) => {
 
     // Use useMemo to optimize performance by avoiding unnecessary re-renders
     const filters = useMemo(generateFilters, [colStates.filters, states, _states]);
-   
+
     // Function to load documents from the server
     const loadDocumentsFromServer = async (collectionId, filters, selectedRelationships, withRelationship, page, limit, sortBy, sort) => {
         const res = await DocumentServices.getAllFilteredDocuments(collectionId,
@@ -528,9 +528,11 @@ const Component = (props) => {
         switch (type) {
             case 'PROPS':
                 updateStateValues(elem, withValue, _states, value);
+
                 _setStates({ ..._states });
                 break;
             case 'STATES':
+
                 updateStateValues(elem, withValue, states, value);
                 setStates({ ...states });
                 break;
@@ -552,11 +554,13 @@ const Component = (props) => {
 
     // Function to get states reference based on type
     const getStatesRefBasedOnType = (mapType, maKey, states, _states, colStates) => {
+
+
         let statesRef = {};
         if (mapType == 'STATES')
-            statesRef = getStateRef(maKey, states);
+            statesRef = states[maKey[0]];
         else if (mapType == 'PROPS')
-            statesRef = getStateRef(maKey, _states);
+            statesRef = _states[maKey[0]];
         else if (mapType == 'COLSTATES') {
             statesRef.states = {};
             if (maKey[0] === 'DOCUMENTS' && colStates.documents) {
@@ -625,11 +629,13 @@ const Component = (props) => {
                 options = node.options.split(",");
                 options = Object.values(options).map((val) => val.split(":")[0]);
             }
+
             if (node.map) {
                 let statesRef = {};
-                const maKey = node.map.key;
-                const mapType = node.map.type;
+                const maKey = node.map.key || [];
+                const mapType = node.map.type || '';
                 statesRef = getStatesRefBasedOnType(mapType, maKey, states, _states, colStates);
+
                 if (statesRef && statesRef.states) {
                     const states = Object.values(statesRef.states).map((val) => val.value.split(":")[0]);
                     options = [...(new Set([...options, ...states]))];
@@ -640,12 +646,14 @@ const Component = (props) => {
         // Use a debounce function to limit the frequency of the loop
         const debouncedSetValue = debounce((onChange, value) => {
             setValue(onChange, value, '');
-        }, 300); // 300ms delay
+        }, 100); // 300ms delay
         for (const elem of values) {
             let value = elem.value;
             const onChange = elem.elem;
             if (value === 'all')
                 value = allvalues.join(",");
+
+
             debouncedSetValue(onChange, value);
         }
         return allvalues;
@@ -657,7 +665,7 @@ const Component = (props) => {
     }, [states])
 
     // Function to render children components
-    const renderChildren = useCallback(() => {
+    const renderChildren = () => {
         return React.Children.map(children, (child, index) => {
             return child && React.cloneElement(child, {
                 key: child.props?._uid,
@@ -675,7 +683,7 @@ const Component = (props) => {
                 colStates: colStates
             })
         })
-    }, [children, onChange, onClick, onSubmit, component.disabled, component._id, states, _states, onSetStates, setStates, colStates]);
+    };
 
     // Function to render the component
     const renderComponent = useCallback(() => {

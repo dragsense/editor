@@ -10,7 +10,7 @@ import { formatDate } from '../utils';
  * @param {object} states - The states object.
  * @returns {any} - The value of the state.
  */
-export const getStateValue = (key, states) => {
+export const getStateValue = (key, states, host) => {
   try {
     // If states object is not provided, return an empty string
     if (!states) {
@@ -29,13 +29,13 @@ export const getStateValue = (key, states) => {
     switch (stateRef.type) {
       case 'image':
         return {
-          value: stateRef.src ? stateRef.src.src : './images/default/default-img.png',
+          value: stateRef.src ? host+stateRef.src.src : './images/default/default-img.png',
           label: stateRef.src?.alt || 'image'
         };
 
       case 'video':
         return {
-          value: stateRef.src ? stateRef.src.src : './images/default/default-poster.png',
+          value: stateRef.src ? host+stateRef.src.src : './images/default/default-poster.png',
           label: stateRef.src?.alt || 'video',
           srcs: stateRef.srcs
         };
@@ -95,7 +95,7 @@ export const getStateValue = (key, states) => {
  * @param {object} states - The states object.
  * @returns {Array} - An array of values.
  */
-export const getStateStates = (key, states) => {
+export const getStateStates = (key, states, host) => {
   let values = [];
 
   try {
@@ -114,15 +114,16 @@ export const getStateStates = (key, states) => {
 
     // Depending on the type of the value, populate the values array
     if (value.type === 'array') {
-      values = Object.values(value.states).flatMap((state) => {
+      values = Object.values(value.states || {}).flatMap((state) => {
         const val = state.value.split(":");
         return { label: val[0], value: val[1] || state.idx, key: val[1] || state.id };
       });
     }
 
     if (value.type === 'images') {
-      values = Object.values(value.states).map((state) => {
-        return { label: state.alt, value: state.src, key: state._id };
+     
+      values = Object.values(value.states || {}).map((state) => {
+        return { label: state.alt, value: host+state.src, key: state._id };
       });
     }
 
@@ -130,7 +131,7 @@ export const getStateStates = (key, states) => {
 
   } catch (e) {
     // If an error occurs, display an error message
-    message.error("Something went wrong.");
+    message.error("Something went wrong, " + e?.message);
   }
 
   // Return the values array
@@ -154,6 +155,7 @@ export const getStateRef = (key, states) => {
 
   // Get the value from the states object using the first element of the key array
   let value = states[key[0]];
+
 
   // If the value is not found, return undefined
   if (!value) {
@@ -280,7 +282,7 @@ export const getStates = (key, states) => {
         return stateRef.defaultValue !== undefined ? stateRef.defaultValue : "";
     }
   } catch (e) {
-    console.error("Something went wrong.", e);
+    message.error("Something went wrong.", e?.message);
     return "";
   }
 };
@@ -602,7 +604,7 @@ export const getSettingValue = (key, setting) => {
   if (key[1] === 'image') {
     const image = _setting["populatedImage"];
     return {
-      value: image?.src || '/images/default/default-img.png',
+      value: setting.host+image?.src || '/images/default/default-img.png',
       label: image?.alt || '[featured image]'
     }
   }
@@ -673,13 +675,14 @@ export const getPageValue = (key, setting) => {
   if (key[0] === 'states') {
     const modifiedKey = [...key];
     modifiedKey.shift();
-    return getStateValue(modifiedKey, setting.states);
+    return getStateValue(modifiedKey, setting.states, setting.host);
   } else if (key[0] === 'RELATIONSHIPS' && setting.relationships) {
     return setting.relationships[key[1]] || null;
   } else if (key[0] === 'SETTING') {
     return getSettingValue(key, setting);
   } else if (key[0] === 'creator') {
     const creator = setting[key[0]] || {};
+
     return {
       value: creator._id || '',
       label: creator.name || 'Unknown',

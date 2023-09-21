@@ -117,6 +117,7 @@ const createMenu = async (tag, state, document) => {
             link: '#',
             target: '_self',
             children: [],
+            level: 0
         }],
         className: "menu",
         selector: `.${className} .menu`
@@ -138,7 +139,8 @@ const createMenu = async (tag, state, document) => {
         childNodes: [listId],
         className: className,
         selector: `.${className}`,
-        states: componentStates
+        states: componentStates,
+     
     };
 
     // Define the CSS properties for the menu item link
@@ -1748,222 +1750,207 @@ const createDropDown = async (state, document, dropdownClassName) => {
     return dropDownContent;
 }
 
-// Function to create a menu item
 export const createMenuItem = async (
     tag,
-    parentElement,
+    parentElemet,
     addToAbove,
     currentUid,
-    position,
+    pos,
     state
 ) => {
 
-    // Extract menus from the parent element or default to an empty array
-    const menus = parentElement.menus || [];
+    const menus = parentElemet.menus || [];
 
-    // Initialize allChilds and deletedChilds arrays
     let allChilds = [];
-    let deletedChilds = parentElement.childNodes || [];
 
-    // Process menus and update allChilds array
-    allChilds = await processMenus(menus, allChilds, deletedChilds, parentElement, state);
+    let deletedChilds = parentElemet.childNodes || [];
 
-    // Delete unused children
-    await deleteUnusedChilds(deletedChilds, parentElement, state);
+    for (let i = 0; i < menus.length; i++) {
+        const element = menus[i];
 
-    // Update the data for the parent element
-    await updateData(state.page._id, parentElement);
 
-    // Generate a unique id
+        const list_item_unique_id = uuid();
+        let listItem = await getData(state.page._id, element.childId);
+        deletedChilds = deletedChilds.filter(_uid => _uid !== element.childId)
+        let listItemLink;
+
+        if (!listItem) {
+
+            const list_link_unique_id = uuid();
+
+            listItemLink = {
+                _uid: list_link_unique_id,
+                tagName: "a",
+                name: "Menu Item Link " + (i + 1),
+                type: "texts",
+                layout: "link",
+                childNodes: [],
+
+                className: "menu-link",
+                selector: parentElemet.selector + " .menu-link",
+            };
+
+            listItemLink.nodeValue = element.title;
+
+            listItemLink.attributes = {
+                href: {
+                    key: "href",
+                    value:`'${element.link}'`,
+                },
+                target: {
+                    key: "target",
+                    value: `'${element.target}'`,
+                },
+            }
+
+
+            listItem = {
+                _uid: list_item_unique_id,
+                tagName: "li",
+                name: "Menu Item " + (i + 1),
+                type: "texts",
+                layout: "text",
+                nodeValue: "",
+                childNodes: [list_link_unique_id],
+                className: "menu-item",
+                selector: parentElemet.selector + " .menu-item",
+            };
+
+
+
+            for (let i = 0; i < listItem.childNodes.length; i++)
+                listItemLink.parent = list_item_unique_id;
+            parentElemet.childNodes.push(list_item_unique_id);
+
+            listItem.parent = parentElemet._uid;
+
+
+
+        } else {
+
+            const list_link_unique_id = uuid();
+
+            if (!listItem.childNodes[0]) {
+                listItemLink = {
+                    _uid: list_link_unique_id,
+                    tagName: "a",
+                    name: "Menu Item Link " + (i + 1),
+                    type: "texts",
+                    layout: "link",
+                    childNodes: [],
+
+                    className: "menu-link",
+                    selector: parentElemet.selector + " .menu-link",
+                };
+
+                listItem.childNodes.push(list_link_unique_id);
+                listItemLink.parent = listItem._uid;
+
+
+            }
+            listItemLink = await getData(state.page._id, listItem.childNodes[0]);
+
+            listItemLink.nodeValue = element.title;
+
+            listItemLink.attributes = {
+                href: {
+                    key: "href",
+                    value:`'${element.link}'`,
+                },
+                target: {
+                    key: "target",
+                    value: `'${element.target}'`,
+                },
+            }
+
+        }
+
+
+
+
+
+        if (listItem.nestedMenuId) {
+            let parent = await getData(state.page._id, listItem.nestedMenuId);
+            const pageUpdated = await createMenuItem({}, parent, false, null, "", state);
+            if (pageUpdated)
+                allChilds = [listItem._uid, ...allChilds, ...pageUpdated.newIds]
+        }
+        else
+            if (element.children && element.children.length > 0) {
+                const componentStates = { ...states["dropdown"] };
+                listItem.states = componentStates;
+                listItem.type = "component";
+
+                listItemLink.onClick = {
+                    key: ["openDropdown"],
+                    'type': "Dropdown",
+                    "value": "0",
+                }
+
+                const dropDownContent = await createDropDown(
+                    state,
+                    document,
+                    listItem.className
+                );
+                listItem.childNodes.push(dropDownContent._uid);
+                dropDownContent.parent = listItem._uid;
+
+                const list_unique_id = uuid();
+
+                const list = {
+                    _uid: list_unique_id,
+                    tagName: "ul",
+                    name: "List",
+                    type: "texts",
+                    layout: "menu",
+                    nodeValue: "",
+                    childNodes: [],
+                    menus: element.children,
+                    className: "sub-menu",
+                    selector: parentElemet.selector + " .sub-menu",
+                };
+                listItem.nestedMenuId = list_unique_id;
+
+
+                dropDownContent.childNodes = [list_unique_id];
+                list.parent = dropDownContent._uid;
+                await updateData(state.page._id, dropDownContent);
+                const pageUpdated = await createMenuItem({}, list, false, null, "", state);
+                if (pageUpdated)
+                    allChilds = [listItem._uid, ...allChilds, ...pageUpdated.newIds]
+            }
+
+
+        await updateData(state.page._id, listItemLink);
+        await updateData(state.page._id, listItem);
+        allChilds = [...allChilds, ...listItem.childNodes]
+
+    }
+
+    for (let i = 0; i < deletedChilds.length; i++) {
+        let child = await getData(state.page._id, deletedChilds[i]);
+
+        if (child) {
+            await deleteData(state.page._id, child._uid);
+            await onDeleteElement(child, state.page._id)
+            parentElemet.childNodes = parentElemet.childNodes.filter(_uid => _uid !== child._uid);
+        }
+
+
+    }
+
+    await updateData(state.page._id, parentElemet);
+
+    allChilds = [parentElemet._uid, ...allChilds]
+
     const id = nanoid(8);
 
-    // Return an object containing position, allUpdate and newIds
     return {
-        position: position,
+        pos: pos,
         allUpdate: id,
         newIds: allChilds,
     };
 };
-
-// Function to process menus
-const processMenus = async (menus, allChilds, deletedChilds, parentElement, state) => {
-    // Loop through each menu
-    for (let i = 0; i < menus.length; i++) {
-        const element = menus[i];
-
-        // Generate a unique id for the list item
-        const listItemUniqueId = uuid();
-
-        // Get data for the list item
-        let listItem = await getData(state.page._id, element.childId);
-
-        // Filter out the current child id from the deletedChilds array
-        deletedChilds = deletedChilds.filter(_uid => _uid !== element.childId)
-
-        // Create a list item link
-        let listItemLink = await createListItemLink(listItem, element, parentElement, listItemUniqueId, i, state);
-
-        // Create a list item
-        listItem = await createListItem(listItem, listItemLink, element, parentElement, listItemUniqueId, i, state);
-
-        // Process nested menu and update allChilds array
-        allChilds = await processNestedMenu(listItem, element, parentElement, state, allChilds);
-
-        // Update the data for the list item link and list item
-        await updateData(state.page._id, listItemLink);
-        await updateData(state.page._id, listItem);
-
-        // Update allChilds array with child nodes of the list item
-        allChilds = [...allChilds, ...listItem.childNodes]
-    }
-    // Return allChilds array
-    return allChilds;
-}
-
-// Function to process nested menu
-const processNestedMenu = async (listItem, element, parentElement, state, allChilds) => {
-    // Check if the list item has a nested menu id
-    if (listItem.nestedMenuId) {
-        // Get data for the parent
-        let parent = await getData(state.page._id, listItem.nestedMenuId);
-
-        // Create a menu item
-        const pageUpdated = await createMenuItem({}, parent, false, null, "", state);
-
-        // If pageUpdated is true, update allChilds array
-        if (pageUpdated)
-            allChilds = [listItem._uid, ...allChilds, ...pageUpdated.newIds]
-    }
-    // If the element has children, create a nested menu
-    else if (element.children && element.children.length > 0) {
-        listItem = await processNestedMenu(listItem, element, parentElement, state, element.children);
-    }
-    // Return allChilds array
-    return allChilds;
-}
-
-// Function to delete unused children
-const deleteUnusedChilds = async (deletedChilds, parentElement, state) => {
-    // Loop through each child in deletedChilds array
-    for (let i = 0; i < deletedChilds.length; i++) {
-        // Get data for the child
-        let child = await getData(state.page._id, deletedChilds[i]);
-
-        // If child exists, delete the child and update parentElement's childNodes array
-        if (child) {
-            await deleteData(state.page._id, child._uid);
-            await onDeleteElement(child, state.page._id)
-            parentElement.childNodes = parentElement.childNodes.filter(_uid => _uid !== child._uid);
-        }
-    }
-}
-
-// Function to create a list item
-const createListItem = async (listItem, listItemLink, element, parentElement, listItemUniqueId, i, state) => {
-    // If listItem does not exist, create a new list item
-    if (!listItem) {
-        listItem = {
-            _uid: listItemUniqueId,
-            tagName: "li",
-            name: `Menu Item ${i + 1}`,
-            type: "texts",
-            layout: "text",
-            nodeValue: "",
-            childNodes: [listItemLink._uid],
-            className: "menu-item",
-            selector: `${parentElement.selector} .menu-item`,
-        };
-
-        // Set parent of listItemLink to listItemUniqueId
-        listItemLink.parent = listItemUniqueId;
-    } else {
-        // If listItem exists, add the listItemLink to the childNodes and set the parent of listItemLink
-        listItem.childNodes.push(listItemLink._uid);
-        listItemLink.parent = listItemUniqueId;
-    }
-    // Return the updated or new listItem
-    return listItem;
-};
-
-// Function to create a list item link
-const createListItemLink = async (listItem, element, parentElement, listItemUniqueId, i, state) => {
-    let listItemLink;
-    const listItemLinkUniqueId = uuid();
-
-    if (!listItem) {
-        listItemLink = await createNewListItemLink(element, parentElement, listItemLinkUniqueId, i);
-    } else {
-        listItemLink = await updateExistingListItemLink(listItem, element, parentElement, listItemLinkUniqueId, i, state);
-    }
-    return listItemLink;
-}
-
-// Function to create a new list item link
-// This function takes in the element data, the parent element, a unique id for the list item link, and the index.
-// It creates a new list item link with the provided data.
-const createNewListItemLink = async (element, parentElement, listItemLinkUniqueId, i) => {
-    let listItemLink = {
-        _uid: listItemLinkUniqueId,
-        tagName: "a",
-        name: `Menu Item Link ${i + 1}`,
-        type: "texts",
-        layout: "link",
-        childNodes: [],
-        className: "menu-link",
-        selector: `${parentElement.selector} .menu-link`,
-        nodeValue: element.title,
-        attributes: {
-            href: {
-                key: "href",
-                value: `'${element.link}'`,
-            },
-            target: {
-                key: "target",
-                value: `'${element.target}'`,
-            },
-        }
-    };
-    return listItemLink;
-}
-
-// Function to update an existing list item link
-const updateExistingListItemLink = async (listItem, element, parentElement, listItemLinkUniqueId, i, state) => {
-    let listItemLink;
-
-    if (!listItem.childNodes[0]) {
-        listItemLink = {
-            _uid: listItemLinkUniqueId,
-            tagName: "a",
-            name: `Menu Item Link ${i + 1}`,
-            type: "texts",
-            layout: "link",
-            childNodes: [],
-            className: "menu-link",
-            selector: `${parentElement.selector} .menu-link`,
-        };
-
-        listItem.childNodes.push(listItemLinkUniqueId);
-        listItemLink.parent = listItem._uid;
-    }
-    listItemLink = await getData(state.page._id, listItem.childNodes[0]);
-
-    listItemLink.nodeValue = element.title;
-
-    listItemLink.attributes = {
-        href: {
-            key: "href",
-            value: `'${element.link}'`,
-        },
-        target: {
-            key: "target",
-            value: `'${element.target}'`,
-        },
-    }
-
-    return listItemLink;
-}
-
-
 
 // Function to create a GoToTop button
 const createGoToTop = async (state, document) => {

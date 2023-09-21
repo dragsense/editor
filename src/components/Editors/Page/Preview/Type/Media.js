@@ -1,62 +1,53 @@
-
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { nanoid } from 'nanoid';
 
-const Media = (props) => {
-    const { tag, value, conds,
-        onMouseMove,
-        onClick, children } = props;
+// Function to create poster object
+const createPoster = (value, tag, host) => {
+    return value.value ? { src: host + value.value, alt: value.label || tag } : { src: value, alt: tag };
+}
 
-    const poster =
-        value.value ?
-            { src: value.value, alt: value.label || tag } :
-            { src: value, alt: tag };
+// Function to create sources array
+const createSources = (srcs, poster, tag, host) => {
+    let sources = srcs.map((media, index) => {
+        return <source key={index} src={host+media.src} type={media.mimetype} />
+    });
+
+    if (srcs.length <= 0 && tag === 'audio') {
+        sources = [<source key={'default'} src={poster.src} type="audio/mp3" />]
+    }
+
+    return sources;
+}
+
+
+const Media = (props) => {
+    const { tag, host, value, conds, onMouseMove, children } = props;
+
+    // useMemo to avoid unnecessary re-renders and improve performance
+    const poster = useMemo(() => createPoster(value, tag, host), [value, tag]);
 
     const srcs = Array.isArray(value.srcs) ? value.srcs : [];
 
+    // useMemo to avoid unnecessary re-renders and improve performance
+    const sources = useMemo(() => createSources(srcs, poster, tag, host), [srcs, poster, tag]);
 
-    let sources = srcs.map((media, index) => {
-        return <source key={index} src={media.src} type={media.mimetype} />
-    });
+    // useMemo to avoid unnecessary re-renders and improve performance
+    const key = useMemo(() => nanoid(4), [value.srcs]);
 
-    const key = useMemo(() => {
-
-        return nanoid(4);
-
-    }, [value.srcs])
-
-
-    if (srcs.length <= 0 && tag == 'audio')
-        sources = [<source key={'default'} src={poster.src} type="audio/mp3" />]
-
-
-    const InputsElement = <div  style={{
-            border: '10px solid transparent',
-            outline: '1px dashed #bdbdbd',
-            cursor: 'pointer',
-            display: 'inline-block',
-
-        }} >
-        {React.cloneElement(children, {
-            key,
-            customAttributes:
-            {
-                width: 320, height: 'auto', controls: true,
-                poster: tag == 'video' ? poster.src : undefined,
-                alt: poster.alt,
-                onMouseMove: onMouseMove,
-
-            }
-        }, [...sources, `Your browser does not support the ${tag} element.`])}
-
-    </div>
+    const InputsElement = React.cloneElement(children, {
+                key,
+                customAttributes: {
+                    width: 320, height: 'auto', controls: true,
+                    poster: tag === 'video' ? poster.src : undefined,
+                    alt: poster.alt,
+                    onMouseMove: onMouseMove,
+                }
+            }, [...sources, `Your browser does not support the ${tag} element.`])
+    
 
 
 
-
-
-    return conds ? InputsElement : null;
-
+    return conds ?  InputsElement() : null;
 };
 
 export default Media;

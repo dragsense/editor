@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { debounce } from '../../../../../lib/utils'
 
 // InputGroup component
 const InputGroup = (props) => {
@@ -28,7 +27,7 @@ const InputGroup = (props) => {
 
         // Debounce onChange function
         if (onChange) {
-            debounce(onChange(newValue, optionValue === 'all'), 500)
+            onChange(newValue, optionValue === 'all');
         }
 
         // Toggle checked status

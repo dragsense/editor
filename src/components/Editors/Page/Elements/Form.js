@@ -22,7 +22,6 @@ const Form = (props) => {
      }, [])
 
      // State to handle button disable
-     const [isButtonDisabled, setButtonDisabled] = useState(true);
 
      // Function to handle form submission
      const onSubmitForm = async (e) => {
@@ -36,13 +35,14 @@ const Form = (props) => {
 
           // Set initial states
           setInitialStates();
-
+          const data = new FormData();
           // Validate form data
-          let isValid = validateFormData(formDataObject, formData);
+          let isValid = validateFormData(formDataObject, data);
 
           // If form data is valid, submit form
           if (isValid) {
-               submitForm(formData);
+
+               submitForm(data);
           } else {
                // If form data is not valid, set error state
                setErrorState();
@@ -59,9 +59,9 @@ const Form = (props) => {
      }
 
      // Function to validate form data
-     const validateFormData = (formDataObject, formData) => {
+     const validateFormData = (formDataObject, data) => {
           let isValid = true;
-          const data = new FormData();
+          
 
           Object.keys(_states).forEach((key) => {
                if (key !== '__setting__') {
@@ -73,6 +73,7 @@ const Form = (props) => {
                          fieldData = handleFileField(stateData, formDataObject[key], data, key);
                          regexTest = fieldData !== null;
                     } else {
+
                          fieldData = handleTextField(stateData, formDataObject[key], data, key);
                          regexTest = fieldData !== null;
                     }
@@ -127,6 +128,8 @@ const Form = (props) => {
           }
 
           data.append(key, fieldData);
+      
+
           return fieldData;
      }
 
@@ -168,10 +171,7 @@ const Form = (props) => {
                fun.onSubmit(_states);
      }
 
-     // Function to handle input change
-     const handleInputChange = (e) => {
-          setButtonDisabled(e.target.value === '');
-     }
+
 
      return <form onSubmit={onSubmitForm} target="_self">
 
@@ -184,10 +184,9 @@ const Form = (props) => {
                     _states: _states,
                     _props: _props,
                     colStates: colStates,
-                    onChange: handleInputChange
                })
           })}
-          <button type="submit" disabled={isButtonDisabled}>Submit</button>
+ 
      </form>
 };
 

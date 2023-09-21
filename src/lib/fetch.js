@@ -58,6 +58,7 @@ export const createApiRequest = async (endpoint, method = 'GET', body = null, is
 
   }
 
+
   // Send the request using the fetcher function
   return fetcher(requestUrl, requestOptions);
 };

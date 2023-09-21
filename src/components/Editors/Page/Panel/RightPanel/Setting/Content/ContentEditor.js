@@ -23,8 +23,9 @@ const handleModalStateChange = (state, contentRef, type, setHtml) => {
         message.error("node not selected.")
     }
     if (state.visible && contentRef.current) {
+        console.log(state)
         let existingChildren = state?.node.querySelector(`[data-child="child-${state._uid}"]`);
-        console.log(existingChildren)
+  
         ContentEditor.destroy(null);
         if (type === 0) {
             contentRef.current.innerHTML = existingChildren ? existingChildren.innerHTML : state.nodeValue;
@@ -112,7 +113,7 @@ export default function RichTextEditor({
     };
 
     const handleAfterOpenChange = (visible) => {
-        handleModalStateChange({node: state.node, visible}, contentRef, type, setHtml);
+        handleModalStateChange({node: state.node, _uid: state._uid, visible}, contentRef, type, setHtml);
     };
 
     const onChangeKeys = (keys) => {
