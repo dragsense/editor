@@ -19,16 +19,16 @@ const Slider = ({ children, openSider, duration, type, initialValue, expandValue
   const nodeRef = useRef(null);
   const [prevType, setPrevType] = useState(type);
 
-  // Memoize transition styles for performance
-  const sliderTransition = useMemo(() => getTransitionStyles(type, duration, initialValue, expandValue), [type, duration, initialValue, expandValue]);
+   // Memoize transition styles for performance
+   let sliderTransition = getTransitionStyles(type, duration, initialValue, expandValue);
 
-  // Update transition styles if type changes
-  useEffect(() => {
-    if (type !== prevType) {
-      setPrevType(type);
-      sliderTransition = getTransitionStyles(type, duration, initialValue, expandValue);
-    }
-  }, [type]);
+   // Update transition styles if type changes
+   useEffect(() => {
+     if (type !== prevType) {
+       setPrevType(type);
+       sliderTransition = getTransitionStyles(type, duration, initialValue, expandValue);
+     }
+   }, [type]);
 
   return (
     <Transition nodeRef={nodeRef} in={openSider} timeout={duration}>

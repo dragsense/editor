@@ -78,23 +78,13 @@ const ElementMapping = (props) => {
         if (!_cstates) return;
 
         if (key[0] === 'items') {
-            const currentPage = _cstates['currentIndex'] ? _cstates['currentIndex'].defaultValue : 1;
-            const limit = _cstates['limit'] ? _cstates['limit'].defaultValue || 1 : 1;
-            const total = _cstates['total'] ? _cstates['total'].defaultValue : 1;
-            const totalPages = Math.ceil(total / limit);
-            
-            const pagination = { leftRange: 1, rightRange: 1, nearRange: 4, dots: '...' }
-            const pages = getPaginationRange(currentPage, totalPages, pagination).map((value, index) => {
-                const val = parseInt(value);
-                const isNan = isNaN(val);
-                return {
-                    label: value,
-                    value: val,
-                    key: val,
-                    notClickable: isNan,
-                }
+            const items = _cstates['items']?.states || {}
+
+            const pages = Object.values(items || {}).map((value, index) => {
+                const val = value.value.split(":");
+                return { label: val[1], value: val[0], key: val[0] }
             });
-            console.log(pages)
+
             return pages;
         }
         else {

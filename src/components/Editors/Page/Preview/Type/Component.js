@@ -30,9 +30,15 @@ const Component = ({
     children,
      }) => {
 
-    // Create a span element if innerWraaper is not provided
+ 
+
     const spanElement = useMemo(() => {
-        return innerWraaper.length > 0 && innerWraaper ? innerWraaper : null;
+        return (value || innerWraaper) ?  (<>
+            {React.isValidElement(value) ? value : <span
+                dangerouslySetInnerHTML={{ __html: value }}
+            />}
+            {innerWraaper}</>
+        ) : null;
     }, [innerWraaper, value]);
 
     const customAttributes = createCustomAttributes(onMouseMove,onClick, onScroll);

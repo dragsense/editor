@@ -63,15 +63,19 @@ const onAddMenus = async (state, menus, onAdd) => {
 }
 
 // Function to update nodes
-const onUpdateNNodes = (state, type, data,  onUpdate, onAdd) => {
+const onUpdateNNodes = (state, type, data,   onUpdate, onAdd) => {
     if (type === 'menu')
         onAddMenus(state, data, onAdd);
     else {
+        if(data['activeItem'] && data['activeItem'].defaultValue)
+        data['activeItem'].defaultValue = null;
+       console.log(data['activeItem']) 
         state.node.states = data
         onUpdate(state.node);
         if (state.states[state.node.cname]) {
             state.states[state.node.cname].setStates(data);
         }
+
     }
 }
 
@@ -82,6 +86,7 @@ const onSubmit = async (state, states, events, onChange) => {
         const page = await getAllData(_id);
         page.states = states;
         page.events = events;
+     
         await storePage(page);
         if (state.states["STATES"])
             state.states["STATES"].setStates(states);

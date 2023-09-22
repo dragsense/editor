@@ -37,7 +37,7 @@ const ElementValue = (props) => {
                 const images = global[key[1]] || {};
                 const image = images[key[2]] || {}
                 return {
-                    value: image?.src ? image.src : '/images/default/default-img.png',
+                    value: image?.src ? setting?.host +image.src : '/images/default/default-img.png',
                     label: image === undefined ? `[${key[2]}]` : image?.alt || "Global Image"
                 }
             }
@@ -49,7 +49,7 @@ const ElementValue = (props) => {
     }
 
     // Function to handle colStates type
-    const handleColStatesType = (key, value) => {
+    const handleColStatesType = (key, value, host) => {
         if (!colStates)
             return value;
 
@@ -59,7 +59,7 @@ const ElementValue = (props) => {
             if (key[0] === 'docsLength' && colStates.documents)
                 return colStates.documents.length || '0';
             else
-                return getPageValue(key, colStates);
+                return getPageValue(key, colStates, host);
     }
 
     // Main function to get value based on type
@@ -71,13 +71,13 @@ const ElementValue = (props) => {
             case 'GLOBAL':
                 return handleGlobalType(key);
             case 'PROPS':
-                return getStateValue(key, _props) || `[props.${key}]`;
+                return getStateValue(key, _props, setting?.host) || `[props.${key}]`;
             case 'STATES':
-                return getStateValue(key, _states);
+                return getStateValue(key, _states, setting?.host);
             case 'PAGE':
-                return getPageValue(key, setting);
+                return getPageValue(key, setting, setting?.host);
             case 'COLSTATES':
-                return handleColStatesType(key, value);
+                return handleColStatesType(key, value, setting?.host);
             case 'FORMSTATES':
                 return _states && _states[key[0]] ? _states[key[0]][key[1]] || '[form state]' : value;
             case 'MAPVALUE':
@@ -87,7 +87,7 @@ const ElementValue = (props) => {
             case 'Menu': case 'Flex': case 'Tabs': case 'Accordion': case 'Sider':
             case 'Grid': case 'Container': case 'Slider': case 'Gallery': case 'Dropdown':
             case 'Dropdown': case 'Observable': case 'Modal': case 'GoToTop':
-                return getStateValue(key, _cstates);
+                return getStateValue(key, _cstates, setting?.host);
             default:
                 return value;
         }
@@ -103,7 +103,7 @@ const ElementValue = (props) => {
         const value = getValue(state, nodeValue);
         return value || nodeValue;
 
-    }, [state, nodeValue, _states, _props]);
+    }, [state, nodeValue, _states, _props, _cstates]);
 
     // useMemo hook to optimize performance by memoizing the value
     // It will only recompute the memoized value when one of the dependencies has changed

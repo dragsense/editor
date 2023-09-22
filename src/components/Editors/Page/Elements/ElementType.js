@@ -7,7 +7,7 @@ const getTagType = (node, layout) => {
     let tagType = node.tagName;
     if (layout === 'inputgroup') tagType = "inputgroup";
     if (layout === 'icon' || layout === 'svg-icon') tagType = "icon";
-    if (node.type === 'layouts' || layout === 'button') tagType = 'layouts';
+    if (node.type === 'layouts' || layout === 'button' || layout === 'list') tagType = 'layouts';
     if (node.type === 'component') tagType = 'component';
     if (node.tagName === 'hr') tagType = "close";
     return tagType;
@@ -57,9 +57,12 @@ const renderElement = (tagType, layout, props) => {
             return <Icon disabled={disabled} onChange={onChange} value={value} _uid={_uid} pos={pos} onClick={onClick} onMouseMove={onMouseMove} conds={conds} layout={layout} classes={node.classes}>{element}</Icon>;
         case 'component':
         case 'layouts':
-            return <Component disabled={disabled} value={value.label || value || node.name} pos={pos} _uid={_uid} name={node.cname || node.name || node.tagName} conds={conds} onClick={onClick} onScroll={onScroll} onMouseMove={onMouseMove} innerWraaper={children}>{element}</Component>;
+            return <Component disabled={disabled} 
+            value={value.label || value}
+             pos={pos} _uid={_uid} name={node.cname || node.name || node.tagName} conds={conds} onClick={onClick} onScroll={onScroll} onMouseMove={onMouseMove} innerWraaper={children}>{element}</Component>;
         default:
-            return <General disabled={disabled} pos={pos} _uid={_uid} name={node.cname || node.name || node.tagName} conds={conds} onMouseMove={onMouseMove} onScroll={onScroll} onClick={onClick} value={value?.label || value} innerWraaper={children}>{element}</General>;
+            return <General disabled={disabled} pos={pos} _uid={_uid} name={node.cname || node.name || node.tagName}
+             conds={conds} onMouseMove={onMouseMove} onScroll={onScroll} onClick={onClick} value={value?.label || value} innerWraaper={children}>{element}</General>;
     }
 }
 

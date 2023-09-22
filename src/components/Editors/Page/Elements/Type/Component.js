@@ -40,11 +40,15 @@ const Component = ({
     children,
     pos }) => {
 
-    // Create a span element if innerWraaper is not provided
+   
+
     const spanElement = useMemo(() => {
-        return innerWraaper.length > 0 && innerWraaper ? innerWraaper : <span
-            data-child={`child-muted`}
-            style={{ userSelect: 'none', color: "#cccccc" }}>add content here</span>;
+        return (value || innerWraaper) ?  (<>
+             {React.isValidElement(value) ? value : <span
+                dangerouslySetInnerHTML={{ __html: value }}
+            />}
+            {innerWraaper}</>
+        ) : <span style={{ userSelect: 'none', color: "#cccccc" }}>add content here</span>;
     }, [innerWraaper, value]);
 
     const customAttributes = createCustomAttributes(_uid, pos, onMouseMove, name, onClick, onScroll, conds, disabledStyles);

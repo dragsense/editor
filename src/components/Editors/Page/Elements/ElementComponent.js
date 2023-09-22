@@ -122,7 +122,7 @@ const ElementComponent = (props) => {
             return;
         setStates({ ...node.states });
         const cascaderStates = generateCascader(node.states, node.name, node.cname);
-        onUpdateStates(node.cname, cascaderStates, setStates);
+        onUpdateStates(node.cname, cascaderStates, setStates, true);
     }, []);
 
     useEffect(() => {
@@ -144,10 +144,13 @@ const ElementComponent = (props) => {
 
         if (key === 'items') {
             const oldValues = states['items']?.states || {};
-            const resultObject = Array.from({ length: parseInt(value) }, (_, index) => ({
-                value: `${index + 1}:${oldValues[index]?.value || states['items']?.text || "Item"} ${index + 1}`,
-                idx: index,
-            })).reduce((acc, currentValue) => {
+            const resultObject = Array.from({ length: parseInt(value) }, (_, index) => {
+                const oldValue = (oldValues[index]?.value.split(":")[1] || states['items']?.text || `Item `) + " " + (index + 1);
+                return {
+                    value: `${index + 1}:${oldValue}`,
+                    idx: index,
+                };
+            }).reduce((acc, currentValue) => {
                 acc[currentValue.idx] = currentValue;
                 return acc;
             }, {});
@@ -158,12 +161,13 @@ const ElementComponent = (props) => {
             if (states['currentIndex']) {
                 const loop = states['loop'] ? states['loop'].defaultValue : false;
 
-                states['currentIndex']['max'] = loop ? value + 1 : value;
+                states['currentIndex']['max'] = loop ? value + 1 : value - 1;
                 states['currentIndex']['min'] = loop ? -1 : 0;
             }
         } else {
             stateRef[updateKey] = value;
         }
+
 
         setStates(prevStates => ({ ...prevStates }));
     }, [states]);

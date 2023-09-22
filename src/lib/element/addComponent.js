@@ -478,8 +478,8 @@ const createSlider = async (state, document) => {
         _uid: slider_dot_unique_id,
         tagName: 'div',
         name: 'Slide dot',
-        type: 'layouts',
-        layout: 'div',
+        type: 'texts',
+        layout: 'li',
         // Define the onClick event to set the currentIndex to the clicked dot's index
         onClick: {
             "key": ["currentIndex"],
@@ -502,10 +502,10 @@ const createSlider = async (state, document) => {
     const dots_conatienr_id = uuid();
     const slidesDotsContainer = {
         _uid: dots_conatienr_id,
-        tagName: 'div',
+        tagName: 'ul',
         name: 'Slides Dots',
-        type: 'layouts',
-        layout: 'div',
+        type: 'text',
+        layout: 'list',
         childNodes: [slider_dot_unique_id],
         nodeValue: '',
         className: "slider-nav-container",
@@ -648,6 +648,9 @@ const createSlider = async (state, document) => {
         'display': {
             value: 'flex'
         },
+        'list-style-type' : {
+            value: 'none'
+        }
     }
     await addCSS(document, properties, slidesDotsContainer, state.page._id);
 
@@ -1200,7 +1203,7 @@ const createGallery = async (state, document) => {
 const createModalTrigger = async (state, document) => {
 
     // Merge global and modal specific states
-    const modalTriggerStates = { ...state.global, ...state.modal };
+    const modalTriggerStates = { ...states['global'], ...states['modal'] };
 
     let id = nanoid(8);
     const className = "ac" + "-modal-" + id;

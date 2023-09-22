@@ -58,14 +58,14 @@ const ElementSetting = (props) => {
             case 'GLOBAL':
                 return handleGlobalType(key, value);
             case 'PROPS':
-                return getStateValue(key, _props) || `[props.${key}]`;
+                return getStateValue(key, _props, setting?.host) || `[props.${key}]`;
             case 'STATES':
-                return getStateValue(key, _states);
+                return getStateValue(key, _states, setting?.host);
             case 'PAGE':
 
-                return getPageValue(key, setting);
+                return getPageValue(key, setting, setting?.host);
             case 'COLSTATES':
-                return handleColStatesType(key, value);
+                return handleColStatesType(key, value, setting?.host);
             case 'FORMSTATES':
                 return handleFormStatesType(key);
             case 'MAPVALUE':
@@ -113,17 +113,17 @@ const ElementSetting = (props) => {
         const images = global[key[1]] || {};
         const image = images[key[2]] || {};
         return {
-            value: image?.src ? image.src : '/images/default/default-img.png',
+            value: image?.src ? setting?.host +image.src : '/images/default/default-img.png',
             label: image === undefined ? `[${key[2]}]` : image?.alt || "Global Image"
         };
     };
 
     // Handle 'COLSTATES' type
-    const handleColStatesType = (key, value) => {
+    const handleColStatesType = (key, value, host) => {
         if (!colStates) return value;
         if (key[0] === 'PAGES') return mapIndex + 1;
         else if (key[0] === 'docsLength' && colStates.documents) return colStates.documents.length || '0';
-        else return getPageValue(key, colStates);
+        else return getPageValue(key, colStates, host);
     };
 
     // Handle 'FORMSTATES' type
@@ -308,14 +308,14 @@ const ElementSetting = (props) => {
 
     // useMemo to calculate fallback image only when setting changes
     const fallbackImage = useMemo(() => {
-        let defaultImage = './images/default/default-img.png';
+        let defaultImage = '/images/default/default-img.png';
         if (setting && setting['images']?.placeholder.src) return setting['images']?.placeholder.src;
         return defaultImage;
     }, [setting]);
 
     // useMemo to calculate fallback poster only when setting changes
     const fallbackPoster = useMemo(() => {
-        let defaultImage = './images/default/default-poster.png';
+        let defaultImage = '/images/default/default-poster.png';
         if (setting && setting['images']?.placeholder.src) return setting['images']?.placeholder.src;
         return defaultImage;
     }, [setting]);
@@ -324,7 +324,7 @@ const ElementSetting = (props) => {
     const withFallBackNodeValue = useMemo(() => {
         switch (node.tagName) {
             case 'img':
-                return { value: node.src ? node.src.src : fallbackImage, label: node.src?.alt };
+                return { value: node.src ? setting?.host + node.src.src : fallbackImage, label: node.src?.alt };
             case 'video':
                 return {
                     value: node.src ? node.src.src : fallbackPoster,
@@ -332,7 +332,7 @@ const ElementSetting = (props) => {
                     srcs: node.srcs
                 };
             case 'audio':
-                return { value: './audios/default/sample.mp3', srcs: node.srcs };
+                return { value: '/audios/default/sample.mp3', srcs: node.srcs };
             case 'input':
             case 'textarea':
             case 'option':

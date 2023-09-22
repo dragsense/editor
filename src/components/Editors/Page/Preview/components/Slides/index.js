@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Slide from './Slide';
+import { debounce } from '../../../../../../lib/utils';
 
 // Function to get the default value of a state
 const getDefaultValue = (state, defaultValue) => state ? state.defaultValue : defaultValue;
@@ -14,6 +15,8 @@ const handleSlideTransition = (flattenedChildren, numColumns, activeIndex, updat
   }
 
   updateStates('currentIndex', newIndex);
+  if(flattenedChildren[activeIndex])
+    debounce(updateStates('activeItem', flattenedChildren[activeIndex]), 100);
   updateStates('activeItem', flattenedChildren[newIndex]);
 };
 
@@ -36,7 +39,9 @@ const setLoopIndex = (flattenedChildren, type, numColumns, moveColumns, activeIn
   }
 
   updateStates('currentIndex', newIndex);
-  updateStates('activeItem', flattenedChildren[newIndex]);
+  if(flattenedChildren[activeIndex])
+    debounce(updateStates('activeItem', flattenedChildren[activeIndex]), 100);
+ 
 };
 
 // Main Slides component
@@ -118,7 +123,8 @@ const Slides = (props) => {
     if (loop)
       setLoopIndex(flattenedChildren, type, numColumns, moveColumns, activeIndex, updateStates);
     else
-      updateStates('activeItem', flattenedChildren[activeIndex]);
+    if(flattenedChildren[activeIndex])
+    debounce(updateStates('activeItem', flattenedChildren[activeIndex]), 100);
 
   }, [activeIndex]);
 

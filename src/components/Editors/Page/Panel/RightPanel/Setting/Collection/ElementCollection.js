@@ -302,7 +302,7 @@ export default function ElemnetCollection({
         </Form.Item>
         <Form.Item label="Related?">
             <Checkbox onChange={handleRelatedChange}
-                checked={state.realted}>Yes</Checkbox>
+                checked={state.related}>Yes</Checkbox>
         </Form.Item>
         <Form.Item label="Load More?">
             <Checkbox onChange={() => onChangeLoadMore()}

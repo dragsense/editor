@@ -44,7 +44,7 @@ const General = ({ _uid, conds, disabled, onMouseMove, onClick, onScroll, name, 
                 }}
             />}
             {innerWraaper}</>
-        ) : <span style={{ userSelect: 'none', color: "#cccccc" }}>no content</span>;
+        ) : <span style={{ userSelect: 'none', color: "#cccccc" }}>add content here</span>;
     }, [innerWraaper, value, _uid, name]);
 
     // Clone the element with custom attributes and span element

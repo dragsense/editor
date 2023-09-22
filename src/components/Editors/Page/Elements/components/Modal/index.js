@@ -25,6 +25,7 @@ const Modal = ({ children, states, element, node }) => {
     // Get transition styles
     const modalTransition = getTransitionStyles(type, duration);
 
+
     // Base style for modal
     const baseStyle = useMemo(() => ({
         position: 'fixed',

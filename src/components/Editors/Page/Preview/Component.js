@@ -107,7 +107,7 @@ const Component = (props) => {
 
 
     // Function to get value based on element type
-    const getValue = useCallback((elem, value = '') => {
+    const getValue = (elem, value = '') => {
         const { type, key } = elem;
 
         switch (type) {
@@ -118,10 +118,10 @@ const Component = (props) => {
             default:
                 return value;
         }
-    }, [_states, states]);
+    };
 
     // Function to generate filters
-    const generateFilters = useCallback(() => {
+    const generateFilters = () => {
         if (!colStates.filters)
             return [];
 
@@ -137,10 +137,10 @@ const Component = (props) => {
 
             return { name: filter.name, filterKey: [filter.type, ...filter.filterKey], defaultValue: defaultValue || '' }
         });
-    }, [colStates.filters, getValue]);
+    };
 
     // Use useMemo to optimize performance by avoiding unnecessary re-renders
-    const filters = useMemo(generateFilters, [colStates.filters, states, _states]);
+    const filters = useMemo(generateFilters, [colStates.filters]);
 
     // Function to load documents from the server
     const loadDocumentsFromServer = async (collectionId, filters, selectedRelationships, withRelationship, page, limit, sortBy, sort) => {
@@ -239,7 +239,7 @@ const Component = (props) => {
 
         // Reset filter change flag
         setFilters(false);
-    }, [states, _states, filters, isFilterChange, colStates]);
+    }, [states, _states, filters, isFilterChange]);
 
     // Use useEffect to call handleLoadComponent on component mount
     useEffect(() => {
@@ -249,7 +249,7 @@ const Component = (props) => {
     // Use useEffect to call handleLoadDocuments when states, _states, filters, isFilterChange, or colStates change
     useEffect(() => {
         handleLoadDocuments();
-    }, [handleLoadDocuments]);
+    }, [states]);
 
     // Function to evaluate expressions
     const evaluateExpression = (expression, scrollTop, scrollLeft, delta) => {

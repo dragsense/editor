@@ -570,6 +570,7 @@ export default function PageManger({ children }) {
 
             // Dispatch an 'updatePage' action to update the state
             dispatch({ type: 'updatePage', pageUpdated, node: null });
+            setUpdated(null);
 
         } catch (e) {
             // If an error occurs during the update process, dispatch an 'error' action with the error message
@@ -1230,7 +1231,7 @@ export default function PageManger({ children }) {
         dispatch({
             type: 'updatePage',
             pageUpdated
-        });
+        }); 
 
     } catch (e) {
         // If an error occurs during the delete process, dispatch an 'error' action with the error message
@@ -1439,9 +1440,10 @@ export default function PageManger({ children }) {
     // Effect to handle changes in the updatedNode state
     useEffect(() => {
         // If there is a change and updatedNode is not null, update the value
-        if (state.isChange && updatedNode)
-            updateValue(updatedNode);
-    }, [updatedNode])
+        
+        if (updatedNode) 
+        updateValue(updatedNode); 
+    }, [updatedNode]) 
 
     // Function to update the node
     const onUpdate = useCallback(async (node) => {
@@ -2046,11 +2048,12 @@ export default function PageManger({ children }) {
 
     }, [state.isStyleChange]);
 
-    // Function to update states
-    const onUpdateStates = useCallback(async (_id, states, setStates) => {
+    // Function to update states 
+    const onUpdateStates = useCallback(async (_id, states, setStates, append = false) => {
         // Dispatch an 'updateStates' action with the new states
+
         dispatch({ type: 'updateStates', states: { [_id]: { states, setStates } } });
-    }, []);
+    }, [state.states]);
 
     // Return the context provider with the state and functions
     return <>

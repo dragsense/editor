@@ -47,6 +47,8 @@ const Slide = ({
 
   // Handle mouse down event
   const handleMouseDown = (event) => {
+    return;
+    
     setDragging(true);
     setStartX(event.clientX - nodeRef.current.getBoundingClientRect().left);
   };
@@ -56,6 +58,9 @@ const Slide = ({
 
   // Handle mouse move event
   const handleMouseMove = (event) => {
+    
+    return;
+
     if (dragging) {
       const currentX = event.clientX - nodeRef.current.getBoundingClientRect().left;
       const moveX = currentX - startX;
@@ -70,6 +75,8 @@ const Slide = ({
 
   // Handle mouse up event
   const handleMouseUp = () => {
+    return;
+    
     setDragging(false);
     const moveDistance = Math.abs(mtranslateX);
     const newIndex = Math.round(moveDistance / totalWidth);
@@ -85,6 +92,8 @@ const Slide = ({
 
   // Handle mouse leave event
   const handleMouseLeave = () => {
+    return;
+    
     if (dragging) {
       handleMouseUp();
     }

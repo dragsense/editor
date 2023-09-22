@@ -34,6 +34,8 @@ const renderElement = (tagType, layout, props) => {
         setting,
         classes } = props;
 
+      
+
     const element = <Element key={_uid} classes={classes} attributes={attributes} tagName={node.tagName} />;
 
     switch (tagType) {
@@ -43,7 +45,10 @@ const renderElement = (tagType, layout, props) => {
             return <Option value={value.value || value} mapIndex={mapIndex} mapValue={mapValue}>{element}</Option>;
         case 'input':
         case 'textarea':
-            return <Input disabled={disabled} conds={conds} onClick={onClick} type={attributes["type"]} onChange={onChange} _uid={_uid} pos={pos} value={value.value ?? value}>{element}</Input>;
+            return <Input disabled={disabled} 
+            conds={conds} 
+            onClick={onClick}
+             type={attributes["type"]} onChange={onChange} _uid={_uid} pos={pos} value={value.value ?? value}>{element}</Input>;
         case 'inputgroup':
             return <InputGroup disabled={disabled} type={attributes["type"]} onChange={onChange} value={value} mapValue={mapValue} labelPos={node.labelPos || 0} _uid={_uid} pos={pos} conds={conds} onClick={onClick} onMouseMove={onMouseMove} attributes={attributes} options={options}><Element classes={classes} tagName={'label'} /></InputGroup>;
         case 'img':
@@ -57,7 +62,7 @@ const renderElement = (tagType, layout, props) => {
             return <Icon disabled={disabled} onChange={onChange} value={value} _uid={_uid} pos={pos} onClick={onClick} onMouseMove={onMouseMove} conds={conds} layout={layout} classes={node.classes}>{element}</Icon>;
         case 'component':
         case 'layouts':
-            return <Component disabled={disabled} value={value.label || value || node.name} pos={pos} _uid={_uid} name={node.cname || node.name || node.tagName} conds={conds} onClick={onClick} onScroll={onScroll} onMouseMove={onMouseMove} innerWraaper={children}>{element}</Component>;
+            return <Component disabled={disabled} value={value.label || value} pos={pos} _uid={_uid} name={node.cname || node.name || node.tagName} conds={conds} onClick={onClick} onScroll={onScroll} onMouseMove={onMouseMove} innerWraaper={children}>{element}</Component>;
         default:
             return <General disabled={disabled} pos={pos} _uid={_uid} name={node.cname || node.name || node.tagName} conds={conds} onMouseMove={onMouseMove} onScroll={onScroll} onClick={onClick} value={value?.label || value} innerWraaper={children}>{element}</General>;
     }

@@ -62,9 +62,9 @@ const ElementSetting = (props) => {
             case 'STATES':
                 return getStateValue(key, _states, setting?.host);
             case 'PAGE':
-                return getPageValue(key, setting);
+                return getPageValue(key, setting, setting?.host);
             case 'COLSTATES':
-                return handleColStatesType(key, value);
+                return handleColStatesType(key, value, setting?.host);
             case 'FORMSTATES':
                 return handleFormStatesType(key);
             case 'MAPVALUE':
@@ -118,11 +118,11 @@ const ElementSetting = (props) => {
     };
 
     // Handle 'COLSTATES' type
-    const handleColStatesType = (key, value) => {
+    const handleColStatesType = (key, value, host) => {
         if (!colStates) return value;
         if (key[0] === 'PAGES') return mapIndex + 1;
         else if (key[0] === 'docsLength' && colStates.documents) return colStates.documents.length || '0';
-        else return getPageValue(key, colStates);
+        else return getPageValue(key, colStates, host);
     };
 
     // Handle 'FORMSTATES' type
@@ -323,7 +323,7 @@ const ElementSetting = (props) => {
     const withFallBackNodeValue = useMemo(() => {
         switch (node.tagName) {
             case 'img':
-                return { value: node.src ? node.src.src : fallbackImage, label: node.src?.alt };
+                return { value:  node.src ? setting?.host + node.src.src : fallbackImage, label: node.src?.alt };
             case 'video':
                 return {
                     value: node.src ? node.src.src : fallbackPoster,
