@@ -20,7 +20,7 @@ const fuseOptions = {
 };
 
 // Main component
-function SearchableSelector({ state, onSelect, animation = false }) {
+function SearchableSelector({ state, onSelect, animation = false, isConverted = false }) {
 
     // State variables
     const [searchTerm, setSearchTerm] = useState("");
@@ -63,7 +63,7 @@ function SearchableSelector({ state, onSelect, animation = false }) {
         return () => {
             setSelectors([])
         }
-    }, [state.elementType, state.page, state.selectorDeleted, animation]);
+    }, [state.elementType, state.page, state.selectorDeleted, animation, isConverted]);
 
     // Use effect to handle selector deletion
     useEffect(() => {

@@ -1,4 +1,5 @@
 
+import React from "react";
 import IconsComponent from "../../../../../Icons";
 import TagList from "./TagList";
 import HTMLTags from './htmlTags.json';
@@ -6,7 +7,7 @@ import { Tabs, theme } from 'antd';
 const { TabPane } = Tabs;
 
 
-export default function Tags({ gridStyle, tag, onSelect, width }) {
+export default function Tags({ gridStyle, HtmlConvertComponent, tag, onSelect, width }) {
 
     const {
         token: { colorPrimaryBg, colorBgContainer, colorBgBase },
@@ -92,6 +93,13 @@ export default function Tags({ gridStyle, tag, onSelect, width }) {
 
             </div>
         </TabPane>
+        {React.isValidElement(HtmlConvertComponent) && <TabPane tab={<span>
+            HTML
+        </span>} key="7">
+            <div>
+                {HtmlConvertComponent}
+            </div>
+        </TabPane>}
 
     </Tabs>
     </div>

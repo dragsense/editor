@@ -34,7 +34,7 @@ const General = ({ _uid, conds, disabled, onMouseMove, onClick, onScroll, name, 
 
     // Create span element based on the innerWrapper
     const spanElement = useMemo(() => {
-        return (value || innerWraaper) ?  (<>
+        return (value || innerWraaper?.length > 0) ?  (<>
             {React.isValidElement(value) ? value : <div
                 dangerouslySetInnerHTML={{ __html: value }}
                 data-child={`child-${_uid}`}

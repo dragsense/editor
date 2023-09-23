@@ -16,7 +16,8 @@ export default function StyleEditor({
     onChange,
     onSelect,
     isChange,
-    children }) {
+    children,
+    isConverted }) {
 
     // Render Layout with minimum height of 80vh
     return <Layout style={{ minHeight: '80vh' }}>
@@ -41,6 +42,7 @@ export default function StyleEditor({
             onChange={onChange}
             onSubmit={onSubmit}
             width={271}
+            isConverted={isConverted}
         >
             {/* Render Button inside RightSideBar */}
             <div style={{ textAlign: 'right', marginTop: 10, padding: 10 }}>

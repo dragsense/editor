@@ -16,7 +16,7 @@ export default function ElementContent({ cascaderStates, host, state, setState, 
     const [type, setType] = useState("images");
 
     const srcs = type === 'images' ? state.src : [...(state.srcs ? state.srcs : [])];
-    
+
     // Splitting the main function into smaller functions for better readability and maintainability
     // Function to handle change in content
     const onChange = (content) => {
@@ -87,9 +87,8 @@ export default function ElementContent({ cascaderStates, host, state, setState, 
 
     // Function to render form based on state attributes
     const renderForm = () => {
-        if (state.attributes['type']?.value !== "'file'") {
-            return renderFormBasedOnType();
-        }
+        return renderFormBasedOnType()
+
     }
 
     // Function to render form based on type
@@ -102,9 +101,21 @@ export default function ElementContent({ cascaderStates, host, state, setState, 
             return renderVideoAudio();
         } else if (state.tagName === 'img') {
             return renderImage();
-        } else if (state.attributes['type']?.value !== "'file'" && state.tagName !== 'hr') {
-            return renderContentEditor();
-        }
+        } else
+            if (state.layout === 'text') {
+                return renderContentEditor();
+            } else
+            return <Form.Item label="Enter text">
+                    <Input.TextArea
+                        placeholder="Enter value"
+                        value={state.nodeValue}
+                        onChange={(e) => {
+                            e.preventDefault();
+                            const value = e.target.value;
+                            onChange(value);
+                        }}
+                    />
+                </Form.Item>
     }
 
     // Function to render checkbox, radio, select
@@ -187,7 +198,7 @@ export default function ElementContent({ cascaderStates, host, state, setState, 
                 <br />
                 <br />
                 {Array.isArray(state.srcs) && state.srcs.map((src, index) => (
-                    <Video src={host+src.src} alt={src.alt} mimetype={src.mimetype} />
+                    <Video src={host + src.src} alt={src.alt} mimetype={src.mimetype} />
                 ))}
             </Form.Item>
         );
@@ -213,7 +224,7 @@ export default function ElementContent({ cascaderStates, host, state, setState, 
                         cursor: 'pointer'
                     }}
                     alt="video poster"
-                    src={host+state.src?.src}
+                    src={host + state.src?.src}
                     fallback="./images/default/default-poster.png" />
             </Form.Item>
         );
@@ -223,7 +234,7 @@ export default function ElementContent({ cascaderStates, host, state, setState, 
     const renderImage = () => {
         return (
             <Form.Item label="Image">
-         
+
                 <Image
                     width="100%"
                     onClick={() => {
@@ -239,7 +250,7 @@ export default function ElementContent({ cascaderStates, host, state, setState, 
                         cursor: 'pointer'
                     }}
                     alt={state.src?.alt}
-                    src={host+state.src?.src}
+                    src={host + state.src?.src}
                     fallback="./images/default/default-img.png" />
             </Form.Item>
         );
@@ -247,10 +258,10 @@ export default function ElementContent({ cascaderStates, host, state, setState, 
 
     // Function to render content editor
     const renderContentEditor = () => {
-        
+
         return (
             <Form.Item label="Content" className="font-500">
-          
+
                 <ContentEditor
                     cascaderStates={cascaderStates}
                     state={state}

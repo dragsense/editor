@@ -11,6 +11,7 @@ import { MdRedo, MdUndo } from "react-icons/md";
 
 import RigthSideBar from "../Style/Editor/RightSideBar";
 import ThemeServices from "../../../lib/services/theme";
+import { ConvertSelectors } from "./Convertable";
 
 import { Preview } from './Preview';
 import Add from './Add';
@@ -32,7 +33,7 @@ const reducer = (state, action) => {
     case "start":
       // When an operation starts, set loading to true
       return { ...state, loading: true }
-   
+
     case "load":
       // Load page data into state
       return { ...state, page: action.page }
@@ -122,12 +123,12 @@ export default function Animations({ menuKeys, children, onBack }) {
 
   }, [])
 
- 
+
 
   const onLoad = async (_id) => {
- 
+
     dispatch({ type: 'load', page: { _id } });
-}
+  }
 
   const saveIsChange = (callback) => {
 
@@ -205,6 +206,17 @@ export default function Animations({ menuKeys, children, onBack }) {
     }
   };
 
+  // Function to get the stylesheet from the styleSheets
+  const getStyleSheet = (styleSheets) => {
+    let sheet = null;
+    for (let i = 0; i < styleSheets.length; i++) {
+      sheet = styleSheets[i];
+      if (sheet.ownerNode.id === 'ac-stylesheet-global')
+        break;
+    }
+    return sheet;
+  };
+
   // Function to delete an animation
   const onDeleteAnimation = async (STORE = UNDO_STORE_NAME, redo) => {
     try {
@@ -219,7 +231,13 @@ export default function Animations({ menuKeys, children, onBack }) {
       let iframeDocument = iframe.contentDocument;
 
       // Get the stylesheet and its rules
-      const sheet = iframeDocument.styleSheets[0];
+      const styleSheets = iframeDocument.styleSheets;
+      const sheet = getStyleSheet(styleSheets);
+
+      if (!sheet)
+        throw new Error('Style Sheet not found!')
+
+
       const cssRules = sheet.cssRules || sheet.rules;
 
       // Filter out the rules that are not keyframes
@@ -278,14 +296,12 @@ export default function Animations({ menuKeys, children, onBack }) {
 
       // Get the stylesheets
       const styleSheets = iframeDocument.styleSheets;
-      let sheet = null;
+      // Get the stylesheet and its rules
+      const sheet = getStyleSheet(styleSheets);
 
-      // Find the stylesheet with the id 'ac-stylesheet-global'
-      for (let i = 0; i < styleSheets.length; i++) {
-        sheet = styleSheets[i];
-        if (sheet.ownerNode.id === 'ac-stylesheet-global')
-          break;
-      }
+      if (!sheet)
+        throw new Error('Style Sheet not found!')
+
 
       // Get the css rules
       let cssRules = sheet.cssRules || sheet.rules;
@@ -363,15 +379,13 @@ export default function Animations({ menuKeys, children, onBack }) {
       const iframe = document.querySelector("#ac-editor-iframe-doc");
       const iframeDocument = iframe.contentDocument;
 
-      // Get the stylesheets
+      // Get the stylesheet and its rules
       const styleSheets = iframeDocument.styleSheets;
-      let sheet = null;
+      const sheet = getStyleSheet(styleSheets);
 
-      for (let i = 0; i < styleSheets.length; i++) {
-        sheet = styleSheets[i];
-        if (sheet.ownerNode.id === 'ac-stylesheet-global')
-          break;
-      }
+      if (!sheet)
+        throw new Error('Style Sheet not found!')
+
 
       let cssRules = sheet.cssRules || sheet.rules;
 
@@ -427,15 +441,13 @@ export default function Animations({ menuKeys, children, onBack }) {
       const iframe = document.querySelector("#ac-editor-iframe-doc");
       const iframeDocument = iframe.contentDocument;
 
-      // Get the stylesheets
+      // Get the stylesheet and its rules
       const styleSheets = iframeDocument.styleSheets;
-      let sheet = null;
+      const sheet = getStyleSheet(styleSheets);
 
-      for (let i = 0; i < styleSheets.length; i++) {
-        sheet = styleSheets[i];
-        if (sheet.ownerNode.id === 'ac-stylesheet-global')
-          break;
-      }
+      if (!sheet)
+        throw new Error('Style Sheet not found!')
+
       let cssRules = sheet.cssRules || sheet.rules;
 
       // Find the keyframes rule for the animation
@@ -558,7 +570,7 @@ export default function Animations({ menuKeys, children, onBack }) {
   // Function to render the left tools
   const LeftTools = () => (
     <span>Setting: &nbsp;&nbsp;
-      <ColorPicker 
+      <ColorPicker
         value={backgroundColor}
         allowClear={true}
         format={"hex"}
@@ -566,10 +578,23 @@ export default function Animations({ menuKeys, children, onBack }) {
           const metaColor = color.metaColor;
           const rgbColor = `rgba(${metaColor.r}, ${metaColor.g}, ${metaColor.b}, ${metaColor.a})`;
           setBackgroundColor(rgbColor)
-        }} 
+        }}
       />
     </span>
   )
+
+  const [isConverted, setIsConverted] = useState(false);
+  useEffect(() => {
+    setIsChange(true);
+  }, [isConverted])
+  // Function to render the right tools
+
+  // Function to get the iframe and its document
+  const getIframeAndDocument = () => {
+    const iframe = document.querySelector("#ac-editor-iframe-doc");
+    let iframeDocument = iframe.contentDocument;
+    return { iframe, iframeDocument };
+  };
 
   // Function to render the right tools
   const RightTools = () => (
@@ -580,7 +605,7 @@ export default function Animations({ menuKeys, children, onBack }) {
             icon={<MdUndo size={20} />}
             onClick={(e) => { e.preventDefault(); undo(); }}
             disabled={!isChange} // Disable the button if there's no change
-          >  
+          >
           </Button>
         </Tooltip>
 
@@ -589,9 +614,15 @@ export default function Animations({ menuKeys, children, onBack }) {
             icon={<MdRedo size={20} />}
             onClick={(e) => { e.preventDefault(); redo(); }}
             disabled={!isChange} // Disable the button if there's no change
-          >  
+          >
           </Button>
         </Tooltip>
+
+        {state.animation && <ConvertSelectors state={state}
+          setIsConverted={setIsConverted}
+          getIframeAndDocument={getIframeAndDocument}
+          animation={state.animation} />}
+
       </div>
     </>
   )
@@ -626,14 +657,20 @@ export default function Animations({ menuKeys, children, onBack }) {
     if (isChange) {
       const shouldSave = await window.autocode.checkUnsavedChanges(isChange);
 
-      if (shouldSave) {
+      if (shouldSave === 0) {
         await onSubmit();
+      }
+
+      if (shouldSave === 2) {
+        return;
       }
     }
 
     // Navigate back
     onBack();
   };
+
+ 
 
   return <div>
 
@@ -821,26 +858,27 @@ export default function Animations({ menuKeys, children, onBack }) {
         </div>
 
 
-          <RigthSideBar
-            state={state}
-            onSelect={onSelectSelector}
-            onDelete={onDeleteSelector}
-            onSubmit={onUpdateSelector}
-            onChange={onChange}
-            animation={state.animation}
-          
-            menuKeys={menuKeys}
-          >
-            <div style={{ textAlign: 'right', marginTop: 10, padding: 10 }}>
-              <Button type="primary" onClick={(e) => {
-                e.preventDefault();
-                onUpdateSelector(state.selector);
-              }
+        <RigthSideBar
+          state={state}
+          onSelect={onSelectSelector}
+          onDelete={onDeleteSelector}
+          onSubmit={onUpdateSelector}
+          onChange={onChange}
+          isConverted={isConverted}
+          animation={state.animation}
 
-              } loading={state.loading} disabled={!isStyleChange}> Update </Button>
-            </div>
-          </RigthSideBar>
-       
+          menuKeys={menuKeys}
+        >
+          <div style={{ textAlign: 'right', marginTop: 10, padding: 10 }}>
+            <Button type="primary" onClick={(e) => {
+              e.preventDefault();
+              onUpdateSelector(state.selector);
+            }
+
+            } loading={state.loading} disabled={!isStyleChange}> Update </Button>
+          </div>
+        </RigthSideBar>
+
       </div>
 
 

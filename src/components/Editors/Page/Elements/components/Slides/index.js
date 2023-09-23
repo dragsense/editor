@@ -235,7 +235,7 @@ const Slides = (props) => {
     >{slides}</Slide> : slides
 
 
-  }, [flattenedChildren, numColumns, moveColumns, activeIndex]);
+  }, [flattenedChildren, numColumns, moveColumns, activeIndex, type]);
 
 // Render the main slides component
   const slides = useMemo(

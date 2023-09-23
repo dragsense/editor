@@ -36,6 +36,7 @@ export default function PreviewEditorNav({
             orientation={orientation}
             setOrientation={setOrientation}
             setWindowWidth={setWindowWidth} />
+            <RightTools />
 
       </div>
    );

@@ -625,14 +625,14 @@ export default function IFrame({
   }, [container, onMove, onAdd]);
 
   // Function to handle addition of element
-  const onAddElement = useCallback(async (tag, addToAbove, currentElement) => {
+  const onAddElement = useCallback(async (tag, addToAbove, currentElement, elements=[]) => {
     if (!currentElement)
       return;
 
     const id = currentElement.dataset.id;
     const pos = currentElement.dataset.pos;
 
-    await onAdd(tag, id, addToAbove, pos, null);
+    await onAdd(tag, id, addToAbove, pos, null, elements);
   }, [onAdd]);
 
   // Function to handle content change
@@ -975,6 +975,7 @@ export default function IFrame({
         {renderIframe()}
       </ShadowRootComponent>
       <AddElement
+  
         onAddElement={onAddElement}
         currentElement={currentElement}
         setCurrentElement={setCurrentElement} />

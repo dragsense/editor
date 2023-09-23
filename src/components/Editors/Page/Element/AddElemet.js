@@ -6,16 +6,20 @@ import { Modal, theme, Button } from 'antd';
 import Draggable from 'react-draggable';
 
 import { TagComponent } from '../Panel/LeftPanel/Tag';
+import { HtmlConvertComponent } from '../Panel/LeftPanel/Convertable';
 
 import { ToolBarButton } from "./ToolBar";
 import Table from './Table'
 import Columns from './Columns';
 
+import { updateData } from '../../../../lib/db';
+
+
 // Function to handle the addition of elements
-const handleAddElement = async (tag, before, currentElement, onAddElement) => {
+const handleAddElement = async (tag, before, currentElement, onAddElement, elements=[]) => {
     let status = false;
     if (tag) {
-        status = await onAddElement(tag, before, currentElement);
+        status = await onAddElement(tag, before, currentElement, elements);
     }
     return status;
 }
@@ -37,9 +41,13 @@ function AddElement({ onAddElement, currentElement, setCurrentElement }) {
     } = theme.useToken();
 
     const [tag, setTag] = useState('');
+    const [elements, setElements] = useState([]);
 
-    const onSelect = (tag) => {
-        setTag(tag)
+
+    const onSelect = (tag, elements = []) => {
+        setElements(elements);
+        setTag(tag);
+
     }
 
     const [open, setOpen] = useState(false);
@@ -68,18 +76,23 @@ function AddElement({ onAddElement, currentElement, setCurrentElement }) {
         }
     };
 
+
     const onAddBefore = async (e) => {
-        let status = await handleAddElement(tag, true, currentElement, onAddElement);
+      
+        let status = await handleAddElement(tag, true, currentElement, onAddElement, elements);
         onCancel();
     };
 
     const onAdd = async (e) => {
-        let status = await handleAddElement(tag, false, currentElement, onAddElement);
+        let status = await handleAddElement(tag, false, currentElement, onAddElement, elements);
         onCancel();
+        
     }
 
     const onCancel = () => {
         setCurrentElement({});
+        setTag('');
+        setElements([]);
     };
 
     const onSaveTable = async (e) => {
@@ -131,7 +144,7 @@ function AddElement({ onAddElement, currentElement, setCurrentElement }) {
             open={open}
             closable
             onCancel={onCancel}
-            width="450px"
+            width="650px"
             footer={
                 <div style={{ padding: 5 }}>
                     <Button onClick={onCancel}>Cancel</Button>
@@ -159,12 +172,16 @@ function AddElement({ onAddElement, currentElement, setCurrentElement }) {
             <div style={{ height: '60vh', overflow: 'auto' }}>
                 {currentElement.layout === 'Flex' || currentElement.layout === 'Grid' ?
                     <Columns setCols={setCols} />
-                    : 
-                    <TagComponent
-                        onSelect={onSelect}
-                        tag={tag}
-                        width={'100%'}
-                        gridStyle={{ width: '100%', textAlign: 'center' }} />}
+                    : <>
+                        <TagComponent
+                            onSelect={onSelect}
+                            tag={tag}
+                            HtmlConvertComponent={<HtmlConvertComponent onSelect={onSelect} />}
+                            width={'100%'}
+                            gridStyle={{ width: '100%', textAlign: 'center' }} />
+
+                    </>
+                }
             </div>
         </Modal>
     </>

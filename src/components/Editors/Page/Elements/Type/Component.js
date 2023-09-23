@@ -41,12 +41,9 @@ const Component = ({
     pos }) => {
 
    
-
     const spanElement = useMemo(() => {
-        return (value || innerWraaper) ?  (<>
-             {React.isValidElement(value) ? value : <span
-                dangerouslySetInnerHTML={{ __html: value }}
-            />}
+        return (value || innerWraaper?.length > 0) ?  (<>
+             {value}
             {innerWraaper}</>
         ) : <span style={{ userSelect: 'none', color: "#cccccc" }}>add content here</span>;
     }, [innerWraaper, value]);

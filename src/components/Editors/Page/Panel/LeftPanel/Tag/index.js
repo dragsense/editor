@@ -1,9 +1,16 @@
 
 import Tags from './Tags';
 
-export function TagComponent({gridStyle, onSelect, tag, width}) {
+export function TagComponent({gridStyle, 
+    HtmlConvertComponent,
+    onSelect, tag, width}) {
 
-    return <><Tags gridStyle={gridStyle} tag={tag} onSelect={onSelect} width={width}/></>
+    return <><Tags 
+    gridStyle={gridStyle} 
+    tag={tag} 
+    HtmlConvertComponent={HtmlConvertComponent}
+    onSelect={onSelect} 
+    width={width}/></>
    
 };
 

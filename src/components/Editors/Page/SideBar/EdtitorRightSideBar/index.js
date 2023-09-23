@@ -190,8 +190,8 @@ const EditorRightSideBar = ({ onClickElement,
         return (
             <>
           
-                <div key='sub1' style={{ display: key === 'sub1' ? 'block' : 'none' }}>
-                    {state.node && <Navigator
+                {key === 'sub1' && <div key='sub1'>
+                    <Navigator
                         page={state.page}
                         onAdd={onAdd}
                         onMove={onMove}
@@ -201,43 +201,43 @@ const EditorRightSideBar = ({ onClickElement,
                         onClickElement={onClickElement}
                         pageUpdated={state.pageUpdated}
                         loading={state.loading}
-                    />}
-                </div>
-                <div key='sub2' style={{ display: key === 'sub3' && state.node ? 'block' : 'none' }}>
+                    />
+                </div>}
+                {key === 'sub3' && <div key='sub3'>
                     {state.node && <Element onChange={onChange}
                         state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />}
-                </div>
-                <div key='sub3' style={{ display: key === 'sub4' && state.node ? 'block' : 'none' }}>
+                </div>}
+                {key === 'sub4' && <div key='sub4'>
                     {state.node && <Content
                     host={host}
                         onChange={onChange}
                         state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />}
-                </div>
-                <div key='sub4' style={{ display: key === 'sub2' && state.node ? 'block' : 'none' }}>
+                </div>}
+                {key === 'sub2' && <div key='sub2'>
                     {state.node && <Component 
                     onAdd={onAdd}
                         onChange={onChange}
                         onUpdate={onUpdate}
                         state={state}
                         cascaderStates={cascaderStates} />}
-                </div>
-                <div key='sub5' style={{ display: key === 'sub5' && state.node ? 'block' : 'none' }}>
+                </div>}
+                {key === 'sub5' && <div key='sub5'>
                     {state.node && <Collection onChange={onChange}
                         state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />}
-                </div>
-                <div key='sub6' style={{ display: key === 'sub6' && state.node ? 'block' : 'none' }}>
+                </div>}
+                {key === 'sub6' && <div key='sub6'>
                     {state.ndoe && <Form onChange={onChange}
                         state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />}
-                </div>
-                <div key='sub7' style={{ display: key === 'sub7' && state.node ? 'block' : 'none' }}>
+                </div>}
+                {key === 'sub7' && <div key='sub7'>
                     {state.node && <Styling
                         onDeleteSelector={onDeleteSelector}
                         onUpdateSelector={onUpdateSelector}
                         state={state}
                         onChangeStyle={onChange}
                         onSelectSelector={onSelectSelector} />}
-                </div>
-                <div key='sub8' style={{ display: key === 'sub8' && state.node ? 'block' : 'none' }}>
+                </div>}
+                {key === 'sub8' && <div key='sub8'>
                     {state.node && <LayoutStyle
                         onUpdate={onUpdateSelector}
                         selector={state.selector}
@@ -246,7 +246,7 @@ const EditorRightSideBar = ({ onClickElement,
                         layout={state.node.layout}>
                         <SettingOutlined style={{ color: colorPrimary }} />
                     </LayoutStyle>}
-                </div>
+                </div>}
             </>
         );
     }

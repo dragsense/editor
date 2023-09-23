@@ -39,6 +39,7 @@ export default function RightSideBar({
     animation = false,
     width = 250,
     mode = "dark",
+    isConverted,
     menuKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15'] }) {
 
     const {
@@ -118,6 +119,7 @@ export default function RightSideBar({
                 <div style={{ flex: 1 }}>
                     <SearchableSelector
                         state={state}
+                        isConverted={isConverted}
                         animation={animation}
                         onSelect={onSelect} />
                 </div>

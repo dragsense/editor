@@ -85,6 +85,7 @@ const handleOnChange = (values, node, all, fun, states, setValue) => {
     }
 }
 
+
 const ElementComponent = (props) => {
 
     const { node, _id, fun, children, onUpdateStates } = props;
@@ -117,12 +118,13 @@ const ElementComponent = (props) => {
         }
     };
 
+
     useEffect(() => {
         if (!node)
             return;
         setStates({ ...node.states });
-        const cascaderStates = generateCascader(node.states, node.name, node.cname);
-        onUpdateStates(node.cname, cascaderStates, setStates, true);
+        const cascaderStates = generateCascader(node.states, node.name, node._uid);
+        onUpdateStates(node._uid, cascaderStates, setStates);
     }, []);
 
     useEffect(() => {
@@ -174,7 +176,7 @@ const ElementComponent = (props) => {
 
     const onChange = useCallback((values, node, all = false) => {
         handleOnChange(values, node, all, fun, states, setValue);
-    }, [states, setValue]);
+    }, [states]);
 
     return (
         <span style={{ border: '#ffaa4f5e solid 1px', display: 'inline-block', width: '-webkit-fill-available' }}>

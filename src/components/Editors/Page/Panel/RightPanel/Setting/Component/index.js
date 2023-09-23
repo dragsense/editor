@@ -69,11 +69,11 @@ const onUpdateNNodes = (state, type, data,   onUpdate, onAdd) => {
     else {
         if(data['activeItem'] && data['activeItem'].defaultValue)
         data['activeItem'].defaultValue = null;
-       console.log(data['activeItem']) 
-        state.node.states = data
+        state.node.states = data;
+
         onUpdate(state.node);
-        if (state.states[state.node.cname]) {
-            state.states[state.node.cname].setStates(data);
+        if (state.states[state.node._uid]) {
+            state.states[state.node._uid].setStates(data);
         }
 
     }

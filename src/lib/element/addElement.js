@@ -654,15 +654,11 @@ const createElement = async (tag, parentElement, addToAbove, currentUid, positio
                 state: tag.state,
                 map: tag.map,
                 nodeValue: tag.nodeValue ? tag.nodeValue : tag.text ? tag.text : '',
-                childNodes: [],
+                childNodes: tag.childNodes || [],
                 classes: tag.classes,
                 className: className,
                 selector: "." + className,
-                style: {
-                    normal: {
-                        properties
-                    }
-                }
+               
             };
         }
 

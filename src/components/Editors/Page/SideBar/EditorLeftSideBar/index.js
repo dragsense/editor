@@ -9,13 +9,15 @@ import { CgTemplate } from 'react-icons/cg';
 import { PageComponent } from '../../Panel/LeftPanel/Page';
 import { TagComponent } from '../../Panel/LeftPanel/Tag';
 import { ElementsComponent } from '../../Panel/LeftPanel/Local';
+
 import { usePageStates } from '../../PageProvider';
 import { nanoid } from 'nanoid';
 import { storePage } from "../../../../../lib/db";
+import { TagOutlined } from '@ant-design/icons';
 
 const { Sider } = Layout;
 const { Panel } = Collapse;
-const menuKeys = ['pages', 'tags', 'components', 'collections', 'forms', 'elements'];
+const menuKeys = ['pages', 'tags', 'components', 'collections', 'forms', 'elements', 'html'];
 
 // Initial state for the reducer
 const initial = {
@@ -96,7 +98,7 @@ const EditorLeftSideBar = ({ }) => {
                 mode="inline"
                 selectedKeys={selectedKeys}
                 defaultSelectedKeys={selectedKeys}
-                openKeys={openKeys}
+                openKeys={openKeys} 
                 style={{ height: '100%', overflow: 'auto' }}
                 onOpenChange={handleSubMenuOpenChange}
             >
@@ -127,11 +129,13 @@ const EditorLeftSideBar = ({ }) => {
                         <TagComponent gridStyle={{  textAlign: 'center' }} />
                     </Menu.SubMenu>)
                 }
-                {(keys.includes('elements')|| collapsed) && (
+                {/* {(keys.includes('elements')|| collapsed) && (
                     <Menu.SubMenu icon={<BsFillFileEarmarkTextFill size="1.5em" />} key="elements" title="Reusable">
                         <ElementsComponent state={elementState} dispatch={dispatch} pageId={state.page?._id} />
                     </Menu.SubMenu>)
-                }
+                } */}
+   
+                
             </Menu>
         </Sider>
     );

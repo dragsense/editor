@@ -10,6 +10,8 @@ import PreviewEditorNav from './Editor/PreviewEditorNav';
 import CanvasEditor from '../Canvas';
 import Elements from "./Elements";
 
+import { ConvertSelectors } from './Convertable'
+
 // Importing necessary functions from the database library
 import {
     loadGlobalStyles, saveStyle,
@@ -736,8 +738,18 @@ export default function Style({ children, onBack }) {
 
     </span>
 
+    const [isConverted, setIsConverted] = useState(false);
+
+    useEffect(() => {
+        setIsChange(true);
+      }, [isConverted])
+
     // Function to render the right tools
-    const RightTools = () => <span></span>
+    const RightTools = () => state.elementType !== 'default' &&
+        <ConvertSelectors state={state}
+        setIsConverted={setIsConverted}
+            getIframeAndDocument={getIframeAndDocument}
+            setClassNames={setClassNames} />
 
     // Function to handle back click
     const handleBackClick = async (e) => {
@@ -745,9 +757,13 @@ export default function Style({ children, onBack }) {
         if (isChange) {
             const shouldSave = await window.autocode.checkUnsavedChanges(isChange);
 
-            if (shouldSave) {
+            if (shouldSave === 0) {
                 await onSubmit();
-            }
+              }
+        
+              if (shouldSave === 2) {
+                return;
+              }
         }
 
         // Navigate back
@@ -789,6 +805,7 @@ export default function Style({ children, onBack }) {
                 onChange={onChange}
                 isChange={isStyleChange}
                 onLoad={onLoad}
+                isConverted={isConverted}
             >
 
                 <CanvasEditor windowWidth={windowWidth} setWindowWidth={setWindowWidth}>

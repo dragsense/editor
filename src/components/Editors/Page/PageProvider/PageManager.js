@@ -42,7 +42,7 @@ const reducer = (state, action) => {
         "start": () => ({ ...state, loading: true, error: '' }),
         "load": () => ({ ...state, pageUpdated: action.pageUpdated }),
         "preview": () => ({ ...state, preview: action.preview }),
-        "edit": () => ({ ...state, page: action.page, type: action.pageType, isChange: false }),
+        "edit": () => ({ ...state, page: action.page, type: action.pageType, states: {}, isChange: false }),
         "updatePage": () => ({ ...state, pageUpdated: action.pageUpdated, isChange: true }),
         "updateStates": () => ({ ...state, states: { ...state.states, ...action.states } }),
         "styleChange": () => ({ ...state, isStyleChange: true }),
@@ -50,7 +50,7 @@ const reducer = (state, action) => {
         "close": () => ({ ...state, isChange: false }),
         "media": () => ({ ...state, media: action.media, selector: null, node: null }),
         "savePage": () => ({ ...state, isChange: false }),
-        "delete": () => ({ ...state, node: null }),
+        "unselect": () => ({ ...state, node: null, states: { ...state.states } }),
         "addSelector": () => ({ ...state, selector: action.selector }),
         "selectNode": () => ({ ...state, node: action.node }),
         "error": () => ({ ...state, error: action.error }),
@@ -79,12 +79,18 @@ const reducer = (state, action) => {
  * @returns {boolean} - Returns true if the element is successfully added, false otherwise
  */
 const onAddElement = async (currentUid, tag, _id, level = 0) => {
+
+
+
     // Check if the currentUid is provided
     if (currentUid) {
         // Fetch the current element data from the database
         const element = await getData(_id, currentUid);
+
+
         // Fetch the parent tag from the HTMLTags JSON
         const parentTag = HTMLTags[element.type]?.find(val => val.tag == element.tagName);
+
 
         // Check if the parent tag does not accept the current tag
         if (parentTag && (parentTag.notaccept?.includes(tag.tag) || parentTag.notaccept?.includes(tag.type))) {
@@ -356,8 +362,8 @@ export default function PageManger({ children }) {
 
 
     useEffect(() => {
-        if(!previewMode)
-        dispatch({ type: 'preview', preview: 0 });
+        if (!previewMode)
+            dispatch({ type: 'preview', preview: 0 });
     }, [previewMode])
 
     // Function to load elements for preview
@@ -754,7 +760,7 @@ export default function PageManger({ children }) {
         if (!Array.isArray(page[`${pageType}s`]))
             page[`${pageType}s`] = [];
         // Add the component to the page data
-        addComponentToPageData(page, pageType+"s", tag.page._id);
+        addComponentToPageData(page, pageType + "s", tag.page._id);
 
         // Store the updated page data
         await storePage(page);
@@ -823,6 +829,7 @@ export default function PageManger({ children }) {
         addToAbove,
         pos,
         iFramedocument,
+        elements = [],
         STORE = UNDO_STORE_NAME) => {
 
         // Check if tag or currentUid is provided
@@ -876,10 +883,43 @@ export default function PageManger({ children }) {
                 state,
                 iFramedocument);
 
+
+            if (elements && elements.length >= 0)
+                for (let i = 0; i < elements.length; i++) {
+
+                    const element = elements[i];
+                    const id = nanoid(8);
+                    const style = {
+                        _uid: id,
+                        selectorText: element.selector,
+                        type: element.tagName,
+                        style: {
+                            ['normal']: {
+                                ["root"]: {
+                                    properties: {}
+                                }
+                            }
+                        }
+                    };
+                    element.styleUid = id;
+
+                    // Update the page's style data.
+                    await updateData(state.page._id, style, STYLE_STORE_NAME);
+                    element.parent = pageUpdated.newId;
+                    await updateData(state.page._id, elements[i]);
+                }
+
+
             // Update the state with the updated page data
             dispatch({
                 type: 'updatePage', pageUpdated
             });
+
+            setTimeout(() => {
+                dispatch({
+                    type: 'unselect'
+                });
+            })
 
             // Check if the tag is not a menu
             if (!tag.addmenu)
@@ -1051,15 +1091,19 @@ export default function PageManger({ children }) {
                 parentId: parent._uid,
             }
 
+            if (state.states && state.states[currentElement._uid])
+                delete state.states[currentElement._uid];
+
+                console.log(state.states)
+
             // Update the state with the updated page data
             dispatch({
                 type: 'updatePage', pageUpdated
             });
 
-            // Dispatch a 'delete' action after a delay
             setTimeout(() => {
                 dispatch({
-                    type: 'delete'
+                    type: 'unselect'
                 });
             })
 
@@ -1072,6 +1116,7 @@ export default function PageManger({ children }) {
                 parentUid
             }, STORE, isRedo);
 
+
         } catch (e) {
             // If an error occurs during the delete process, dispatch an 'error' action with the error message
             dispatch({ type: 'error', error: e?.message || 'Something went wrong.' });
@@ -1081,7 +1126,7 @@ export default function PageManger({ children }) {
             dispatch({ type: 'finish' });
         }
 
-    }, [state.page]);
+    }, [state.page, state.states]);
 
     // Function to validate the target element
     const validateTargetElement = async (targetUid) => {
@@ -1108,139 +1153,139 @@ export default function PageManger({ children }) {
         dispatch({ type: 'start' });
         try {
 
-        // Extract the currentUid, targetUid, addToAbove, copy, and pageId from the node
-        const currentUid = node.dataset.id;
-        const targetUid = node.dataset.targetId;
-        const addToAbove = node.dataset.addToAbove;
-        const copy = node.dataset.copy;
-        const pageId = node.dataset.pageId || state.page._id;
-        let pos = node.dataset.pos;
+            // Extract the currentUid, targetUid, addToAbove, copy, and pageId from the node
+            const currentUid = node.dataset.id;
+            const targetUid = node.dataset.targetId;
+            const addToAbove = node.dataset.addToAbove;
+            const copy = node.dataset.copy;
+            const pageId = node.dataset.pageId || state.page._id;
+            let pos = node.dataset.pos;
 
-        // Fetch the current element data
-        let currentElement = await getData(pageId, currentUid);
+            // Fetch the current element data
+            let currentElement = await getData(pageId, currentUid);
 
-        // Check if the current element data exists
-        if (!currentElement) {
-            dispatch({ type: 'error', error: 'Element not selected.' });
-            return false;
-        }
+            // Check if the current element data exists
+            if (!currentElement) {
+                dispatch({ type: 'error', error: 'Element not selected.' });
+                return false;
+            }
 
-        // Check if the currentUid is '0'
-        if (currentUid == '0') {
-            dispatch({ type: 'error', error: 'Body can not be clone.' });
-            return false;
-        }
+            // Check if the currentUid is '0'
+            if (currentUid == '0') {
+                dispatch({ type: 'error', error: 'Body can not be clone.' });
+                return false;
+            }
 
-        // Validate the target element
-        let parentElement = await validateTargetElement(targetUid);
-        if (!parentElement) return false;
+            // Validate the target element
+            let parentElement = await validateTargetElement(targetUid);
+            if (!parentElement) return false;
 
-        // If addToAbove or not copy, fetch the parent of the target element
-        if (addToAbove || !copy)
-            parentElement = await getData(state.page._id, parentElement.parent);
+            // If addToAbove or not copy, fetch the parent of the target element
+            if (addToAbove || !copy)
+                parentElement = await getData(state.page._id, parentElement.parent);
 
-        // Check if the parent element exists
-        if (!parentElement) {
-            dispatch({ type: 'error', error: 'Target Element not found.' });
-            return false;
-        }
+            // Check if the parent element exists
+            if (!parentElement) {
+                dispatch({ type: 'error', error: 'Target Element not found.' });
+                return false;
+            }
 
-        // Check if the element can be added to the page
-        if (!await onAddElement(parentElement._uid, { tag: currentElement.tagName }, state.page._id))
-            return false;
+            // Check if the element can be added to the page
+            if (!await onAddElement(parentElement._uid, { tag: currentElement.tagName }, state.page._id))
+                return false;
 
 
-        // Generate a unique id for the new element
-        let id = nanoid(8);
-        const unique_id = uuid();
+            // Generate a unique id for the new element
+            let id = nanoid(8);
+            const unique_id = uuid();
 
-        // Assign the unique id to the current element
-        currentElement._uid = unique_id;
+            // Assign the unique id to the current element
+            currentElement._uid = unique_id;
 
-        // Fetch the iframe document
-        const iframe = document.querySelector("#ac-editor-iframe-doc")
-        let iFrameDocument = iframe.contentDocument;
+            // Fetch the iframe document
+            const iframe = document.querySelector("#ac-editor-iframe-doc")
+            let iFrameDocument = iframe.contentDocument;
 
-        // If deep copy, update the className and selector of the current element
-        if (deep) {
-            const mainClass = currentElement.mainClass || "ac" + "-elem";
+            // If deep copy, update the className and selector of the current element
+            if (deep) {
+                const mainClass = currentElement.mainClass || "ac" + "-elem";
 
-            currentElement.className = mainClass + "-" + id;
-            const selectors = currentElement.selector.split(" ");
-            selectors[selectors.length - 1] = "." + mainClass + "-" + id;
-            currentElement.selector = selectors.join(" ");
+                currentElement.className = mainClass + "-" + id;
+                const selectors = currentElement.selector.split(" ");
+                selectors[selectors.length - 1] = "." + mainClass + "-" + id;
+                currentElement.selector = selectors.join(" ");
 
-            // Fetch the style data of the current element
-            const style = await getData(state.page._id, currentElement.styleUid, 'id', STYLE_STORE_NAME);
-            if (style) {
-                // Generate a new id for the style
-                let id = nanoid(8);
-                style._uid = id;
-                style.selectorText = currentElement.selector;
-                currentElement.styleUid = id;
+                // Fetch the style data of the current element
+                const style = await getData(state.page._id, currentElement.styleUid, 'id', STYLE_STORE_NAME);
+                if (style) {
+                    // Generate a new id for the style
+                    let id = nanoid(8);
+                    style._uid = id;
+                    style.selectorText = currentElement.selector;
+                    currentElement.styleUid = id;
 
-                // Create the new style in the iframe document
-                createCss('normal', style, style.selectorText, iFrameDocument)
+                    // Create the new style in the iframe document
+                    createCss('normal', style, style.selectorText, iFrameDocument)
 
-                if (state.media)
-                    createCss(state.media, style, style.selectorText, iFrameDocument)
+                    if (state.media)
+                        createCss(state.media, style, style.selectorText, iFrameDocument)
 
-                // Update the style data
-                await updateData(state.page._id, style, STYLE_STORE_NAME);
+                    // Update the style data
+                    await updateData(state.page._id, style, STYLE_STORE_NAME);
+
+                }
 
             }
 
-        }
+            // Copy the element
+            await onCopyElement(currentElement, { media: state.media, page: { _id: pageId } }, deep, iFrameDocument);
 
-        // Copy the element
-        await onCopyElement(currentElement, { media: state.media, page: { _id: pageId } }, deep, iFrameDocument);
+            // If copy, add the new element to the parent element's childNodes at the correct position
+            if (copy) {
 
-        // If copy, add the new element to the parent element's childNodes at the correct position
-        if (copy) {
+                if (addToAbove) {
+                    let targetIndex = parentElement.childNodes.indexOf(targetUid);
+                    parentElement.childNodes.splice(targetIndex, 0, unique_id);
+                    pos = pos.slice(0, -1);
 
-            if (addToAbove) {
-                let targetIndex = parentElement.childNodes.indexOf(targetUid);
-                parentElement.childNodes.splice(targetIndex, 0, unique_id);
-                pos = pos.slice(0, -1);
+                }
+                else {
+                    parentElement.childNodes.push(unique_id);
+                }
+
 
             }
             else {
-                parentElement.childNodes.push(unique_id);
+                // If not copy, add the new element to the parent element's childNodes after the current element
+                const index = parentElement.childNodes.indexOf(currentUid);
+                parentElement.childNodes.splice(index + 1, 0, unique_id);
+                pos = pos.slice(0, -1);
+
             }
 
+            await updateData(state.page._id, currentElement);
+            // Update the parent element data
+            await updateData(state.page._id, parentElement);
 
+            const pageUpdated = {
+                pos,
+                parentId: parentElement._uid,
+                newId: unique_id
+            }
+
+            dispatch({
+                type: 'updatePage',
+                pageUpdated
+            });
+
+        } catch (e) {
+            // If an error occurs during the delete process, dispatch an 'error' action with the error message
+            dispatch({ type: 'error', error: e?.message || 'Something went wrong.' });
+
+        } finally {
+            // Finally, after completing or encountering an error during the delete process, dispatch a 'finish' action
+            dispatch({ type: 'finish' });
         }
-        else {
-            // If not copy, add the new element to the parent element's childNodes after the current element
-            const index = parentElement.childNodes.indexOf(currentUid);
-            parentElement.childNodes.splice(index + 1, 0, unique_id);
-            pos = pos.slice(0, -1);
-
-        }
-
-        await updateData(state.page._id, currentElement);
-        // Update the parent element data
-        await updateData(state.page._id, parentElement);
-
-        const pageUpdated = {
-            pos,
-            parentId: parentElement._uid,
-            newId: unique_id
-        }
-
-        dispatch({
-            type: 'updatePage',
-            pageUpdated
-        }); 
-
-    } catch (e) {
-        // If an error occurs during the delete process, dispatch an 'error' action with the error message
-        dispatch({ type: 'error', error: e?.message || 'Something went wrong.' });
-
-    } finally {
-        // Finally, after completing or encountering an error during the delete process, dispatch a 'finish' action
-        dispatch({ type: 'finish' });
-    }
 
         // Update the current element data
     }, [state.page]);
@@ -1440,10 +1485,10 @@ export default function PageManger({ children }) {
     // Effect to handle changes in the updatedNode state
     useEffect(() => {
         // If there is a change and updatedNode is not null, update the value
-        
-        if (updatedNode) 
-        updateValue(updatedNode); 
-    }, [updatedNode]) 
+
+        if (updatedNode)
+            updateValue(updatedNode);
+    }, [updatedNode])
 
     // Function to update the node
     const onUpdate = useCallback(async (node) => {
@@ -1474,8 +1519,8 @@ export default function PageManger({ children }) {
                 Modal.confirm({
                     title: 'Publish Page Changes',
                     content: 'Are you sure you want to publish?',
-                    okText:"Publish",
-                    
+                    okText: "Publish",
+
                     onOk: async () => {
                         try {
                             const res = await publishPage(page, type, dispatch);
@@ -1536,7 +1581,11 @@ export default function PageManger({ children }) {
 
     // Function to handle the click event on an element
     const onClickElement = useCallback(async (iframeDocument, id) => {
+
+
+
         try {
+
             // Fetch the iframe document if not provided
             iframeDocument = iframeDocument || getIframeDocument();
 
@@ -1558,7 +1607,6 @@ export default function PageManger({ children }) {
                 state.node.node.style.outline = null;
             }
 
-            // Remove outline from all elements
             const elements = iframeDocument.body.querySelectorAll("[data-id]");
             elements.forEach(element => {
                 element.style.outline = null;
@@ -1591,8 +1639,9 @@ export default function PageManger({ children }) {
         } catch (error) {
             // Handle any errors that occur during the execution of the function
             dispatch({ type: 'error', error: error.message });
+        } finally {
         }
-    }, [state, state.page]);
+    }, [state]);
 
     // Function to get the CSS rule
     const getCssRule = (cssRules, selectorText, elementstate) => {
@@ -1724,11 +1773,11 @@ export default function PageManger({ children }) {
 
 
     // Function to update the node value
-    const updateNodeValues = useCallback(async () => {
+    const updateNodeValues = async () => {
         if (state.node) {
             await updateValue(state.node);
         }
-    }, [state.node]);
+    };
 
     // Function to update the selector
     const updateSelectorValue = useCallback(async () => {
