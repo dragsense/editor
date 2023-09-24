@@ -1094,7 +1094,6 @@ export default function PageManger({ children }) {
             if (state.states && state.states[currentElement._uid])
                 delete state.states[currentElement._uid];
 
-                console.log(state.states)
 
             // Update the state with the updated page data
             dispatch({

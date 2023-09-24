@@ -23,7 +23,7 @@ const handleModalStateChange = (state, contentRef, type, setHtml) => {
         message.error("node not selected.")
     }
     if (state.visible && contentRef.current) {
-        console.log(state)
+        
         let existingChildren = state?.node.querySelector(`[data-child="child-${state._uid}"]`);
   
         ContentEditor.destroy(null);

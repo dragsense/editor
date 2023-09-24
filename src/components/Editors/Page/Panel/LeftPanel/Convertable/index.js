@@ -187,7 +187,6 @@ const HtmlConvertComponent = ({ onSelect }) => {
         setIsLoading(true);
         try {
             const { root, elements } = await convertHtmlToObject(htmlInput);
-            console.log(root)
             onSelect(root, elements);
             setIsChange(false);
         } catch (error) {

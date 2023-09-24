@@ -151,7 +151,7 @@ export default function Style({ children, onBack }) {
             const fetchData = async () => {
                 const res = await getAllData(state.page?._id, STYLE_STORE_NAME);
                 const data = res?.elements ? res.elements : {};
-                console.log(res)
+               
 
                 const classNames = new Set();
                 Object.values(data).filter(element => element.type === elementType).forEach((element) => {

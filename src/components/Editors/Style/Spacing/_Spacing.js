@@ -551,7 +551,7 @@ export default function _Spacing({ style, variables, type, stylePriority, proper
                 size="small"
                 placeholder="bottom"
                 onChange={(value) => {
-                    console.log(value)
+                   
                     onChange("Bottom", value + bottomUnit, bottomUnit)
                 }}
                 type='number' name="Bottom" value={parseFloat(style[`${type}Bottom`])}
