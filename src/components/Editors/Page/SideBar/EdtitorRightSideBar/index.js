@@ -186,10 +186,9 @@ const EditorRightSideBar = ({ onClickElement,
     }
 
     // Render function for menu items
-    const renderMenuItems = (key) => {
+    const renderMenuItems = (key, host) => {
         return (
             <>
-          
                 {key === 'sub1' && <div key='sub1'>
                     <Navigator
                         page={state.page}
@@ -208,8 +207,9 @@ const EditorRightSideBar = ({ onClickElement,
                         state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />}
                 </div>}
                 {key === 'sub4' && <div key='sub4'>
+            
                     {state.node && <Content
-                    host={host}
+                            host={host}
                         onChange={onChange}
                         state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />}
                 </div>}
@@ -289,7 +289,7 @@ const EditorRightSideBar = ({ onClickElement,
                                                             key === 'sub8' ? 'Quick Styling' : null}
                             >
                                 <div style={{ padding: '10px 15px 10px 10px' }}>
-                                    {renderMenuItems(key)}
+                                    {renderMenuItems(key, host)}
                                 </div>
                             </Menu.SubMenu>
                         );

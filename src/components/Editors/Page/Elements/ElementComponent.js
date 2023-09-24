@@ -14,13 +14,12 @@ const handleStateUpdates = (elem, withValue, states, value, setStates) => {
 }
 
 // Function to handle onClick events
-const handleOnClick = (node, stateValue, withValue, fun, setState) => {
-    if (node && node.onClick) {
-        const elem = node.onClick;
-        setState({ elem, stateValue, withValue });
+const handleOnClick = (changeEvent, stateValue, withValue, fun, setState) => {
+    if (changeEvent) {
+        setState({ elem:changeEvent, stateValue, withValue });
 
         if (fun?.onClick)
-            fun.onClick(node, stateValue, withValue);
+            fun.onClick(changeEvent, stateValue, withValue);
     }
 }
 
@@ -70,19 +69,19 @@ const handleOnChange = (values, node, all, fun, states, setValue) => {
         allvalues = options;
     }
 
-    const debouncedSetValue = debounce((onChange, value) => {
-        setValue(onChange, value, '');
+    // Use a debounce function to limit the frequency of the loop
+    const debouncedSetValue = debounce((values, allvalues) => {
+        for (const elem of values) {
+            let value = elem.value;
+            const elemToChange = elem.elem;
+            if (value === 'all')
+                value = allvalues.join(",");
+
+            setValue(elemToChange, value, '');
+        }
     }, 100); // 300ms delay
-    for (const elem of values) {
-        let value = elem.value;
-        const onChange = elem.elem;
 
-        if (value === 'all')
-            value = allvalues.join(",");
-
-            debouncedSetValue(onChange, value);
-
-    }
+    debouncedSetValue(values, allvalues);
 }
 
 
@@ -134,8 +133,8 @@ const ElementComponent = (props) => {
         setValue(elem, stateValue, withValue);
     }, [state]);
 
-    const onClick = useCallback((node, stateValue, withValue) => {
-        handleOnClick(node, stateValue, withValue, fun, setState);
+    const onClick = useCallback((changeEvent, stateValue, withValue) => {
+        handleOnClick(changeEvent, stateValue, withValue, fun, setState);
     }, [fun]);
 
     const updateStates = useCallback((key, value, updateKey = 'defaultValue') => {

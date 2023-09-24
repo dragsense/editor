@@ -9,10 +9,12 @@ const createImageObject = (value) => {
 }
 
 // Function to create custom attributes for image element
-const createCustomAttributes = (_uid, pos, name, onMouseMove, onClick, image, conds, disabledStyles) => {
+const createCustomAttributes = (_uid, pos, name, onMouseMove, onClick,  onMouseEnter, onMouseLeave, image, conds, disabledStyles) => {
     return {
         onMouseMove: onMouseMove,
         onClick: onClick,
+        onMouseLeave,
+        onMouseEnter,
         src: image.src, alt: image.alt,
         "data-id": _uid,
         "data-pos": pos,
@@ -22,8 +24,21 @@ const createCustomAttributes = (_uid, pos, name, onMouseMove, onClick, image, co
     }
 }
 
+// Function to create custom attributes for image element
+const createDisbaledAttributes = (_uid, pos, name, onMouseMove, onClick,  onMouseEnter, onMouseLeave, image, conds, disabledStyles) => {
+    return {
+        onMouseMove: onMouseMove,
+        onClick: onClick,
+        onMouseLeave,
+        onMouseEnter,
+        src: image.src, alt: image.alt,
+      
+        style: conds ? {} : disabledStyles
+    }
+}
+
 const Image = (props) => {
-    const { _uid, pos, conds, onMouseMove, onClick, value, name, children, disabled } = props;
+    const { _uid, pos, conds, onMouseMove, onMouseEnter, onMouseExit, onClick, value, name, children, disabled } = props;
 
     // Styles for disabled image
     const disabledStyles = useMemo(() => ({
@@ -35,13 +50,15 @@ const Image = (props) => {
     const image = useMemo(() => createImageObject(value), [value]);
    
     // Create custom attributes for image element
-    const customAttributes = useMemo(() => createCustomAttributes(_uid, pos, name, onMouseMove, onClick, image, conds, disabledStyles), [_uid, pos, name, onMouseMove, onClick, image, conds, disabledStyles]);
+    const customAttributes = useMemo(() => createCustomAttributes(_uid, pos, name, onMouseMove, onClick,  onMouseEnter, onMouseExit, image, conds, disabledStyles), [_uid, pos, name, onMouseMove, onClick, image, conds, disabledStyles]);
 
     // Clone children and add custom attributes
     const ImageElement = useMemo(() => React.cloneElement(children, { customAttributes }), [children, customAttributes]);
 
+    const disabledAttributes = useMemo(() => createDisbaledAttributes(_uid, pos, name, onMouseMove, onClick,  onMouseEnter, onMouseExit, image, conds, disabledStyles), [_uid, pos, name, onMouseMove, onClick, image, conds, disabledStyles]);
+
     // Clone children and add custom attributes for disabled element
-    const disabledElement = useMemo(() => React.cloneElement(children, { customAttributes }), [children, customAttributes]);
+    const disabledElement = useMemo(() => React.cloneElement(children, { customAttributes: disabledAttributes }), [children, customAttributes]);
 
     // Return disabled element if disabled, else return ImageElement
     return disabled ? disabledElement : ImageElement;

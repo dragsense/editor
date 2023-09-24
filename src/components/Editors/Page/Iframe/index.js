@@ -52,9 +52,7 @@ const InnerComponent = ({ children, document, onLoad, _id, type }) => {
   const appendCustomStyles = () => {
     const style = document.createElement('style');
     style.textContent = `
-      .cke_editable.ae-editable, .cke_editable.ae-editable *{
-        background: #fff !important;
-      }
+  
       @keyframes ac-001-pulse {
         0% {
           opacity: 1;
@@ -78,8 +76,12 @@ const InnerComponent = ({ children, document, onLoad, _id, type }) => {
         let res = await SettingServices.get();
 
         if (res?.setting) {
+          document.head.insertAdjacentHTML("beforeend", `<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />`);
+
           document.head.insertAdjacentHTML("beforeend", res.setting.scripts?.head);
           document.body.insertAdjacentHTML("beforeend", res.setting.scripts?.footer);
+         
+
         }
 
         //Fetch fonts and append to document head

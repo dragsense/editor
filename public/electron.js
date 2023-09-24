@@ -56,6 +56,12 @@ const setSession = (argUrl) => {
 
     const ses = session.defaultSession;
     ses.clearStorageData();
+
+    ses.webRequest.onBeforeSendHeaders((details, callback) => {
+      details.requestHeaders['ngrok-skip-browser-warning'] = 'true';  // Set the custom header
+      callback({ cancel: false, requestHeaders: details.requestHeaders });
+    });
+
     if (sessionToken && csrfToken && callbackUrl) {
 
       ses.cookies.set({ url: apiUrl, name: prefixSecure + 'next-auth.session-token', value: sessionToken });
@@ -139,11 +145,12 @@ function createWindow() {
     width: 800,
     height: 600,
     autoHideMenuBar: true,
-
+    
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: true,
-      webSecurity: false,
+      webSecurity: true,
+      devTools: app.isPackaged ? false : true,
       preload: path.join(__dirname, 'preload.js')
     },
     icon: path.join(__dirname, 'favicon.ico'),

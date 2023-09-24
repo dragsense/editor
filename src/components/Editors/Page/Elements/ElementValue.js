@@ -9,7 +9,7 @@ import { message } from "antd";
 const ElementValue = (props) => {
 
     // Destructuring props for easier access
-    const { 
+    const {
         state,
         nodeValue,
         mapValue,
@@ -25,25 +25,25 @@ const ElementValue = (props) => {
         classes,
         conds,
         node,
-        children 
+        children
     } = props;
 
 
-        // Handle 'WINDOW' type
-        const handleWindowType = (key) => {
+    // Handle 'WINDOW' type
+    const handleWindowType = (key) => {
 
-            const iframe = document.querySelector("#ac-editor-iframe-doc")
-            const contentWindow = iframe.contentWindow;;
-    
-            if(!contentWindow)
+        const iframe = document.querySelector("#ac-editor-iframe-doc")
+        const contentWindow = iframe.contentWindow;;
+
+        if (!contentWindow)
             return;
-            if (key[1] === 'width') {
-                return contentWindow.innerWidth;
-            } else if (key[1] === 'height') {
-                return contentWindow.innerHeight;
-            }
-        };
-    
+        if (key[1] === 'width') {
+            return contentWindow.innerWidth;
+        } else if (key[1] === 'height') {
+            return contentWindow.innerHeight;
+        }
+    };
+
 
     // Function to handle global type
     const handleGlobalType = (key) => {
@@ -53,7 +53,7 @@ const ElementValue = (props) => {
                 const images = global[key[1]] || {};
                 const image = images[key[2]] || {}
                 return {
-                    value: image?.src ? setting?.host+image.src : '/images/default/default-img.png',
+                    value: image?.src ? setting?.host + image.src : '/images/default/default-img.png',
                     label: image === undefined ? `[${key[2]}]` : image?.alt || "Global Image"
                 }
             }
@@ -62,8 +62,8 @@ const ElementValue = (props) => {
                 label: global[key[1]] || `[global ${key[1]}]`
             }
         } else
-         if (key[0] === "WINDOW") 
-            return handleWindowType(key);
+            if (key[0] === "WINDOW")
+                return handleWindowType(key);
     }
 
     // Function to handle colStates type
@@ -87,13 +87,13 @@ const ElementValue = (props) => {
 
         switch (type) {
             case 'GLOBAL':
-               
+
 
                 return handleGlobalType(key);
             case 'PROPS':
                 return getStateValue(key, _props, setting?.host) || `[props.${key}]`;
             case 'STATES':
-            
+
                 return getStateValue(key, _states, setting?.host);
             case 'PAGE':
 
@@ -115,13 +115,13 @@ const ElementValue = (props) => {
         }
     }
 
-   ;
+        ;
 
 
     // Function to get value based on state
     const getValueBasedOnState = useCallback(() => {
 
-    
+
         if (!state) return nodeValue;
         const value = getValue(state, nodeValue);
         return value || nodeValue;
@@ -142,19 +142,20 @@ const ElementValue = (props) => {
 
         const stateType = onclick.statetype;
         const stateKey = onclick.statekey;
-        let stateValue = getValue({ type: stateType, key: stateKey }, '');
+        const value = onclick.value;
+        let stateValue = getValue({ type: stateType, key: stateKey }, value);
         stateValue = stateValue?.value ? stateValue.value : stateValue;
 
         return { withValue, stateValue };
     }
 
     // Handle onClick event
-    const handleOnClick = (node, fun, withValue, stateValue) => {
+    const handleOnClick = (changeFun, fun, withValue, stateValue) => {
         if (withValue?.notClickable)
             return;
 
         if (fun?.onClick)
-            fun.onClick(node, stateValue, withValue);
+            fun.onClick(changeFun, stateValue, withValue);
     }
 
     const onClickNode = (e) => {
@@ -164,13 +165,50 @@ const ElementValue = (props) => {
 
         try {
             if (node.onClick) {
-                const { withValue, stateValue } = extractOnClickValues(node.onClick);
-                handleOnClick(node, fun, withValue, stateValue);
+                let { withValue, stateValue } = extractOnClickValues(node.onClick);
+
+    
+                handleOnClick(node.onClick, fun, withValue, stateValue, value);
             }
         } catch (e) {
             console.error(e);
         }
     }
+
+    const onMouseEnter = (e) => {
+        // Prevent default action for anchor tags
+        if (node.tagName === 'a')
+            e.preventDefault();
+
+        try {
+            if (node.onMouseEnter) {
+                let { withValue, stateValue } = extractOnClickValues(node.onMouseEnter);
+
+    
+                handleOnClick(node.onMouseEnter, fun, withValue, stateValue, value);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    const onMouseExit = (e) => {
+        // Prevent default action for anchor tags
+        if (node.tagName === 'a')
+            e.preventDefault();
+
+        try {
+            if (node.onMouseEnter) {
+                let { withValue, stateValue } = extractOnClickValues(node.onMouseExit);
+
+    
+                handleOnClick(node.onMouseExit, fun, withValue, stateValue, value);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
 
     // Function to handle onChange event
     const handleOnChange = (onChangeEvent, value, node, all) => {
@@ -270,12 +308,13 @@ const ElementValue = (props) => {
 
         const onMouseMove = node.onMouseMove;
 
+
         if (!onMouseMove)
             return;
 
         try {
             const { pageX, pageY, scrollLeft, scrollTop, delta } = handleMouseMove(e, onMouseMove);
-            const { valueX, valueY } = calculateMouseMoveValues(onMouseMove, pageX, pageY, scrollLeft, scrollTop, delta);
+            let { valueX, valueY } = calculateMouseMoveValues(onMouseMove, pageX, pageY, scrollLeft, scrollTop, delta);
 
             if (valueX || valueY) {
                 try {
@@ -285,8 +324,9 @@ const ElementValue = (props) => {
                     console.error("Invalid expression:", e);
                 }
 
+
                 if (fun?.onChange)
-                    fun.onChange([{ elem: onMouseMove.stateValueX || {}, value: valueX }, { elem: onMouseMove.stateValueY || {}, value: valueY }], node, null);
+                    fun.onChange([{ elem: onMouseMove.stateValueX || null, value: valueX }, { elem: onMouseMove.stateValueY || null, value: valueY }], node, null);
             }
         }
         catch (e) {
@@ -299,6 +339,8 @@ const ElementValue = (props) => {
         const scrollLeft = e.target.scrollLeft;
         const scrollTop = e.target.scrollTop;
         const delta = onScroll.delta;
+
+
 
         return { scrollLeft, scrollTop, delta };
     }
@@ -325,16 +367,20 @@ const ElementValue = (props) => {
     }
 
     const onScroll = (e) => {
+
+
         e.preventDefault();
 
         const onScroll = node.onScroll;
+
+       
 
         if (!onScroll || !fun?.onChange)
             return;
 
         try {
             const { scrollLeft, scrollTop, delta } = handleScroll(e, onScroll);
-            const { valueX, valueY } = calculateScrollValues(onScroll, scrollLeft, scrollTop, delta);
+            let { valueX, valueY } = calculateScrollValues(onScroll, scrollLeft, scrollTop, delta);
 
             if (valueX || valueY) {
                 try {
@@ -359,6 +405,8 @@ const ElementValue = (props) => {
     // Check if the event handlers are defined in the node
     const hasOnChange = useMemo(() => Boolean(node.onChange), [node.onChange]);
     const hasOnMouseMove = useMemo(() => Boolean(node.onMouseMove), [node.onMouseMove]);
+    const hasOnEnter = useMemo(() => Boolean(node.onMouseEnter), [node.onMouseEnter]);
+    const hasOnLeave = useMemo(() => Boolean(node.onMouseExit), [node.onMouseExit]);
     const hasOnClick = useMemo(() => Boolean(node.onClick), [node.onClick]);
     const hasOnScroll = useMemo(() => Boolean(node.onScroll), [node.onScroll]);
 
@@ -377,6 +425,9 @@ const ElementValue = (props) => {
             onChange={hasOnChange ? onChangeNode : undefined}
             onMouseMove={hasOnMouseMove ? onMouseMove : undefined}
             onClick={hasOnClick ? onClickNode : undefined}
+            onMouseEnter={hasOnEnter ? onMouseEnter : undefined}
+            onMouseExit={hasOnLeave ? onMouseExit : undefined}
+
             onScroll={hasOnScroll ? onScroll : undefined}
             // Disable the button if no input change
             disabled={disabled}

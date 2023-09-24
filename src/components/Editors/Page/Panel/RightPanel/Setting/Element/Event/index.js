@@ -19,11 +19,17 @@ export default function ElementEvent({ cascaderStates, state, setState, setIsCha
 
         if (!cascaderStates)
             return;
+
         setStates(cascaderStates);
 
 
-    }, [state]);
+    }, [cascaderStates]);
 
+    useEffect(() => {
+
+            setNewState(null);
+
+    }, [state]);
 
     const onChangeType = (v) => {
         if (!v) {
@@ -34,7 +40,7 @@ export default function ElementEvent({ cascaderStates, state, setState, setIsCha
         setNewState({ eventType: v, ...(state[v] ? state[v] : {}) })
     }
 
-    const onSubmit = (eventType,newState) => {
+    const onSubmit = (eventType, newState) => {
 
         setState({ ...state, [eventType]: newState });
         setIsChange(true);

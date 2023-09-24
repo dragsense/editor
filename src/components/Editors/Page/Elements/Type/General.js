@@ -1,10 +1,12 @@
 import React, { Children, useMemo, useCallback } from 'react';
 
 // Function to create custom attributes for the element
-const createCustomAttributes = (_uid, pos, onMouseMove, name, onClick, onScroll, conds, disabledStyles) => {
+const createCustomAttributes = (_uid, pos, onMouseMove, name, onClick, onScroll,  onMouseEnter, onMouseLeave, conds, disabledStyles) => {
     return {
         onMouseMove,
         onScroll,
+        onMouseEnter,
+        onMouseLeave,
         onClick: onClick ? onClick : (e) => {
             const currentElement = e.target;  
             if (currentElement.tagName.toLowerCase() === 'a' ||
@@ -21,7 +23,30 @@ const createCustomAttributes = (_uid, pos, onMouseMove, name, onClick, onScroll,
     }
 }
 
-const General = ({ _uid, conds, disabled, onMouseMove, onClick, onScroll, name, innerWraaper, value, children, pos }) => {
+
+// Function to create custom attributes for the element
+const createDisbaledAttributes = (_uid, pos, onMouseMove, name, onClick, onScroll,  onMouseEnter, onMouseLeave, conds, disabledStyles) => {
+    return {
+        onMouseMove,
+        onScroll,
+        onMouseEnter,
+        onMouseLeave,
+        onClick: onClick ? onClick : (e) => {
+            const currentElement = e.target;  
+            if (currentElement.tagName.toLowerCase() === 'a' ||
+            currentElement.parentNode.tagName.toLowerCase() === 'a') {
+            // Prevent the default behavior for anchor links
+            e.preventDefault();
+            }
+        },
+   
+        style: conds ? {} : disabledStyles
+    }
+}
+
+
+const General = ({ _uid, conds, disabled, onMouseMove, onClick, onScroll, onMouseEnter,
+    onMouseExit, name, innerWraaper, value, children, pos }) => {
 
     // Styles to be applied when the element is disabled
     const disabledStyles = useMemo(() => ({
@@ -30,7 +55,7 @@ const General = ({ _uid, conds, disabled, onMouseMove, onClick, onScroll, name, 
     }), []);
 
     // Create custom attributes for the element
-    const customAttributes = createCustomAttributes(_uid, pos, onMouseMove, name, onClick, onScroll, conds, disabledStyles);
+    const customAttributes = createCustomAttributes(_uid, pos, onMouseMove, name, onClick, onScroll, onMouseEnter, onMouseExit, conds, disabledStyles);
 
     // Create span element based on the innerWrapper
     const spanElement = useMemo(() => {
@@ -53,15 +78,19 @@ const General = ({ _uid, conds, disabled, onMouseMove, onClick, onScroll, name, 
     // Create disabled child based on the innerWrapper
     const disabledChild = useMemo(() => {
         return !innerWraaper ? [] : (<>
-            {React.isValidElement(value) ? value : <span
+            {React.isValidElement(value) ? value : value && <span
                 dangerouslySetInnerHTML={{ __html: value }}
             />}
             {innerWraaper}</>
         );
     }, [innerWraaper, value]);
 
+    const disabledAttributes = createDisbaledAttributes(_uid, pos, onMouseMove, name, onClick, onScroll, onMouseEnter, onMouseExit, conds, disabledStyles);
+
+
+
     // Clone the element with custom attributes and disabled child
-    const disabledElement = useMemo(() => React.cloneElement(children, { customAttributes }, disabledChild), [children, customAttributes, disabledChild]);
+    const disabledElement = useMemo(() => React.cloneElement(children, { customAttributes: disabledAttributes }, disabledChild), [children, customAttributes, disabledChild]);
 
     // Return disabled element if disabled, else return clonedElement
     return disabled ? disabledElement : clonedElement;

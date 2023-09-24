@@ -297,9 +297,9 @@ const Component = (props) => {
         e.preventDefault();
         // Loop through each event and call onScroll function
         for (const key in events) {
-            const iframe = document.querySelector("#ac-editor-iframe-doc");
+            const iframe = document.querySelector("#ac-editor-iframe-preview-doc");
             if (iframe) {
-                const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+                const iframeDocument = iframe.contentWindow;
                 onScroll(events[key], iframeDocument);
             }
         }
@@ -514,18 +514,18 @@ const Component = (props) => {
             allvalues = options;
         }
         // Use a debounce function to limit the frequency of the loop
-        const debouncedSetValue = debounce((onChange, value) => {
-            setValue(onChange, value, '');
+        const debouncedSetValue = debounce((values, allvalues) => {
+            for (const elem of values) {
+                let value = elem.value;
+                const elemToChange = elem.elem;
+                if (value === 'all')
+                    value = allvalues.join(",");
+
+                    setValue(elemToChange, value, '');
+            }
         }, 100); // 300ms delay
-        for (const elem of values) {
-            let value = elem.value;
-            const onChange = elem.elem;
-            if (value === 'all')
-                value = allvalues.join(",");
 
-
-            debouncedSetValue(onChange, value);
-        }
+        debouncedSetValue(values, allvalues);
         return allvalues;
     }, [states, colStates, _states])
 

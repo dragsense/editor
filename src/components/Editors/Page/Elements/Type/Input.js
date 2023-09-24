@@ -23,6 +23,7 @@ const Input = (props) => {
 
     // Update state when value prop changes
     useEffect(() => {
+   
         setV(value);
     }, [value])
 

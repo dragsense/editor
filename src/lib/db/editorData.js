@@ -507,6 +507,7 @@ const fetchDataAndSave = async (type, endpoint, pageId, project, dispatch) => {
         payload._components = data.components || [];
         payload._forms = data.forms || [];
         payload._states = data.states;
+        payload._events = data.events;
         payload._collStates = data.collStates;
 
     } else

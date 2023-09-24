@@ -166,6 +166,7 @@ const Component = (props) => {
                             loadDocuments(states);
                         }
                     }
+                   
                     setEvents(node.events);
                     setStates({
                         ...node.states,
@@ -349,9 +350,11 @@ const Component = (props) => {
     // Function to evaluate expressions
     const evaluateExpression = (expression, scrollTop, scrollLeft, delta) => {
         let result = expression;
+       
         result = result.replace(/\[left]/g, scrollLeft);
         result = result.replace(/\[top]/g, scrollTop);
         result = result.replace(/\[delta]/g, delta);
+       
         try {
             return eval(result);
         } catch (e) {
@@ -389,12 +392,12 @@ const Component = (props) => {
 
     // Function to handle scroll event
     const handleScrollEvent = useCallback((e) => {
-        e.preventDefault();
+        //e.preventDefault();
         // Loop through each event and call onScroll function
         for (const key in events) {
             const iframe = document.querySelector("#ac-editor-iframe-doc");
             if (iframe) {
-                const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+                const iframeDocument = iframe.contentWindow;
                 onScroll(events[key], iframeDocument);
             }
         }
@@ -612,11 +615,11 @@ const Component = (props) => {
     }, [states, _states])
 
     // Function to handle onClick event
-    const onClick = useCallback((node, stateValue, withValue) => {
+    const onClick = useCallback((fun, stateValue, withValue) => {
         // Check if node and onClick event exist
-        if (node && node.onClick) {
-            const onclick = node.onClick;
-            setValue(onclick, stateValue?.value || stateValue, withValue?.value || withValue);
+       
+        if (fun) {
+            setValue(fun, stateValue?.value || stateValue, withValue?.value || withValue);
         }
     }, [states, colStates, _states])
 
@@ -644,18 +647,19 @@ const Component = (props) => {
             allvalues = options;
         }
         // Use a debounce function to limit the frequency of the loop
-        const debouncedSetValue = debounce((onChange, value) => {
-            setValue(onChange, value, '');
+        const debouncedSetValue = debounce((values, allvalues) => {
+            for (const elem of values) {
+                let value = elem.value;
+                const elemToChange = elem.elem;
+                if (value === 'all')
+                    value = allvalues.join(",");
+
+                    setValue(elemToChange, value, '');
+            }
         }, 100); // 300ms delay
-        for (const elem of values) {
-            let value = elem.value;
-            const onChange = elem.elem;
-            if (value === 'all')
-                value = allvalues.join(",");
 
-
-            debouncedSetValue(onChange, value);
-        }
+        debouncedSetValue(values, allvalues);
+        
         return allvalues;
     }, [states, colStates, _states])
 

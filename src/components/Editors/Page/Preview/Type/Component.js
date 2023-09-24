@@ -3,10 +3,12 @@ import React, { Children, useMemo, useCallback } from 'react';
 
 
 // Function to create custom attributes for the element
-const createCustomAttributes = (onMouseMove, onClick, onScroll) => {
+const createCustomAttributes = (onMouseMove, onClick, onScroll, onMouseEnter, onMouseLeave) => {
     return {
         onMouseMove,
         onScroll,
+        onMouseEnter,
+        onMouseLeave,
         onClick: onClick ? onClick : (e) => {
             const currentElement = e.target;
             if (currentElement.tagName.toLowerCase() === 'a' ||
@@ -26,6 +28,8 @@ const Component = ({
     onScroll,
     onClick,
     innerWraaper,
+    onMouseEnter,
+    onMouseExit,
     value,
     children,
 }) => {
@@ -37,7 +41,7 @@ const Component = ({
             {innerWraaper}</>
     }, [innerWraaper, value]);
 
-    const customAttributes = createCustomAttributes(onMouseMove, onClick, onScroll);
+    const customAttributes = createCustomAttributes(onMouseMove, onClick, onScroll, onMouseEnter, onMouseExit);
 
     const clonedElement = useMemo(() => React.cloneElement(children, { customAttributes }, spanElement), [children, customAttributes, spanElement]);
 

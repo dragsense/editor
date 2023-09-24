@@ -7,16 +7,18 @@ const disabledStyles = {
 };
 
 // Function to create custom attributes for the element
-const createCustomAttributes = (_uid, pos,  onMouseMove, name, onClick, onScroll, conds, disabledStyles) => {
+const createCustomAttributes = (_uid, pos, onMouseMove, name, onClick, onScroll, onMouseEnter, onMouseLeave, conds, disabledStyles) => {
     return {
         onMouseMove,
         onScroll,
+        onMouseEnter,
+        onMouseLeave,
         onClick: onClick ? onClick : (e) => {
-            const currentElement = e.target;  
+            const currentElement = e.target;
             if (currentElement.tagName.toLowerCase() === 'a' ||
-            currentElement.parentNode.tagName.toLowerCase() === 'a') {
-            // Prevent the default behavior for anchor links
-            e.preventDefault();
+                currentElement.parentNode.tagName.toLowerCase() === 'a') {
+                // Prevent the default behavior for anchor links
+                e.preventDefault();
             }
         },
         "data-name": name,
@@ -26,6 +28,26 @@ const createCustomAttributes = (_uid, pos,  onMouseMove, name, onClick, onScroll
         style: conds ? {} : disabledStyles
     }
 }
+
+// Function to create custom attributes for the element
+const createDisbaledAttributes = (_uid, pos, onMouseMove, name, onClick, onScroll, onMouseEnter, onMouseLeave, conds, disabledStyles) => {
+    return {
+        onMouseMove,
+        onScroll,
+        onMouseEnter,
+        onMouseLeave,
+        onClick: onClick ? onClick : (e) => {
+            const currentElement = e.target;
+            if (currentElement.tagName.toLowerCase() === 'a' ||
+                currentElement.parentNode.tagName.toLowerCase() === 'a') {
+                // Prevent the default behavior for anchor links
+                e.preventDefault();
+            }
+        },
+        style: conds ? {} : disabledStyles
+    }
+}
+
 
 const Component = ({
     _uid,
@@ -37,25 +59,37 @@ const Component = ({
     name,
     innerWraaper,
     value,
+    onMouseEnter,
+    onMouseExit,
     children,
     pos }) => {
 
-   
+
     const spanElement = useMemo(() => {
-        return (value || innerWraaper?.length > 0) ?  (<>
-             {value}
+        return (value || innerWraaper?.length > 0) ? (<>
+            {value}
             {innerWraaper}</>
         ) : <span style={{ userSelect: 'none', color: "#cccccc" }}>add content here</span>;
     }, [innerWraaper, value]);
-
-    const customAttributes = createCustomAttributes(_uid, pos, onMouseMove, name, onClick, onScroll, conds, disabledStyles);
+    const customAttributes = createCustomAttributes(_uid, pos, onMouseMove, name, onClick, onScroll, onMouseEnter, onMouseExit, conds, disabledStyles);
 
     const clonedElement = useMemo(() => React.cloneElement(children, { customAttributes }, spanElement), [children, customAttributes, spanElement]);
 
-    // Clone the element with custom attributes and disabled child
-    const disabledElement = useMemo(() => {
-        return React.cloneElement(children, createCustomAttributes(_uid, pos, onMouseMove, onClick, onScroll, conds, disabledStyles), spanElement);
-    }, [children, _uid, pos, onMouseMove, onClick, onScroll, conds, disabledStyles, spanElement]);
+
+    // Create disabled child based on the innerWrapper
+    const disabledChild = useMemo(() => {
+        return !innerWraaper ? [] : (<>
+            {React.isValidElement(value) ? value : <span
+                dangerouslySetInnerHTML={{ __html: value }}
+            />}
+            {innerWraaper}</>
+        );
+    }, [innerWraaper, value]);
+
+    const disabledAttributes = createDisbaledAttributes(_uid, pos, onMouseMove, name, onClick, onScroll, onMouseEnter, onMouseExit, conds, disabledStyles);
+
+    const disabledElement = useMemo(() => React.cloneElement(children, { customAttributes: disabledAttributes }, spanElement), [children, customAttributes, disabledChild]);
+
 
     // Return disabled element if disabled, else return clonedElement
     return disabled ? disabledElement : clonedElement;

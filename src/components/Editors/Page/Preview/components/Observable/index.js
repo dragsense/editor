@@ -6,7 +6,7 @@ const getDefaultValue = (states, key, defaultValue) => states[key] ? states[key]
 // Function to handle scroll event
 const handleScroll = (onScroll, scrollTop, scrollLeft, scrollTopClass, scrollLeftClass, setTopClasses, setLeftClasses) => {
     if (onScroll) {
-        const iframe = document.querySelector("#ac-editor-iframe-doc");
+        const iframe = document.querySelector("#ac-editor-iframe-preview-doc");
         if (iframe) {
             const iframeWindow = iframe.contentWindow;
             const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
