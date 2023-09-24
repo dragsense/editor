@@ -63,11 +63,11 @@ let globalStates = [
 
                     {
                         label: 'TITLE',
-                        value: 'title'
+                        value: 'webTitle'
                     },
                     {
                         label: 'Tag Line',
-                        value: 'tagline'
+                        value: 'tagLine'
                     },
                     {
                         label: 'DESCRIPTION',

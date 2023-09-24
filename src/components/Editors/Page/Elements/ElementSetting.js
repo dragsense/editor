@@ -4,6 +4,8 @@ import { useMemo } from "react";
 import { getStateValue, getPageValue } from '../../../../lib/element/elementNode';
 import ElementValue from './ElementValue';
 
+
+
 /**
  * This is a React functional component called ElementSetting.
  * It renders an ElementValue component with certain props.
@@ -88,10 +90,17 @@ const ElementSetting = (props) => {
 
     // Handle 'WINDOW' type
     const handleWindowType = (key) => {
+
+        const iframe = document.querySelector("#ac-editor-iframe-doc")
+        const contentWindow = iframe.contentWindow;;
+
+        if(!contentWindow)
+        return;
+
         if (key[1] === 'width') {
-            return window.innerWidth;
+            return contentWindow.innerWidth;
         } else if (key[1] === 'height') {
-            return window.innerHeight;
+            return contentWindow.innerHeight;
         }
     };
 
@@ -112,7 +121,7 @@ const ElementSetting = (props) => {
         const images = global[key[1]] || {};
         const image = images[key[2]] || {};
         return {
-            value: image?.src ? image.src : '/images/default/default-img.png',
+            value: image?.src ? setting?.host+image.src : '/images/default/default-img.png',
             label: image === undefined ? `[${key[2]}]` : image?.alt || "Global Image"
         };
     };
@@ -300,10 +309,11 @@ const ElementSetting = (props) => {
 
     // useMemo to calculate node value only when dependencies change
     const nodeValue = useMemo(() => {
+        
         if (!node.nodeValue) return '';
         const inputString = node.nodeValue;
         return replacePlaceholders(inputString);
-    }, [classes, colStates, _cstates, _states, _props, mapIndex, mapValue, node.nodeValue]);
+    }, [colStates, _cstates, _states, _props, mapIndex, mapValue, node.nodeValue, setting?.resize]);
 
     // useMemo to calculate fallback image only when setting changes
     const fallbackImage = useMemo(() => {
@@ -339,7 +349,8 @@ const ElementSetting = (props) => {
             default:
                 return nodeValue;
         }
-    }, [nodeValue]);
+    }, [nodeValue, node.src, node._uid]);
+
 
     // Render the ElementValue component with the calculated props
     const element = <ElementValue

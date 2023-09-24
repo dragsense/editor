@@ -18,7 +18,11 @@ const CSSModal = ({ state, getIframeAndDocument, setClassNames,setIsConverted })
         setVisible(true);
     };
 
-     
+
+    
+
+
+  
 
     const handleOk = async () => {
 
@@ -34,8 +38,8 @@ const CSSModal = ({ state, getIframeAndDocument, setClassNames,setIsConverted })
             let cssObject = {};
             let cssArray = cssString.split('}');
             cssArray.pop();
-            if (cssArray.length > 10) {
-                message.error('CSS array length should be less than 10');
+            if (cssArray.length > 20) {
+                message.error('CSS array length should be less than 20');
                 return;
             }
             const cssArrayPromises = cssArray.map(cssRule => new Promise((resolve, reject) => {
@@ -76,13 +80,11 @@ const CSSModal = ({ state, getIframeAndDocument, setClassNames,setIsConverted })
                 }
             }));
 
-            await Promise.all(cssArrayPromises).catch((error) => {
-                message.error(error);
-                return;
-            });
-            
-            const classNames = [];
+            await Promise.all(cssArrayPromises);
 
+        
+
+            const classNames = [];
             const updatePromises = []; // Collecting promises to use Promise.all later
             
             for (const key in cssObject) {
@@ -99,6 +101,7 @@ const CSSModal = ({ state, getIframeAndDocument, setClassNames,setIsConverted })
                         }
                     }
                     classNames.push(key.slice(1));
+
                     updatePromises.push(updateData(state.page._id, style, STYLE_STORE_NAME));
                 }
             }
@@ -111,8 +114,9 @@ const CSSModal = ({ state, getIframeAndDocument, setClassNames,setIsConverted })
                 return [...updatedSet]; // Convert the set back to an array
             });
             
+
             const { iframe, iframeDocument } = getIframeAndDocument();
-            
+    
             const styleElement = iframeDocument.createElement('style');
             styleElement.textContent = cssString;
             iframeDocument.head.appendChild(styleElement);
@@ -120,7 +124,7 @@ const CSSModal = ({ state, getIframeAndDocument, setClassNames,setIsConverted })
             setIsConverted((prev) => !prev);
 
         } catch (e) {
-            message.error("Something went wrong. " + e?.message)
+            message.error("Something went wrong. " + e)
         } finally {
             setIsLoading(false);
         }

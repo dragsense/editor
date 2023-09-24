@@ -55,7 +55,7 @@ const AccordionItems = (props) => {
     () =>
       element(
         { ...node, state: undefined, map: undefined },
-        <div style={{ position: 'relative', overflow: 'hidden' }}>
+        <div _uid={node._uid} style={{ position: 'relative', overflow: 'hidden' }}>
           {accordions}
         </div>
       ),

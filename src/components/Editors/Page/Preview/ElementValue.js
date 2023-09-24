@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useEffect } from "react";
 
 import ElementType from "./ElementType";
 
@@ -28,7 +28,25 @@ const ElementValue = (props) => {
         children 
     } = props;
 
-   
+    
+
+         // Handle 'WINDOW' type
+         const handleWindowType = (key) => {
+
+            const iframe = document.querySelector("#ac-editor-iframe-preview-doc")
+            const contentWindow = iframe.contentWindow;;
+    
+            if(!contentWindow)
+            return;
+
+            if (key[1] === 'width') {
+                return contentWindow.innerWidth;
+            } else if (key[1] === 'height') {
+                return contentWindow.innerHeight;
+            }
+        };
+    
+
     // Function to handle global type
     const handleGlobalType = (key) => {
         if (key[0] === "WEBSITE") {
@@ -45,7 +63,9 @@ const ElementValue = (props) => {
                 value: global[key[1]],
                 label: global[key[1]] || `[global ${key[1]}]`
             }
-        }
+        }  else
+        if (key[0] === "WINDOW") 
+           return handleWindowType(key);
     }
 
     // Function to handle colStates type
@@ -103,7 +123,7 @@ const ElementValue = (props) => {
         const value = getValue(state, nodeValue);
         return value || nodeValue;
 
-    }, [state, nodeValue, _states, _props, _cstates]);
+    }, [state, nodeValue, _states, _props, _cstates, setting?.resize]);
 
     // useMemo hook to optimize performance by memoizing the value
     // It will only recompute the memoized value when one of the dependencies has changed

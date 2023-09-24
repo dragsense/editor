@@ -22,13 +22,13 @@ const ElementMapping = (props) => {
     }, [setting]);
 
     // Function to handle 'COLSTATES' type
-    const handleColStates = useCallback((key) => {
+    const handleColStates = useCallback((key, host) => {
         if (!colStates) return;
 
         if (key[0] === 'STATES') {
             const modifiedKey = [...key];
             modifiedKey.shift();
-            return getStateStates(modifiedKey, colStates.states);
+            return getStateStates(modifiedKey, colStates.states, host);
         }
         else {
             return handleColStatesSubTypes(key);
@@ -106,11 +106,11 @@ const ElementMapping = (props) => {
             case 'PAGE':
                 return handlePage(key);
             case 'COLSTATES':
-                return handleColStates(key);
+                return handleColStates(key, setting?.host);
             default:
                 return handleOtherTypes(key);
         }
-    }, [handleStates, handlePage, handleColStates, handleOtherTypes, _states, _props]);
+    }, [colStates, handleOtherTypes, _states, _props]);
 
 
     // Using useMemo to optimize performance by memoizing the values and options
@@ -133,7 +133,6 @@ const ElementMapping = (props) => {
 
     let nodes = useMemo(getValues, [map, getValues]);
     let options = useMemo(getOptions, [node.options]);
-
 
     return (
         <ElementLayout

@@ -51,8 +51,6 @@ const TreeNode = (props) => {
   const rootForm = pageType === 'form' ? { _id } : null;
 
 
-
-
   return (
     <ElementWrapper
       key={_uid}
@@ -85,7 +83,9 @@ const MemoizedTreeNode = memo(TreeNode, (prevProps, nextProps) => {
     prevProps._props === nextProps._props &&
     prevProps.colStates === nextProps.colStates &&
     prevProps.fun === nextProps.fun &&
-    prevProps._cstates === nextProps._cstates;
+    prevProps._cstates === nextProps._cstates &&
+    prevProps.setting?.resize === nextProps.setting?.resize;
+
   const allUpdate = prevProps.pageUpdated?.allUpdate === nextProps.pageUpdated?.allUpdate;
 
   return !matched1 && !matched2 && states && allUpdate;
@@ -172,9 +172,37 @@ export default function Elements({ pageUpdated, _id, onUpdateStates }) {
     }
   }, [_id]);
 
+
+
+
   useEffect(() => {
     fetchNode();
   }, [fetchNode]);
+
+  useEffect(() => {
+
+    if (!setting)
+      return;
+
+    const updateSize = () => {
+      setSetting({ ...setting, resize: !setting.resize });
+    };
+
+    const iframe = document.querySelector("#ac-editor-iframe-doc")
+    const contentWindow = iframe.contentWindow;
+
+    if (!contentWindow)
+      return;
+
+    contentWindow.addEventListener('resize', updateSize);
+
+    return () => {
+      if (contentWindow)
+        contentWindow.removeEventListener('resize', updateSize);
+    }
+
+
+  }, [setting]);
 
 
 

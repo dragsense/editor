@@ -17,8 +17,8 @@ const Tabs = (props) => {
 
     // Function to clone children with additional props
     const cloneChildren = useCallback((flattenedChildren) => {
-        return React.Children.map(flattenedChildren, (child, index) => React.cloneElement(child, {
-            key: child.props?._uid,
+        return React.Children.map(flattenedChildren,  (child, index) => React.cloneElement(child, {
+            key: child.props?.key,
             node: {
                 ...child.props.node,
                 state: undefined, map: undefined,

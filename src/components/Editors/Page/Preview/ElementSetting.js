@@ -86,15 +86,21 @@ const ElementSetting = (props) => {
         }
         return value;
     };
+   // Handle 'WINDOW' type
+   const handleWindowType = (key) => {
 
-    // Handle 'WINDOW' type
-    const handleWindowType = (key) => {
-        if (key[1] === 'width') {
-            return window.innerWidth;
-        } else if (key[1] === 'height') {
-            return window.innerHeight;
-        }
-    };
+    const iframe = document.querySelector("#ac-editor-iframe-preview-doc")
+    const contentWindow = iframe.contentWindow;;
+
+    if(!contentWindow)
+    return;
+
+    if (key[1] === 'width') {
+        return contentWindow.innerWidth;
+    } else if (key[1] === 'height') {
+        return contentWindow.innerHeight;
+    }
+};
 
     // Handle 'WEBSITE' type
     const handleWebsiteType = (key) => {
@@ -304,7 +310,7 @@ const ElementSetting = (props) => {
         if (!node.nodeValue) return '';
         const inputString = node.nodeValue;
         return replacePlaceholders(inputString);
-    }, [classes, colStates, _cstates, _states, _props, mapIndex, mapValue, node.nodeValue]);
+    }, [classes, colStates, _cstates, _states, _props, mapIndex, mapValue, node.nodeValue, setting?.resize]);
 
     // useMemo to calculate fallback image only when setting changes
     const fallbackImage = useMemo(() => {
@@ -340,7 +346,7 @@ const ElementSetting = (props) => {
             default:
                 return nodeValue;
         }
-    }, [nodeValue]);
+    }, [nodeValue, node.src,  node._uid]);
 
     // Render the ElementValue component with the calculated props
     const element = <ElementValue
