@@ -8,6 +8,29 @@ import { dark } from "react-syntax-highlighter/dist/cjs/styles/hljs"
 import HTMLTags from '../Tag/htmlTags.json';
 
 const acceptedAttributes = ["classes", "disabled", "action", "method", "placeholder", "target", "hidden", "value", "type", "name", "rows", "checked", "id", "href", "src", "style", "width", "height", "title", "alt"];
+const acceptedStyles = [
+    "color",
+    "fontFamily",
+    "fontSize",
+    "fontWeight",
+    "textDecoration",
+    "textAlign",
+    "backgroundColor",
+    "backgroundImage",
+    "border",
+    "borderRadius",
+    "padding",
+    "margin",
+    "width",
+    "height",
+    "display",
+    "transform",
+    "position",
+    "top",
+    "right",
+    "bottom",
+    "left"
+]
 
 const layoutTags = {
     'header': 'header',
@@ -68,11 +91,28 @@ const decideLayout = (tagName, attributes) => {
     return 'unknown';
 };
 
-const getAttributes = (node) => {
+const getAttributes = (node, acceptedAttributes) => {
     let attributes = {};
     for (let i = 0; i < node.attributes.length; i++) {
         let attr = node.attributes[i];
         if (acceptedAttributes.includes(attr.name)) {
+
+            if (attr.name === 'style') {
+                let values = attr.value.split(";");
+
+                values = values.map(v => {
+                    const properties = v.split(":");
+                    if (properties.length === 2) {
+                        return {
+                            name: properties[0].trim(),
+                            value: properties[1].trim()
+                        }
+                    }
+                }).filter(Boolean)
+                const properties = getAttributes({ attributes: values }, acceptedStyles)
+                attributes[attr.name] = { key: attr.name, value: `'${attr.value}'`, attributes: properties  };
+
+            }else
             attributes[attr.name] = { key: attr.name, value: `'${attr.value}'` };
         }
     }
@@ -131,7 +171,7 @@ const traverseNode = async (node, parentUid, results, root = false) => {
 
 
 
-    result.attributes = getAttributes(node);
+    result.attributes = getAttributes(node, acceptedAttributes);
     result.layout = decideLayout(result.tag, result.attributes);
     // Get only first textnode if it exists for nodeValue
     result.nodeValue = node.childNodes.length > 0 && node.childNodes[0].nodeType === 3 ? node.childNodes[0].nodeValue : '';
