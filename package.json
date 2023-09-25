@@ -13,7 +13,7 @@
     "build": "react-scripts build",
     "electron:start": "electron .\"",
     "electron:package:mac": "npm run build && electron-builder -m -c.extraMetadata.main=build/electron.js",
-    "electron:package:win": "npm run build && electron-builder -w -c.extraMetadata.main=build/electron.js",
+    "electron:package:win": "electron-builder -w -c.extraMetadata.main=build/electron.js",
     "electron:package:linux": "npm run build && electron-builder -l -c.extraMetadata.main=build/electron.js",
     "start": "set PORT=3002 && react-scripts start",
     "test": "react-scripts test",
@@ -23,7 +23,6 @@
     "appId": "com.app.autocode",
     "productName": "Autocode Editor",
     "files": [
-      "build/**/*",
       "node_modules/**/*"
     ],
     "directories": {
@@ -40,15 +39,15 @@
     ],
     "mac": {
       "target": "dmg",
-      "icon": "./build/favicon.ico"
+      "icon": "./favicon.ico"
     },
     "win": {
       "target": "nsis",
-      "icon": "./build/favicon.ico"
+      "icon": "./favicon.ico"
     },
     "linux": {
       "target": "deb",
-      "icon": "./build/favicon.ico"
+      "icon": "./favicon.ico"
     }
   },
   "eslintConfig": {

@@ -39,6 +39,7 @@ const setSession = (argUrl) => {
     const callbackUrl = cookies[prefix + prefixSecure + 'next-auth.callback-url'];
     const csrfToken = cookies[prefix + prefixHost + 'next-auth.csrf-token'];
 
+
     const info = JSON.parse(decodeURIComponent(queryParams.get('info')));
 
     const projectId = info['projectId'];
@@ -54,7 +55,11 @@ const setSession = (argUrl) => {
     store.set('userName', userName || null);
     store.set('apiUrl', apiUrl || 'http://localhost:3000');
 
+
     const ses = session.defaultSession;
+    session.defaultSession.clearCache(() => {
+      console.log('Cache cleared!')
+  })
     ses.clearStorageData();
 
     ses.webRequest.onBeforeSendHeaders((details, callback) => {
@@ -149,18 +154,21 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: true,
-      webSecurity: true,
-      devTools: app.isPackaged ? false : true,
+      webSecurity: false,
+      devTools: app.isPackaged ? true : true,
       preload: path.join(__dirname, 'preload.js')
     },
     icon: path.join(__dirname, 'favicon.ico'),
   })
 
-  const appURL = app.isPackaged ? url.format({
-    pathname: path.join(__dirname, "index.html"),
-    protocol: "file:",
-    slashes: true,
-  }) : 'http://localhost:3002'
+  const appURL = app.isPackaged ? 'https://website.dragsense.com'
+  : 'https://website.dragsense.com'
+
+  // url.format({
+  //   pathname: path.join(__dirname, "index.html"),
+  //   protocol: "file:",
+  //   slashes: true,
+  // })
 
   mainWindow.loadURL(appURL);
 
@@ -178,6 +186,7 @@ ipcMain.handle('makeApiRequest', async (event, apiEndpoint) => {
       .join('; ');
 
     const projectId = store.get('projectId');
+
 
     const response = await fetch(`${apiUrl}/api/projects/` + projectId, {
       method: 'GET',
