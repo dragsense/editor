@@ -55,9 +55,8 @@ const setSession = (argUrl) => {
     store.set('userName', userName || null);
     store.set('apiUrl', apiUrl || 'http://localhost:3000');
 
-
     const ses = session.defaultSession;
-    session.defaultSession.clearCache(() => {
+    ses.clearCache(() => {
       console.log('Cache cleared!')
   })
     ses.clearStorageData();
@@ -154,21 +153,15 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: true,
-      webSecurity: false,
-      devTools: app.isPackaged ? true : true,
+      webSecurity: true,
+      devTools: app.isPackaged ? false : true,
       preload: path.join(__dirname, 'preload.js')
     },
     icon: path.join(__dirname, 'favicon.ico'),
   })
 
   const appURL = app.isPackaged ? 'https://website.dragsense.com'
-  : 'https://website.dragsense.com'
-
-  // url.format({
-  //   pathname: path.join(__dirname, "index.html"),
-  //   protocol: "file:",
-  //   slashes: true,
-  // })
+  : 'http://localhost:3002'
 
   mainWindow.loadURL(appURL);
 

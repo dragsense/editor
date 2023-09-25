@@ -21,7 +21,7 @@ const App = () => {
       hashed: false,
       algorithm: [isDarkMode ? darkAlgorithm : defaultAlgorithm, compactAlgorithm],
       token: {
-        "fontFamily": "'Lato', sans-serif",
+        "fontFamily": "'Poppins', sans-serif",
         "colorPrimary": "#f88a24",
         "fontSize": 16,
         "borderRadius": 8,

@@ -26,7 +26,6 @@
       "node_modules/**/*"
     ],
     "directories": {
-      "buildResources": "public",
       "output": "dist"
     },
     "protocols": [

@@ -3,6 +3,7 @@
 # dependencies
 /node_modules
 /extra
+/public/alloyeditor
 /.pnp
 .pnp.js
 

@@ -1875,7 +1875,7 @@ export default function PageManger({ children }) {
             const currSelector = {
                 _uid: state.node._uid,
                 selectorText: state.node.selector,
-                store: PAGE_STORE_NAME,
+                store: STYLE_STORE_NAME,
             }
 
             // Select the current selector
@@ -1966,26 +1966,77 @@ export default function PageManger({ children }) {
             let sheet = getGlobalStyleSheet(styleSheets);
 
             let cssRules = sheet.cssRules || sheet.rules;
-            let rule = getCssRule(cssRules, selectorText, '');
 
-            // If rule doesn't exist, insert a new rule
-            if (!rule) {
-                rule = insertUpdatedNewRule(sheet, cssRules, selectorText, selector.properties);
+            let rule = null;
+
+            if (selector.key !== 'normal') {
+                let cssMediaRule = null;
+
+                for (let i = 0; i < cssRules.length; i++) {
+                    let tempRule = cssRules[i];
+                    if (tempRule.conditionText === selector.key) {
+                        cssMediaRule = tempRule;
+                        break;
+                    }
+                }
+
+                if (!cssMediaRule) {
+                    const mediaIndex = cssRules.length;
+                    sheet.insertRule(`@media ${selector.key} {}`, mediaIndex);
+                    cssMediaRule = cssRules[mediaIndex];
+                }
+
+                let mediaRules = cssMediaRule.cssRules || cssMediaRule.rules;
+
+                for (let i = 0; i < mediaRules.length; i++) {
+                    let tempRule = mediaRules[i];
+                    if (tempRule.selectorText === selectorText) {
+                        rule = tempRule;
+                        break;
+                    }
+                }
+
+                sheet = cssMediaRule;
+                cssRules = mediaRules;
             } else {
-                // If rule exists, update the rule
-                updateCssRule(rule, selector.properties);
+                for (let i = 0; i < cssRules.length; i++) {
+                    let tempRule = cssRules[i];
+                    if (tempRule.selectorText === selectorText) {
+                        rule = tempRule;
+                        break;
+                    }
+                }
+            }
+
+            if (rule) {
+                // Remove existing properties
+
+                const styleDeclaration = rule.style;
+                const properties = Array.from(styleDeclaration);
+                properties.forEach(property => {
+                    styleDeclaration.removeProperty(property);
+                });
+
+                if (!selector.properties)
+                    selector.properties = {};
+
+                Object.keys(selector.properties).forEach(key => {
+
+                    if (key) {
+
+                        const value = selector.properties[key]?.value;
+
+                        const priority = selector.properties[key]?.priority;
+                        rule.style.setProperty(key, value, priority);
+                    }
+
+                });
             }
 
             const currentElement = await getData(
                 state.page._id,
                 selector._uid, "id",
                 STYLE_STORE_NAME);
-
-            // Update the style data
-            await updateStylesData(selector, currentElement);
-
-            // Add a 'updateStyle' action to the undo/redo store
-
             const style = currentElement.style || {};
 
             const selectorType = selector.selectorType || 'root';
@@ -1996,6 +2047,7 @@ export default function PageManger({ children }) {
 
             if (!style[selector.key][selectorType])
                 style[selector.key][selectorType] = {}
+
 
             onAddAction({
                 action: 'updateStyle',
@@ -2008,6 +2060,16 @@ export default function PageManger({ children }) {
                     store: selector.store
                 },
             }, STORE, isRedo);
+
+
+            if (Object.keys(selector.properties).length <= 0)
+                delete style[selector.key][selectorType];
+            else
+                style[selector.key][selectorType].properties = selector.properties || {};
+
+            currentElement.style = style;
+
+            await updateData(state.page._id, currentElement, STYLE_STORE_NAME);
 
             dispatch({ type: 'updateElement', style: false });
 
