@@ -91,14 +91,10 @@ export default function Editor({ children, _id, pageType, onBack }) {
                             state={state}
                             onUpdateSelector={onUpdateSelector}
                             onUpdate={onUpdate}
-                        >
-                            {state.page &&
-                                <Elements page={state.page}
+                        >{state.page && <Elements page={state.page}
                                     onUpdateStates={onUpdateStates}
                                     pageUpdated={state.pageUpdated}
-                                    loading={state.loading} />
-                            }
-                        </IFrame>
+                                    loading={state.loading} />}</IFrame>
                     </CanvasEditor>
                 </Content>
 

@@ -67,9 +67,9 @@ const InnerComponent = ({ children, document, onLoad, _id, type }) => {
           let res = await SettingServices.get();
   
           if (res?.setting) {
-            document.head.insertAdjacentHTML("beforeend", res.setting.scripts?.head);
-            document.body.insertAdjacentHTML("beforeend", res.setting.scripts?.footer);
-          }
+            document.head.insertAdjacentHTML("beforeend", res.setting.scripts?.head || '');
+            document.body.insertAdjacentHTML("beforeend", res.setting.scripts?.footer || '');
+          }  
   
           //Fetch fonts and append to document head
           res = await ThemeServices.getFonts();

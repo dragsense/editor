@@ -76,8 +76,8 @@ const InnerComponent = ({ children, document, onLoad, _id, type }) => {
         let res = await SettingServices.get();
 
         if (res?.setting) {
-          document.head.insertAdjacentHTML("beforeend", res.setting.scripts?.head);
-          document.body.insertAdjacentHTML("beforeend", res.setting.scripts?.footer);
+          document.head.insertAdjacentHTML("beforeend", res.setting.scripts?.head || '');
+          document.body.insertAdjacentHTML("beforeend", res.setting.scripts?.footer || '');
          
 
         }
@@ -671,11 +671,11 @@ export default function IFrame({
       <iframe frameBorder={0} id="ac-editor-iframe-doc"
         width="100%"
         height="95%" ref={iframeRef}>
-        {container && ReactDOM.createPortal(<InnerComponent
+        {container?.mountTarget && ReactDOM.createPortal(<InnerComponent
           _id={_id} type={pageType}
           onLoad={onLoad}
           document={container.document}>
-          {state.page ? !previewMode ? renderRoot() : children : <p>Loading...</p>}
+          {state.page && !previewMode ? renderRoot() : <p>Loading...</p>}
         </InnerComponent>, container.mountTarget)}
       </iframe>
     );

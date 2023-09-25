@@ -43,10 +43,10 @@ const reducer = (state, action) => {
         "load": () => ({ ...state, pageUpdated: action.pageUpdated }),
         "preview": () => ({ ...state, preview: action.preview }),
         "edit": () => ({ ...state, page: action.page, type: action.pageType, states: {}, isChange: false }),
-        "updatePage": () => ({ ...state, pageUpdated: action.pageUpdated, isChange: true }),
+        "updatePage": () => ({ ...state, pageUpdated: action.pageUpdated, isChange: action.isChange }),
         "updateStates": () => ({ ...state, states: { ...state.states, ...action.states } }),
         "styleChange": () => ({ ...state, isStyleChange: true }),
-        "updateElement": () => ({ ...state, isChange: true, isStyleChange: action.style }),
+        "updateElement": () => ({ ...state, isChange: action.isChange, isStyleChange: action.style }),
         "close": () => ({ ...state, isChange: false }),
         "media": () => ({ ...state, media: action.media, selector: null, node: null }),
         "savePage": () => ({ ...state, isChange: false }),
@@ -517,7 +517,7 @@ export default function PageManger({ children }) {
     };
 
     // Function to update the value of an element
-    const updateValue = async (updatedElement, STORE = UNDO_STORE_NAME) => {
+    const updateValue = async (updatedElement, isChange = true, STORE = UNDO_STORE_NAME) => {
         // If the updatedElement is not provided, dispatch an error and return
         if (!updatedElement) {
             dispatch({ type: 'error', error: 'Element not selected.' });
@@ -575,7 +575,7 @@ export default function PageManger({ children }) {
             onAddAction({ action: 'update', ...pageUpdated, orignal }, STORE);
 
             // Dispatch an 'updatePage' action to update the state
-            dispatch({ type: 'updatePage', pageUpdated, node: null });
+            dispatch({ type: 'updatePage', pageUpdated, node: null, isChange });
             setUpdated(null);
 
         } catch (e) {
@@ -668,7 +668,7 @@ export default function PageManger({ children }) {
             onAddAction({ action: 'update', ...pageUpdated, orignal }, STORE, isRedo);
 
             // Update the state with the updated page data
-            dispatch({ type: 'updatePage', pageUpdated });
+            dispatch({ type: 'updatePage', pageUpdated, isChange: true });
 
         } catch (e) {
             // If an error occurs during the update process, dispatch an 'error' action with the error message
@@ -1536,11 +1536,11 @@ export default function PageManger({ children }) {
             } else {
                 // If not in preview mode, save the page
                 if (state.node) {
-                    await updateValue(state.node);
+                    await updateValue(state.node, false);
                 }
 
                 if (state.selector && state.isStyleChange) {
-                    await onUpdateSelector(state.selector);
+                    await onUpdateSelector(state.selector, false);
                 }
 
                 const res = await savePage(page, type, dispatch);
@@ -1949,7 +1949,7 @@ export default function PageManger({ children }) {
         await updateData(state.page._id, currentElement, STYLE_STORE_NAME);
     }
 
-    const onUpdateSelector = async (selector, STORE = UNDO_STORE_NAME, isRedo) => {
+    const onUpdateSelector = async (selector, isChange = true, STORE = UNDO_STORE_NAME, isRedo) => {
         // Check if the selector is valid
         if (!selector) {
             throw new Error('Selector not found!');
@@ -2071,7 +2071,7 @@ export default function PageManger({ children }) {
 
             await updateData(state.page._id, currentElement, STYLE_STORE_NAME);
 
-            dispatch({ type: 'updateElement', style: false });
+            dispatch({ type: 'updateElement', style: false, isChange });
 
         } catch (e) {
             dispatch({ type: 'error', error: e?.message || 'Something went wrong.' });
@@ -2126,7 +2126,7 @@ export default function PageManger({ children }) {
                 break;
             case 'updateStyle':
                 await onUpdateSelector(
-                    action.selector,
+                    action.selector, true,
                     STORE2, true);
                 break;
             default:

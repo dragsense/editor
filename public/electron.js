@@ -24,9 +24,9 @@ if (process.defaultApp) {
 }
 
 // Define prefixes based on the environment
-const prefix = app.isPackaged ? '__' : '';
-const prefixSecure = app.isPackaged ? 'Secure-' : '';
-const prefixHost = app.isPackaged ? 'Host-' : '';
+const prefix = !app.isPackaged ? '__' : '';
+const prefixSecure = !app.isPackaged ? 'Secure-' : '';
+const prefixHost = !app.isPackaged ? 'Host-' : '';
 
 // Function to set the session
 const setSession = (argUrl) => {
