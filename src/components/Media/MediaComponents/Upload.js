@@ -26,7 +26,7 @@ export default function UploadMedia({ type, onAdd }) {
             const formData = new FormData();
             formData.append('file', file);
             const res = await MediaServices.upload(type, formData, onProgress);
-            onAdd(res.media);
+            onAdd({ media: res.media, host: res.host });
             onSuccess({ status: 'done' });
         } catch (e) {
             onError(e)

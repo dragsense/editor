@@ -112,9 +112,10 @@ export default function Media({ type, srcs, onSelect }) {
         }
     }, [type, searchQuery, handleSearch, loadMedia]);
 
-    // Function to add a new media entry
-    const onAdd = (single) => {
-        dispatch({ type: 'add', data: single });
+     // Function to add a new media entry
+     const onAdd = (single) => {
+        setHost(single.host || '')
+        dispatch({ type: 'add', data: single.media });
     };
 
     // Function to edit an existing media entry

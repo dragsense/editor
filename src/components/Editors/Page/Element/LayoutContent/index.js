@@ -21,7 +21,11 @@ function LayoutContent({ children, state, onUpdate }) {
   const componentLayout = <Component
       onSave={(states) => onUpdate("element", states)}
       states={state.node.states}
-      skippedProperties={['currentIndex', 'total', 'items', 'activeItem', 'openModal', 'openSider', 'openDropdown']}
+      skippedProperties={['currentIndex', 'total', 'items', 
+      'upatedTopValue', 'upatedLeftValue', 
+      'updatedVisibleValue',
+      'visibleY', 'visibleX',
+       'activeItem', 'openModal', 'openSider', 'openDropdown']}
     >
       {children}
     </Component>

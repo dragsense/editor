@@ -132,7 +132,7 @@ const EditorRightSideBar = ({ onClickElement,
     // State for keys in the menu
     const [keys, setKeys] = useState(menuKeys);
 
-    const [host, setHost] = useState(menuKeys);
+    const [host, setHost] = useState("");
 
 
     // Function to toggle sidebar collapse
@@ -156,7 +156,7 @@ const EditorRightSideBar = ({ onClickElement,
 
     useEffect(() => {
 
-        if(!state.page)
+        if(!state.page || state.pageUpdated !== 1)
         return;
 
         const fetchPage = async () => {
@@ -167,7 +167,7 @@ const EditorRightSideBar = ({ onClickElement,
         }
         fetchPage();
 
-    }, [state.page]);
+    }, [state.pageUpdated]);
 
     // Fetch data on component mount and when state.states changes
     useEffect(() => {
@@ -289,6 +289,7 @@ const EditorRightSideBar = ({ onClickElement,
                                                             key === 'sub8' ? 'Quick Styling' : null}
                             >
                                 <div style={{ padding: '10px 15px 10px 10px' }}>
+                             
                                     {renderMenuItems(key, host)}
                                 </div>
                             </Menu.SubMenu>

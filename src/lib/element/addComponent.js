@@ -2111,17 +2111,29 @@ const states = {
         duration: { key: 'duration', defaultValue: 300, type: 'number' },
     },
     observable: {
-        tagName: { key: 'tagName', defaultValue: 'div', type: 'dropdown', values: ['div', 'button'] },
+        tagName: { key: 'tagName', defaultValue: 'div', type: 'dropdown', 
+        values: ['div', 'button', 'span'] },
+       
         onScroll: { key: 'onScroll', defaultValue: 0, type: 'boolean' },
         scrollTop: { key: 'scrollTop', defaultValue: 50, type: 'number' },
         scrollLeft: { key: 'scrollLeft', defaultValue: 100, type: 'number' },
-        scrollTopClass: { key: 'scrollTopClass', defaultValue: '', type: 'text' },
-        scrollLeftClass: { key: 'scrollLeftClass', defaultValue: '', type: 'text' },
+        scrollTopValue: { key: 'scrollTopValue', defaultValue: '', type: 'text' },
+        scrollLeftValue: { key: 'scrollLeftValue', defaultValue: '', type: 'text' },
+        upatedTopValue: { key: 'upatedTopValue', defaultValue: '', type: 'text' },
+        upatedLeftValue: { key: 'upatedLeftValue', defaultValue: '', type: 'text' },
+      
+        
+       
         onVisible: { key: 'onVisible', defaultValue: 0, type: 'boolean' },
-        visible: { key: 'visible', defaultValue: 0.1, step: 0.1, min: 0, max: 1, type: 'slider' },
+        calculateVisibility: { key: 'calculateVisibility', defaultValue: 0, type: 'boolean' },
+
+        threshold: { key: 'threshold', defaultValue: 0.1, step: 0.1, min: 0, max: 1, type: 'slider' },
+        visibleY: { key: 'visibleY', defaultValue: 0, type: 'number' },
         oneTime: { key: 'oneTime', defaultValue: 0, type: 'boolean' },
-        visibleClass: { key: 'visibleClass', defaultValue: '', type: 'text' },
-        inVisibleClass: { key: 'inVisibleClass', defaultValue: '', type: 'text' },
+        updatedVisibleValue: { key: 'updatedVisibleValue', defaultValue: '', type: 'text' },
+        visibleValue: { key: 'visibleValue', defaultValue: '', type: 'text' },
+        inVisibleValue: { key: 'inVisibleValue', defaultValue: '', type: 'text' },
+
     },
     menu: {
         items: { key: 'items', type: 'array', defaultValue: "", states: [], text: "Menu Item" },

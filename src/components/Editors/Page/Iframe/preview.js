@@ -41,9 +41,7 @@ const InnerComponent = ({ children, document, onLoad, _id, type }) => {
     const appendCustomStyles = () => {
       const style = document.createElement('style');
       style.textContent = `
-        .cke_editable.ae-editable, .cke_editable.ae-editable *{
-          background: #fff !important;
-        }
+   
         @keyframes ac-001-pulse {
           0% {
             opacity: 1;

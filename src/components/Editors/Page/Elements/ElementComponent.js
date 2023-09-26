@@ -122,7 +122,7 @@ const ElementComponent = (props) => {
         if (!node)
             return;
         setStates({ ...node.states });
-        const cascaderStates = generateCascader(node.states, node.name, node._uid);
+        const cascaderStates = generateCascader(node.states, node.name, node.cname);
         onUpdateStates(node._uid, cascaderStates, setStates);
     }, []);
 

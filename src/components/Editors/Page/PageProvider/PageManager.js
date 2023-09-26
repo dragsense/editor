@@ -912,7 +912,7 @@ export default function PageManger({ children }) {
 
             // Update the state with the updated page data
             dispatch({
-                type: 'updatePage', pageUpdated
+                type: 'updatePage', pageUpdated, isChange: true
             });
 
             setTimeout(() => {
@@ -1007,7 +1007,7 @@ export default function PageManger({ children }) {
             onAddAction({ action: 'delete', ...pageUpdated }, STORE, isRedo);
 
             dispatch({
-                type: 'updatePage', pageUpdated
+                type: 'updatePage', pageUpdated, isChange: true
             });
 
             status = true;
@@ -1097,7 +1097,7 @@ export default function PageManger({ children }) {
 
             // Update the state with the updated page data
             dispatch({
-                type: 'updatePage', pageUpdated
+                type: 'updatePage', pageUpdated, isChange: true
             });
 
             setTimeout(() => {
@@ -1274,7 +1274,7 @@ export default function PageManger({ children }) {
 
             dispatch({
                 type: 'updatePage',
-                pageUpdated
+                pageUpdated, isChange: true
             });
 
         } catch (e) {
@@ -1388,7 +1388,7 @@ export default function PageManger({ children }) {
         }, STORE);
 
         dispatch({
-            type: 'updatePage', pageUpdated
+            type: 'updatePage', pageUpdated, isChange: true
         });
 
         dispatch({ type: 'finish' });
@@ -1463,7 +1463,7 @@ export default function PageManger({ children }) {
 
             // Update the state with the updated page data
             dispatch({
-                type: 'updatePage', pageUpdated
+                type: 'updatePage', pageUpdated, isChange: true
             });
 
         } catch (e) {
@@ -2159,10 +2159,10 @@ export default function PageManger({ children }) {
     }, [state.isStyleChange]);
 
     // Function to update states 
-    const onUpdateStates = useCallback(async (_id, states, setStates, append = false) => {
+    const onUpdateStates = useCallback(async (_id, states, setStates) => {
         // Dispatch an 'updateStates' action with the new states
 
-        dispatch({ type: 'updateStates', states: { [_id]: { states, setStates } } });
+        dispatch({ type: 'updateStates', states: { [_id]: {  states, setStates } } });
     }, [state.states]);
 
     // Return the context provider with the state and functions

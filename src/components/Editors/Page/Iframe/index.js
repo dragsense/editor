@@ -303,6 +303,12 @@ export default function IFrame({
   const adjustOverlayPosition = (iframeWindow) => {
     const scrollTop = iframeWindow.pageYOffset;
     const scrollLeft = iframeWindow.pageXOffset;
+
+    overlayRef.current.style.top = (0 - scrollTop) + 'px';
+    overlayRef.current.style.left = (0 - scrollLeft) + 'px';
+
+
+
     const top = (scrollTop + 44) + 'px';
     const left = (scrollLeft) + 'px';
 
@@ -636,10 +642,9 @@ export default function IFrame({
   }, [onAdd]);
 
   // Function to handle content change
-  const handleOnChangeContent = useCallback((status) => {
-    setEditing(true)
-    onChange();
-  }, [onChange]);
+  useEffect(() => {
+    setEditing(false)
+  }, [state.pageUpdated]);
 
 
 
@@ -650,7 +655,10 @@ export default function IFrame({
         <div ref={overlayRef2} style={{ width: '100%', height: '0', top: '0px', left: '0px', position: 'absolute' }}>
           {!editing && !previewMode && gapBarPos &&
             <div style={{
-              display: 'none', ...gapBarPos, position: 'absolute', pointerEvents: 'none', display: 'flex',
+              display: 'none', ...gapBarPos, 
+              position: 'absolute', 
+              pointerEvents: 'none', 
+              display: 'flex',
               justifyContent: 'center',
               zIndex: 1000,
               alignItems: 'end'
@@ -910,9 +918,9 @@ export default function IFrame({
           color: colorText
         }}>
           {contextMenuElements.map((item, index) => (
-            <>
+            <span key={item.uid + index}>
               <li
-                key={item.uid + index}
+                
                 onDragOver={handleMenuItemDragOver}
                 onDragEnter={(e) => handleDragEnter(e, item, true)}
                 onDragLeave={handleDragLeave}
@@ -960,7 +968,7 @@ export default function IFrame({
                 </Popover>}
                 {renderMenuItemActions(item)}
               </li>
-            </>
+            </span>
           ))}
         </ul>
       </Card>
