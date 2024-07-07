@@ -19,7 +19,7 @@ const NavButtons = ({ setLocation }) => (
 const MainCard = ({ userName, session, setLocation }) => (
     <div style={{ width: '70%', margin: 'auto' }}>
         <Title>Welcome, <span style={{ color: theme.useToken().token.colorPrimary }}>{userName}</span></Title>
-        {!session && <Alert message="You are not connected to the web app. Please login first." type="error" showIcon style={{ marginBottom: 10 }} />}
+        {!session && <Alert message="You are currently not logged in to the web application. Please log in to continue." type="error" showIcon style={{ marginBottom: 10 }} />}
         <Card title="Autocode Editor:" extra={session && <NavButtons setLocation={setLocation} />}>
             <p>The Web Editor allows you to create pages, styles, and animations without any code.</p>
             <Descriptions column={1}>
