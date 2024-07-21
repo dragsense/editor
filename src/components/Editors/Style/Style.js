@@ -775,7 +775,7 @@ export default function Style({ children, onBack }) {
         <div style={{ textAlign: 'center', padding: 10 }}>
             <img src="./images/logo/nav-logo.png" width="50" alt="autocode-logo" />
         </div>
-        <Card loading={state.loading  && !document}
+        <Card loading={state.loading && !document}
             headStyle={{ padding: 10 }}
             bodyStyle={{ padding: 0 }}
             extra={<>  <Button type="dashed" style={{ marginRight: 10 }}
