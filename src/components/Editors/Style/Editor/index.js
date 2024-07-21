@@ -23,9 +23,9 @@ export default function StyleEditor({
     return <Layout style={{ minHeight: '80vh' }}>
 
         {/* Render LeftSideBar with onEdit and elementType props */}
-        <LeftSideBar
+        {!state.elementType && <LeftSideBar
             onEdit={onEdit} 
-            elementType={state.elementType} />
+            elementType={state.elementType} />}
 
         {/* Render Content with relative position and flexible width */}
         <Content style={{ position: 'relative', flex: 1, minWidth: 'calc(100% - 430px)' }}>
