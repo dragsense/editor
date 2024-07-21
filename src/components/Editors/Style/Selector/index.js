@@ -5,224 +5,200 @@ import { debounce } from '../../../../lib/utils';
 import { STYLE_STORE_NAME, getAllData, getData, searchSelector, updateData } from '../../../..//lib/db';
 import { nanoid } from "nanoid";
 
-// Antd components
 const { Option } = Select;
 const { Text } = Typography;
 const { confirm } = Modal;
 
-// Fuse.js options for fuzzy search
 const fuseOptions = {
-    tokenize: true,
-    matchAllTokens: true,
-    location: 0,
-    distance: 0,
-    key: ['selectorText']
+    keys: ['selectorText']
 };
 
-// Main component
 function SearchableSelector({ state, onSelect, animation = false, isConverted = false }) {
-
-    // State variables
     const [searchTerm, setSearchTerm] = useState("");
     const [validationResult, setValidationResult] = useState(null);
     const [selectors, setSelectors] = useState([]);
 
     const selector = state.selector;
 
-    // Memoized search function
-    const search = useMemo(() => {
-        const fuse = new Fuse(selectors, fuseOptions);
-        const results = fuse.search(searchTerm);
-        return results;
-    }, [selectors]);
+    const fuse = useMemo(() => new Fuse(selectors, fuseOptions), [selectors]);
+    const searchResults = useMemo(() => fuse.search(searchTerm), [fuse, searchTerm]);
 
-    // Fetch data from the database
     const fetchData = async () => {
         const res = await getAllData(state.page._id, STYLE_STORE_NAME);
         const data = res?.elements ? res.elements : {};
         const filteredElements = Object.values(data)
             .filter((element) => element.type === state.elementType);
-        setSelectors(filteredElements)
-    }
+        setSelectors(filteredElements);
+    };
 
-    // Fetch animation data from the database
     const fetchAnimationsData = async () => {
         const res = await getData(state.page._id, animation._uid, 'id', STYLE_STORE_NAME);
         const data = res?.style ? res.style : {};
-        setSelectors(Object.values(data))
-    }
+        setSelectors(Object.values(data));
+    };
 
-    // Use effect to fetch data on component mount and update
     useEffect(() => {
-        if (!state.page)
-            return;
-        if (animation)
-            fetchAnimationsData();
-        else
-            fetchData();
+        if (!state.page) return;
+        if (animation) fetchAnimationsData();
+        else fetchData();
         return () => {
-            setSelectors([])
-        }
+            setSelectors([]);
+        };
     }, [state.elementType, state.page, state.selectorDeleted, animation, isConverted]);
 
-    // Use effect to handle selector deletion
     useEffect(() => {
-        if (!state.selectorDeleted)
-            return;
-        const filterSelectors = selectors.filter(sel => sel._uid !== state.selectorDeleted)
-        setSelectors(filterSelectors)
+        if (!state.selectorDeleted) return;
+        const filterSelectors = selectors.filter(sel => sel._uid !== state.selectorDeleted);
+        setSelectors(filterSelectors);
     }, [state.selectorDeleted]);
 
-    // Handle selection of an option
-    function handleSelectOption(value) {
-        const selector = selectors.find(sel => sel._uid === value)
-        if (!selector)
-            return;
+    const handleSelectOption = (value) => {
+        const selectedSelector = selectors.find(sel => sel._uid === value);
+        if (!selectedSelector) return;
+
         let selected = {};
         if (animation) {
-            if (!selector.style)
-                selector.style = {}
-            if (!selector.style[selector.selectorText])
-                selector.style[selector.selectorText] = {}
-            const properties = selector.style[selector.selectorText].properties || {};
+            if (!selectedSelector.style) selectedSelector.style = {};
+            if (!selectedSelector.style[selectedSelector.selectorText]) 
+                selectedSelector.style[selectedSelector.selectorText] = {};
+            const properties = selectedSelector.style[selectedSelector.selectorText].properties || {};
             selected = {
                 store: STYLE_STORE_NAME,
                 properties,
-                selectorText: selector.selectorText
-            }
+                selectorText: selectedSelector.selectorText
+            };
         } else {
             const key = state.media || 'normal';
-            if (!selector.style[key])
-                selector.style[key] = {}
-            if (!selector.style[key]["root"])
-                selector.style[key]["root"] = {}
-            const properties = selector.style[key]["root"].properties || {};
+            if (!selectedSelector.style[key]) selectedSelector.style[key] = {};
+            if (!selectedSelector.style[key]["root"]) selectedSelector.style[key]["root"] = {};
+            const properties = selectedSelector.style[key]["root"].properties || {};
             selected = {
-                _uid: selector._uid,
+                _uid: selectedSelector._uid,
                 store: STYLE_STORE_NAME,
                 properties,
-                selectorText: selector.selectorText
-            }
+                selectorText: selectedSelector.selectorText
+            };
         }
-        if (selector)
-            onSelect(selected);
-        else
-            onSelect(null);
-        setSearchTerm("");
-    }
 
-    // Handle addition of a new selector
+        onSelect(selected);
+        setSearchTerm("");
+    };
+
     const handleAddNew = async () => {
+        if (!validateSearchInput(searchTerm)) {
+            setValidationResult('invalid');
+            return;
+        }
+
         try {
             const selectorText = searchTerm.trim();
             const id = nanoid(8);
+
             if (animation) {
-                if (!animation.style)
-                    animation.style = {}
+                if (!animation.style) animation.style = {};
                 animation.style[selectorText] = {
                     selectorText,
                     _uid: id,
                     type: state.elementType,
-                    properties: {
-                    }
-                }
-                await updateData(state.page._id, animation, STYLE_STORE_NAME)
-                await onSelect({
+                    properties: {}
+                };
+                await updateData(state.page._id, animation, STYLE_STORE_NAME);
+                onSelect({
                     selectorText,
                     _uid: id,
-                    properties: {},
+                    properties: {}
                 });
                 setSelectors([...selectors, {
                     selectorText,
                     _uid: id,
                     properties: {}
-                }])
-            }
-            else {
-                const id = nanoid(8);
+                }]);
+            } else {
                 const style = {
                     _uid: id,
                     selectorText,
                     type: state.elementType,
-                    style: {
-                    }
-                }
-                await onSelect({
+                    style: {}
+                };
+                onSelect({
                     selectorText,
                     _uid: id,
-                    properties: {},
+                    properties: {}
                 });
-                await updateData(state.page._id, style, STYLE_STORE_NAME)
-                setSelectors([...selectors, style])
+                await updateData(state.page._id, style, STYLE_STORE_NAME);
+                setSelectors([...selectors, style]);
             }
             setSearchTerm("");
+            setValidationResult('valid');
         } catch (e) {
-        } finally {
+            console.error("Error adding new selector:", e);
         }
     };
 
-    // Handle search input with debounce
     const handleSearchInput = useCallback(
-        debounce(async (value) => {
+        debounce((value) => {
             if (value && !validateSearchInput(value)) {
+                setValidationResult('invalid');
                 return;
             }
             setSearchTerm(value);
-            setValidationResult('');
+            setValidationResult('valid');
         }, 500),
         []
     );
 
-    // Validate search input
-    const validateSearchInput = (inputValue, option) => {
-        const regex = animation ? /^(100|[1-9][0-9]?|0)%|from|to$/ : /^(?:[^ ]* ?[^ ]*)?$/;
-        const isValid = regex.test(inputValue);
-        setValidationResult(isValid ? 'valid' : 'invalid');
-        return isValid;
+    const validateSearchInput = (inputValue) => {
+        const regex = animation ? /^(100|[1-9][0-9]?|0)%|from|to$/ : /^(?:\.[a-zA-Z0-9_-]+|#[a-zA-Z0-9_-]+)$/;
+        return regex.test(inputValue);
     };
 
-    // Handle closing of validation result
     const onClose = () => {
-        setValidationResult('')
+        setValidationResult('');
     };
 
-    // Render component
-    return (<>
-        <Select
-            style={{
-                width: '100%',
-            }}
-            allowClear
-            showSearch
-            value={selector?.selectorText}
-            placeholder="Please Select Selector"
-            onSearch={handleSearchInput}
-            onChange={handleSelectOption}
-            optionFilterProp="label"
-            dropdownRender={menu => (<>
-                {search.length === 0 &&
-                    validationResult === 'invalid' ? (<>
-                        <Alert style={{ margin: '5px 0' }} type="error" onClose={onClose} closable message={`Please enter a valid CSS selector name ${animation ? '(e.g. to, from OR 0% - 100%)' : '(e.g. .my-class)'}.`}>
-                        </Alert>
-                        <Divider style={{ margin: '4px 0' }} />
-                    </>) :
-                    searchTerm !== '' && <div>
-                        <Button onClick={handleAddNew}>
-                            Add new: {searchTerm}
-                        </Button>
-                        <Divider style={{ margin: '4px 0' }} />
-                    </div>
-                }
-                {menu}
-            </>)}
-        >
-            {selectors.map((value, index) => <Option 
-            key={index}
-            value={value._uid} label={value.selectorText}>
-                {value.selectorText}
-            </Option>)}
-        </Select>
-    </>
+    return (
+        <>
+            <Select
+                style={{ width: '100%' }}
+                allowClear
+                showSearch
+                value={selector?.selectorText}
+                placeholder="Please Select Selectors"
+                onSearch={handleSearchInput}
+                onChange={handleSelectOption}
+                optionFilterProp="label"
+                dropdownRender={menu => (
+                    <>
+                        {searchResults.length === 0 && validationResult === 'invalid' ? (
+                            <>
+                                <Alert 
+                                    style={{ margin: '5px 0' }} 
+                                    type="error" 
+                                    onClose={onClose} 
+                                    closable 
+                                    message={`Please enter a valid CSS selector name ${animation ? '(e.g. to, from OR 0% - 100%)' : '(e.g. .my-class)'}.`}
+                                />
+                                <Divider style={{ margin: '4px 0' }} />
+                            </>
+                        ) : searchTerm !== '' && (
+                            <div>
+                                <Button onClick={handleAddNew}>
+                                    Add new: {searchTerm}
+                                </Button>
+                                <Divider style={{ margin: '4px 0' }} />
+                            </div>
+                        )}
+                        {menu}
+                    </>
+                )}
+            >
+                {selectors.map((value, index) => (
+                    <Option key={index} value={value._uid} label={value.selectorText}>
+                        {value.selectorText}
+                    </Option>
+                ))}
+            </Select>
+        </>
     );
 }
 
