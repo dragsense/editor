@@ -86,7 +86,7 @@ let globalStates = [
                             },
                             {
                                 label: 'Mobile Logo',
-                                value: 'mobile-logo'
+                                value: 'mobileLogo'
                             },
                             {
                                 label: 'Logo',
@@ -94,7 +94,7 @@ let globalStates = [
                             },
                             {
                                 label: 'Placeholder',
-                                value: 'placehodler'
+                                value: 'placeholder'
                             }
                         ]
 
