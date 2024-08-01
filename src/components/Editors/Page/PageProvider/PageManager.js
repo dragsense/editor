@@ -409,7 +409,7 @@ export default function PageManger({ children }) {
   }, [state.isChange]); // The effect depends on the 'isChange' state
 
   useEffect(() => {
-    if (!previewMode) dispatch({ type: "preview", preview: 0 });
+    dispatch({ type: "preview", preview: previewMode });
   }, [previewMode]);
 
   // Function to load elements for preview
@@ -1637,16 +1637,18 @@ export default function PageManger({ children }) {
 
       if (restore) {
         Modal.confirm({
-            title: "Restore Page Changes",
-            content:
-              "Are you sure you want to restore to the last published state?",
-            okText: "Restore",
-
+          title: "Restore Page Changes",
+          content:
+            "Are you sure you want to restore to the last published state?",
+          okText: "Restore",
           onOk: async () => {
             try {
-              await restorePage(page, type, dispatch);
-              await onEdit(page, type, null, true);
-              message.success("Page Restored.");
+              // Call restorePage and provide onEdit as a callback
+              await restorePage(page, type, dispatch, async () => {
+                // onEdit is only called when restorePage is successful
+                await onEdit(page, type, null, true);
+                message.success("Page Restored.");
+              });
             } catch (e) {
               dispatch({
                 type: "error",
@@ -1655,14 +1657,14 @@ export default function PageManger({ children }) {
             }
           },
           onCancel: () => {
-            // Do nothing when the user cancels the confirmation
+            // Optional: Handle the cancel event if needed
           },
         });
       }
+
       // If preview mode is enabled, confirm before publishing the page
       else if (previewMode) {
         Modal.confirm({
-         
           title: "Publish Page Changes",
           content: "Are you sure you want to publish?",
           okText: "Publish",

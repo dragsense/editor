@@ -112,7 +112,6 @@ export default function Editor({ children, _id, pageType, onBack }) {
                 node={state.node}
                 onClickElement={onClickElement}
                 onMove={onMove}
-                previewMode={previewMode}
                 onDelete={onDelete}
                 onCopy={onCopy}
                 onChange={onChange}

@@ -182,7 +182,6 @@ export default function IFrame({
   onUpdate,
   onLoad,
   onChange,
-  previewMode,
   onClickElement,
   onAdd,
   onDelete,
@@ -755,7 +754,7 @@ export default function IFrame({
               document={container.document}
             >
               {state.page ? (
-                previewMode ? (
+                state.preview ? (
                   children
                 ) : (
                   renderRoot()

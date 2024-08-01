@@ -468,39 +468,45 @@ export const publishPage = async (page, type, dispatch) => {
  * @param {string} type - The type of the page (e.g., 'page', 'component').
  * @param {Function} dispatch - A dispatcher function to send actions to a reducer.
  */
-export const restorePage = async (page, type, dispatch) => {
-    // Make an API request to fetch the project details.
-    const response = await window.autocode.makeApiRequest();
-    const project = response?.project;
-
-    if (!project) {
-        throw new Error("Project Not Found.");
-    }
-
-    const { apikey, creator } = project;
-
-    // Construct the URL for publishing.
-    const url = `${project.url}/${type}s/restore/${page._id}`;
-    const sanitizedUrl = sanitizeUrl(url);
-
+export const restorePage = async (page, type, dispatch, callback) => {
     try {
-        // Send a POST request to publish the page.
-        await fetcher(sanitizedUrl, {
-            method: 'POST',
-            headers: {
-                'ngrok-skip-browser-warning': true,
-                'x-api-key': apikey,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ updater: creator })
-        });
+      // Make an API request to fetch the project details.
+      const response = await window.autocode.makeApiRequest();
+      const project = response?.project;
+  
+      if (!project) {
+        throw new Error("Project Not Found.");
+      }
+  
+      const { apikey, creator } = project;
+  
+      // Construct the URL for restoring the page.
+      const url = `${project.url}/${type}s/restore/${page._id}`;
+      const sanitizedUrl = sanitizeUrl(url);
+  
+      // Send a POST request to restore the page.
+      await fetcher(sanitizedUrl, {
+        method: "POST",
+        headers: {
+          "ngrok-skip-browser-warning": true,
+          "x-api-key": apikey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ updater: creator }),
+      });
+  
+      // Call the callback if the restore is successful
+      if (callback) {
+        await callback();
+      }
     } catch (e) {
-        dispatch({ type: 'error', error: e?.message || 'Something went wrong.' });
-
+      dispatch({
+        type: "error",
+        error: e?.message || "Something went wrong.",
+      });
+      throw e; // Re-throw the error to be caught in the outer try-catch
     }
-
-}
-
+  };
 
 /**
  * Utility to filter non-deleted elements from the data.
