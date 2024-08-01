@@ -754,12 +754,12 @@ export default function IFrame({
               onLoad={onLoad}
               document={container.document}
             >
-              {state.loading ? (
-                <p>Loading...</p>
-              ) : previewMode ? (
-                children
-              ) : state.page ? (
-                renderRoot()
+              {state.page ? (
+                previewMode ? (
+                  children
+                ) : (
+                  renderRoot()
+                )
               ) : (
                 <p>Loading...</p>
               )}

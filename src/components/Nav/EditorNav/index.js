@@ -105,7 +105,7 @@ const EditorNav = ({
                 type="text"
                 style={{ marginRight: 20 }}
                 onClick={async () => {
-                    onSubmit();
+                    onSubmit(false, true);
                 }}
                 disabled={state.isChange}
                 icon={<MdRestore />}
