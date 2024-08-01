@@ -425,7 +425,7 @@ export const loadAnimationStyles = async (dispatch, clear = false) => {
  * Publishes a page using a POST request to a specified URL.
  * 
  * @param {Object} page - The page object to be published.
- * @param {string} type - The type of the page (e.g., 'article', 'blog').
+ * @param {string} type - The type of the page (e.g., 'page', 'component').
  * @param {Function} dispatch - A dispatcher function to send actions to a reducer.
  */
 export const publishPage = async (page, type, dispatch) => {
@@ -441,6 +441,46 @@ export const publishPage = async (page, type, dispatch) => {
 
     // Construct the URL for publishing.
     const url = `${project.url}/${type}s/publish/${page._id}`;
+    const sanitizedUrl = sanitizeUrl(url);
+
+    try {
+        // Send a POST request to publish the page.
+        await fetcher(sanitizedUrl, {
+            method: 'POST',
+            headers: {
+                'ngrok-skip-browser-warning': true,
+                'x-api-key': apikey,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ updater: creator })
+        });
+    } catch (e) {
+        dispatch({ type: 'error', error: e?.message || 'Something went wrong.' });
+
+    }
+
+}
+
+/**
+ * Restores a page using a POST request to a specified URL.
+ * 
+ * @param {Object} page - The page object to be restored.
+ * @param {string} type - The type of the page (e.g., 'page', 'component').
+ * @param {Function} dispatch - A dispatcher function to send actions to a reducer.
+ */
+export const restorePage = async (page, type, dispatch) => {
+    // Make an API request to fetch the project details.
+    const response = await window.autocode.makeApiRequest();
+    const project = response?.project;
+
+    if (!project) {
+        throw new Error("Project Not Found.");
+    }
+
+    const { apikey, creator } = project;
+
+    // Construct the URL for publishing.
+    const url = `${project.url}/${type}s/restore/${page._id}`;
     const sanitizedUrl = sanitizeUrl(url);
 
     try {

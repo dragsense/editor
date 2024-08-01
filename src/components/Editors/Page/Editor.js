@@ -75,7 +75,7 @@ export default function Editor({ children, _id, pageType, onBack }) {
                 marginTop: 0,
                 minHeight: 'calc(100vh - 56px)'
             }}>
-                <LeftPanelComponent />
+                {previewMode && <LeftPanelComponent />}
                 <Content>
                     {(!state.page && state.loading) && <Alert style={{ margin: '10px' }} message="Please Select the Page Or Component" />}
                     <CanvasEditor windowWidth={windowWidth} setWindowWidth={setWindowWidth}>
@@ -98,7 +98,7 @@ export default function Editor({ children, _id, pageType, onBack }) {
                     </CanvasEditor>
                 </Content>
 
-                {<RightPanelComponent
+                {!previewMode && <RightPanelComponent
                     onDeleteSelector={onDeleteSelector}
                     onUpdateSelector={onUpdateSelector}
                     onSelectSelector={onSelectSelector}
@@ -114,7 +114,7 @@ export default function Editor({ children, _id, pageType, onBack }) {
 
             </Layout>
 
-            {previewMode && <div style={{
+            {/* {previewMode && <div style={{
                 position: 'absolute',
                 background: "#fff", opacity: 1,
                 top: 115, left: 0, right: 0, bottom: 0
@@ -127,7 +127,7 @@ export default function Editor({ children, _id, pageType, onBack }) {
                     >
                         <Preview page={state.page} loading={state.loading} preview={state.preview} />
                     </PreviewIFrame>
-                </CanvasEditor></div>}
+                </CanvasEditor></div>} */}
 
         </EditorNav>
         {state.loading && <div style={{
