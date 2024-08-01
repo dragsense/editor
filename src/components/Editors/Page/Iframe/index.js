@@ -182,6 +182,7 @@ export default function IFrame({
   onUpdate,
   onLoad,
   onChange,
+  previewMode,
   onClickElement,
   onAdd,
   onDelete,
@@ -703,7 +704,7 @@ export default function IFrame({
             position: "absolute",
           }}
         >
-          {!editing && !state.preview && gapBarPos && (
+          {!editing && !previewMode && gapBarPos && (
             <div
               style={{
                 display: "none",
@@ -754,7 +755,7 @@ export default function IFrame({
               document={container.document}
             >
               {state.page ? (
-                state.preview ? (
+                previewMode ? (
                   children
                 ) : (
                   renderRoot()
@@ -1102,10 +1103,10 @@ export default function IFrame({
 
   return (
     <>
-      {!state.preview && renderOverlay()}
-      {!state.preview && renderContextMenu()}
+      {!previewMode && renderOverlay()}
+      {!previewMode && renderContextMenu()}
       <ShadowRootComponent>{renderIframe()}</ShadowRootComponent>
-      {!state.preview && (
+      {!previewMode && (
         <AddElement
           onAddElement={onAddElement}
           currentElement={currentElement}
