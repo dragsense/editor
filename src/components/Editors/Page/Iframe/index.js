@@ -503,7 +503,7 @@ export default function IFrame({
       try {
         ContentEditor.destroy();
         state.node.updateHTML = true;
-        await onUpdate(state.node);
+        await onUpdate({...state.node});
         onChange();
       } catch (e) {
       } finally {
