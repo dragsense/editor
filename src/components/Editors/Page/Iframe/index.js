@@ -754,7 +754,7 @@ export default function IFrame({
               onLoad={onLoad}
               document={container.document}
             >
-              {loading ? (
+              {state.loading ? (
                 <p>Loading...</p>
               ) : previewMode ? (
                 children
