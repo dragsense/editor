@@ -376,21 +376,27 @@ export default function PageManger({ children }) {
     if (state.isChange) {
       event.preventDefault();
 
-      // Check if the user wants to save the unsaved changes
-      const shouldSave = await window.autocode.checkUnsavedChanges(
-        state.isChange
-      );
+      // Call the Electron backend to prompt the user to save changes
+      const shouldSave = await window.autocode.promptToSave();
 
       // If the user wants to save the changes, call the onSubmit function
-      if (shouldSave) {
+      if (shouldSave === 0) {
+        // Save
         await onSubmit();
       }
 
       // If the user wants to discard the changes, close the window after a short delay
       if (shouldSave === 1) {
+        // Don’t Save
         setTimeout(() => {
           window.close();
         }, 100);
+      }
+
+      // If the user wants to cancel, do nothing
+      if (shouldSave === 2) {
+        // Cancel
+        console.log("User canceled the close action");
       }
 
       // Dispatch a 'close' action to update the state
@@ -481,15 +487,14 @@ export default function PageManger({ children }) {
 
   // Function to handle the 'shouldSave' response
   const handleShouldSave = async (shouldSave) => {
-    switch (shouldSave) {
-      case 0:
-        // If the user wants to save the changes, call the onSubmit function
-        await onSubmit();
-        break;
-      case 2:
-        // If the user wants to discard the changes, return immediately
-        return;
+    if (shouldSave === 0) {
+      await onSubmit();
+      return true;
     }
+
+    if (shouldSave === 1) return true;
+
+    return false;
   };
 
   // Function to load the stylesheet for the page
@@ -514,7 +519,8 @@ export default function PageManger({ children }) {
       const shouldSave = await window.autocode.checkUnsavedChanges(
         state.isChange
       );
-      await handleShouldSave(shouldSave);
+      const res = await handleShouldSave(shouldSave);
+      if (!res) return;
     }
 
     try {
@@ -1638,9 +1644,18 @@ export default function PageManger({ children }) {
       if (restore) {
         Modal.confirm({
           title: "Restore Page Changes",
-          content:
-            "Are you sure you want to restore to the last published state?",
+          content: (
+            <>
+              <p>
+                Are you sure you want to restore to the last published state?
+              </p>
+              <p style={{ fontWeight: "bold", color: "red" }}>
+                This action cannot be undone.
+              </p>
+            </>
+          ),
           okText: "Restore",
+          okType: "danger",
           onOk: async () => {
             try {
               // Call restorePage and provide onEdit as a callback
@@ -1760,7 +1775,7 @@ export default function PageManger({ children }) {
         node.style.outline = "#2fc1ff dotted 3px";
 
         // Dispatch the selected node along with its data to the state
-        dispatch({ type: "selectNode", node: { node, ...element } });
+        dispatch({ type: "selectNode", node: { ...element, node } });
 
         // Fetch the style data of the element
         let style = await getData(

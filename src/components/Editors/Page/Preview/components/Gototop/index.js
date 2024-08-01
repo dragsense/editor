@@ -32,7 +32,7 @@ const GoToTopButton = (props) => {
     const [isVisible, setIsVisible] = useState(false);
     const nodeRef = useRef(null);
 
-    const iframe = document.querySelector("#ac-editor-iframe-preview-doc");
+    const iframe = document.querySelector("#ac-editor-iframe-doc");
     const window = iframe.contentWindow;
 
     const duration = getDefaultValue(states, 'duration', 300);

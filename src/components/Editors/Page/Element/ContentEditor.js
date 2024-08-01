@@ -216,7 +216,7 @@ function createContentEditor() {
         const shiftEnterMode = window.CKEDITOR.ENTER_BR;
         this.domElement = domElement;
 
-        this.editor = this.AlloyEditor.editable(this.domElement, {
+        this.editor = this.AlloyEditor.editable(domElement, {
           toolbars,
           enterMode,
           shiftEnterMode,

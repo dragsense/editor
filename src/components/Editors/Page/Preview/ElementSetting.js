@@ -89,7 +89,7 @@ const ElementSetting = (props) => {
    // Handle 'WINDOW' type
    const handleWindowType = (key) => {
 
-    const iframe = document.querySelector("#ac-editor-iframe-preview-doc")
+    const iframe = document.querySelector("#ac-editor-iframe-doc")
     const contentWindow = iframe.contentWindow;;
 
     if(!contentWindow)

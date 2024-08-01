@@ -297,7 +297,7 @@ const Component = (props) => {
         e.preventDefault();
         // Loop through each event and call onScroll function
         for (const key in events) {
-            const iframe = document.querySelector("#ac-editor-iframe-preview-doc");
+            const iframe = document.querySelector("#ac-editor-iframe-doc");
             if (iframe) {
                 const iframeDocument = iframe.contentWindow;
                 onScroll(events[key], iframeDocument);

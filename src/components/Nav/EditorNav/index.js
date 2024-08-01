@@ -107,7 +107,7 @@ const EditorNav = ({
                 onClick={async () => {
                     onSubmit(false, true);
                 }}
-                disabled={state.isChange}
+              
                 icon={<MdRestore />}
               ></Button>
             </Tooltip>

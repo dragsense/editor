@@ -148,7 +148,7 @@ export default function Elements({  _id }) {
         setSetting({ ...setting, resize: !setting.resize });
     };
 
-    const iframe = document.querySelector("#ac-editor-iframe-preview-doc")
+    const iframe = document.querySelector("#ac-editor-iframe-doc")
     const contentWindow = iframe.contentWindow;
 
     if (!contentWindow)

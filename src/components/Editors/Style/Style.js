@@ -98,7 +98,7 @@ export default function Style({ children, onBack }) {
             if (isChange) {
                 event.preventDefault();
                 const shouldSave = await window.autocode.checkUnsavedChanges(isChange);
-                if (shouldSave) {
+                if (shouldSave === 0) {
                     await onSubmit();
                 }
                 setTimeout(() => {

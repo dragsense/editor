@@ -36,7 +36,7 @@ const Observable = (props) => {
     // Function to handle scroll event
     const handleScroll = () => {
         if (onScroll) {
-            const iframe = document.querySelector("#ac-editor-iframe-preview-doc");
+            const iframe = document.querySelector("#ac-editor-iframe-doc");
             if (iframe) {
                 const iframeWindow = iframe.contentWindow;
                 const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
@@ -58,7 +58,7 @@ const Observable = (props) => {
 
         if (onScroll) {
 
-            const iframe = document.querySelector("#ac-editor-iframe-preview-doc");
+            const iframe = document.querySelector("#ac-editor-iframe-doc");
 
             if (iframe) {
                 const iframeWindow = iframe.contentWindow;
@@ -68,7 +68,7 @@ const Observable = (props) => {
 
         return () => {
             if (onScroll) {
-                const iframe = document.querySelector("#ac-editor-iframe-preview-doc");
+                const iframe = document.querySelector("#ac-editor-iframe-doc");
                 if (iframe) {
                     const iframeWindow = iframe.contentWindow;
                     iframeWindow.removeEventListener('scroll', handleScroll);
@@ -114,7 +114,7 @@ const Observable = (props) => {
 
     const calculateElementTopVisibility = useCallback(() => {
         if (ref.current) {
-            const iframe = document.querySelector("#ac-editor-iframe-preview-doc");
+            const iframe = document.querySelector("#ac-editor-iframe-doc");
             if (iframe) {
                 const iframeWindow = iframe.contentWindow;
                 const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
@@ -147,7 +147,7 @@ const Observable = (props) => {
     useEffect(() => {
 
         if (calculateVisibility) {
-            const iframe = document.querySelector("#ac-editor-iframe-preview-doc");
+            const iframe = document.querySelector("#ac-editor-iframe-doc");
             if (iframe) {
                 const iframeWindow = iframe.contentWindow;
                 iframeWindow.addEventListener('scroll', calculateElementTopVisibility);
@@ -155,7 +155,7 @@ const Observable = (props) => {
         }
         return () => {
             if (calculateVisibility) {
-                const iframe = document.querySelector("#ac-editor-iframe-preview-doc");
+                const iframe = document.querySelector("#ac-editor-iframe-doc");
                 if (iframe) {
                     const iframeWindow = iframe.contentWindow;
                     iframeWindow.removeEventListener('scroll', calculateElementTopVisibility);
@@ -180,7 +180,7 @@ const Observable = (props) => {
 
     const deAttach = () => {
         if (oneTime) {
-            const iframe = document.querySelector("#ac-editor-iframe-preview-doc");
+            const iframe = document.querySelector("#ac-editor-iframe-doc");
             if (iframe) {
                 const iframeWindow = iframe.contentWindow;
                 iframeWindow.removeEventListener('scroll', calculateElementTopVisibility);
@@ -191,7 +191,7 @@ const Observable = (props) => {
     useEffect(() => {
 
         if (calculateVisibility && !oneTime) {
-            const iframe = document.querySelector("#ac-editor-iframe-preview-doc");
+            const iframe = document.querySelector("#ac-editor-iframe-doc");
             if (iframe) {
                 const iframeWindow = iframe.contentWindow;
                 iframeWindow.addEventListener('scroll', calculateElementTopVisibility);

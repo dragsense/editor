@@ -31,7 +31,7 @@ const Dropdown = ({
   const dropdownTransition = useMemo(() => transitions[transitionType].getTransition(duration, initialValue, expandValue), [transitionType, duration, initialValue, expandValue]);
 
 // Get the iframe and window for event listeners
-  const iframe = useMemo(() => document.querySelector("#ac-editor-iframe-preview-doc"), []);
+  const iframe = useMemo(() => document.querySelector("#ac-editor-iframe-doc"), []);
   const window = useMemo(() => iframe.contentWindow, [iframe]);
 
 // Handle click outside of dropdown to close it
