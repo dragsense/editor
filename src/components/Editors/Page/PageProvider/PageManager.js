@@ -377,7 +377,7 @@ export default function PageManger({ children }) {
       event.preventDefault();
 
       // Call the Electron backend to prompt the user to save changes
-      const shouldSave = await window.autocode.promptToSave();
+      const shouldSave = await window.autocode.checkUnsavedChanges(isChange);
 
       // If the user wants to save the changes, call the onSubmit function
       if (shouldSave === 0) {
