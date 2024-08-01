@@ -703,7 +703,7 @@ export default function IFrame({
             position: "absolute",
           }}
         >
-          {!editing && !previewMode && gapBarPos && (
+          {!editing && !state.preview && gapBarPos && (
             <div
               style={{
                 display: "none",
@@ -1102,10 +1102,10 @@ export default function IFrame({
 
   return (
     <>
-      {!previewMode && renderOverlay()}
-      {!previewMode && renderContextMenu()}
+      {!state.preview && renderOverlay()}
+      {!state.preview && renderContextMenu()}
       <ShadowRootComponent>{renderIframe()}</ShadowRootComponent>
-      {!previewMode && (
+      {!state.preview && (
         <AddElement
           onAddElement={onAddElement}
           currentElement={currentElement}
