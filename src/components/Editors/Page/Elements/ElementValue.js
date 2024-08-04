@@ -85,6 +85,8 @@ const ElementValue = (props) => {
         const type = elem.type;
         const key = elem.key;
 
+
+
         switch (type) {
             case 'GLOBAL':
 
@@ -96,9 +98,10 @@ const ElementValue = (props) => {
 
                 return getStateValue(key, _states, setting?.host);
             case 'PAGE':
-
+                
                 return getPageValue(key, setting, setting?.host);
             case 'COLSTATES':
+                
                 return handleColStatesType(key, value, setting?.host);
             case 'FORMSTATES':
                 return _states && _states[key[0]] ? _states[key[0]][key[1]] || '[form state]' : value;
@@ -126,7 +129,7 @@ const ElementValue = (props) => {
         const value = getValue(state, nodeValue);
         return value || nodeValue;
 
-    }, [state, nodeValue, _states, _props, _cstates, setting?.resize]);
+    }, [state, nodeValue, _states, _props, colStates, _cstates, setting?.resize]);
 
     // useMemo hook to optimize performance by memoizing the value
     // It will only recompute the memoized value when one of the dependencies has changed

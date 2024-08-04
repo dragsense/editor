@@ -24,9 +24,9 @@ if (process.defaultApp) {
 }
 
 // Define prefixes based on the environment
-const prefix = !app.isPackaged ? '__' : '';
-const prefixSecure = !app.isPackaged ? 'Secure-' : '';
-const prefixHost = !app.isPackaged ? 'Host-' : '';
+const prefix = app.isPackaged ? '__' : '';
+const prefixSecure = app.isPackaged ? 'Secure-' : '';
+const prefixHost = app.isPackaged ? 'Host-' : '';
 
 // Function to set the session
 const setSession = (argUrl) => {
@@ -66,6 +66,7 @@ const setSession = (argUrl) => {
       callback({ cancel: false, requestHeaders: details.requestHeaders });
     });
 
+
     if (sessionToken && csrfToken && callbackUrl) {
 
       ses.cookies.set({ url: apiUrl, name: prefixSecure + 'next-auth.session-token', value: sessionToken });
@@ -101,6 +102,8 @@ if (!gotTheLock) {
 
     if (argUrl)
       setSession(argUrl)
+
+    
 
     const options = {
       type: 'info',

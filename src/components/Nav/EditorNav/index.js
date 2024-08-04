@@ -103,7 +103,7 @@ const EditorNav = ({
             <Tooltip title="Restore to the Last Published Changes">
               <Button
                 type="text"
-                style={{ marginRight: 20 }}
+                style={{ marginRight: 10 }}
                 onClick={async () => {
                     onSubmit(false, true);
                 }}
@@ -113,7 +113,7 @@ const EditorNav = ({
             </Tooltip>
           )}
 
-          <Tooltip title="Preview Page">
+          {/* <Tooltip title="Preview Page">
             <Button
               type="text"
               style={{ marginRight: 20 }}
@@ -123,7 +123,7 @@ const EditorNav = ({
               disabled={state.isChange}
               icon={previewMode ? <EyeFilled /> : <EyeOutlined />}
             ></Button>
-          </Tooltip>
+          </Tooltip> */}
           {!previewMode && (
             <Button
               type="dashed"
@@ -137,14 +137,27 @@ const EditorNav = ({
 
           <Button
             type="primary"
-            disabled={!state?.isChange && !previewMode}
+            disabled={!state?.isChange}
+            loading={state?.loading}
+            style={{ marginRight: 10 }}
+            onClick={(e) => {
+              e.preventDefault();
+              onSubmit(false);
+            }}
+          >
+            {"Save Draft"}
+          </Button>
+
+          <Button
+            type="primary"
+            disabled={!state?.isChange}
             loading={state?.loading}
             onClick={(e) => {
               e.preventDefault();
-              onSubmit(previewMode);
+              onSubmit(true);
             }}
           >
-            {!previewMode ? "Save Draft" : "Publish Changes"}
+            {"Publish Changes"}
           </Button>
         </div>
       </div>

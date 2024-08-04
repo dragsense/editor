@@ -196,7 +196,7 @@ export default function ClassManager({
                     onChange={onChangekey}>
                 </Cascader>
                 <Text disabled>
-                        e.g '[descriptive-state-name]-class' OR "hero-class"
+                        e.g [state-name]-class OR hero-class
                     </Text>
                 <Space style={{ paddingTop: 10 }}>
                     <AutoComplete

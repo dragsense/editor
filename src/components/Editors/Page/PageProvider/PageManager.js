@@ -377,7 +377,9 @@ export default function PageManger({ children }) {
       event.preventDefault();
 
       // Call the Electron backend to prompt the user to save changes
-      const shouldSave = await window.autocode.checkUnsavedChanges(state.isChange);
+      const shouldSave = await window.autocode.checkUnsavedChanges(
+        state.isChange
+      );
 
       // If the user wants to save the changes, call the onSubmit function
       if (shouldSave === 0) {
@@ -1686,7 +1688,16 @@ export default function PageManger({ children }) {
 
           onOk: async () => {
             try {
-              const res = await publishPage(page, type, dispatch);
+              if (state.node) {
+                await updateValue(state.node, false);
+              }
+
+              if (state.selector && state.isStyleChange) {
+                await onUpdateSelector(state.selector, false);
+              }
+
+              await savePage(page, type, dispatch);
+              await publishPage(page, type, dispatch);
               message.success("Page Published.");
             } catch (e) {
               dispatch({

@@ -302,7 +302,7 @@ export const getStates = (key, states) => {
  */
 export const updateStateValue = (elem, withValue, states, value, updateKey = "defaultValue") => {
   const key = elem.key;
-  const expression = elem.value;
+  const expression = elem.value || '';
 
   let stateRef = getStateRef(key, states);
 
@@ -323,12 +323,14 @@ export const updateStateValue = (elem, withValue, states, value, updateKey = "de
       updatedValue = value;
     }
 
+
     // Ensure the updated value is within the min and max limits.
-    if (updatedValue >= stateRef.max && updateKey !== 'max') {
+    if (updatedValue > stateRef.max && updateKey !== 'max') {
       updatedValue = stateRef.max;
-    } else if (updatedValue <= stateRef.min && updateKey !== 'min') {
+    } else if (updatedValue < stateRef.min && updateKey !== 'min') {
       updatedValue = stateRef.min;
     }
+
 
     // Update the state with the new value.
     stateRef[updateKey] = updatedValue;
@@ -561,18 +563,19 @@ export const getPaginationRange = (currentPage, totalPages, pagination) => {
   let start = Math.max(currentPage - rangeSize, 1);
   let end = Math.min(currentPage + rangeSize, totalPages);
 
-  if (leftRangeLength + rightRangeLength >= totalPages) {
+  // Fix the bug: Adjust condition for leftRange + rightRange >= totalPages
+  if (leftRangeLength + rightRangeLength + rangeSize * 2 >= totalPages) {
     return Array.from({ length: totalPages }, (_, index) => index + 1);
   }
 
   if (start <= leftRangeLength) {
-    end = Math.min(start + rangeSize * 2, totalPages);
+    end = Math.min(leftRangeLength + rangeSize * 2, totalPages);
   } else if (end >= totalPages - rightRangeLength + 1) {
-    start = Math.max(end - rangeSize * 2, 1);
+    start = Math.max(totalPages - rightRangeLength - rangeSize * 2 + 1, 1);
   }
 
   const leftRange = Array.from({ length: leftRangeLength }, (_, index) => index + 1);
-  const rightRange = Array.from({ length: rightRangeLength }, (_, index) => totalPages - index);
+  const rightRange = Array.from({ length: rightRangeLength }, (_, index) => totalPages - rightRangeLength + index + 1);
   const nearbyRange = Array.from({ length: end - start + 1 }, (_, index) => start + index);
 
   if (start > leftRangeLength + 1) {

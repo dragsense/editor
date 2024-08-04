@@ -164,7 +164,7 @@ export default function Elements({ pageUpdated, _id, onUpdateStates }) {
         states: page.states,
         populatedRelationships,
         relationships,
-        host: page.host || '',
+        host: res.host || '',
         ...({ setting: page.setting } || {}),
         global: { ...res.setting },
       };

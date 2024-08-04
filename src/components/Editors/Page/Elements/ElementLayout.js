@@ -11,7 +11,7 @@ import ElementSetting from './ElementSetting';
 // Destructuring props for better readability and performance
 const ElementLayout = (props) => {
 
-    const { _states, _cstates, updateStates, nodes, layout, pos,
+    const { _states, _cstates, updateStates, colStates, nodes, layout, pos,
         mapNodes, options, mapIndex, mapValue, isActive, node, children } = props;
 
     // Function to handle element setting
@@ -25,11 +25,13 @@ const ElementLayout = (props) => {
             attributes={node.attributes}
             conditions={node.conditions}
             classes={node.classes}
+           
             mapValue={mapValue}
             {...(mapValue?.type === 'pages' ? { setting: { ...props.setting, ...mapValue } } : {})}
             {...(mapValue?.type === 'docs' ? { colStates: { ...props.colStates, ...mapValue } } : {})}
             mapIndex={mapIndex}
             options={options}
+            key={mapValue?.key || mapIndex || node._uid}
         >{React.Children.map(children, (child, index) => {
             return React.cloneElement(child, {
                 key:  child.props?.key || child.props?._uid || index,
