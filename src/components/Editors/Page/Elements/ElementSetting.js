@@ -212,8 +212,6 @@ const ElementSetting = (props) => {
 
             if (typeof attribute.value === 'string') {
                 value = attribute.value.replace(/\[state]/, value);
-                console.log(value)
-
                 try {
                     attributeValue = eval(value);
                 } catch (e) {
