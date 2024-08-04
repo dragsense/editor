@@ -82,7 +82,7 @@ const Component = (props) => {
                                 , loading: 1
                             }
 
-                            loadDocuments(states);
+                            await loadDocuments(states);
                         }
                     }
                     setEvents(node.events);
@@ -204,10 +204,9 @@ const Component = (props) => {
                 loading: 0
             }
 
-            // Use setTimeout to simulate network delay
-            setTimeout(async () => {
+     
                 setColStates(newStates);
-            }, 1000);
+        
 
         } catch (e) {
             // In case of error, update the collection states
@@ -357,13 +356,19 @@ const Component = (props) => {
     }, []);
 
     // Function to handle page changes
-    const handlePageChange = useCallback(async (key, value, withValue) => {
-        if (isNaN(value) || isNaN(withValue))
-            value = colStates.page;
-
-        const totalPages = Math.ceil(colStates.maxPage / colStates.limit);
-        const page = { max: totalPages, min: 1, defaultValue: colStates.page }
-        updateStateValue({ type: 'COLSTATES', key }, withValue, { page }, value);
+    const handlePageChange = useCallback(
+        async (withValue) => {
+          if (isNaN(withValue)) withValue = colStates.page;
+    
+          const totalPages = Math.ceil(colStates.maxPage / colStates.limit);
+          const page = { max: totalPages, min: 1, defaultValue: colStates.page };
+    
+          if (withValue < 1) withValue = 1;
+    
+          if (withValue >= totalPages) withValue = totalPages;
+    
+          //updateStateValue({ type: 'COLSTATES', key }, withValue, { page }, value);
+          page.defaultValue = withValue;
 
         if (colStates.page === page.defaultValue)
             return;
@@ -567,7 +572,7 @@ const Component = (props) => {
                 {renderChildren()}
             </ElementMapping>
         }
-    }, [loading, props, node.map, states, _states, renderChildren]);
+    }, [loading, props, node.map, states, colStates, _states, renderChildren]);
 
 
     return <span data-name={'component'}>
