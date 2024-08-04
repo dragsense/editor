@@ -1688,6 +1688,7 @@ export default function PageManger({ children }) {
 
           onOk: async () => {
             try {
+              if(state.isChange) {
               if (state.node) {
                 await updateValue(state.node, false);
               }
@@ -1697,7 +1698,10 @@ export default function PageManger({ children }) {
               }
 
               await savePage(page, type, dispatch);
+            }
               await publishPage(page, type, dispatch);
+
+              dispatch({ type: "savePage" });
               message.success("Page Published.");
             } catch (e) {
               dispatch({

@@ -55,6 +55,7 @@ const ElementSetting = (props) => {
         const type = elem?.type;
         const key = elem?.key;
 
+
         // Check the type of the element and return the corresponding value
         switch (type) {
             case 'GLOBAL':
@@ -128,6 +129,9 @@ const ElementSetting = (props) => {
 
     // Handle 'COLSTATES' type
     const handleColStatesType = (key, value, host) => {
+
+
+
         if (!colStates) return value;
         if (key[0] === 'PAGES') return mapIndex + 1;
         else if (key[0] === 'docsLength' && colStates.documents) return colStates.documents.length || '0';
@@ -203,9 +207,13 @@ const ElementSetting = (props) => {
             attributeValue = calculateAttributes(attribute.attributes);
         } else {
             const stateValue = getValue(attribute.valueState, attribute.value);
+
             let value = stateValue?.value || stateValue;
+
             if (typeof attribute.value === 'string') {
                 value = attribute.value.replace(/\[state]/, value);
+                console.log(value)
+
                 try {
                     attributeValue = eval(value);
                 } catch (e) {

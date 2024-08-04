@@ -150,7 +150,6 @@ const EditorNav = ({
 
           <Button
             type="primary"
-            disabled={!state?.isChange}
             loading={state?.loading}
             onClick={(e) => {
               e.preventDefault();

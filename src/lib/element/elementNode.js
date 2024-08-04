@@ -698,6 +698,7 @@ export const getPageValue = (key, setting, host) => {
   } else if (key[1] === 'NEXTDOCUMNET' || key[1] === 'PREVDOCUMNET') {
     return getDocumentValue(key, setting);
   } else {
+
     return {
       value: setting[key[0]] || `[page ${key[0]}]`,
       label: setting[key[0]] || `[page ${key[0]}]`,
