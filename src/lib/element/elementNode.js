@@ -501,7 +501,7 @@ export const pageSetting =
  * @param {object} collection - The collection object containing relationships.
  * @returns {Array} - An array representing the cascading relations states.
  */
-export const generateCascadeRelationsStates = async (collection) => {
+export async function generateCascadeRelationsStates(collection)  {
   let cascaderItems = [];
   let relationsStates = [];
 
@@ -677,9 +677,11 @@ export const getPageValue = (key, setting, host) => {
   if (key[0] === 'POPULATED') key.shift();
 
 
-  if (key[0] === 'states') {
+  if (key[0] === 'states' || key[0] === 'STATES') {
+
     const modifiedKey = [...key];
     modifiedKey.shift();
+ 
     return getStateValue(modifiedKey, setting.states, setting.host || host);
   } else if (key[0] === 'RELATIONSHIPS' && setting.relationships) {
     return setting.relationships[key[1]] || null;

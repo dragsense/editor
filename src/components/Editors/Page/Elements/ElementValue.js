@@ -86,22 +86,16 @@ const ElementValue = (props) => {
         const key = elem.key;
 
 
-
         switch (type) {
             case 'GLOBAL':
-
-
                 return handleGlobalType(key);
             case 'PROPS':
                 return getStateValue(key, _props, setting?.host) || `[props.${key}]`;
             case 'STATES':
-
                 return getStateValue(key, _states, setting?.host);
             case 'PAGE':
-                
                 return getPageValue(key, setting, setting?.host);
             case 'COLSTATES':
-                
                 return handleColStatesType(key, value, setting?.host);
             case 'FORMSTATES':
                 return _states && _states[key[0]] ? _states[key[0]][key[1]] || '[form state]' : value;
