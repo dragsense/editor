@@ -1,5 +1,5 @@
-import { message } from 'antd';
-import { formatDate } from '../utils';
+import { message } from "antd";
+import { formatDate } from "../utils";
 
 /**
  * Get the value of a state based on its key.
@@ -27,52 +27,56 @@ export const getStateValue = (key, states, host) => {
 
     // Depending on the type of the state, return the appropriate value
     switch (stateRef.type) {
-      case 'image':
+      case "image":
         return {
-          value: stateRef.src ? host+stateRef.src.src : './images/default/default-img.png',
-          label: stateRef.src?.alt || 'image'
+          value: stateRef.src
+            ? host + stateRef.src.src
+            : "./images/default/default-img.png",
+          label: stateRef.src?.alt || "image",
         };
 
-      case 'video':
+      case "video":
         return {
-          value: stateRef.src ? host+stateRef.src.src : './images/default/default-poster.png',
-          label: stateRef.src?.alt || 'video',
-          srcs: stateRef.srcs
+          value: stateRef.src
+            ? host + stateRef.src.src
+            : "./images/default/default-poster.png",
+          label: stateRef.src?.alt || "video",
+          srcs: stateRef.srcs,
         };
 
-      case 'audio':
+      case "audio":
         return {
-          value: './audios/default/sample.mp3',
-          srcs: stateRef.srcs
+          value: "./audios/default/sample.mp3",
+          srcs: stateRef.srcs,
         };
 
-      case 'images':
+      case "images":
         if (key[1] && stateRef.states) {
           const index = isNaN(Number(key[1])) ? -1 : Number(key[1]);
           if (stateRef.states[index] !== undefined) {
             const value = stateRef.states[index];
             return {
-              value: value.src || './images/default/default-img.png',
-              label: value.alt || 'image'
+              value: value.src || "./images/default/default-img.png",
+              label: value.alt || "image",
             };
           }
         }
         return "";
 
-      case 'array':
+      case "array":
         if (key[1] && stateRef.states) {
           const index = isNaN(Number(key[1])) ? -1 : Number(key[1]);
           if (stateRef.states[index] !== undefined) {
             const value = stateRef.states[index].value?.split(":");
             return {
               value: value[0],
-              label: value[1] || value[0]
+              label: value[1] || value[0],
             };
           }
         }
         return "";
 
-      case 'object':
+      case "object":
         return getStateValue([key[1]], stateRef.states);
 
       default:
@@ -84,7 +88,6 @@ export const getStateValue = (key, states, host) => {
     return "";
   }
 };
-
 
 /**
  * Get values from states based on a key.
@@ -113,22 +116,24 @@ export const getStateStates = (key, states, host) => {
     }
 
     // Depending on the type of the value, populate the values array
-    if (value.type === 'array') {
+    if (value.type === "array") {
       values = Object.values(value.states || {}).flatMap((state) => {
         const val = state.value.split(":");
-        return { label: val[0], value: val[1] || state.idx, key: val[1] || state.id };
+        return {
+          label: val[0],
+          value: val[1] || state.idx,
+          key: val[1] || state.id,
+        };
       });
     }
 
-    if (value.type === 'images') {
-     
+    if (value.type === "images") {
       values = Object.values(value.states || {}).map((state) => {
-        return { label: state.alt, value: host+state.src, key: state._id };
+        return { label: state.alt, value: host + state.src, key: state._id };
       });
     }
 
     // Add other conditions here for different state types if needed.
-
   } catch (e) {
     // If an error occurs, display an error message
     message.error("Something went wrong, " + e?.message);
@@ -156,27 +161,24 @@ export const getStateRef = (key, states) => {
   // Get the value from the states object using the first element of the key array
   let value = states[key[0]];
 
-
   // If the value is not found, return undefined
   if (!value) {
     return undefined;
   }
 
-
   // If the state type is 'array' or 'images', return undefined.
-  if (value.type === 'array' || value.type === 'images') {
+  if (value.type === "array" || value.type === "images") {
     return undefined;
   }
 
   // If the state type is 'object' and it has 'states', access the nested state.
-  if (value.type === 'object' && value.states) {
+  if (value.type === "object" && value.states) {
     value = value.states[key[1]];
   }
 
   // Return the value
   return value;
 };
-
 
 /**
  * Get the default value for a given state key.
@@ -205,60 +207,62 @@ export const getStates = (key, states) => {
     // Depending on the type of the state, return the appropriate default value
     switch (stateRef.type) {
       // Handle image type
-      case 'image':
-        const imageSrc = stateRef.src?.src || './images/default/default-img.png';
-        const imageLabel = stateRef.src?.alt || 'image';
+      case "image":
+        const imageSrc =
+          stateRef.src?.src || "./images/default/default-img.png";
+        const imageLabel = stateRef.src?.alt || "image";
         return {
           value: imageSrc,
-          label: imageLabel
+          label: imageLabel,
         };
 
       // Handle video type
-      case 'video':
-        const videoSrc = stateRef.src?.src || './images/default/default-poster.png';
-        const videoLabel = stateRef.src?.alt || 'video';
+      case "video":
+        const videoSrc =
+          stateRef.src?.src || "./images/default/default-poster.png";
+        const videoLabel = stateRef.src?.alt || "video";
         return {
           value: videoSrc,
           label: videoLabel,
-          srcs: stateRef.srcs
+          srcs: stateRef.srcs,
         };
 
       // Handle audio type
-      case 'audio':
+      case "audio":
         return {
-          value: './audios/default/sample.mp3',
-          srcs: stateRef.srcs
+          value: "./audios/default/sample.mp3",
+          srcs: stateRef.srcs,
         };
 
       // Handle images type
-      case 'images':
+      case "images":
         if (stateRef.states && key[1]) {
           const index = isNaN(Number(key[1])) ? -1 : Number(key[1]);
           if (stateRef.states[index] !== undefined) {
             const value = stateRef.states[index];
             return {
-              value: value.src || './images/default/default-img.png',
-              label: value.alt || 'image'
+              value: value.src || "./images/default/default-img.png",
+              label: value.alt || "image",
             };
           }
         } else if (stateRef.states) {
           return Object.values(stateRef.states).map((value) => ({
             label: value.alt,
             value: value.src,
-            key: value._id
+            key: value._id,
           }));
         }
         return "";
 
       // Handle array type
-      case 'array':
+      case "array":
         if (stateRef.states && key[1]) {
           const index = isNaN(Number(key[1])) ? -1 : Number(key[1]);
           if (stateRef.states[index] !== undefined) {
             const value = stateRef.states[index].value?.split(":");
             return {
               value: value[0],
-              label: value[1] || value[0]
+              label: value[1] || value[0],
             };
           }
         } else if (stateRef.states) {
@@ -267,14 +271,14 @@ export const getStates = (key, states) => {
             return {
               label: val[0],
               value: val[1] || value.idx,
-              key: val[1] || value.id
+              key: val[1] || value.id,
             };
           });
         }
         return "";
 
       // Handle object type
-      case 'object':
+      case "object":
         return getStateValue([key[1]], stateRef.states);
 
       // Handle default case
@@ -287,10 +291,9 @@ export const getStates = (key, states) => {
   }
 };
 
-
 /**
  * Update the value of a state based on provided parameters.
- * This function uses the eval function to evaluate the expression. 
+ * This function uses the eval function to evaluate the expression.
  * It's important to ensure that the expression is safe to evaluate.
  *
  * @param {object} elem - The element containing key and value expressions.
@@ -300,9 +303,15 @@ export const getStates = (key, states) => {
  * @param {string} updateKey - The key to update in the state (default is 'defaultValue').
  * @returns {boolean} - True if the update was successful, false otherwise.
  */
-export const updateStateValue = (elem, withValue, states, value, updateKey = "defaultValue") => {
+export const updateStateValue = (
+  elem,
+  withValue,
+  states,
+  value,
+  updateKey = "defaultValue"
+) => {
   const key = elem.key;
-  const expression = elem.value || '';
+  const expression = elem.value || "";
 
   let stateRef = getStateRef(key, states);
 
@@ -311,33 +320,33 @@ export const updateStateValue = (elem, withValue, states, value, updateKey = "de
   }
 
   try {
-    let updatedValue = '';
+    let updatedValue = "";
 
     if (expression) {
       let originalExpression = expression.replace(/\[withkey]/g, withValue);
       originalExpression = originalExpression.replace(/\[value]/g, value);
-      originalExpression = originalExpression.replace(/\[key]/g, stateRef[updateKey]);
+      originalExpression = originalExpression.replace(
+        /\[key]/g,
+        stateRef[updateKey]
+      );
 
       updatedValue = eval(originalExpression);
     } else {
       updatedValue = value;
     }
 
-
     // Ensure the updated value is within the min and max limits.
-    if (updatedValue > stateRef.max && updateKey !== 'max') {
+    if (updatedValue > stateRef.max && updateKey !== "max") {
       updatedValue = stateRef.max;
-    } else if (updatedValue < stateRef.min && updateKey !== 'min') {
+    } else if (updatedValue < stateRef.min && updateKey !== "min") {
       updatedValue = stateRef.min;
     }
-
 
     // Update the state with the new value.
     stateRef[updateKey] = updatedValue;
     return true;
   } catch (e) {
-
-    message.error(e.message+"sdsd");
+    message.error(e.message + "sdsd");
     return false;
   }
 };
@@ -352,14 +361,14 @@ export const updateStateValue = (elem, withValue, states, value, updateKey = "de
  * @param {string} value - The value for the root item.
  * @returns {Array} - An array representing the cascading menu structure.
  */
-export const generateCascader = (elementStates, type, value) => {
+export const generateCascader = (elementStates, type, value, childs = null) => {
   // Map over the element states and transform each state into a cascader item
   const cascaderItems = Object.values(elementStates).map((state) => {
-    let children = null;
+    let children = childs;
 
     // If the state has nested states, map over them and transform each into a cascader item
     if (state.states) {
-      state.type = state.type || 'array';
+      state.type = state.type || "array";
       children = Object.keys(state.states).map((key) => ({
         label: key.toUpperCase(),
         value: key,
@@ -379,7 +388,6 @@ export const generateCascader = (elementStates, type, value) => {
   return [{ label: type, value, type, children: cascaderItems }];
 };
 
-
 /**
  * Generate a cascading menu structure for collection states.
  * This function maps over the collection states and generates a cascading menu structure.
@@ -394,15 +402,15 @@ export const generateCascaderCollStates = (elementStates, type, value) => {
   // Map over the collection states and transform each state into a cascader item
   const cascaderItems = Object.entries(elementStates).map(([key, value]) => {
     // If the key is 'states', generate a cascader for it
-    if (key === 'states') {
-      return generateCascader(value, 'STATES', key)[0];
+    if (key === "states") {
+      return generateCascader(value, "STATES", key)[0];
     }
 
     // Create a cascader item for the state
     const cascaderItem = {
       label: key.toUpperCase(),
       value: key,
-      type: key === 'documents' ? 'array' : undefined,
+      type: key === "documents" ? "array" : undefined,
       children: null,
     };
 
@@ -414,84 +422,97 @@ export const generateCascaderCollStates = (elementStates, type, value) => {
   return [{ label: type, value, type, children: cascaderItems }];
 };
 
-
 // Define the default document structure
 export const defaultDoc = [
-  { label: '_ID', value: '_id' },
-  { label: 'NAME', value: 'name' },
+  { label: "_ID", value: "_id" },
+  { label: "NAME", value: "name" },
   {
-    label: 'SLUG', value: 'slug',
+    label: "SLUG",
+    value: "slug",
   },
   {
-    label: 'URL', value: 'url',
+    label: "URL",
+    value: "url",
   },
   {
-    label: 'TITLE', value: 'title',
+    label: "TITLE",
+    value: "title",
   },
   {
-    label: 'DESC', value: 'desc',
+    label: "DESC",
+    value: "desc",
   },
   {
-    label: 'EXCERPT', value: 'excerpt',
+    label: "EXCERPT",
+    value: "excerpt",
   },
   {
-    label: 'IMAGE', value: 'image',
+    label: "IMAGE",
+    value: "image",
   },
-]
+];
 
 // Define the page settings structure
-export const pageSetting =
-  [
-    { label: '_ID', value: '_id' },
-    { label: 'NAME', value: 'name' },
-    {
-      label: 'SLUG', value: 'slug',
-    },
-    {
-      label: 'CREATOR', value: 'creator',
-    },
-    {
-      label: 'URL', value: 'url',
-    },
-    {
-      label: 'CREATED AT', value: 'createdAt',
-      children: [
-        { label: "YYYY-MM-DD", value: "YYYY-MM-DD" },
-        { label: "MM/DD/YYYY", value: "MM/DD/YYYY" },
-        { label: "DD/MM/YYYY", value: "DD/MM/YYYY" },
-        { label: "YYYY/MM/DD", value: "YYYY/MM/DD" },
-        { label: "Month D, YYYY", value: "MMMM D, YYYY" },
-        { label: "D MMM, YYYY", value: "D MMM, YYYY" },
-        { label: "MMMM DD, YYYY", value: "MMMM DD, YYYY" },
-        { label: "DD MMM, YYYY", value: "DD MMM, YYYY" },
-
-      ]
-    },
-    {
-      label: 'SETTING', value: 'SETTING',
-      children: [
-        {
-          label: 'TITLE', value: 'title',
-        },
-        {
-          label: 'DESC', value: 'desc',
-        },
-        {
-          label: 'EXCERPT', value: 'excerpt',
-        },
-        {
-          label: 'CONTENT', value: 'content',
-        },
-        {
-          label: 'IMAGE', value: 'image',
-        },
-        {
-          label: 'STATUS', value: 'status',
-        }
-      ]
-    }
-
-  ];
+export const pageSetting = [
+  { label: "_ID", value: "_id" },
+  { label: "NAME", value: "name" },
+  {
+    label: "SLUG",
+    value: "slug",
+  },
+  {
+    label: "CREATOR",
+    value: "creator",
+  },
+  {
+    label: "URL",
+    value: "url",
+  },
+  {
+    label: "CREATED AT",
+    value: "createdAt",
+    children: [
+      { label: "YYYY-MM-DD", value: "YYYY-MM-DD" },
+      { label: "MM/DD/YYYY", value: "MM/DD/YYYY" },
+      { label: "DD/MM/YYYY", value: "DD/MM/YYYY" },
+      { label: "YYYY/MM/DD", value: "YYYY/MM/DD" },
+      { label: "Month D, YYYY", value: "MMMM D, YYYY" },
+      { label: "D MMM, YYYY", value: "D MMM, YYYY" },
+      { label: "MMMM DD, YYYY", value: "MMMM DD, YYYY" },
+      { label: "DD MMM, YYYY", value: "DD MMM, YYYY" },
+    ],
+  },
+  {
+    label: "SETTING",
+    value: "SETTING",
+    children: [
+      {
+        label: "TITLE",
+        value: "title",
+      },
+      {
+        label: "DESC",
+        value: "desc",
+      },
+      {
+        label: "EXCERPT",
+        value: "excerpt",
+      },
+      {
+        label: "CONTENT",
+        value: "content",
+      },
+      {
+        label: "IMAGE",
+        value: "image",
+      },
+      {
+        label: "STATUS",
+        value: "status",
+      },
+    ],
+  },
+];
 
 /**
  * Generate cascading relations states for a collection.
@@ -501,48 +522,63 @@ export const pageSetting =
  * @param {object} collection - The collection object containing relationships.
  * @returns {Array} - An array representing the cascading relations states.
  */
-export async function generateCascadeRelationsStates(collection)  {
+export async function generateCascadeRelationsStates(collection) {
   let cascaderItems = [];
   let relationsStates = [];
 
   if (collection.populatedRelationships) {
     // Map over the populated relationships and generate a cascader for each
-    cascaderItems = await Promise.all(collection.populatedRelationships.map(async (relation) => {
-      return generateCascader(
-        relation.states || {},
-        relation.name.toUpperCase(),
-        relation._id
-      )[0];
-    }));
+    cascaderItems = await Promise.all(
+      collection.populatedRelationships.map(async (relation) => {
+        const res =  generateCascader(
+          {
+            0: {
+              states: relation.states || {},
+              key: "STATES",
+              value: "STATES",
+            },
+          },
+          relation.name.toUpperCase(),
+          relation._id,
+          
+        )[0];
+
+
+        if(res.children)
+          res.children = [...pageSetting, ...res.children]
+        
+        return res;
+      })
+    );
 
     // Construct the relations states with the cascader items
     relationsStates = [
       {
-        label: 'POPULATED',
-        value: 'POPULATED',
+        label: "POPULATED",
+        value: "POPULATED",
         children: cascaderItems,
       },
       {
-        type: 'array',
-        label: 'RELATIONSHIPS',
-        value: 'RELATIONSHIPS',
+        type: "array",
+        label: "RELATIONSHIPS",
+        value: "RELATIONSHIPS",
         children: collection.populatedRelationships.map((rel) => ({
           label: rel.name.toUpperCase(),
           value: rel._id,
-          type: 'relations',
+          type: "relations",
         })),
       },
       {
-        type: 'array',
-        label: 'PAGES',
-        value: 'PAGES',
-        children: [{ label: 'INDEX', value: 'index' }],
+        type: "array",
+        label: "PAGES",
+        value: "PAGES",
+        children: [{ label: "INDEX", value: "index" }],
       },
     ];
   }
 
   return relationsStates;
-};
+}
 
 /**
  * Get a range of page numbers for pagination.
@@ -574,9 +610,18 @@ export const getPaginationRange = (currentPage, totalPages, pagination) => {
     start = Math.max(totalPages - rightRangeLength - rangeSize * 2 + 1, 1);
   }
 
-  const leftRange = Array.from({ length: leftRangeLength }, (_, index) => index + 1);
-  const rightRange = Array.from({ length: rightRangeLength }, (_, index) => totalPages - rightRangeLength + index + 1);
-  const nearbyRange = Array.from({ length: end - start + 1 }, (_, index) => start + index);
+  const leftRange = Array.from(
+    { length: leftRangeLength },
+    (_, index) => index + 1
+  );
+  const rightRange = Array.from(
+    { length: rightRangeLength },
+    (_, index) => totalPages - rightRangeLength + index + 1
+  );
+  const nearbyRange = Array.from(
+    { length: end - start + 1 },
+    (_, index) => start + index
+  );
 
   if (start > leftRangeLength + 1) {
     leftRange.push(dots);
@@ -605,30 +650,29 @@ export const getSettingValue = (key, setting, host) => {
   if (!_setting) return null;
 
   // If the key is 'image', return the image source and alt text
-  if (key[1] === 'image') {
+  if (key[1] === "image") {
     const image = _setting["populatedImage"];
     return {
-      value: host+image?.src || '/images/default/default-img.png',
-      label: image?.alt || '[featured image]'
-    }
+      value: host + image?.src || "/images/default/default-img.png",
+      label: image?.alt || "[featured image]",
+    };
   }
 
   // If the key is 'status', return the status value and label
-  if (key[1] === 'status') {
+  if (key[1] === "status") {
     const status = _setting[key[1]];
     return {
       value: status,
-      label: status || '[page status]'
-    }
+      label: status || "[page status]",
+    };
   }
 
   // For other keys, return the value and label from the setting object
   return {
-    value: key[1] === 'content' ? key[1] : _setting[key[1]],
-    label: _setting[key[1]] || `[page ${key[1]}]`
-  }
+    value: key[1] === "content" ? key[1] : _setting[key[1]],
+    label: _setting[key[1]] || `[page ${key[1]}]`,
+  };
 };
-
 
 /**
  * Retrieve a value from a document based on a key array.
@@ -647,21 +691,20 @@ const getDocumentValue = (key, setting) => {
   }
 
   // If the key is 'image', return the image source and alt text
-  if (key[1] === 'image') {
-    const image = doc['image'];
+  if (key[1] === "image") {
+    const image = doc["image"];
     return {
-      value: image?.src || '/images/default/default-img.png',
-      label: image?.alt || 'Featured Image'
-    }
+      value: image?.src || "/images/default/default-img.png",
+      label: image?.alt || "Featured Image",
+    };
   }
 
   // For other keys, return the value and label from the document object
   return {
     value: doc[key[1]],
-    label: doc[key[1]] || `[document ${key[1]}]`
-  }
+    label: doc[key[1]] || `[document ${key[1]}]`,
+  };
 };
-
 
 /**
  * Get a value from a nested object based on a key array.
@@ -672,35 +715,40 @@ const getDocumentValue = (key, setting) => {
  * @param {object} setting - The settings object.
  * @returns {object|null} - The value based on the key or null if not found.
  */
-export const getPageValue = (key, setting, host) => {
+export const getPageValue = (elemKey, setting, host) => {
   // Remove 'POPULATED' if it's the first element in the key array
-  if (key[0] === 'POPULATED') key.shift();
+  const key = [...elemKey];
+  if (key[0] === "POPULATED") {
+    key.shift();
+    if (setting.populatedRelationships[key[0]]) {
+      const populated = setting.populatedRelationships[key[0]][0] || {};
+      key.shift();
+      return getPageValue([...key], populated, host)
+    }
+  }
 
-
-  if (key[0] === 'states' || key[0] === 'STATES') {
-
+  if (key[0] === "states" || key[0] === "STATES") {
     const modifiedKey = [...key];
     modifiedKey.shift();
- 
+
     return getStateValue(modifiedKey, setting.states, setting.host || host);
-  } else if (key[0] === 'RELATIONSHIPS' && setting.relationships) {
+  } else if (key[0] === "RELATIONSHIPS" && setting.relationships) {
     return setting.relationships[key[1]] || null;
-  } else if (key[0] === 'SETTING') {
+  } else if (key[0] === "SETTING") {
     return getSettingValue(key, setting, setting.host || host);
-  } else if (key[0] === 'creator') {
+  } else if (key[0] === "creator") {
     const creator = setting[key[0]] || {};
 
     return {
-      value: creator._id || '',
-      label: creator.name || 'Unknown',
+      value: creator._id || "",
+      label: creator.name || "Unknown",
     };
-  } else if (key[0] === 'createdAt') {
+  } else if (key[0] === "createdAt") {
     const createdAt = setting[key[0]];
     return createdAt ? formatDate(createdAt, key[1]) : `[page ${key[1]}]`;
-  } else if (key[1] === 'NEXTDOCUMNET' || key[1] === 'PREVDOCUMNET') {
+  } else if (key[1] === "NEXTDOCUMNET" || key[1] === "PREVDOCUMNET") {
     return getDocumentValue(key, setting);
   } else {
-
     return {
       value: setting[key[0]] || `[page ${key[0]}]`,
       label: setting[key[0]] || `[page ${key[0]}]`,
@@ -728,13 +776,13 @@ export const getPageStates = (documents, pageType) => {
       ...document,
       setting: document.setting,
     }));
-  } 
-  
+  }
+
   // If documents array is empty, return an array with a default page state
   return [
     {
-      label: '[Relation]',
-      value: '',
+      label: "[Relation]",
+      value: "",
     },
   ];
 };

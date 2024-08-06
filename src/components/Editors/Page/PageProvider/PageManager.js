@@ -1688,6 +1688,7 @@ export default function PageManger({ children }) {
 
           onOk: async () => {
             try {
+              console.log("Hello")
               if(state.isChange) {
               if (state.node) {
                 await updateValue(state.node, false);
