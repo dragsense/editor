@@ -25,9 +25,7 @@ const ElementLayout = (props) => {
             attributes={node.attributes}
             conditions={node.conditions}
             classes={node.classes}
-           
             mapValue={mapValue}
-            {...(mapValue?.type === 'pages' ? { setting: { ...props.setting, ...mapValue } } : {})}
             {...(mapValue?.type === 'docs' ? { colStates: { ...props.colStates, ...mapValue } } : {})}
             mapIndex={mapIndex}
             options={options}
@@ -38,7 +36,6 @@ const ElementLayout = (props) => {
                 ...(mapValue ? { mapValue } : {}),
                 ...(mapIndex ? { mapIndex } : {}),
                 ...(mapValue?.type === 'docs' ? { colStates: { ...props.colStates, ...mapValue } } : {}),
-                ...(mapValue?.type === 'pages' ? { setting: { ...props.setting, ...mapValue } } : {})
 
             })
         })
