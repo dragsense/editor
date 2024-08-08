@@ -79,7 +79,6 @@ export default function ElementSetting({
       value.shift();
       state.attributes["href"].valueState = { key: value, type: keys[0] };
     }
-console.log(state.attributes)
     setState({ ...state });
     setIsChange(true);
 

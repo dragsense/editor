@@ -40,13 +40,14 @@ export default function ClassManager({
     // Effect to update current classes
     useEffect(() => {
         if (!cascaderStates) return;
-        setCurrentClasses(
-            cascaderStates
-                .map(state => ({
-                    ...state,
-                    children: state.children?.filter(childState => ['classes'].includes(childState.type))
-                }))
-        );
+        // setCurrentClasses(
+        //     cascaderStates
+        //         .map(state => ({
+        //             ...state,
+        //             children: state.children?.filter(childState => ['classes'].includes(childState.type))
+        //         }))
+        // );
+       
     }, [cascaderStates]);
 
     // Function to validate search input
@@ -188,7 +189,7 @@ export default function ClassManager({
                     </Text>
                 <Cascader style={{ width: '100%', margin: '5px 0'  }}
                     allowClear
-                    options={currentClasses}
+                    options={cascaderStates}
                     value={state.stateValue
                         ?
                         [state.stateValue.type, ...(Array.isArray(state.stateValue.key) ?
@@ -196,7 +197,7 @@ export default function ClassManager({
                     onChange={onChangekey}>
                 </Cascader>
                 <Text disabled>
-                        e.g [state-name]-class OR hero-class
+                        e.g [state], [state]-class OR hero-class
                     </Text>
                 <Space style={{ paddingTop: 10 }}>
                     <AutoComplete
