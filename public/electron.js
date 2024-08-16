@@ -163,7 +163,7 @@ function createWindow() {
     icon: path.join(__dirname, 'favicon.ico'),
   })
 
-  const appURL = app.isPackaged ? 'https://website.dragsense.com'
+  const appURL = app.isPackaged ? 'https://editor.dragsense.com'
   : 'http://localhost:3002'
 
   mainWindow.loadURL(appURL);

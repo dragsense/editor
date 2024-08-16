@@ -137,8 +137,8 @@ const ElementValue = (props) => {
         let withValue = getValue({ type: withType, key: withkey });
         withValue = withValue?.value ? withValue.value : withValue
 
-        const stateType = onclick.statetype;
-        const stateKey = onclick.statekey;
+        const stateType = onclick.type;
+        const stateKey = onclick.key;
         const value = onclick.value;
         let stateValue = getValue({ type: stateType, key: stateKey }, value);
         stateValue = stateValue?.value ? stateValue.value : stateValue;
