@@ -24,7 +24,7 @@ const MainCard = ({ userName, session, setLocation }) => (
             <p>The Web Editor allows you to create pages, styles, and animations without any code.</p>
             <Descriptions column={1}>
                 <Descriptions.Item label={<Text strong><MailOutlined /></Text>}>hello@dragsense.com</Descriptions.Item>
-                <Descriptions.Item label={<Text strong><LinkOutlined /> </Text>}><a href="http://dragsense.com/">dragsense.com</a></Descriptions.Item>
+                <Descriptions.Item label={<Text strong><LinkOutlined /> </Text>}><a href="https://dragsense.com/">dragsense.com</a></Descriptions.Item>
             </Descriptions>
         </Card>
     </div>

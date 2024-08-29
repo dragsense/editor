@@ -26,7 +26,7 @@ const ElementLayout = (props) => {
             conditions={node.conditions}
             classes={node.classes}
             mapValue={mapValue}
-            {...(mapValue?.type === 'docs' ? { colStates: { ...props.colStates, ...mapValue } } : {})}
+            {...(mapValue?.type === 'docs' ? { colStates: { ...colStates, ...mapValue } } : {})}
             mapIndex={mapIndex}
             options={options}
             key={mapValue?.key || mapIndex || node._uid}
@@ -35,7 +35,7 @@ const ElementLayout = (props) => {
                 key:  child.props?.key || child.props?._uid || index,
                 ...(mapValue ? { mapValue } : {}),
                 ...(mapIndex ? { mapIndex } : {}),
-                ...(mapValue?.type === 'docs' ? { colStates: { ...props.colStates, ...mapValue } } : {}),
+                ...(mapValue?.type === 'docs' ? { colStates: { ...colStates, ...mapValue } } : {}),
 
             })
         })
@@ -45,6 +45,7 @@ const ElementLayout = (props) => {
 
     // useMemo for performance optimization
     const elements = useMemo(() => {
+       
         return nodes.length > 0 ?
             nodes.map((mapValue, mapIndex) => handleElementSetting(node, children, mapValue, mapIndex)) :
             handleElementSetting(node, children, mapValue, mapIndex);

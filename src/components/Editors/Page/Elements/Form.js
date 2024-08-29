@@ -17,6 +17,7 @@ const Form = (props) => {
 
      // Initialize settings if not present
      useEffect(() => {
+
           if (!_states["__setting__"])
                _states["__setting__"] = {}
      }, [])

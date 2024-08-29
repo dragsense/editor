@@ -84,16 +84,15 @@ const MemoizedTreeNode = memo(TreeNode, (prevProps, nextProps) => {
 });
 
 // Main Elements component
-export default function Elements({  _id }) {
+export default function Elements({  _id, pageType }) {
   const [setting, setSetting] = useState(null);
-  const [pageType, setType] = useState(null);
 
   // Function to fetch node data
   const fetchNode = useCallback(async () => {
     if (!_id) return;
     const page = await getAllData(_id);
     if (page) {
-      setType(page.type);
+     
      
       let populatedRelationships = null;
       let relationships = null;

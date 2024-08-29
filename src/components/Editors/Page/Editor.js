@@ -96,6 +96,7 @@ export default function Editor({ children, _id, pageType, onBack }) {
                           <Preview page={state.page} loading={state.loading} preview={state.preview} /> : <Elements page={state.page}
                                     onUpdateStates={onUpdateStates}
                                     pageUpdated={state.pageUpdated}
+                                    pageType={pageType}
                                     loading={state.loading} />)}
                                     </IFrame>
                     </CanvasEditor>

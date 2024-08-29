@@ -39,7 +39,7 @@ export default function Animations({ onEdit, animation, onChange, state, onDelet
 
     // Fetch data on component mount and when state changes
     useEffect(() => {
-        if (!state.page?._id)
+        if (!state.page?.done)
             return;
 
         const fetchData = async () => {

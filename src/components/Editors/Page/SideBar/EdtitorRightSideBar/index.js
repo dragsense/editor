@@ -226,7 +226,7 @@ const EditorRightSideBar = ({ onClickElement,
                         state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />}
                 </div>}
                 {key === 'sub6' && <div key='sub6'>
-                    {state.ndoe && <Form onChange={onChange}
+                    {state.node && <Form onChange={onChange}
                         state={state} onUpdate={onUpdate} cascaderStates={cascaderStates} />}
                 </div>}
                 {key === 'sub7' && <div key='sub7'>

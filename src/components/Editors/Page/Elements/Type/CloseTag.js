@@ -29,7 +29,6 @@ const CloseTag = (props) => {
 
     // Clone the children element with custom attributes and disabled styles if conditions are not met
     const disabledElement = React.cloneElement(children, { customAttributes: { ...customAttributes, style: conds ? {} : disabledStyles } });
-
     // Return the disabled element if disabled prop is true, else return the CloseElement
     return disabled ? disabledElement : CloseElement;
 };

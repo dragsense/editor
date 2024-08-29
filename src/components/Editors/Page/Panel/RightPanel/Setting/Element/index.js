@@ -83,6 +83,15 @@ export default function Element({ state, onChange, onUpdate, cascaderStates }) {
       </Divider>
 
       <Card>
+      <div style={{ textAlign: "right" }}>
+          <Button disabled={!isChange} onClick={onElementUpdate} type="default">
+            Update
+          </Button>
+        </div>
+
+        <Divider orientation="center" orientationMargin="0"></Divider>
+
+
         <div style={{ maxHeight: "62vh", overflow: "auto" }}>
           <ElementSetting
             cascaderStates={cascaderStates}

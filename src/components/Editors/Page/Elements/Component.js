@@ -301,7 +301,7 @@ const Component = (props) => {
   };
 
   // Use useMemo to optimize performance by avoiding unnecessary re-renders
-  const filters = useMemo(generateFilters, [colStates.filters]);
+  const filters = useMemo(generateFilters, [colStates.filters, states]);
 
   // Function to load documents from the server
   const loadDocumentsFromServer = async (
@@ -322,6 +322,7 @@ const Component = (props) => {
       sortBy || "createdAt",
       sort || "acs"
     );
+
     return res;
   };
 
@@ -601,18 +602,11 @@ const Component = (props) => {
 
   // Function to handle page changes
   const handlePageChange = useCallback(
-    async (withValue) => {
-      if (isNaN(withValue)) withValue = colStates.page;
-
+    async (elem, withValue, value) => {
       const totalPages = Math.ceil(colStates.maxPage / colStates.limit);
       const page = { max: totalPages, min: 1, defaultValue: colStates.page };
 
-      if (withValue < 1) withValue = 1;
-
-      if (withValue >= totalPages) withValue = totalPages;
-
-      //updateStateValue({ type: 'COLSTATES', key }, withValue, { page }, value);
-      page.defaultValue = withValue;
+      updateStateValue(elem, withValue, { page }, value);
 
       if (colStates.page === page.defaultValue) return;
 
@@ -632,9 +626,9 @@ const Component = (props) => {
           setColStates({ ...colStates, page: page.defaultValue, documents });
         }
       } else {
-        
         setColStates({ ...colStates, loading: 1, error: 0 });
-        await loadDocuments({ ...colStates, page: page.defaultValue });
+
+        loadDocuments({ ...colStates, page: page.defaultValue });
       }
     },
     [colStates]
@@ -661,7 +655,7 @@ const Component = (props) => {
         break;
       case "COLSTATES":
         if (key[0] === "page") {
-          await handlePageChange(withValue);
+          await handlePageChange(elem, withValue, value);
         }
         break;
       case "FORMSTATES":
@@ -860,7 +854,7 @@ const Component = (props) => {
         </ElementMapping>
       );
     }
-  }, [loading, props, node.map, states, _states,colStates, renderChildren]);
+  }, [loading, props, node.map, states, _states, colStates, renderChildren]);
 
   return (
     <span

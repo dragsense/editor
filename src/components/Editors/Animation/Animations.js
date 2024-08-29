@@ -36,7 +36,8 @@ const reducer = (state, action) => {
 
     case "load":
       // Load page data into state
-      return { ...state, page: action.page }
+      console.log(action)
+      return { ...state, page: {...state.page, ...action.page} }
     case "edit":
       // Edit an animation, reset selector and error
       return {
@@ -103,7 +104,6 @@ export default function Animations({ menuKeys, children, onBack }) {
 
   useEffect(() => {
 
-
     const fetchData = async () => {
       try {
         dispatch({ type: 'start' });
@@ -111,6 +111,7 @@ export default function Animations({ menuKeys, children, onBack }) {
         await clearStore(UNDO_STORE_NAME);
         await clearStore(REDO_STORE_NAME);
         await loadAnimationStyles(dispatch, true);
+        dispatch({ type: 'load', page: { done: true } });
 
       } finally {
 

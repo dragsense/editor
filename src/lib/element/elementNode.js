@@ -117,6 +117,7 @@ export const getStateStates = (key, states, host) => {
 
     // Depending on the type of the value, populate the values array
     if (value.type === "array") {
+
       values = Object.values(value.states || {}).flatMap((state) => {
         const val = state.value.split(":");
         return {
@@ -138,7 +139,6 @@ export const getStateStates = (key, states, host) => {
     // If an error occurs, display an error message
     message.error("Something went wrong, " + e?.message);
   }
-
   // Return the values array
   return values;
 };
@@ -314,7 +314,8 @@ export const updateStateValue = (
   const expression = elem.value || "";
 
   let stateRef = getStateRef(key, states);
-
+  console.log(states, key);
+ 
   if (!stateRef) {
     return false;
   }
@@ -718,10 +719,12 @@ const getDocumentValue = (key, setting) => {
 export const getPageValue = (elemKey, setting, host, mapIndex = 0) => {
   // Remove 'POPULATED' if it's the first element in the key array
 
+
   const key = [...elemKey];
   if (key[0] === "POPULATED") {
     key.shift();
     if (setting.populatedRelationships?.[key[0]]) {
+
       const populated = setting.populatedRelationships[key[0]][mapIndex] || {};
       key.shift();
       return getPageValue([...key], populated, host)

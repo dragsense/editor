@@ -153,6 +153,7 @@ export const loadElements = async (project, page, type, dispatch, clear = false)
     while (true) {
         const { done, value } = await reader.read();
         if (done) break;
+      
         await storePage(value);
     }
 }
@@ -184,18 +185,20 @@ export const loadStyles = async (project, page, type, dispatch, clear = false) =
                 }
             })
                 .then(response => {
+
                     const reader = response.body.getReader();
                     const decoder = new TextDecoder();
-
+ 
                     // Recursive function to process and decode chunks.
                     function processChunk(chunk) {
+
                         const decodedChunk = decoder.decode(chunk.value, { stream: true });
                         controller.enqueue(decodedChunk);
-
+  
                         if (chunk.done) {
                             controller.close();
                             return;
-                        }
+                        } 
 
                         reader.read().then(processChunk);
                     }
@@ -241,8 +244,8 @@ export const loadStyles = async (project, page, type, dispatch, clear = false) =
         if (done) break;
         await storePage(value, STYLE_STORE_NAME);
     }
-}
-
+} 
+ 
 
 /**
  * Loads global styles from a specified URL, processes the chunks of data from the stream, 
@@ -254,12 +257,12 @@ export const loadStyles = async (project, page, type, dispatch, clear = false) =
 export const loadGlobalStyles = async (dispatch, clear = false) => {
     const response = await window.autocode.makeApiRequest();
     const project = response?.project;
-
-    if (!project) {
+  
+    if (!project) { 
         throw new Error("Project Not Found.");
-        return;
-    }
-
+        return;      
+    }    
+  
     // Construct the URL for fetching global styles.
     const url = `${project.url}/theme/style/${project._id}`;
     const sanitizedUrl = sanitizeUrl(url);
@@ -328,10 +331,10 @@ export const loadGlobalStyles = async (dispatch, clear = false) => {
         const { done, value } = await reader.read();
         if (done) break;
         await storePage(value, STYLE_STORE_NAME);
-    }
-}
-
-
+    }  
+}    
+    
+   
 /**
  * Loads animation styles from a specified URL, processes the chunks of data from the stream, 
  * parses the JSON data, and stores the animation styles in the style store.
@@ -531,7 +534,6 @@ const fetchDataAndSave = async (type, endpoint, pageId, project, dispatch) => {
     const sanitizedUrl = sanitizeUrl(apiUrl);
 
     let data = await getAllData(pageId, endpoint === "elements" ? PAGE_STORE_NAME : STYLE_STORE_NAME);
-
     if (!data) {
         // If there's no data for the "elements" endpoint, dispatch an error action.
         dispatch({ type: 'error', error: 'Something went wrong.' });

@@ -3,6 +3,7 @@ import { getAllData, getData } from '../../../../lib/db';
 import ElementWrapper from './ElementWrapper';
 import SettingServices from '../../../../lib/services/setting';
 import { generateCascader, defaultDoc, pageSetting, generateCascadeRelationsStates } from '../../../../lib/element/elementNode';
+import { isEmpty } from '../../../../lib/utils';
 
 // Skeleton component for loading
 export const InlineSkeleton = () => (
@@ -42,6 +43,7 @@ const TreeNode = (props) => {
   useEffect(() => {
     const checkIds = Array.isArray(pageUpdated.newIds) && pageUpdated.newIds.includes(_uid);
     if (!checkIds && pageUpdated.parentId !== _uid && pageUpdated?.currentId !== _uid) return;
+
     fetchNode();
   }, [pageUpdated, fetchNode]);
 
@@ -49,6 +51,12 @@ const TreeNode = (props) => {
   const rootComponent = pageType === 'component' ? { _id } : null;
   const form = node.page?.pageType === 'form' ? { ...node.page, disabled: true } : null;
   const rootForm = pageType === 'form' ? { _id } : null;
+
+
+
+  if(isEmpty(node))
+    return;
+
 
 
   return (
@@ -92,16 +100,15 @@ const MemoizedTreeNode = memo(TreeNode, (prevProps, nextProps) => {
 });
 
 // Main Elements component
-export default function Elements({ pageUpdated, _id, onUpdateStates }) {
+export default function Elements({ pageUpdated, _id, pageType, onUpdateStates }) {
   const [setting, setSetting] = useState(null);
-  const [pageType, setType] = useState(null);
 
   // Function to fetch node data
   const fetchNode = useCallback(async () => {
     if (!_id) return;
     const page = await getAllData(_id);
     if (page) {
-      setType(page.type);
+  
       let states = [];
       let populatedRelationships = null;
       let relationships = null;
@@ -151,7 +158,7 @@ export default function Elements({ pageUpdated, _id, onUpdateStates }) {
         },
       ];
 
-      onUpdateStates('PAGESTATES', pageStates, null);
+      //onUpdateStates('PAGESTATES', pageStates, null);
 
       const res = await SettingServices.get();
       const data = {
@@ -203,8 +210,6 @@ export default function Elements({ pageUpdated, _id, onUpdateStates }) {
 
 
   }, [setting]);
-
-
 
   return (
     <>

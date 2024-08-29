@@ -96,6 +96,15 @@ export default function Content({
       </Divider>
 
       <Card>
+
+      <div style={{ textAlign: "right" }}>
+          <Button disabled={!isChange} onClick={onElementUpdate} type="primary">
+            Update
+          </Button>
+        </div>
+
+      <Divider orientation="center" orientationMargin="0"></Divider>
+
         <div style={{ maxHeight: "62vh", overflow: "auto" }}>
           <Divider orientation="center" orientationMargin="0">
             Custom Component:{" "}
