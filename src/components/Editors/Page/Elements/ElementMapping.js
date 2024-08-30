@@ -58,7 +58,7 @@ const ElementMapping = (props) => {
             return {
                 label: value,
                 value: val,
-                key: val,
+                key: isNan ? `${value}-${index}` : `page-${val}`,
                 notClickable: isNan,
             }
         });

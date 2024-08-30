@@ -45,7 +45,6 @@ const ElementLayout = (props) => {
 
     // useMemo for performance optimization
     const elements = useMemo(() => {
-       
         return nodes.length > 0 ?
             nodes.map((mapValue, mapIndex) => handleElementSetting(node, children, mapValue, mapIndex)) :
             handleElementSetting(node, children, mapValue, mapIndex);

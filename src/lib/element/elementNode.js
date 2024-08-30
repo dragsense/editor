@@ -314,7 +314,6 @@ export const updateStateValue = (
   const expression = elem.value || "";
 
   let stateRef = getStateRef(key, states);
-  console.log(states, key);
  
   if (!stateRef) {
     return false;
@@ -597,44 +596,36 @@ export const getPaginationRange = (currentPage, totalPages, pagination) => {
   const rangeSize = pagination.nearRange || 2;
   const dots = pagination.dots || "...";
 
-  let start = Math.max(currentPage - rangeSize, 1);
-  let end = Math.min(currentPage + rangeSize, totalPages);
+  let start = Math.max(currentPage - rangeSize, leftRangeLength + 1);
+  let end = Math.min(currentPage + rangeSize, totalPages - rightRangeLength);
 
-  // Fix the bug: Adjust condition for leftRange + rightRange >= totalPages
+  // Handle case where leftRange + rightRange >= totalPages
   if (leftRangeLength + rightRangeLength + rangeSize * 2 >= totalPages) {
     return Array.from({ length: totalPages }, (_, index) => index + 1);
   }
 
-  if (start <= leftRangeLength) {
-    end = Math.min(leftRangeLength + rangeSize * 2, totalPages);
-  } else if (end >= totalPages - rightRangeLength + 1) {
-    start = Math.max(totalPages - rightRangeLength - rangeSize * 2 + 1, 1);
-  }
+  const leftRange = Array.from({ length: leftRangeLength }, (_, index) => index + 1);
+  const rightRange = Array.from({ length: rightRangeLength }, (_, index) => totalPages - rightRangeLength + index + 1);
 
-  const leftRange = Array.from(
-    { length: leftRangeLength },
-    (_, index) => index + 1
-  );
-  const rightRange = Array.from(
-    { length: rightRangeLength },
-    (_, index) => totalPages - rightRangeLength + index + 1
-  );
-  const nearbyRange = Array.from(
-    { length: end - start + 1 },
-    (_, index) => start + index
-  );
+  // Nearby pages range
+  const nearbyRange = Array.from({ length: end - start + 1 }, (_, index) => start + index);
 
+  // Adjust for dots
   if (start > leftRangeLength + 1) {
     leftRange.push(dots);
+  } else {
+    start = leftRangeLength + 1;
   }
 
   if (end < totalPages - rightRangeLength) {
     rightRange.unshift(dots);
+  } else {
+    end = totalPages - rightRangeLength;
   }
 
-  return [...leftRange, ...nearbyRange, ...rightRange];
+  // Combine ranges without duplication
+  return [...new Set([...leftRange, ...nearbyRange, ...rightRange])];
 };
-
 /**
  * Retrieve a value from a nested object based on a key array.
  * This function traverses the settings object using the key array and fetches the corresponding value.
