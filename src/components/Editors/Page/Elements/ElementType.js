@@ -50,6 +50,7 @@ const renderElement = (tagType, layout, props) => {
         case 'textarea':
             return <Input disabled={disabled} conds={conds} onClick={onClick} type={attributes["type"]} onChange={onChange} _uid={_uid} pos={pos} value={value.value ?? value}>{element}</Input>;
         case 'inputgroup':
+
             return <InputGroup disabled={disabled} type={attributes["type"]} onChange={onChange} value={value} mapValue={mapValue} labelPos={node.labelPos || 0} _uid={_uid} pos={pos} conds={conds} onClick={onClick} onMouseMove={onMouseMove} attributes={attributes} options={options}><Element classes={classes} tagName={'label'} /></InputGroup>;
         case 'img':
             return <Image disabled={disabled}

@@ -122,7 +122,7 @@ const Component = (props) => {
     component,
     node,
     _states,
-    _setStates,
+    _setStates = () => {},
     setting,
     children,
     _id,
@@ -425,6 +425,7 @@ const Component = (props) => {
 
     // Load documents
     loadDocuments(colStates);
+    
 
     // Reset filter change flag
     setFilters(false);
@@ -759,6 +760,8 @@ const Component = (props) => {
   const onChange = useCallback(
     (values, node, all = false) => {
       let allvalues = [];
+
+
       if (all) {
         let options = [];
         if (node.options) {

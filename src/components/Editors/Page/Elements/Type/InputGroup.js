@@ -27,7 +27,7 @@ const InputGroup = (props) => {
 
         // Debounce onChange function
         if (onChange) {
-            onChange(newValue, optionValue === 'all');
+            onChange(newValue, optionValue.trim() === 'all');
         }
 
         // Toggle checked status
@@ -87,7 +87,7 @@ const InputGroup = (props) => {
 
     // Input element
     const input = <>{labelPos == 0 && option.label}<input key={checked} type={type} {...attributes}
-        onClick={handleValueChange}
+        onChange={handleValueChange}
         value={option.value}
         checked={checked === true} />  {labelPos == 1 && option.label}</>
 
@@ -114,7 +114,7 @@ const InputGroup = (props) => {
             onClick: onClick,
             style: conds ? {} : disabledStyles
         }
-    });
+    }, input);
 
     // Return disabled or cloned element based on disabled state
     return disabled ? disabledElement : clonedElement;

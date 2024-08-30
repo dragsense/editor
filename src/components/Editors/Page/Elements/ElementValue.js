@@ -68,7 +68,6 @@ const ElementValue = (props) => {
   // Function to handle colStates type
   const handleColStatesType = (key, value, host) => {
     if (!colStates) return value;
-
     if (key[0] === "PAGES") return mapIndex + 1;
     else if (key[0] === "docsLength" && colStates.documents)
       return colStates.documents.length || "0";

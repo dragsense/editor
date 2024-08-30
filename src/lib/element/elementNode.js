@@ -346,7 +346,7 @@ export const updateStateValue = (
     stateRef[updateKey] = updatedValue;
     return true;
   } catch (e) {
-    message.error(e.message + "sdsd");
+    message.error(e.message);
     return false;
   }
 };
@@ -745,7 +745,7 @@ export const getPageValue = (elemKey, setting, host, mapIndex = 0) => {
     return getDocumentValue(key, setting);
   } else {
     return {
-      value: setting[key[0]] || `[page ${key[0]}]`,
+      value: setting[key[0]] !== undefined ? setting[key[0]] : `[page ${key[0]}]`,
       label: setting[key[0]] || `[page ${key[0]}]`,
     };
   }
