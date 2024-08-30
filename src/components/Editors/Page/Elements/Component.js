@@ -398,7 +398,7 @@ const Component = (props) => {
         page,
         documents,
         states,
-        maxPage,
+        maxPage: Math.ceil(maxPage / limit),
         loading: 0,
       };
 
@@ -603,7 +603,7 @@ const Component = (props) => {
   // Function to handle page changes
   const handlePageChange = useCallback(
     async (elem, withValue, value) => {
-      const totalPages = Math.ceil(colStates.maxPage / colStates.limit);
+      const totalPages = Math.ceil(colStates.maxPage);
       const page = { max: totalPages, min: 1, defaultValue: colStates.page };
 
       updateStateValue(elem, withValue, { page }, value);
@@ -698,7 +698,7 @@ const Component = (props) => {
             return result;
           }, {});
       } else if (maKey[0] === "PAGES") {
-        const totalPages = Math.ceil(colStates.maxPage / colStates.limit);
+        const totalPages = Math.ceil(colStates.maxPage);
         const pageArray = Array.from(
           { length: totalPages },
           (_, index) => index + 1
