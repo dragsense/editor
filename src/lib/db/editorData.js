@@ -534,21 +534,31 @@ const fetchDataAndSave = async (type, endpoint, pageId, project, dispatch) => {
     const sanitizedUrl = sanitizeUrl(apiUrl);
 
     let data = await getAllData(pageId, endpoint === "elements" ? PAGE_STORE_NAME : STYLE_STORE_NAME);
-    if (!data) {
-        // If there's no data for the "elements" endpoint, dispatch an error action.
-        dispatch({ type: 'error', error: 'Something went wrong.' });
 
+    if (!data || !data.elements) {
+        dispatch({ type: 'error', error: 'Data or elements are missing.' });
         return;
     }
-
+    
+    // If the endpoint is "elements", check if data.elements[0] exists properly
+    if (endpoint === "elements") {
+        if (!data.elements.hasOwnProperty(0) || !data.elements[0]) {
+            dispatch({ type: 'error', error: 'The first element is undefined.' });
+            return;
+        }
+    }
     let payload = {
 
         updater: creator
     };
 
     let elements = {};
-    if (typeof data.elements === 'object')
+    if (typeof data.elements === 'object') {
+
+
         elements = filterDeletedElements(data.elements || {});
+    }
+        
 
     if (endpoint === "elements") {
         payload._elements = elements;

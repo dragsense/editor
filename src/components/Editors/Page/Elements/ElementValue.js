@@ -93,7 +93,7 @@ const ElementValue = (props) => {
       case "FORMSTATES":
         return _states && _states[key[0]]
           ? _states[key[0]][key[1]] ||
-              (node.tagName != "input" ? "[form state]" : '')
+              (!["input", "textarea"].includes(node.tagName) ? "[form state]" : '')
           : value;
       case "MAPVALUE":
         return mapValue;

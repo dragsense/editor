@@ -1142,7 +1142,6 @@ export default function PageManger({ children }) {
 
         // Find the index of the currentUid in the parent's childNodes
         const index = parent.childNodes.indexOf(currentUid);
-
         // Check if the currentUid was found in the parent's childNodes
         if (index <= -1) throw new Error("Element not found.");
 
