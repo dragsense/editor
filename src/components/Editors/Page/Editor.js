@@ -80,7 +80,7 @@ export default function Editor({ children, _id, pageType, onBack }) {
                     {(!state.page && state.loading) && <Alert style={{ margin: '10px' }} message="Please Select the Page Or Component" />}
                     <CanvasEditor windowWidth={windowWidth} setWindowWidth={setWindowWidth}>
                         <IFrame
-                            _id={_id} pageType={pageType}
+                            _id={_id} pageType={state.type || pageType}
                             onLoad={onEdit} node={state.node}
                             onClickElement={onClickElement}
                             onMove={onMove}
@@ -96,7 +96,7 @@ export default function Editor({ children, _id, pageType, onBack }) {
                           <Preview page={state.page} loading={state.loading} preview={state.preview} /> : <Elements page={state.page}
                                     onUpdateStates={onUpdateStates}
                                     pageUpdated={state.pageUpdated}
-                                    pageType={pageType}
+                                    pageType={state.type || pageType}
                                     loading={state.loading} />)}
                                     </IFrame>
                     </CanvasEditor>

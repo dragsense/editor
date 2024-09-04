@@ -10,6 +10,7 @@ import { updateStateValue, getStateRef, generateCascader } from '../../../../lib
 const handleStateUpdates = (elem, withValue, states, value, setStates) => {
 
     updateStateValue(elem, withValue, states, value);
+
     setStates(prevStates => ({ ...prevStates }));
 }
 
@@ -19,7 +20,7 @@ const handleOnClick = (changeEvent, stateValue, withValue, fun, setState) => {
         setState({ elem:changeEvent, stateValue, withValue });
 
         if (fun?.onClick)
-            fun.onClick(changeEvent, stateValue, withValue);
+            fun.onClick(changeEvent, stateValue, withValue, fun.onClick);
     }
 }
 
@@ -44,27 +45,12 @@ const handleOnChange = (values, node, all, fun, states, setValue) => {
             const maKey = node.map.key;
             const mapType = node.map.type;
 
-            switch (mapType) {
-                case 'Menu':
-                case 'Flex':
-                case 'Tabs':
-                case 'Accordion':
-                case 'Sider':
-                case 'Grid':
-                case 'Container':
-                case 'Slider':
-                case 'Gallery':
-                case 'Dropdown':
-                case 'Observable':
-                case 'Modal':
-                case 'GoToTop':
+         
                     if (maKey[0] === 'items') {
                         const stateValues = Object.values(states['items']?.states || {}).map((val) => val.value.split(":")[0]);
                         options = [...(new Set([...options, ...stateValues]))];
                     }
-                default:
-                    break;
-            }
+              
         }
         allvalues = options;
     }
@@ -89,42 +75,28 @@ const ElementComponent = (props) => {
 
     const { node, _id, fun, children, onUpdateStates } = props;
 
-    const [states, setStates] = useState(node.states);
+    const [states, setStates] = useState({ _uid: node._uid, ...node.states });
     const [state, setState] = useState(null);
 
     const setValue = (elem, value, withValue) => {
-        const type = elem.type;
-        const key = elem.key;
 
-        switch (type) {
-            case 'Menu':
-            case 'Flex':
-            case 'Tabs':
-            case 'Accordion':
-            case 'Sider':
-            case 'Grid':
-            case 'Container':
-            case 'Slider':
-            case 'Gallery':
-            case 'Dropdown':
-            case 'Observable':
-            case 'Modal':
-            case 'GoToTop':
-                handleStateUpdates(elem, withValue, states, value, setStates);
-                break;
-            default:
-                return;
-        }
+         handleStateUpdates(elem, withValue, states, value, setStates);
+        
+        
     };
 
 
     useEffect(() => {
         if (!node)
             return;
-        setStates({ ...node.states });
-        const cascaderStates = generateCascader(node.states, node.name, node.cname);
+
+        const { _uid, ...restOfStates } = node.states;
+
+        setStates({ _uid: node._uid, ...node.states });
+        
+        const cascaderStates = generateCascader(restOfStates, node.name + " (" + node.cname + ")", node.cname + "-" + node._uid);
         onUpdateStates(node._uid, cascaderStates, setStates);
-    }, []);
+    }, [node?.name]);
 
     useEffect(() => {
         if (!state)
@@ -133,11 +105,23 @@ const ElementComponent = (props) => {
         setValue(elem, stateValue, withValue);
     }, [state]);
 
-    const onClick = useCallback((changeEvent, stateValue, withValue) => {
+    const onClick = useCallback((changeEvent, stateValue, withValue, func = () => {}) => {
+        
+
+        if(func === onClick)
         handleOnClick(changeEvent, stateValue, withValue, fun, setState);
     }, [fun]);
 
     const updateStates = useCallback((key, value, updateKey = 'defaultValue') => {
+
+
+        if(key === 'activeItem')
+            states[key] = {
+                defaultValue: null,
+                key,
+                type: 'node'
+            }
+
         const stateRef = states[key];
 
         if (!stateRef)
@@ -164,6 +148,9 @@ const ElementComponent = (props) => {
 
                 states['currentIndex']['max'] = loop ? value + 1 : value - 1;
                 states['currentIndex']['min'] = loop ? -1 : 0;
+
+        
+                
             }
         } else {
             stateRef[updateKey] = value;
@@ -178,9 +165,9 @@ const ElementComponent = (props) => {
     }, [states]);
 
     return (
-        <span style={{ border: '#ffaa4f5e solid 1px', display: 'inline-block', width: '-webkit-fill-available' }}>
+        <span  style={{ border: '#ffaa4f solid 1px', display: 'inherit' }}>
             <ElementMapping
-                {...props}
+                {...props} 
                 map={node.map}
                 _cstates={states}
                 updateStates={updateStates}

@@ -1,4 +1,4 @@
-import { Button, Divider, Card } from "antd";
+import { Button, Divider, Card, Form, Checkbox } from "antd";
 import { useState, useEffect, Children } from "react";
 import ElementSetting from "./Setting";
 import ElementCondition from "./Condition";
@@ -6,6 +6,7 @@ import ElementAttribute from "./Attributes";
 import ElementMapping from "./Map";
 import ElementEvent from "./Event";
 import ElementWrapping from "./Wrapper";
+import { getAllData, storePage, updateData } from "../../../../../../../lib/db";
 
 // Function to update the state node
 const updateStateNode = (state, settingState, settingOptionState) => {
@@ -22,8 +23,17 @@ const updateStateNode = (state, settingState, settingOptionState) => {
   return state.node;
 };
 
-export default function Element({ state, onChange, onUpdate, cascaderStates }) {
+export default function Element({
+  state,
+  onChange,
+  onUpdate,
+  cascaderStates,
+  page,
+  setPage
+}) {
   const [settingState, setSettingState] = useState({ attributes: {} });
+  const [isMain, setIsMain] = useState("");
+
   const [settingOptionState, setSettingOptionState] = useState({
     attributes: {},
   });
@@ -52,6 +62,7 @@ export default function Element({ state, onChange, onUpdate, cascaderStates }) {
     // Update the setting state and setting options state
     setSettingState({ ...node, mainClass: node.className });
     setSettingOptionState({ attributes: node.childAttributes });
+    setIsMain(page.main === state.node._uid);
   };
 
   // Effect to handle changes in state.node
@@ -76,6 +87,37 @@ export default function Element({ state, onChange, onUpdate, cascaderStates }) {
     setIsChange(false);
   };
 
+  const handleCheckboxChange = async (e) => {
+    if (!state.page?._id || isSaving) return;
+
+    setIsSaving(true); // Set saving state to true
+
+    try {
+      const _id = state.page._id;
+      const page = await getAllData(_id);
+
+      // Update the main property based on checkbox state
+      page.main = e.target.checked ? state.node._uid : "0";
+      console.log(e.target.checked, page.main)
+      // Save the updated page
+      await storePage(page);
+
+      // Update the local state to reflect the new main state
+      setIsMain(page.main === state.node._uid);
+      setPage({...page, main: page.main});
+
+    } catch (error) {
+      console.error("Error saving page:", error);
+    } finally {
+      setIsSaving(false); // Reset saving state after the operation completes
+      onChange(false);
+
+    }
+  };
+
+  // State to manage saving state
+  const [isSaving, setIsSaving] = useState(false);
+
   return state.node ? (
     <>
       <Divider orientation="center" orientationMargin="0">
@@ -83,7 +125,7 @@ export default function Element({ state, onChange, onUpdate, cascaderStates }) {
       </Divider>
 
       <Card>
-      <div style={{ textAlign: "right" }}>
+        <div style={{ textAlign: "right" }}>
           <Button disabled={!isChange} onClick={onElementUpdate} type="default">
             Update
           </Button>
@@ -91,6 +133,17 @@ export default function Element({ state, onChange, onUpdate, cascaderStates }) {
 
         <Divider orientation="center" orientationMargin="0"></Divider>
 
+        {page.main !== undefined && (
+          <Form layout="vertical">
+            <Form.Item label="Set Main Content Area">
+              <Checkbox disabled={isSaving} checked={isMain} onChange={handleCheckboxChange}>
+              {isSaving ? "Saving" : "Main"}
+              </Checkbox>
+            </Form.Item>
+          </Form>
+        )}
+
+        <Divider orientation="center" orientationMargin="0"></Divider>
 
         <div style={{ maxHeight: "62vh", overflow: "auto" }}>
           <ElementSetting

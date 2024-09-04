@@ -4,7 +4,7 @@ import { debounce } from '../../../../../lib/utils'
 // Input component
 const Input = (props) => {
 
-    const { _uid, pos, onChange, value, type, onClick, children, conds, disabled } = props;
+    const { _uid, pos, layout, onChange, value, type, onClick, children, conds, disabled } = props;
 
     // State for input value
     const [v, setV] = useState(value);
@@ -33,6 +33,8 @@ const Input = (props) => {
             "data-id": _uid,
             "data-pos": pos,
             "data-name": 'input',
+            "data-layout": layout,
+
             "draggable": false,
             onClick: type === 'file' ? undefined : onClick,
             onChange:  onChangeValue, 

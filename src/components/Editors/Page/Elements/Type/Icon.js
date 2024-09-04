@@ -10,6 +10,8 @@ const createCustomAttributes = (_uid, pos, onMouseMove, onClick, onMouseEnter, o
         dangerouslySetInnerHTML: { __html: layout === 'svg-icon' ? value : '' },
         "data-id": _uid,
         "data-pos": pos,
+        "data-layout": layout,
+
         "draggable": false,
         style: { ...(conds ? {} : disabledStyles) }
     }

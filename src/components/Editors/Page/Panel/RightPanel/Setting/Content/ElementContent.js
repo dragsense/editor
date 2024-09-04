@@ -19,8 +19,8 @@ export default function ElementContent({ cascaderStates, host, state, setState, 
 
     // Splitting the main function into smaller functions for better readability and maintainability
     // Function to handle change in content
-    const onChange = (content) => {
-        setState(prevState => ({ ...prevState, nodeValue: content }));
+    const onChange = (content, isActive) => {
+        setState(prevState => ({ ...prevState, nodeValue: content, isStateActive: isActive }));
         setIsChange(true);
     }
 
@@ -198,7 +198,7 @@ export default function ElementContent({ cascaderStates, host, state, setState, 
                 <br />
                 <br />
                 {Array.isArray(state.srcs) && state.srcs.map((src, index) => (
-                    <Video src={host + src.src} alt={src.alt} mimetype={src.mimetype} />
+                    <Video src={host + src.src} alt={src.alt} mimetype={src.mimetype} duration={3}/>
                 ))}
             </Form.Item>
         );

@@ -40,37 +40,37 @@ const renderElement = (tagType, layout, props) => {
 
     switch (tagType) {
         case 'select':
-            return <Select disabled={disabled} onChange={onChange}
+            return <Select layout={layout} disabled={disabled} onChange={onChange}
                 innerWraaper={children}
                 value={value.value || value} _uid={_uid} pos={pos} options={options} conds={conds}
                 onClick={onClick}>{element}</Select>;
         case 'option':
-            return <Option value={value.value || value} mapIndex={mapIndex} mapValue={mapValue}>{element}</Option>;
+            return <Option layout={layout}  value={value.value || value} mapIndex={mapIndex} mapValue={mapValue}>{element}</Option>;
         case 'input':
         case 'textarea':
-            return <Input disabled={disabled} conds={conds} onClick={onClick} type={attributes["type"]} onChange={onChange} _uid={_uid} pos={pos} value={value.value ?? value}>{element}</Input>;
+            return <Input layout={layout}  disabled={disabled} conds={conds} onClick={onClick} type={attributes["type"]} onChange={onChange} _uid={_uid} pos={pos} value={value.value ?? value}>{element}</Input>;
         case 'inputgroup':
 
-            return <InputGroup disabled={disabled} type={attributes["type"]} onChange={onChange} value={value} mapValue={mapValue} labelPos={node.labelPos || 0} _uid={_uid} pos={pos} conds={conds} onClick={onClick} onMouseMove={onMouseMove} attributes={attributes} options={options}><Element classes={classes} tagName={'label'} /></InputGroup>;
+            return <InputGroup layout={layout}  disabled={disabled} type={attributes["type"]} onChange={onChange} value={value} mapValue={mapValue} labelPos={node.labelPos || 0} _uid={_uid} pos={pos} conds={conds} onClick={onClick} onMouseMove={onMouseMove} attributes={attributes} options={options}><Element classes={classes} tagName={'label'} /></InputGroup>;
         case 'img':
-            return <Image disabled={disabled}
+            return <Image layout={layout}  disabled={disabled}
                 onMouseEnter={onMouseEnter}
                 onMouseExit={onMouseExit}
                 host={setting?.host || ''} conds={conds} onClick={onClick} onMouseMove={onMouseMove} _uid={_uid} name={node.name || node.tagName} pos={pos} value={value}>{element}</Image>;
         case 'video':
         case 'audio':
-            return <Media disabled={disabled} host={setting?.host || ''} conds={conds} tag={node.tagName} _uid={_uid} pos={pos}
+            return <Media layout={layout}  disabled={disabled} host={setting?.host || ''} conds={conds} tag={node.tagName} _uid={_uid} pos={pos}
                 onClick={onClick} onMouseMove={onMouseMove} value={value}>{element}</Media>;
         case 'close':
-            return <CloseTag disabled={disabled} conds={conds} onClick={onClick} onMouseMove={onMouseMove} name={node.name || node.tagName} _uid={_uid} pos={pos}>{element}</CloseTag>;
+            return <CloseTag layout={layout}  disabled={disabled} conds={conds} onClick={onClick} onMouseMove={onMouseMove} name={node.name || node.tagName} _uid={_uid} pos={pos}>{element}</CloseTag>;
         case 'icon':
-            return <Icon disabled={disabled}
+            return <Icon  disabled={disabled}
                 onMouseEnter={onMouseEnter}
                 onMouseExit={onMouseExit}
                 onChange={onChange} value={value} _uid={_uid} pos={pos} onClick={onClick} onMouseMove={onMouseMove} conds={conds} layout={layout} classes={node.classes}>{element}</Icon>;
         case 'component':
         case 'layouts':
-            return <Component disabled={disabled}
+            return <Component layout={layout}  disabled={disabled}
                 value={value.label || value}
                 pos={pos} _uid={_uid} name={node.cname || node.name || node.tagName} conds={conds}
                 onClick={onClick}
@@ -80,7 +80,7 @@ const renderElement = (tagType, layout, props) => {
                 onMouseExit={onMouseExit}
                 innerWraaper={children}>{element}</Component>;
         default:
-            return <General disabled={disabled}
+            return <General layout={layout}  disabled={disabled}
                 onMouseEnter={onMouseEnter}
                 onMouseExit={onMouseExit}
                 pos={pos} _uid={_uid} name={node.cname || node.name || node.tagName}

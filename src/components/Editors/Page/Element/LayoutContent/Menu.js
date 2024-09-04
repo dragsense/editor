@@ -1,74 +1,48 @@
 import React, { useState, useCallback } from 'react';
-import { Tree, Button, Popconfirm, Modal, Form, Popover, Input, message, theme } from 'antd';
+import { Tree, Button, Popconfirm, Modal, Form, Popover, Input, message, theme, Select, Checkbox } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, DownOutlined, UpOutlined, SaveOutlined } from '@ant-design/icons';
 import { nanoid } from 'nanoid';
+
 const { TreeNode } = Tree;
-const { confirm } = Modal;
 
-// MenuTree component for handling menu related operations
-const MenuTree = ({ children, node, onSave }) => {
-
+const MenuTree = ({ node, onSave }) => {
     const {
-        token: { colorPrimary, colorError, },
+        token: { colorPrimary, colorError },
     } = theme.useToken();
 
     const [form] = Form.useForm();
     const [gData, setGData] = useState(node.menus || []);
     const [change, setChange] = useState(false);
-
     const [selectedKeys, setSelectedKeys] = useState([]);
     const [editingNode, setEditingNode] = useState(null);
+    const [visiblePopover, setVisiblePopover] = useState(null); // Tracks which popover is visible
 
-    const [visible, setVisible] = useState(false);
-    const [visible1, setVisible1] = useState(false);
-    const [visible2, setVisible2] = useState(false);
-
-
-    // Function to update a node by its key
     const updateNodeByKey = useCallback((data, key, updates) => {
-        return data.map((node, i) => {
+        return data.map((node) => {
             if (node.key === key) {
-                return {
-                    ...node,
-                    ...updates,
-                };
+                return { ...node, ...updates };
             } else if (node.children) {
-                return {
-                    ...node,
-                    children: updateNodeByKey(node.children, key, updates),
-                };
-            } else {
-                return node;
+                return { ...node, children: updateNodeByKey(node.children, key, updates) };
             }
+            return node;
         });
     }, []);
 
-    // Function to update a parent node by its key
     const updateParentByKey = useCallback((data, key, updates) => {
-        return data.map((node, i) => {
+        return data.map((node) => {
             if (node.key === key) {
-                return {
-                    ...node,
-                    children: [...(node.children || []), updates],
-                };
-
+                return { ...node, children: [...(node.children || []), updates] };
             } else if (node.children) {
-                return {
-                    ...node,
-                    children: updateParentByKey(node.children, key, updates),
-                };
-            } else {
-                return node;
+                return { ...node, children: updateParentByKey(node.children, key, updates) };
             }
+            return node;
         });
     }, []);
 
-    // Function to find a parent node's children by its key
     const findParentChildsByKey = useCallback((data, key) => {
         if (!key) {
             return data;
         }
-
         for (let i = 0; i < data.length; i++) {
             if (data[i].key === key) {
                 return data[i].children || [];
@@ -82,55 +56,46 @@ const MenuTree = ({ children, node, onSave }) => {
         return [];
     }, []);
 
-    // Function to move an item in the tree
     const moveItem = useCallback((node, dropPosition) => {
         const parentChildren = findParentChildsByKey(gData, node.parentKey);
-
         const dragIndex = parentChildren.findIndex(item => item.key === node.key);
 
         if (dragIndex !== -1) {
             parentChildren.splice(dragIndex, 1);
-
             const newIndex = dropPosition === 'before' ? dragIndex - 1 : dragIndex + 1;
             parentChildren.splice(newIndex, 0, node);
 
             const updatedData = updateNodeByKey(gData, node.parentKey, { children: parentChildren });
             setGData(updatedData);
-            setChange(true)
+            setChange(true);
         }
     }, [gData, findParentChildsByKey, updateNodeByKey]);
 
-    // Function to handle selection of a node
-    const onSelect = useCallback((selectedKeys, info) => {
+    const onSelect = useCallback((selectedKeys) => {
         setSelectedKeys(selectedKeys);
     }, []);
 
-    // Function to handle the OK button click in the edit modal
     const onEditModalOk = useCallback(() => {
-
         form.validateFields().then((values) => {
-
             const newMenu = {
                 title: values.title,
                 link: values.link,
                 target: values.target,
+                dropdown: values.dropdown,
             };
 
             if (editingNode?.key) {
-                const updatedData = updateNodeByKey(gData, editingNode.key, {
-                    ...newMenu,
-                });
+                const updatedData = updateNodeByKey(gData, editingNode.key, newMenu);
                 setGData(updatedData);
             } else if (editingNode?.parent) {
                 const updatedData = updateParentByKey(gData, editingNode.parent.key, {
                     key: nanoid(4),
                     ...newMenu,
                     level: editingNode.parent.level + 1,
-                    parentKey: editingNode.parent.key
-                }, 0);
+                    parentKey: editingNode.parent.key,
+                });
                 setGData(updatedData);
             } else {
-                // Add a new item to the data array
                 setGData((prevData) => [
                     ...prevData,
                     {
@@ -143,44 +108,34 @@ const MenuTree = ({ children, node, onSave }) => {
             }
 
             setEditingNode(null);
-            setVisible(false);
-            setVisible2(false)
-            setChange(true)
-            setVisible1(false)
+            setVisiblePopover(null);
+            setChange(true);
         }).catch((e) => {
-            message.error(e?.message, 'Validations failed.')
+            message.error(e?.message || 'Validations failed.');
         });
-
     }, [form, gData, editingNode, updateNodeByKey, updateParentByKey]);
 
-    // Function to handle the Add button click
     const onAddButtonClick = useCallback((node) => {
-
         const targetDepth = (node?.key || '').split('-').length - 1;
-
-        if (targetDepth >= 3) {
-            message.error('Cannot add more than 3 levels of nesting');
+        if (targetDepth >= 1) {
+            message.error('Cannot add more than 1 levels of nesting');
             return;
         }
-
         form.resetFields();
         setEditingNode(node);
     }, [form]);
 
-    // Function to handle the Edit button click
     const onEditNode = useCallback((open, node) => {
-
         if (open) {
             setEditingNode(node);
-            form.setFieldsValue({ ...node });
-
-        } else setEditingNode(null);
-
+            form.setFieldsValue({ title: node.title, link: node.link, target: node.target, dropdown: node.dropdown });
+        } else {
+            setEditingNode(null);
+            form.resetFields();
+        }
     }, [form]);
 
-    // Function to handle the OK button click in the delete modal
     const handleDeleteModalOk = useCallback((node) => {
-        // Find the selected item and remove it from the data
         const newData = [...gData];
         const selectedKey = node.key;
         const findAndRemove = (data) => {
@@ -195,72 +150,78 @@ const MenuTree = ({ children, node, onSave }) => {
         findAndRemove(newData);
         setGData(newData);
         setEditingNode(null);
-        setChange(true)
+        setChange(true);
     }, [gData]);
 
-    // Function to handle the Delete button click
     const onDeleteNode = useCallback((node) => {
-
         handleDeleteModalOk(node);
     }, [handleDeleteModalOk]);
 
-    // Function to handle the Save button click
     const onSaveNode = useCallback((e) => {
         e.preventDefault();
         onSave(gData);
-
-        setChange(false)
-
+        setChange(false);
     }, [gData, onSave]);
 
+    const formContent = (
+        <Form form={form} onFinish={onEditModalOk} layout="vertical">
+            <Form.Item name="title" label="Label" rules={[{ required: true, message: 'Required' }]}>
+                <Input />
+            </Form.Item>
+            <Form.Item name="link" label="Link" rules={[{ required: true, message: 'Required' }]}>
+                <Input />
+            </Form.Item>
+            <Form.Item name="target" label="Target" rules={[{ required: true, message: 'Required' }]}>
+                <Select placeholder="Select target option">
+                    <Select.Option value="_self">Self</Select.Option>
+                    <Select.Option value="_blank">New Tab</Select.Option>
+                </Select>
+            </Form.Item>
+            <Form.Item name="dropdown" valuePropName="checked" label="Dropdown">
+                <Checkbox>Active</Checkbox>
+            </Form.Item>
+            <Form.Item style={{ textAlign: 'right' }}>
+                <Button style={{ marginRight: 5 }} size='small' onClick={() => {
+                    setEditingNode(null);
+                    setVisiblePopover(null);
+                }}>Close</Button>
+                <Button type="primary" size='small' htmlType='submit'>
+                    {editingNode ? 'Update' : 'Add'}
+                </Button>
+            </Form.Item>
+        </Form>
+    );
 
-
-    // Form content for the edit modal
-    const formContent = <Form form={form} onFinish={onEditModalOk} layout="vertical">
-        <Form.Item name="title" label="Label" rules={[{ required: true, message: 'Required' }]}>
-            <Input />
-        </Form.Item>
-        <Form.Item name="link" label="Link" rules={[{ required: true, message: 'Required' }]}>
-            <Input />
-        </Form.Item>
-        <Form.Item name="target" label="Target" >
-            <Input />
-        </Form.Item>
-
-        <Form.Item style={{ textAlign: 'right' }}>
-            <Button style={{ marginRight: 5 }} size='small' onClick={(e) => {
-                e.preventDefault();
-                setEditingNode(null);
-                setVisible(false);
-                setVisible2(false);
-                setVisible1(false);
-            }}> Close </Button>
-            <Button type="primary" size='small' htmlType='submit'>
-                {editingNode ? 'Update' : 'Add'}  </Button>
-        </Form.Item>
-    </Form>
-
-    // Function to render the title of a node
     const renderTitle = useCallback((node) => (
-        <div >
+        <div>
             <span>{node.title}</span>
             <div style={{ width: '50%', display: "inline-flex", alignItems: "center", justifyContent: 'space-between', gap: 5, padding: 2 }}>
-                {node.level < 2 && (
-                    <Popover open={visible} content={formContent} title="Add" trigger="click" onOpenChange={(open) => {
-                             setVisible1(true)
-                        onAddButtonClick({ parent: node })}
-                    }
-                        >
+                {node.level < 0 && (
+                    <Popover
+                        open={visiblePopover?.key === node.key && visiblePopover?.type === 'add'}
+                        content={formContent}
+                        title="Add"
+                        trigger="click"
+                        onOpenChange={(open) => {
+                            setVisiblePopover(open ? { key: node.key, type: 'add' } : null);
+                            if (open) onAddButtonClick({ parent: node });
+                        }}
+                    >
                         <Button type="dashed" size='small' disabled={node.level >= 3}>
                             <PlusOutlined />
                         </Button>
                     </Popover>
                 )}
-                <Popover content={formContent} open={visible2} title={editingNode ? "Edit" : "Add"} trigger="click" onOpenChange={(open) => {
-                     setVisible2(true)
-                    onEditNode(open, node)}
-                }
-                    >
+                <Popover
+                    content={formContent}
+                    open={visiblePopover?.key === node.key && visiblePopover?.type === 'edit'}
+                    title={editingNode ? "Edit" : "Add"}
+                    trigger="click"
+                    onOpenChange={(open) => {
+                        setVisiblePopover(open ? { key: node.key, type: 'edit' } : null);
+                        if (open) onEditNode(open, node);
+                    }}
+                >
                     <Button size='small' type="text" ghost><EditOutlined style={{ color: colorPrimary }} /></Button>
                 </Popover>
                 <Popconfirm
@@ -272,61 +233,52 @@ const MenuTree = ({ children, node, onSave }) => {
                     cancelText="No"
                 >
                     <Button size='small' type="text" ghost><DeleteOutlined style={{ color: colorError }} /></Button>
-
                 </Popconfirm>
-
                 <>
-                    <Button onClick={() => moveItem(node, 'before')} size='small' type="text" >
+                    <Button onClick={() => moveItem(node, 'before')} size='small' type="text">
                         <UpOutlined />
                     </Button>
                     <Button onClick={() => moveItem(node, 'after')} size='small' type="text">
                         <DownOutlined />
                     </Button>
                 </>
-
             </div>
         </div>
-    ), [formContent, onAddButtonClick, onEditNode, onDeleteNode, moveItem, colorPrimary, colorError]);
+    ), [formContent, onAddButtonClick, onEditNode, onDeleteNode, moveItem, colorPrimary, colorError, visiblePopover]);
 
-    // Content of the MenuTree component
-    const content = <>
-
-        <div style={{ maxHeight: '60vh', overflow: 'auto' }}>
-            <Tree
-                selectedKeys={selectedKeys}
-
-                onSelect={onSelect}
-                blockNode
-
-                treeData={gData}
-                titleRender={renderTitle}
-                selectable={false}
-            >
-
-            </Tree>
-        </div>
-
+    return (
         <div>
-            <Popover content={formContent} open={visible1} title={"Add"} trigger="click" onOpenChange={(open) => {
-                setVisible1(true)
-                onAddButtonClick(null)
-            }
-            }>
-                <Button type="dashed">
-                    <PlusOutlined />
+            <div style={{ maxHeight: '60vh', overflow: 'auto' }}>
+                <Tree
+                    selectedKeys={selectedKeys}
+                    onSelect={onSelect}
+                    blockNode
+                    treeData={gData}
+                    titleRender={renderTitle}
+                    selectable={false}
+                />
+            </div>
+            <div>
+                <Popover
+                    content={formContent}
+                    open={visiblePopover?.type === 'add'}
+                    title="Add"
+                    trigger="click"
+                    onOpenChange={(open) => {
+                        setVisiblePopover(open ? { key: null, type: 'add' } : null);
+                        if (open) onAddButtonClick(null);
+                    }}
+                >
+                    <Button type="dashed">
+                        <PlusOutlined />
+                    </Button>
+                </Popover>
+                <Button style={{ marginLeft: 10, float: 'right' }} onClick={onSaveNode} type="primary" disabled={!change}>
+                    Save <SaveOutlined />
                 </Button>
-
-            </Popover>
-            {" "}
-            <Button style={{ marginLeft: 10, float: 'right' }} onClick={onSaveNode} type="primary" disabled={!change}>
-                Save <SaveOutlined />
-            </Button>
+            </div>
         </div>
-    </>
-
-    return content;
-
+    );
 };
 
 export default MenuTree;
-

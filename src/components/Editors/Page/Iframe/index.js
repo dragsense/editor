@@ -220,7 +220,7 @@ export default function IFrame({
       .map((element) => ({
         uid: element.dataset.id,
         name: element.dataset.name || element.tagName,
-        layout: element.dataset.name || element.tagName,
+        layout: element.dataset.layout || element.dataset.name || element.tagName,
         pos: element.dataset.pos,
       }));
 
@@ -477,7 +477,7 @@ export default function IFrame({
     // Function to handle double click event
     const onDbClickHandle = (event) => {
       try {
-        if (editing) return;
+        if (editing || state.node.isStateActive) return;
         const currentElement = getValidElement(event.target);
         if (!currentElement) return;
         const id = currentElement.dataset.id || currentElement.dataset.rootid;

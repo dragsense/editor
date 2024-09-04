@@ -42,7 +42,7 @@ const createMenu = async (state, menus, childNodes) => {
 
 // Function to add menus
 const onAddMenus = async (state, menus, onAdd) => {
-    if (!state.node?.node || state.node?.layout !== 'menu')
+    if (!state.node?.node || state.node?.layout !== 'menu-list')
         return;
     confirm({
         title: `Cannot Be Undone: Please Confirm`,
@@ -63,21 +63,33 @@ const onAddMenus = async (state, menus, onAdd) => {
 }
 
 // Function to update nodes
-const onUpdateNNodes = (state, type, data,   onUpdate, onAdd) => {
-    if (type === 'menu')
+const onUpdateNodes = (state, type, data,   onUpdate, onAdd) => {
+    if (type === 'menu-list')
         onAddMenus(state, data, onAdd);
     else {
+        
         if(data['activeItem'] && data['activeItem'].defaultValue)
         data['activeItem'].defaultValue = null;
-        state.node.states = data;
 
+        if(data['currentIndex'])
+            data['currentIndex'].defaultValue = -1;
+
+        if(data['openModal'])
+            data['openModal'].defaultValue = 'close';
+
+
+        data._uid = state.node._uid;
+        state.node.states = {...data};
         onUpdate(state.node);
-        if (state.states[state.node._uid]) {
+      
+        if (state.states && state.states[state.node._uid]) {
             state.states[state.node._uid].setStates(data);
         }
 
     }
 }
+
+
 
 // Function to submit form
 const onSubmit = async (state, states, events, onChange) => {
@@ -106,12 +118,23 @@ export default function Component({ state, cascaderStates, onChange, onUpdate, o
             return;
         fetchComponent(state, setComponent);
         setFilterStates(cascaderStates.filter(state => state.type === 'STATES' || state.type === 'PROPS'))
+
+    
     }, [state.page]);
+
+    useEffect(() => {
+        if (!state.page)
+            return;
+        fetchComponent(state, setComponent);
+        setFilterStates(cascaderStates.filter(state => state.type === 'STATES' || state.type === 'PROPS'))
+
+    
+    }, [state.node.states ]);
 
     const { layout, type } = state.node;
 
 
-    return (component && type !== 'component' && layout !== 'menu') ? <>
+    return (component && type !== 'component' && layout !== 'menu-list') ? <>
         <Divider orientation="center" orientationMargin="0">Tag: {state.node.tagName} </Divider>
         <Card>
             <ElementComponent
@@ -124,7 +147,7 @@ export default function Component({ state, cascaderStates, onChange, onUpdate, o
     : <>        
         <Card>
             <LayoutContent state={state}
-                onUpdate={(type, data) => onUpdateNNodes(state, type, data, onUpdate, onAdd)} />
+                onUpdate={(type, data) => onUpdateNodes(state, type, data, onUpdate, onAdd)} />
         </Card>
     </>
 }

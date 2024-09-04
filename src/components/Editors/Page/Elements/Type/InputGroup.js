@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState, useCallback } from 'react';
 
 // InputGroup component
 const InputGroup = (props) => {
-    const { labelPos, onChange, conds,
+    const { labelPos, onChange, layout, conds,
         attributes, type, mapValue, disabled, onClick, value, _uid, pos, children } = props;
 
     // Option value and label
@@ -103,6 +103,8 @@ const InputGroup = (props) => {
             onClick: onClick,
             "data-id": _uid,
             "data-pos": pos,
+            "data-layout": layout,
+
             "draggable": false,
             style: { ...(conds ? {} : disabledStyles), outline: '1px dotted #bdbdbd', cursor: 'pointer', paddingInline: '1%', }
         }

@@ -2,21 +2,7 @@ import { v4 as uuid } from "uuid";
 import { nanoid } from "nanoid";
 import { deleteData, getData, updateData } from "../db";
 import addCSS from "./addCSS";
-
-// Function to delete an element and its child elements
-export const onDeleteElement = async (currentElement, _id) => {
-  if (Array.isArray(currentElement.childNodes)) {
-    await Promise.all(
-      currentElement.childNodes.map(async (_uid) => {
-        const child = await getData(_id, _uid);
-        if (child) {
-          await deleteData(_id, _uid);
-          await onDeleteElement(child, _id);
-        }
-      })
-    );
-  }
-};
+import { onDeleteElement } from "../../components/Editors/Page/PageProvider/PageManager";
 
 // Function to generate style for an element
 export const generateElementStyle = (selector, properties) => ({
@@ -43,7 +29,7 @@ const createMenu = async (tag, state, document) => {
   const componentStates = { ...states["global"], ...states["menu"] };
 
   // Generate unique id for the menu
-  const menuId = nanoid(8);
+  const menuId = nanoid(4);
 
   // Create a unique class name for the menu
   const className = `ac-menu-${menuId}`;
@@ -70,8 +56,8 @@ const createMenu = async (tag, state, document) => {
         value: "'_self'",
       },
     },
-    className: "menu-link",
-    selector: `.${className} .menu .menu-link`,
+    className: "ac-menu-link",
+    selector: `.${className} .ac-menu-link`,
   };
 
   // Create a unique id for the menu item
@@ -87,8 +73,9 @@ const createMenu = async (tag, state, document) => {
     layout: "text",
     nodeValue: "",
     childNodes: [menuItemLinkId],
-    className: "menu-item",
-    selector: `.${className} .menu .menu-item`,
+    className: "ac-menu-item",
+    selector: `.${className} .ac-menu-item`,
+    listItemLink: menuItemLinkId,
   };
 
   // Create a unique id for the list
@@ -99,9 +86,9 @@ const createMenu = async (tag, state, document) => {
   const list = {
     _uid: listId,
     tagName: "ul",
-    name: "List",
+    name: "Menu List",
     type: "texts",
-    layout: "menu",
+    layout: "menu-list",
     nodeValue: "",
     childNodes: [menuItemId],
     menus: [
@@ -115,8 +102,8 @@ const createMenu = async (tag, state, document) => {
         level: 0,
       },
     ],
-    className: "menu",
-    selector: `.${className} .menu`,
+    className: "ac-menu",
+    selector: `.${className} .ac-menu`,
   };
 
   // Create a unique id for the wrapper
@@ -129,13 +116,13 @@ const createMenu = async (tag, state, document) => {
     tagName: tag.tag,
     name: "Menu",
     cname: "Menu",
-    type: "component",
     layout: "nav",
     nodeValue: "",
     childNodes: [listId],
     className: className,
     selector: `.${className}`,
     states: componentStates,
+    type: "component",
   };
 
   // Define the CSS properties for the menu item link
@@ -186,7 +173,7 @@ const createFlex = async (state, document, childCount = 2) => {
   const componentStates = {};
 
   // Generate a unique id for the flex component
-  const id = nanoid(8);
+  const id = nanoid(4);
   const className = `ac-flex-${id}`;
 
   // Define the child item structure
@@ -213,8 +200,8 @@ const createFlex = async (state, document, childCount = 2) => {
       ...childItem,
       nodeValue: "",
       _uid: uniqueId,
-      className: `flex-child-${i + 1}`,
-      selector: `.${className} .flex-child-${i + 1}`,
+      className: `ac-flex-child-${i + 1}`,
+      selector: `.${className} .ac-flex-child-${i + 1}`,
       parent: wrapperUniqueId,
     };
 
@@ -228,8 +215,9 @@ const createFlex = async (state, document, childCount = 2) => {
     _uid: wrapperUniqueId,
     tagName: "div",
     name: "FlexBox",
+    cname: "FlexBox",
     type: "component",
-    layout: "flex",
+    layout: "Flex",
     nodeValue: "",
     childNodes: childNodes,
     className: className,
@@ -265,7 +253,7 @@ const createGrid = async (state, document, gridItemsCount = 4) => {
   const componentStates = {};
 
   // Generate a unique id for the grid component
-  const id = nanoid(8);
+  const id = nanoid(4);
   const className = `ac-grid-${id}`;
 
   // Define the structure of a grid child item
@@ -292,8 +280,8 @@ const createGrid = async (state, document, gridItemsCount = 4) => {
       ...gridChildItem,
       nodeValue: "",
       _uid: uniqueId,
-      className: `grid-child-${i + 1}`,
-      selector: `.${className} .grid-child-${i + 1}`,
+      className: `ac-grid-child-${i + 1}`,
+      selector: `.${className} .ac-grid-child-${i + 1}`,
       parent: wrapperUniqueId,
     };
 
@@ -346,7 +334,7 @@ const createContainer = async (state, document) => {
   const componentStates = {};
 
   // Generate a unique id for the container
-  const id = nanoid(8);
+  const id = nanoid(4);
   const className = `ac-container-${id}`;
 
   // Generate a unique id for the wrapper
@@ -390,8 +378,9 @@ const createSlider = async (state, document) => {
   const componentStates = { ...states["global"], ...states["slider"] };
 
   // Generate a unique id for the slider
-  let id = nanoid(8);
+  let id = nanoid(4);
   const className = "ac" + "-slider-" + id;
+  const wrraper_unique_id = uuid();
 
   // Create a slide element
   const slide_unique_id = uuid();
@@ -403,8 +392,8 @@ const createSlider = async (state, document) => {
     layout: "slide",
     nodeValue: "",
     childNodes: [],
-    className: "slide",
-    selector: "." + className + " .slides .slide",
+    className: "ac-slide",
+    selector: "." + className + " .ac-slide",
   };
 
   // Create a slides container
@@ -417,8 +406,8 @@ const createSlider = async (state, document) => {
     layout: "slides",
     nodeValue: "",
     childNodes: [slide_unique_id],
-    className: "slides",
-    selector: "." + className + " .slides",
+    className: "ac-slides",
+    selector: "." + className + " .ac-slides",
   };
 
   // Set the parent of the slide element to be the slides container
@@ -437,11 +426,11 @@ const createSlider = async (state, document) => {
     // Define the onClick event to decrease the currentIndex
     onClick: {
       key: ["currentIndex"],
-      type: "Sider",
+      type: "Sider-" + wrraper_unique_id,
       value: "[key] - 1",
     },
-    className: "slider-left-btn",
-    selector: "." + className + " .slider-left-btn",
+    className: "ac-slider-left-btn",
+    selector: "." + className + " .ac-slider-left-btn",
   };
 
   // Create a right button for the slider
@@ -456,12 +445,12 @@ const createSlider = async (state, document) => {
     // Define the onClick event to increase the currentIndex
     onClick: {
       key: ["currentIndex"],
-      type: "Sider",
+      type: "Slider-" + wrraper_unique_id,
       value: "[key] + 1",
     },
     childNodes: [],
-    className: "slider-right-btn",
-    selector: "." + className + " .slider-right-btn",
+    className: "ac-slider-right-btn",
+    selector: "." + className + " .ac-slider-right-btn",
   };
 
   // Create a dot for the slider
@@ -475,7 +464,7 @@ const createSlider = async (state, document) => {
     // Define the onClick event to set the currentIndex to the clicked dot's index
     onClick: {
       key: ["currentIndex"],
-      type: "Slider",
+      type: "Slider-" + wrraper_unique_id,
       withtype: "MAPINDEX",
       withkey: [],
       value: "[withkey]",
@@ -501,7 +490,7 @@ const createSlider = async (state, document) => {
             conditions: {
               "cond-active-bg": {
                 key: ["currentIndex"],
-                type: "Slider",
+                type: "Slider-" + wrraper_unique_id,
                 valueState: {
                   key: [],
                   type: "MAPINDEX",
@@ -516,9 +505,9 @@ const createSlider = async (state, document) => {
       },
     },
     childNodes: [],
-    nodeValue: "",
-    className: "slide-nav-item",
-    selector: "." + className + " .slide-nav-item",
+    nodeValue: ".",
+    className: "ac-slide-nav-item",
+    selector: "." + className + " .ac-slide-nav-item",
   };
 
   // Create a container for the dots
@@ -531,8 +520,8 @@ const createSlider = async (state, document) => {
     layout: "list",
     childNodes: [slider_dot_unique_id],
     nodeValue: "",
-    className: "slider-nav-container",
-    selector: "." + className + " .slider-nav-container",
+    className: "ac-slider-nav-container",
+    selector: "." + className + " .ac-slider-nav-container",
   };
   // Set the parent of the dots to be the dots container
   slidesDots.parent = dots_conatienr_id;
@@ -545,7 +534,6 @@ const createSlider = async (state, document) => {
   ];
 
   // Create a wrapper for the slider
-  const wrraper_unique_id = uuid();
   slidesLeftButton.parent = wrraper_unique_id;
   slidesRightButton.parent = wrraper_unique_id;
   slidesDotsContainer.parent = wrraper_unique_id;
@@ -569,6 +557,7 @@ const createSlider = async (state, document) => {
   let properties = {
     height: {
       value: "100%",
+      unit: "%",
     },
   };
   await addCSS(document, properties, slideElement, state.page._id);
@@ -593,6 +582,7 @@ const createSlider = async (state, document) => {
     },
     top: {
       value: "50%",
+      unit: "%",
     },
     left: {
       value: "10px",
@@ -611,6 +601,7 @@ const createSlider = async (state, document) => {
     },
     top: {
       value: "50%",
+      unit: "%",
     },
     right: {
       value: "10px",
@@ -632,6 +623,7 @@ const createSlider = async (state, document) => {
     },
     "border-radius": {
       value: "50%",
+      unit: "%",
     },
     " background-color": {
       value: "#ccc;",
@@ -656,6 +648,7 @@ const createSlider = async (state, document) => {
     },
     left: {
       value: "50%",
+      unit: "%",
     },
     transform: {
       value: "translateX(-50%)",
@@ -686,8 +679,9 @@ const createSlider = async (state, document) => {
 const createTabs = async (state, document) => {
   const componentStates = { ...states["global"], ...states["tabs"] };
 
-  let id = nanoid(8);
+  let id = nanoid(4);
   const className = "ac" + "-tabs-" + id;
+  const wrraper_unique_id = uuid();
 
   const tab_btn_unique_id = uuid();
 
@@ -702,11 +696,11 @@ const createTabs = async (state, document) => {
 
     onClick: {
       key: ["currentIndex"],
-      type: "Tabs",
+      type: "Tabs-" + wrraper_unique_id,
       value: "0",
     },
-    className: "tab-btn",
-    selector: "." + className + " .tabs-btn .tab-btn",
+    className: "ac-tab-btn",
+    selector: "." + className + " .ac-tab-btn",
   };
 
   const tabs_btn_unique_id = uuid();
@@ -719,8 +713,8 @@ const createTabs = async (state, document) => {
     layout: "tabs-btn",
     nodeValue: "",
     childNodes: [tab_btn_unique_id],
-    className: "tabs-btn",
-    selector: "." + className + " .tabs-btn",
+    className: "ac-tabs-btn",
+    selector: "." + className + " .ac-tabs-btn",
   };
   tabButton.parent = tabs_btn_unique_id;
 
@@ -734,8 +728,8 @@ const createTabs = async (state, document) => {
     nodeValue: "Tab Content",
     childNodes: [],
 
-    className: "tab-content",
-    selector: "." + className + " .tabs-content .tab-content",
+    className: "ac-tab-content",
+    selector: "." + className + " .ac-tab-content",
   };
 
   const tabs_content_unique_id = uuid();
@@ -749,8 +743,8 @@ const createTabs = async (state, document) => {
     layout: "tabs-content",
     nodeValue: "",
     childNodes: [tab_content_unique_id],
-    className: "tabs-content",
-    selector: "." + className + " .tabs-content",
+    className: "ac-tabs-content",
+    selector: "." + className + " .ac-tabs-content",
   };
   tabContent.parent = tabs_content_unique_id;
   tabsContentElement.btnRef = tabs_btn_unique_id;
@@ -765,13 +759,11 @@ const createTabs = async (state, document) => {
     layout: "tabs",
     nodeValue: "",
     childNodes: [tabs_btn_unique_id, tabs_content_unique_id],
-    className: "tabs",
-    selector: "." + className + " .tabs",
+    className: "ac-tabs",
+    selector: "." + className + " .ac-tabs",
   };
   tabs.btnRef = tabs_btn_unique_id;
   tabs.contentRef = tabs_content_unique_id;
-
-  const wrraper_unique_id = uuid();
 
   tabs.parent = wrraper_unique_id;
   const childNodes = [tabs_unique_id];
@@ -783,7 +775,7 @@ const createTabs = async (state, document) => {
     cname: "Tabs",
 
     type: "layouts",
-    layout: "tabs",
+    layout: "layout",
     nodeValue: "",
     type: "component",
     childNodes: childNodes,
@@ -863,8 +855,9 @@ const createTabs = async (state, document) => {
 const createAccordion = async (state, document) => {
   const componentStates = { ...states["global"], ...states["accordion"] };
 
-  let id = nanoid(8);
+  let id = nanoid(4);
   const className = "ac" + "-accordion-" + id;
+  const wrraper_unique_id = uuid();
 
   const accordion_content_unique_id = uuid();
 
@@ -877,8 +870,8 @@ const createAccordion = async (state, document) => {
     nodeValue: "",
     childNodes: [],
 
-    className: "accordion-content",
-    selector: "." + className + " .accordion .accordion-content",
+    className: "ac-accordion-content",
+    selector: "." + className + " .ac-accordion-content",
   };
 
   const accordion_header_unique_id = uuid();
@@ -891,13 +884,12 @@ const createAccordion = async (state, document) => {
     layout: "div",
     nodeValue: "Accordion Header",
     childNodes: [],
-    className: "accordion-header",
-    selector: "." + className + " .accordion .accordion-header",
+    className: "ac-accordion-header",
+    selector: "." + className + " .ac-accordion-header",
     onClick: {
       key: ["currentIndex"],
-      type: "Accordion",
-      value: "[value]",
-      statetype: "MAPINDEX",
+      type: "Accordion-" + wrraper_unique_id,
+      value: "0",
     },
   };
 
@@ -911,8 +903,8 @@ const createAccordion = async (state, document) => {
     layout: "accordion",
     nodeValue: "",
     childNodes: [accordion_header_unique_id, accordion_content_unique_id],
-    className: "accordion",
-    selector: "." + className + " .accordion",
+    className: "ac-accordion",
+    selector: "." + className + " .ac-accordion",
   };
   accordionHeader.parent = accordion_unique_id;
   accordionContent.parent = accordion_unique_id;
@@ -927,12 +919,11 @@ const createAccordion = async (state, document) => {
     layout: "accordions",
     nodeValue: "",
     childNodes: [accordion_unique_id],
-    className: "accordion-items",
-    selector: "." + className + " .accordions-items",
+    className: "ac-accordion-items",
+    selector: "." + className + " .ac-accordions-items",
   };
   accordionElement.parent = accordions_unique_id;
 
-  const wrraper_unique_id = uuid();
   accordionsElement.parent = wrraper_unique_id;
   const childNodes = [accordions_unique_id];
 
@@ -1009,10 +1000,15 @@ const createAccordion = async (state, document) => {
 };
 
 const createGallery = async (state, document) => {
-  const componentStates = { ...states["global"], ...states["gallery"] };
+  const componentStates = {
+    ...states["global"],
+    ...states["gallery"],
+    ...states["modal"],
+  };
 
-  let id = nanoid(8);
+  let id = nanoid(4);
   const className = "ac" + "-gallery-" + id;
+  const wrraper_unique_id = uuid();
 
   const img_unique_id = uuid();
 
@@ -1021,11 +1017,13 @@ const createGallery = async (state, document) => {
     tagName: "img",
     name: "Image",
     type: "media",
+    
     layout: "img",
     nodeValue: "",
     childNodes: [],
-    className: "gallery-img",
-    selector: "." + className + " .gallery .gallery-img",
+    className: "ac-gallery-img",
+    fixedClass: true,
+    selector: "." + className + " .ac-gallery-img",
   };
 
   const gallery_item_unique_id = uuid();
@@ -1038,13 +1036,13 @@ const createGallery = async (state, document) => {
     layout: "div",
     nodeValue: "",
     childNodes: [img_unique_id],
-    className: "gallery-item",
-    selector: "." + className + " .gallery .gallery-item",
+    className: "ac-gallery-item",
+    fixedClass: true,
+    selector: "." + className + " .ac-gallery-item",
     onClick: {
       key: ["currentIndex"],
-      type: "Gallery",
-      value: "[value]",
-      statetype: "MAPINDEX",
+      type: "Gallery-" + wrraper_unique_id,
+      value: "0",
     },
   };
   image.parent = gallery_item_unique_id;
@@ -1059,18 +1057,37 @@ const createGallery = async (state, document) => {
     layout: "gallery",
     nodeValue: "",
     childNodes: [gallery_item_unique_id],
-    className: "gallery",
-    selector: "." + className + " .gallery",
+    className: "ac-gallery",
+    selector: "." + className + " .ac-gallery",
   };
 
   galleryItem.parent = gallery_unique_id;
 
-  const wrraper_unique_id = uuid();
+  const extraSelectors = {
+    selectors: [
+      { selector:  "." + className + " .ac-modal-body .ac-gallery-item", tagName: 'div' },
+      { selector:  "." + className + " .ac-modal-body .ac-gallery-img", tagName: 'div' },
+    ],
+    properties: [
+      {},
+      {
+        "object-fit": {
+          value: "contain",
+        },
+      },
+    ],
+  };
 
-  const modalElement = await createModal(state, document, className, {
-    key: ["activeItem"],
-    type: "Gallery",
-  });
+  const modalElement = await createModal(
+    state,
+    document,
+    className,
+    {
+      key: ["activeItem"],
+      type: "Gallery-" + wrraper_unique_id,
+    },
+    "Gallery-" + wrraper_unique_id, extraSelectors
+  );
 
   modalElement.parent = wrraper_unique_id;
   galleryElement.parent = wrraper_unique_id;
@@ -1097,9 +1114,18 @@ const createGallery = async (state, document) => {
   let properties = {
     "max-width": {
       value: "100%",
+      unit: "%",
     },
     height: {
       value: "100%",
+      unit: "%",
+    },
+    width: {
+      value: "100%",
+      unit: "100%",
+    },
+    "object-fit": {
+      value: "cover",
     },
   };
   await addCSS(document, properties, image, state.page._id);
@@ -1109,6 +1135,10 @@ const createGallery = async (state, document) => {
   properties = {
     "margin-bottom": {
       value: "10px",
+    },
+    height: {
+      value: "100%",
+      unit: "%",
     },
   };
   await addCSS(document, properties, galleryItem, state.page._id);
@@ -1145,10 +1175,11 @@ const createModalTrigger = async (state, document) => {
   // Merge global and modal specific states
   const modalTriggerStates = { ...states["global"], ...states["modal"] };
 
-  let id = nanoid(8);
+  let id = nanoid(4);
   const className = "ac" + "-modal-" + id;
   // Create unique id for the modal trigger
   const modalTriggerUniqueId = uuid();
+  const wrapperUniqueId = uuid();
 
   // Define the structure of the modal trigger
   const modalTrigger = {
@@ -1159,20 +1190,25 @@ const createModalTrigger = async (state, document) => {
     layout: "button",
     nodeValue: "Open Modal",
     childNodes: [],
-    className: "modal-trigger",
-    selector: `.${className} .modal-trigger`,
+    className: "ac-modal-trigger",
+    selector: `.${className} .ac-modal-trigger`,
     onClick: {
       key: ["openModal"],
-      type: "Modal",
+      type: "Modal-" + wrapperUniqueId,
       value: "'open'",
     },
   };
 
   // Create a modal element
-  const modalElement = await createModal(state, document, className, null);
+  const modalElement = await createModal(
+    state,
+    document,
+    className,
+    null,
+    "Modal-" + wrapperUniqueId
+  );
 
   // Create unique id for the wrapper
-  const wrapperUniqueId = uuid();
   // Set parent of modal element and modal trigger
   modalElement.parent = wrapperUniqueId;
   modalTrigger.parent = wrapperUniqueId;
@@ -1230,7 +1266,14 @@ const createModalTrigger = async (state, document) => {
   return wrapperElement;
 };
 
-const createModal = async (state, document, className, valueState) => {
+const createModal = async (
+  state,
+  document,
+  className,
+  valueState,
+  type,
+  extraSelectors = undefined
+) => {
   const modal_close_unique_id = uuid();
 
   const modalClose = {
@@ -1241,11 +1284,11 @@ const createModal = async (state, document, className, valueState) => {
     layout: "text",
     nodeValue: "&times;",
     childNodes: [],
-    className: "modal-close",
-    selector: "." + className + " .modal-close",
+    className: "ac-modal-close",
+    selector: "." + className + " .ac-modal-close",
     onClick: {
       key: ["openModal"],
-      type: "Modal",
+      type: type,
       value: "'close'",
     },
   };
@@ -1261,8 +1304,9 @@ const createModal = async (state, document, className, valueState) => {
     layout: "div",
     nodeValue: "",
     childNodes: [modal_close_unique_id],
-    className: "modal-body",
-    selector: "." + className + " .modal .modal-body",
+    className: "ac-modal-body",
+    fixedClass: true,
+    selector: "." + className + " .ac-modal-body",
     state: valueState,
   };
 
@@ -1276,13 +1320,13 @@ const createModal = async (state, document, className, valueState) => {
     layout: "empty",
     nodeValue: "",
     childNodes: [],
-    className: "modal-close-wrapper",
-    selector: "." + className + " .modal .modal-close-wrapper",
+    className: "ac-modal-close-wrapper",
+    selector: "." + className + " .ac-modal-close-wrapper",
 
     onClick: {
       key: ["openModal"],
-      type: "Modal",
-      withtype: "Modal",
+      type: type,
+      withtype: type,
       withkey: ["closable"],
       value: "[withkey] ? 'close' : 'open'",
     },
@@ -1302,8 +1346,8 @@ const createModal = async (state, document, className, valueState) => {
     nodeValue: "",
 
     childNodes: [modal_unique_id, modal_closer_unique_id],
-    className: "modal",
-    selector: "." + className + " .modal",
+    className: "ac-modal",
+    selector: "." + className + " .ac-modal",
   };
 
   let properties = {
@@ -1321,16 +1365,32 @@ const createModal = async (state, document, className, valueState) => {
     },
     width: {
       value: "50%",
+      unit: "%",
     },
     height: {
       value: "50%",
+      unit: "%",
+    },
+    "text-align": {
+      value: "center",
     },
     "z-index": {
       value: 1,
     },
   };
   await addCSS(document, properties, modal, state.page._id);
+
+  if (extraSelectors && Array.isArray(extraSelectors?.selectors)) {
+    for (let i = 0; i < extraSelectors.selectors.length; i++) {
+      await addCSS(document, extraSelectors.properties[i], extraSelectors.selectors[i], state.page._id);
+    }
+
+    modal["selectors"] = extraSelectors.selectors;
+  }
+
   await updateData(state.page._id, modal);
+
+
 
   properties = {
     position: {
@@ -1344,9 +1404,11 @@ const createModal = async (state, document, className, valueState) => {
     },
     width: {
       value: "100%",
+      unit: "%",
     },
     height: {
       value: "100%",
+      unit: "%",
     },
   };
   await addCSS(document, properties, modalCloserElement, state.page._id);
@@ -1355,9 +1417,11 @@ const createModal = async (state, document, className, valueState) => {
   properties = {
     width: {
       value: "100%",
+      unit: "%",
     },
     height: {
       value: "100%",
+      unit: "%",
     },
     " background-color": {
       value: "rgba(0, 0, 0, 0.5)",
@@ -1404,8 +1468,9 @@ const createModal = async (state, document, className, valueState) => {
 const createSider = async (state, document) => {
   const componentStates = { ...states["sider"] };
 
-  let id = nanoid(8);
+  let id = nanoid(4);
   const className = "ac" + "-sider-" + id;
+  const wrraper_unique_id = uuid();
 
   const sider_content_unique_id = uuid();
 
@@ -1418,11 +1483,27 @@ const createSider = async (state, document) => {
     nodeValue: "",
     childNodes: [],
 
-    className: "sider-content",
-    selector: "." + className + " .sider-content",
+    className: "ac-sider-content",
+    selector: "." + className + " .ac-sider-content",
+  };
+
+  const sider_trigger_text_unique_id = uuid();
+
+  const siderButtonText = {
+    _uid: sider_trigger_text_unique_id,
+    tagName: "span",
+    name: "Sider Trigger Text",
+    type: "texts",
+    layout: "text",
+    nodeValue: "{{Sider-" + wrraper_unique_id + "/siderStatus}}",
+    isStateActive: true,
+    childNodes: [],
+    className: "ac-sider-trigger-text",
+    selector: "." + className + " .ac-sider-trigger-text",
   };
 
   const sider_trigger_unique_id = uuid();
+  siderButtonText.parent = sider_trigger_unique_id;
 
   const siderTrigger = {
     _uid: sider_trigger_unique_id,
@@ -1430,18 +1511,17 @@ const createSider = async (state, document) => {
     name: "Sider Trigger",
     type: "inputs",
     layout: "button",
-    nodeValue: "Sider Button",
-    childNodes: [],
-    className: "sider-trigger",
-    selector: "." + className + " .sider-trigger",
+    nodeValue: "",
+    childNodes: [sider_trigger_text_unique_id],
+    className: "ac-sider-trigger",
+    selector: "." + className + " .ac-sider-trigger",
     onClick: {
       key: ["openSider"],
-      type: "Sider",
+      type: "Sider-" + wrraper_unique_id,
       value: "![key]",
     },
   };
 
-  const wrraper_unique_id = uuid();
   siderTrigger.parent = wrraper_unique_id;
   siderContent.parent = wrraper_unique_id;
   const childNodes = [sider_trigger_unique_id, sider_content_unique_id];
@@ -1465,9 +1545,11 @@ const createSider = async (state, document) => {
   let properties = {
     width: {
       value: "100%",
+      unit: "%",
     },
     height: {
       value: "100%",
+      unit: "%",
     },
     "background-color": {
       value: "#f2f2f2",
@@ -1482,6 +1564,8 @@ const createSider = async (state, document) => {
   await addCSS(document, properties, siderContent, state.page._id);
   await updateData(state.page._id, siderContent);
 
+  await addCSS(document, {}, siderButtonText, state.page._id);
+  await updateData(state.page._id, siderButtonText);
   properties = {
     margin: {
       value: "10px",
@@ -1491,7 +1575,6 @@ const createSider = async (state, document) => {
     },
   };
   await addCSS(document, properties, siderTrigger, state.page._id);
-
   await updateData(state.page._id, siderTrigger);
 
   properties = {
@@ -1517,11 +1600,12 @@ const createDropdownTrigger = async (state, document) => {
   const dropdownStates = { ...states["dropdown"] };
 
   // Generate a unique id for the dropdown
-  const dropdownId = nanoid(8);
+  const dropdownId = nanoid(4);
   const dropdownClassName = `ac-dropdown-${dropdownId}`;
 
   // Create unique id for the dropdown trigger
   const dropdownTriggerId = uuid();
+  const wrapperId = uuid();
 
   // Define the structure of the dropdown trigger
   const dropdownTrigger = {
@@ -1532,11 +1616,11 @@ const createDropdownTrigger = async (state, document) => {
     layout: "button",
     nodeValue: "Dropdown Button",
     childNodes: [],
-    className: "dropdown-trigger",
-    selector: `.${dropdownClassName} .dropdown-trigger`,
+    className: "ac-dropdown-trigger",
+    selector: `.${dropdownClassName} .ac-dropdown-trigger`,
     onClick: {
       key: ["openDropdown"],
-      type: "Dropdown",
+      type: "Dropdown-" + wrapperId,
       value: "![key]",
     },
   };
@@ -1545,11 +1629,11 @@ const createDropdownTrigger = async (state, document) => {
   const dropdownContent = await createDropDown(
     state,
     document,
-    dropdownClassName
+    dropdownClassName,
+    wrapperId
   );
 
   // Create unique id for the wrapper
-  const wrapperId = uuid();
   // Set parent of dropdown content and trigger
   dropdownContent.parent = wrapperId;
   dropdownTrigger.parent = wrapperId;
@@ -1621,7 +1705,12 @@ const createDropdownTrigger = async (state, document) => {
 };
 
 // Function to create a Dropdown Content
-const createDropDown = async (state, document, dropdownClassName) => {
+const createDropDown = async (
+  state,
+  document,
+  dropdownClassName,
+  wrapperId
+) => {
   const dropdownContentId = uuid();
 
   const dropDownContent = {
@@ -1633,8 +1722,8 @@ const createDropDown = async (state, document, dropdownClassName) => {
     nodeValue: "",
     childNodes: [],
 
-    className: "dropdown-content",
-    selector: `.${dropdownClassName} .dropdown-content`,
+    className: "ac-dropdown-content",
+    selector: `.${dropdownClassName} .ac-dropdown-content`,
   };
 
   // Define CSS properties for the dropdown content
@@ -1671,13 +1760,14 @@ const createDropDown = async (state, document, dropdownClassName) => {
   return dropDownContent;
 };
 
-export const createMenuItem = async (
+/* export const createMenuItem = async (
   tag,
   parentElemet,
   addToAbove,
   currentUid,
   pos,
-  state
+  state,
+  document
 ) => {
   const menus = parentElemet.menus || [];
 
@@ -1756,7 +1846,7 @@ export const createMenuItem = async (
 
         listItem.childNodes.push(list_link_unique_id);
         listItemLink.parent = listItem._uid;
-      }
+      } else
       listItemLink = await getData(state.page._id, listItem.childNodes[0]);
 
       listItemLink.nodeValue = element.title;
@@ -1773,7 +1863,114 @@ export const createMenuItem = async (
       };
     }
 
-    if (listItem.nestedMenuId) {
+
+    let dropdown = await getData(state.page._id, listItem.dropdownId);
+
+    if (element.dropdown) {
+      const componentStates = { ...states["dropdown"] };
+    
+      // Use logical OR to set default states
+      listItem = {
+        ...listItem,
+        states: listItem.states || componentStates,
+        type: "component",
+      };
+    
+      if (dropdown) {
+        // Ensure dropdown UID is added to childNodes only once
+        if (!listItem.childNodes.includes(dropdown._uid)) {
+          listItem.childNodes.push(dropdown._uid);
+        }
+    
+        // Set parent for listItemLink
+        listItemLink.parent = dropdown._uid;
+    
+        // Ensure listItemLink UID is added to dropdown's childNodes only once
+        if (!dropdown.childNodes.includes(listItemLink._uid)) {
+          dropdown.childNodes.push(listItemLink._uid);
+        }
+    
+        // Update dropdownId
+        listItem.dropdownId = dropdown._uid;
+
+        await updateData(state.page._id, dropdown);
+      } else {
+        // Create new dropdown wrapper
+        const dropdownWrapperUniqueId = uuid();
+        const randomId = nanoid(4);
+        const className = "ac-elem-" + randomId;
+    
+        const dropdownWrapper = {
+          _uid: dropdownWrapperUniqueId,
+          tagName: "div",
+          name: "DropDown Wrapper",
+          type: "layouts",
+          layout: "layout",
+          childNodes: [listItemLink._uid],
+          onClick: {
+            key: ["openDropdown"],
+            type: "Dropdown",
+            value: "![key]",
+          },
+          className: className,
+          selector: listItem.className + " ." + className,
+        };
+
+        allChilds = [...allChilds, ...dropdownWrapper.childNodes];
+
+    
+        const dropDownContent = await createDropDown(state, document, dropdownWrapper.className);
+    
+        dropDownContent.parent = dropdownWrapper._uid;
+        dropdownWrapper.childNodes.push(dropDownContent._uid);
+    
+        listItemLink.parent = dropdownWrapperUniqueId;
+    
+        // Update parent and child relationship
+        dropdownWrapper.parent = listItem._uid;
+        listItem.childNodes = [dropdownWrapperUniqueId];
+        listItem.dropdownId = dropdownWrapperUniqueId;
+
+        await addCSS(
+          document,
+          {},
+          dropdownWrapper,
+          state.page._id
+        );
+
+        await updateData(state.page._id, dropdownWrapper);
+
+
+
+      }
+    } else {
+      if (dropdown) {
+        // Set parent for listItemLink and manage childNodes
+        listItemLink.parent = listItem._uid;
+    
+        if (!listItem.childNodes.includes(listItemLink._uid)) {
+          listItem.childNodes.push(listItemLink._uid);
+        }
+    
+        dropdown.childNodes = dropdown.childNodes.filter(
+          (_uid) => _uid !== listItemLink._uid
+        );
+    
+        listItem.dropdownId = dropdown._uid;
+
+        await updateData(state.page._id, dropdown);
+      }
+    
+      // Remove 'type' property if it exists
+      delete listItem.type;
+      
+      // Remove dropdownId from childNodes
+      listItem.childNodes = listItem.childNodes.filter(
+        (_uid) => _uid !== listItem.dropdownId
+      );
+    }
+
+    /*  if (listItem.nestedMenuId) {
       let parent = await getData(state.page._id, listItem.nestedMenuId);
       const pageUpdated = await createMenuItem(
         {},
@@ -1793,7 +1990,7 @@ export const createMenuItem = async (
       listItemLink.onClick = {
         key: ["openDropdown"],
         type: "Dropdown",
-        value: "0",
+        value: "![key]",
       };
 
       const dropDownContent = await createDropDown(
@@ -1833,36 +2030,221 @@ export const createMenuItem = async (
       );
       if (pageUpdated)
         allChilds = [listItem._uid, ...allChilds, ...pageUpdated.newIds];
-    }
+    } */
 
-    await updateData(state.page._id, listItemLink);
+/* await updateData(state.page._id, listItemLink);
     await updateData(state.page._id, listItem);
+
     allChilds = [...allChilds, ...listItem.childNodes];
   }
 
-  for (let i = 0; i < deletedChilds.length; i++) {
-    let child = await getData(state.page._id, deletedChilds[i]);
+  const deletChild = async (uid) => {
+    let child = await getData(state.page._id, uid);
 
     if (child) {
       await deleteData(state.page._id, child._uid);
       await onDeleteElement(child, state.page._id);
+
+      if (child.dropdownId) {
+        await deletChild(child.dropdownId);
+      }
+    }
+
+    return child;
+  };
+
+  for (let i = 0; i < deletedChilds.length; i++) {
+    const child = deletChild(deletedChilds[i]);
+    if (child)
       parentElemet.childNodes = parentElemet.childNodes.filter(
         (_uid) => _uid !== child._uid
       );
-    }
   }
 
   await updateData(state.page._id, parentElemet);
 
   allChilds = [parentElemet._uid, ...allChilds];
 
-  const id = nanoid(8);
+  const id = nanoid(4);
 
   return {
     pos: pos,
     allUpdate: id,
     newIds: allChilds,
   };
+}; */
+
+export const createMenuItem = async (
+  tag,
+  parentElement,
+  addToAbove,
+  currentUid,
+  pos,
+  state,
+  document
+) => {
+  const menus = parentElement.menus || [];
+  let allChilds = [];
+  let deletedChilds = parentElement.childNodes || [];
+
+  for (const [i, element] of menus.entries()) {
+    const listItemUniqueId = uuid();
+    let listItem = await getData(state.page._id, element.childId);
+    deletedChilds = deletedChilds.filter((_uid) => _uid !== element.childId);
+    let listItemLink;
+    let dropdown;
+
+    const createListItemLink = () => {
+      const listLinkUniqueId = uuid();
+      return {
+        _uid: listLinkUniqueId,
+        tagName: "a",
+        name: `Menu Item Link ${i + 1}`,
+        type: "texts",
+        layout: "link",
+        className: "ac-menu-link",
+        selector: `${parentElement.selector} .ac-menu-link`,
+        nodeValue: element.title,
+        attributes: {
+          href: { key: "href", value: `'${element.link}'` },
+          target: { key: "target", value: `'${element.target}'` },
+        },
+        childNodes: [],
+        parent: listItemUniqueId,
+      };
+    };
+
+    if (!listItem) {
+      listItemLink = createListItemLink();
+
+      listItem = {
+        _uid: listItemUniqueId,
+        tagName: "li",
+        name: `Menu Item ${i + 1}`,
+        type: "texts",
+        layout: "text",
+        className: "ac-menu-item",
+        selector: `${parentElement.selector} .ac-menu-item`,
+        nodeValue: "",
+        childNodes: [listItemLink._uid],
+        parent: parentElement._uid,
+        listItemLink: listItemLink._uid,
+      };
+
+      parentElement.childNodes.push(listItemUniqueId);
+    } else {
+      if (!listItem.listItemLink) {
+        listItemLink = createListItemLink();
+        listItem.childNodes.push(listItemLink._uid);
+        listItemLink.parent = listItem._uid;
+        listItem.listItemLink = listItemLink._uid;
+      } else {
+        listItemLink = await getData(state.page._id, listItem.listItemLink);
+        listItemLink.nodeValue = element.title;
+        listItemLink.attributes = {
+          href: { key: "href", value: `'${element.link}'` },
+          target: { key: "target", value: `'${element.target}'` },
+        };
+      }
+    }
+
+    dropdown = await getData(state.page._id, listItem.dropdownId);
+
+    if (element.dropdown) {
+      const componentStates = { ...states["dropdown"] };
+      listItem = {
+        ...listItem,
+        states: listItem.states || componentStates,
+        type: "component",
+        cname: "Dropdown",
+      };
+
+      if (dropdown) {
+        listItem.childNodes = [dropdown._uid, dropdown.dropdownId];
+        dropdown.childNodes = [listItemLink._uid];
+
+        listItemLink.parent = dropdown._uid;
+
+        listItem.dropdownId = dropdown._uid;
+        dropdown.parent = listItem._uid;
+        await updateData(state.page._id, dropdown);
+      } else {
+        const dropdownWrapperUniqueId = uuid();
+        const randomId = nanoid(4);
+        const className = `ac-elem-${randomId}`;
+
+        const dropdownWrapper = {
+          _uid: dropdownWrapperUniqueId,
+          tagName: "div",
+          name: "DropDown Wrapper",
+          type: "layouts",
+          layout: "layout",
+          childNodes: [listItemLink._uid],
+          onClick: {
+            key: ["openDropdown"],
+            type: "Dropdown-" + listItem._uid,
+            value: "![key]",
+          },
+          className: className,
+          selector: `${parentElement.className} .${className}`,
+          parent: listItem._uid,
+        };
+        const dropDownContent = await createDropDown(
+          state,
+          document,
+          listItem.className
+        );
+
+        listItemLink.parent = dropdownWrapperUniqueId;
+
+        dropDownContent.parent = listItem._uid;
+        listItem.childNodes = [dropdownWrapperUniqueId, dropDownContent._uid];
+
+        listItem.dropdownId = dropdownWrapperUniqueId;
+        dropdownWrapper.dropdownId = dropDownContent._uid;
+
+        await addCSS(document, {}, dropdownWrapper, state.page._id);
+        await updateData(state.page._id, dropdownWrapper);
+      }
+    } else if (dropdown) {
+      dropdown.childNodes = [];
+      listItem.dropdownId = dropdown._uid;
+      await updateData(state.page._id, dropdown);
+      delete listItem.type;
+      delete listItem.cname;
+
+      listItemLink.parent = listItem._uid;
+      listItem.childNodes = [listItemLink._uid];
+    }
+
+    await updateData(state.page._id, listItemLink);
+    await updateData(state.page._id, listItem);
+
+    allChilds = [...allChilds, listItem._uid, ...listItem.childNodes];
+  }
+
+  const deleteChild = async (uid) => {
+    const child = await getData(state.page._id, uid);
+    if (child) {
+      await onDeleteElement(child, state.page._id);
+    }
+    return child;
+  };
+
+  for (const uid of deletedChilds) {
+    const child = await deleteChild(uid);
+    if (child) {
+      parentElement.childNodes = parentElement.childNodes.filter(
+        (_uid) => _uid !== child._uid
+      );
+    }
+  }
+
+  await updateData(state.page._id, parentElement);
+
+  allChilds = [parentElement._uid, ...allChilds];
+
+  return { pos, allUpdate: nanoid(4), newIds: allChilds };
 };
 
 // Function to create a GoToTop button
@@ -1871,7 +2253,7 @@ const createGoToTop = async (state, document) => {
   const componentStates = { ...states["gototop"] };
 
   // Generate a unique id for the button
-  const id = nanoid(8);
+  const id = nanoid(4);
   const className = "ac" + "-gototop-" + id;
 
   // Generate a unique id for the button
@@ -1899,7 +2281,7 @@ const createGoToTop = async (state, document) => {
     right: { value: "20px" },
     padding: { value: "20px" },
     border: { value: "none" },
-    "border-radius": { value: "50%" },
+    "border-radius": { value: "50%", unit: "%" },
     "background-color": { value: "#333" },
     color: { value: "#fff" },
     "font-size": { value: "16px" },
@@ -1923,7 +2305,7 @@ const createObservable = async (state, document) => {
   const componentStates = { ...states["observable"] };
 
   // Generate a unique id for the component
-  const id = nanoid(8);
+  const id = nanoid(4);
   const className = "ac" + "-observable-" + id;
 
   // Generate a unique id for the component
@@ -2002,6 +2384,8 @@ const states = {
     activeItem: { key: "activeItem", defaultValue: null, type: "node" },
   },
   tabs: {
+    duration: { key: "duration", defaultValue: 300, type: "number" },
+
     items: {
       key: "items",
       defaultValue: "0",
@@ -2011,6 +2395,8 @@ const states = {
     },
   },
   accordion: {
+    duration: { key: "duration", defaultValue: 300, type: "number" },
+
     items: {
       key: "items",
       defaultValue: "0",
@@ -2027,16 +2413,8 @@ const states = {
       text: "Gallery Item",
       type: "array",
     },
-    openModal: { key: "openModal", defaultValue: 0, type: "boolean" },
     activeItem: { key: "activeItem", defaultValue: null, type: "node" },
     modal: { key: "modal", defaultValue: false, type: "boolean" },
-    type: {
-      key: "type",
-      defaultValue: "fade",
-      type: "dropdown",
-      values: ["fade"],
-    },
-    duration: { key: "duration", defaultValue: 300, type: "number" },
   },
   modal: {
     openModal: { key: "openModal", defaultValue: "close", type: "text" },
@@ -2059,7 +2437,7 @@ const states = {
       values: ["fade", "expandRight", "expandBottom"],
     },
     expandable: { key: "expandable", defaultValue: 0, type: "boolean" },
-    intialValue: { key: "intialValue", defaultValue: "200px", type: "text" },
+    initialValue: { key: "initialValue", defaultValue: "200px", type: "text" },
     expandValue: { key: "expandValue", defaultValue: "400px", type: "text" },
     openSide: {
       key: "openSide",
@@ -2072,14 +2450,15 @@ const states = {
     duration: { key: "duration", defaultValue: 300, type: "number" },
   },
   sider: {
-    openSider: { key: "openSider", defaultValue: 0, type: "boolean" },
+    openSider: { key: "openSider", defaultValue: false, type: "boolean" },
+    siderStatus: { key: "siderStatus", defaultValue: "close", type: "text" },
     type: {
       key: "type",
       defaultValue: "expandRight",
       type: "dropdown",
       values: ["expandRight", "expandBottom"],
     },
-    intialValue: { key: "intialValue", defaultValue: "200px", type: "text" },
+    initialValue: { key: "initialValue", defaultValue: "200px", type: "text" },
     expandValue: { key: "expandValue", defaultValue: "400px", type: "text" },
     duration: { key: "duration", defaultValue: 300, type: "number" },
   },

@@ -41,8 +41,11 @@ const TreeNode = (props) => {
   }, [fetchNode]);
 
   useEffect(() => {
+
+
     const checkIds = Array.isArray(pageUpdated.newIds) && pageUpdated.newIds.includes(_uid);
     if (!checkIds && pageUpdated.parentId !== _uid && pageUpdated?.currentId !== _uid) return;
+
 
     fetchNode();
   }, [pageUpdated, fetchNode]);
@@ -158,7 +161,7 @@ export default function Elements({ pageUpdated, _id, pageType, onUpdateStates })
         },
       ];
 
-      //onUpdateStates('PAGESTATES', pageStates, null);
+      onUpdateStates('PAGESTATES', pageStates, null);
 
       const res = await SettingServices.get();
       const data = {

@@ -23,7 +23,7 @@ export default function BreakPoints({ windowWidth, setWindowWidth, minMax, setMi
             if (!minMax) setMinMax('min');
 
             // Set orientation based on value
-            setOrientation(value <= 768 ? 'portrait' : 'landscape');
+            setOrientation(value < 768 ? 'portrait' : 'landscape');
         }
 
         // Update window width

@@ -27,7 +27,13 @@ function SearchableSelector({ state, onSelect, animation = false, isConverted = 
         const res = await getAllData(state.page._id, STYLE_STORE_NAME);
         const data = res?.elements ? res.elements : {};
         const filteredElements = Object.values(data)
-            .filter((element) => element.type === state.elementType);
+            .filter((element) => {
+                const type = element.type === state.elementType 
+                const isName = state.node?.selectors?.some(s => s.selector === element.selectorText) || false;
+                return type || isName || state.node?.selector === element.selectorText;
+            }
+            
+            );
         setSelectors(filteredElements);
     };
 
@@ -44,7 +50,7 @@ function SearchableSelector({ state, onSelect, animation = false, isConverted = 
         return () => {
             setSelectors([]);
         };
-    }, [state.elementType, state.page, state.selectorDeleted, animation, isConverted]);
+    }, [state.elementType, state.node?.selectors, state.page, state.selectorDeleted, animation, isConverted]);
 
     useEffect(() => {
         if (!state.selectorDeleted) return;

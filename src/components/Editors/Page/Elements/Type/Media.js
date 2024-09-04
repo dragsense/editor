@@ -46,7 +46,7 @@ const Media = (props) => {
 
     // useCallback to avoid unnecessary re-renders and improve performance
     const InputsElement = useCallback(() => (
-        <div data-id={_uid} data-pos={pos} draggable={false} style={{
+        <div data-id={_uid} data-pos={pos}  draggable={false} style={{
             border: '10px solid transparent',
             outline: '1px dashed #bdbdbd',
             cursor: 'pointer',

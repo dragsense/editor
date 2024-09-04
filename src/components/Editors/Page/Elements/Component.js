@@ -434,7 +434,7 @@ const Component = (props) => {
   // Use useEffect to call handleLoadComponent on component mount
   useEffect(() => {
     loadComponent();
-  }, []);
+  }, [_id]);
 
   // Use useEffect to call handleLoadDocuments when states, _states, filters, isFilterChange, or colStates change
   useEffect(() => {

@@ -1,13 +1,14 @@
 import React, { useMemo } from 'react';
 
 // Function to create custom attributes for the element
-const createCustomAttributes = ({ _uid, pos, name, onMouseMove, onClick }) => ({
+const createCustomAttributes = ({ _uid, pos, layout, name, onMouseMove, onClick }) => ({
     onMouseMove: onMouseMove,
     onClick: onClick,
     key:_uid,
     "data-id": _uid,
     "data-pos": pos,
     "data-name": name,
+    "data-layout": layout,
     "draggable": false,
 });
 
@@ -18,10 +19,10 @@ const createDisabledStyles = () => ({
 });
 
 const CloseTag = (props) => {
-    const { _uid, pos, name, children, conds, onMouseMove, onClick, disabled } = props;
+    const { _uid, pos, name, layout, children, conds, onMouseMove, onClick, disabled } = props;
 
     // useMemo to optimize performance by memoizing the output of createCustomAttributes and createDisabledStyles
-    const customAttributes = useMemo(() => createCustomAttributes({ _uid, pos, name, onMouseMove, onClick }), [_uid, pos, name, onMouseMove, onClick]);
+    const customAttributes = useMemo(() => createCustomAttributes({ _uid, pos, layout, name, onMouseMove, onClick }), [_uid, pos, name, onMouseMove, onClick]);
     const disabledStyles = useMemo(createDisabledStyles, []);
 
     // Clone the children element with custom attributes

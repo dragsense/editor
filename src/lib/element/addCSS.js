@@ -80,6 +80,8 @@ const createCSS = async (document, properties, newElement, pageId) => {
 
     // Update the page's style data.
     await updateData(pageId, style, STYLE_STORE_NAME);
+
+    return
 };
 
 export default addCSS;

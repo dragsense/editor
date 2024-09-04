@@ -1,40 +1,31 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
-
-
 const Observable = (props) => {
     const { children, states, node, updateStates } = props;
     const ref = useRef();
 
-    const [vValue, setVisibleValue] = useState('')
-    const [sTValue, setScrollTopValue] = useState('')
-    const [sLValue, setScrollLeftValue] = useState('')
-
-    const [vTValue, setVisibleTopValue] = useState(0)
+    const [vValue, setVisibleValue] = useState('');
+    const [sTValue, setScrollTopValue] = useState('');
+    const [sLValue, setScrollLeftValue] = useState('');
+    const [vTValue, setVisibleTopValue] = useState(0);
 
     // Function to get default value from states
     const getDefaultValue = (states, key, defaultValue) => states[key] ? states[key].defaultValue : defaultValue;
 
     const tagName = getDefaultValue(states, 'tagName', 'div');
-
     const onScroll = getDefaultValue(states, 'onScroll', false);
     const scrollTop = getDefaultValue(states, 'scrollTop', 50);
     const scrollLeft = getDefaultValue(states, 'scrollLeft', 50);
-    const scrollTopValue = getDefaultValue(states, 'scrollTopValue', "");
-    const scrollLeftValue = getDefaultValue(states, 'scrollLeftValue', "");
-
-
+    const scrollTopValue = getDefaultValue(states, 'scrollTopValue', '');
+    const scrollLeftValue = getDefaultValue(states, 'scrollLeftValue', '');
     const onVisible = getDefaultValue(states, 'onVisible', false);
     const calculateVisibility = getDefaultValue(states, 'calculateVisibility', false);
-
     const oneTime = getDefaultValue(states, 'oneTime', false);
-    const threshold = getDefaultValue(states, 'threshold', 10 / 100);
-    const visibleValue = getDefaultValue(states, 'visibleValue', "");
-    const inVisibleValue = getDefaultValue(states, 'inVisibleValue', "");
+    const threshold = getDefaultValue(states, 'threshold', 0.1);
+    const visibleValue = getDefaultValue(states, 'visibleValue', '');
+    const inVisibleValue = getDefaultValue(states, 'inVisibleValue', '');
 
-
-    // Function to handle scroll event
-    const handleScroll = () => {
+    const handleScroll = useCallback(() => {
         if (onScroll) {
             const iframe = document.querySelector("#ac-editor-iframe-doc");
             if (iframe) {
@@ -42,143 +33,118 @@ const Observable = (props) => {
                 const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
                 const top = iframeWindow.pageYOffset || iframeDocument.documentElement.scrollTop;
                 const left = iframeWindow.pageXOffset || iframeDocument.documentElement.scrollLeft;
-                if (top > scrollTop)
-                    setScrollTopValue(scrollTopValue)
-                else
-                    setScrollTopValue('')
-                if (left > scrollLeft)
-                    setScrollLeftValue(scrollLeftValue)
-                else
-                    setScrollLeftValue('')
+                setScrollTopValue(top > scrollTop ? scrollTopValue : '');
+                setScrollLeftValue(left > scrollLeft ? scrollLeftValue : '');
             }
         }
-    };
+    }, [onScroll, scrollTop, scrollLeft, scrollTopValue, scrollLeftValue]);
 
     useEffect(() => {
-
         if (onScroll) {
-
             const iframe = document.querySelector("#ac-editor-iframe-doc");
-
             if (iframe) {
                 const iframeWindow = iframe.contentWindow;
                 iframeWindow.addEventListener('scroll', handleScroll);
+                return () => iframeWindow.removeEventListener('scroll', handleScroll);
             }
         }
+    }, [handleScroll, onScroll]);
 
-        return () => {
-            if (onScroll) {
-                const iframe = document.querySelector("#ac-editor-iframe-doc");
-                if (iframe) {
-                    const iframeWindow = iframe.contentWindow;
-                    iframeWindow.removeEventListener('scroll', handleScroll);
-                }
-            }
-        };
-    }, [onScroll, scrollLeft, scrollTop, scrollTopValue, scrollLeftValue]);
+    const observerRef = useRef(null);
 
-    let observer;
-
-    // Function to handle visibility
-    const handleVisibility = () => {
+    const handleVisibility = useCallback(() => {
         if (ref.current && onVisible) {
-            observer = new IntersectionObserver(function (entries) {
-                entries.forEach(function (entry) {
-                    if (entry.isIntersecting && entry.intersectionRatio >= threshold) {
-                        setVisibleValue(visibleValue);
-                        if (oneTime) {
-                            observer.disconnect();
-                            return;
+            if (observerRef.current) {
+                observerRef.current.disconnect();
+            }
+
+            observerRef.current = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting && entry.intersectionRatio >= threshold) {
+                            setVisibleValue(visibleValue);
+                            if (oneTime) {
+                                observerRef.current.disconnect();
+                            }
+                        } else {
+                            setVisibleValue(inVisibleValue);
                         }
-                    } else {
-                        setVisibleValue(inVisibleValue);
-                    }
-                });
-            }, { threshold: threshold });
-            observer.observe(ref.current);
+                    });
+                },
+                { threshold }
+            );
+
+            observerRef.current.observe(ref.current);
         }
+    }, [onVisible, threshold, visibleValue, inVisibleValue, oneTime]);
+
+    useEffect(() => {
+        handleVisibility();
         return () => {
-            if (onVisible) {
-                observer.disconnect();
+            if (observerRef.current) {
+                observerRef.current.disconnect();
             }
         };
-    };
-    useEffect(() => handleVisibility, [
-        visibleValue,
-        inVisibleValue,
-        onVisible,
-        threshold,
-        ref.current,
-        oneTime]);
-
+    }, [handleVisibility]);
 
     const calculateElementTopVisibility = useCallback(() => {
         if (ref.current) {
             const iframe = document.querySelector("#ac-editor-iframe-doc");
             if (iframe) {
-                const iframeWindow = iframe.contentWindow;
                 const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-                const scrollTop = iframeWindow.pageYOffset || iframeDocument.documentElement.scrollTop;
-
-                const viewportHeight = iframeWindow.innerHeight;
+                const iframeWindow = iframe.contentWindow;
+    
                 const rect = ref.current.getBoundingClientRect();
-                // Vertical visibility
-                const elementTop = rect.top + scrollTop;
-                const elementBottom = rect.bottom + scrollTop;
-
-                const visibleTop = Math.max(elementTop, scrollTop);
-                const visibleBottom = Math.min(elementBottom, scrollTop + viewportHeight);
-
-                let visibleHeight = visibleBottom - visibleTop;
-                visibleHeight = Math.max(visibleHeight, 0);
-
+    
+                // The viewport's dimensions relative to the iframe
+                const viewportHeight = iframeWindow.innerHeight;
+                const viewportTop = iframeWindow.scrollY || iframeDocument.documentElement.scrollTop;  // Top of the iframe viewport
+                const viewportBottom = viewportTop + viewportHeight;  // Bottom of the iframe viewport
+    
+                // Element's top and bottom relative to the iframe's viewport
+                const elementTop = rect.top + viewportTop;
+                const elementBottom = rect.bottom + viewportTop;
+    
+                // Determine the visible part of the element
+                const visibleTop = Math.max(viewportTop, elementTop);
+                const visibleBottom = Math.min(viewportBottom, elementBottom);
+                const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+    
+                // Calculate the percentage of the element's height that is visible
                 const elementHeight = rect.height;
+                console.log(elementHeight, visibleHeight)
                 const visiblePercentageVertical = (visibleHeight / elementHeight) * 100;
-
-
-                // Assuming onScrollDiffer is a callback prop to parent component
+    
                 setVisibleTopValue(visiblePercentageVertical);
             }
         }
     }, []);
-
-
+    
 
     useEffect(() => {
-
         if (calculateVisibility) {
             const iframe = document.querySelector("#ac-editor-iframe-doc");
             if (iframe) {
                 const iframeWindow = iframe.contentWindow;
                 iframeWindow.addEventListener('scroll', calculateElementTopVisibility);
+                return () => iframeWindow.removeEventListener('scroll', calculateElementTopVisibility);
             }
         }
-        return () => {
-            if (calculateVisibility) {
-                const iframe = document.querySelector("#ac-editor-iframe-doc");
-                if (iframe) {
-                    const iframeWindow = iframe.contentWindow;
-                    iframeWindow.removeEventListener('scroll', calculateElementTopVisibility);
-                }
-            }
-        };
-    }, [calculateVisibility, ref.current]);
-
-
+    }, [calculateVisibility, calculateElementTopVisibility]);
 
     useEffect(() => {
         updateStates('updatedVisibleValue', vValue);
     }, [vValue]);
 
     useEffect(() => {
-        updateStates('upatedTopValue', sTValue);
+        updateStates('updatedTopValue', sTValue);
     }, [sTValue]);
 
     useEffect(() => {
-        updateStates('upatedLeftValue', sLValue);
+        updateStates('updatedLeftValue', sLValue);
     }, [sLValue]);
 
-    const deAttach = () => {
+    const deAttach = useCallback(() => {
         if (oneTime) {
             const iframe = document.querySelector("#ac-editor-iframe-doc");
             if (iframe) {
@@ -186,30 +152,16 @@ const Observable = (props) => {
                 iframeWindow.removeEventListener('scroll', calculateElementTopVisibility);
             }
         }
-    }
-
-    useEffect(() => {
-
-        if (calculateVisibility && !oneTime) {
-            const iframe = document.querySelector("#ac-editor-iframe-doc");
-            if (iframe) {
-                const iframeWindow = iframe.contentWindow;
-                iframeWindow.addEventListener('scroll', calculateElementTopVisibility);
-            }
-        }
-
-    }, [oneTime])
+    }, [oneTime, calculateElementTopVisibility]);
 
     useEffect(() => {
         if (vTValue) {
             updateStates('visibleY', vTValue);
-            if (vTValue >= 100)
-                deAttach();
+            if (vTValue >= 100) deAttach();
         }
-
     }, [vTValue, oneTime]);
 
-    return React.createElement(tagName, { ref }, children)
+    return React.createElement(tagName, { ref }, children);
 };
 
 export default Observable;

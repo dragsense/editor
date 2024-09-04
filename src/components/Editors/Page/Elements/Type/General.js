@@ -1,7 +1,7 @@
 import React, { Children, useMemo, useCallback } from 'react';
 
 // Function to create custom attributes for the element
-const createCustomAttributes = (_uid, pos, onMouseMove, name, onClick, onScroll,  onMouseEnter, onMouseLeave, conds, disabledStyles) => {
+const createCustomAttributes = (_uid, pos, layout, onMouseMove, name, onClick, onScroll,  onMouseEnter, onMouseLeave, conds, disabledStyles) => {
     return {
         onMouseMove,
         onScroll,
@@ -18,6 +18,8 @@ const createCustomAttributes = (_uid, pos, onMouseMove, name, onClick, onScroll,
         "data-name": name,
         "data-id": _uid,
         "data-pos": pos,
+        "data-layout": layout,
+
         "draggable": false,
         style: conds ? {} : disabledStyles
     }
@@ -45,7 +47,7 @@ const createDisbaledAttributes = (_uid, pos, onMouseMove, name, onClick, onScrol
 }
 
 
-const General = ({ _uid, conds, disabled, onMouseMove, onClick, onScroll, onMouseEnter,
+const General = ({ _uid, conds, layout, disabled, onMouseMove, onClick, onScroll, onMouseEnter,
     onMouseExit, name, innerWraaper, value, children, pos }) => {
 
     // Styles to be applied when the element is disabled
@@ -55,25 +57,26 @@ const General = ({ _uid, conds, disabled, onMouseMove, onClick, onScroll, onMous
     }), []);
 
     // Create custom attributes for the element
-    const customAttributes = createCustomAttributes(_uid, pos, onMouseMove, name, onClick, onScroll, onMouseEnter, onMouseExit, conds, disabledStyles);
+    const customAttributes = createCustomAttributes(_uid, pos, layout, onMouseMove, name, onClick, onScroll, onMouseEnter, onMouseExit, conds, disabledStyles);
 
     // Create span element based on the innerWrapper
     const spanElement = useMemo(() => {
-        return (value || innerWraaper?.length > 0) ?  (<>
-            {React.isValidElement(value) ? value : <div
+        return (value || innerWraaper?.length > 0) ?  (<> {_uid !== '0'  ? 
+            React.isValidElement(value) ? value : <div
                 dangerouslySetInnerHTML={{ __html: value }}
                 data-child={`child-${_uid}`}
                 style={{
                     display: 'inline',
                     cursor: 'text',
                 }}
-            />}
+            /> : null}
             {innerWraaper}</>
         ) : <span style={{ userSelect: 'none', color: "#cccccc" }}>add content here</span>;
     }, [innerWraaper, value, _uid, name]);
 
     // Clone the element with custom attributes and span element
-    const clonedElement = useMemo(() => React.cloneElement(children, { customAttributes }, spanElement), [children, customAttributes, spanElement]);
+    const clonedElement = useMemo(() => React.cloneElement(children, { customAttributes }, 
+        spanElement), [children, customAttributes, spanElement]);
 
     // Create disabled child based on the innerWrapper
     const disabledChild = useMemo(() => {

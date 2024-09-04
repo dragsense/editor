@@ -47,7 +47,7 @@ function AddElement({ onAddElement, currentElement, setCurrentElement }) {
     const onSelect = (tag, elements = []) => {
         setElements(elements);
         setTag(tag);
-
+        console.log(tag);
     }
 
     const [open, setOpen] = useState(false);
@@ -69,7 +69,7 @@ function AddElement({ onAddElement, currentElement, setCurrentElement }) {
 
     const showModal = async () => {
         if (['list', 'ul', 'ol'].includes(currentElement.layout.toLowerCase())) {
-            await onAddElement({ tag: 'li' }, false, currentElement);
+            await onAddElement({ tag: 'li', type: 'texts', layout: "text" }, false, currentElement);
             onCancel();
         } else {
             setOpen(true);
@@ -84,6 +84,7 @@ function AddElement({ onAddElement, currentElement, setCurrentElement }) {
     };
 
     const onAdd = async (e) => {
+        
         let status = await handleAddElement(tag, false, currentElement, onAddElement, elements);
         onCancel();
         

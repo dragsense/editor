@@ -13,7 +13,7 @@ const Component = ({ states, onSave, skippedProperties }) => {
 
   // Effect to set the property values when states change
   useEffect(() => {
-    setPropertyValues(states);
+    setPropertyValues({...states});
   }, [states])
 
   // Function to handle changes in the property values

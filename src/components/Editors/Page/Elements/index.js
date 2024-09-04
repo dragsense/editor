@@ -13,7 +13,7 @@ export default function Page({ page, pageType, pageUpdated, onUpdateStates, load
             onUpdateStates={onUpdateStates}
             pageUpdated={pageUpdated}
             loading={loading} /> : <InlineSkeleton />
-    }, [page, pageUpdated]);
+    }, [page, pageType, pageUpdated]);
 
     return <>
         {memoizedPage}

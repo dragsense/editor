@@ -140,14 +140,18 @@ const ElementSetting = (props) => {
 
     // Handle 'FORMSTATES' type
     const handleFormStatesType = (key) => {
-        if (_states && _states[key[0]]) return _states[key[0]][key[1]] || "''"
-
-        
+        if (_states && _states[key[0]]) {
+            const val = _states[key[0]][key[1]];
+            return val !== undefined ? val :  "''";
+        }
     };
 
     // Handle default type
     const handleDefaultType = (type, key) => {
-        const types = ['Menu', 'Flex', 'Tabs', 'Accordion', 'Sider', 'Grid', 'Container', 'Slider', 'Gallery', 'Dropdown', 'Observable', 'Modal', 'GoToTop'];
+        
+        const cstateId = _cstates?._uid;
+        let types = ['Menu', 'Flex', 'Tabs', 'Accordion', 'Sider', 'Grid', 'Container', 'Slider', 'Gallery', 'Dropdown', 'Observable', 'Modal', 'GoToTop'];
+        types = types.map(t => t+ "-" +cstateId);
         if (types.includes(type)) {
             return getStateValue(key, _cstates);
         }
@@ -165,6 +169,7 @@ const ElementSetting = (props) => {
     const evaluateCondition = (expression, v, keyValue) => {
         let original = expression.replace(/\[state]/g, v);
         original = original.replace(/\[key]/g, keyValue);
+
         try {
             return eval(original);
         } catch (e) {
@@ -183,6 +188,7 @@ const ElementSetting = (props) => {
         if (!conditions || !node._uid) return true;
         return Object.values(conditions).reduce((prev, condition) => {
             const value = getValue(condition);
+
             const keyValue = value?.value !== undefined ? value.value : value;
             const stateValue = getValue(condition.valueState, '');
             const v = stateValue?.value !== undefined ? stateValue.value : stateValue;
@@ -295,23 +301,23 @@ const ElementSetting = (props) => {
     // Function to replace placeholders in the node value with their corresponding values
     const replacePlaceholders = (inputString) => {
         let resultString = inputString;
-        // let match;
-        // try {
-        //     while ((match = resultString.match(pattern))) {
-        //         const matchedText = match[0];
-        //         const keysString = matchedText.substring(2, matchedText.length - 2);
-        //         const keys = keysString.split('/');
-        //         const modifiedKey = [...keys];
-        //         modifiedKey.shift();
-        //         const elem = { type: keys[0], key: modifiedKey };
-        //         let value = getValue(elem, '');
-        //         value = value?.value || value || '';
-        //         const replacementValue = '[' + value + ']';
-        //         resultString = resultString.replace(matchedText, replacementValue);
-        //     }
-        // } catch (e) {
-        //     console.error(e);
-        // }
+        let match;
+        try {
+            while ((match = resultString.match(pattern))) {
+                const matchedText = match[0];
+                const keysString = matchedText.substring(2, matchedText.length - 2);
+                const keys = keysString.split('/');
+                const modifiedKey = [...keys];
+                modifiedKey.shift();
+                const elem = { type: keys[0], key: modifiedKey };
+                let value = getValue(elem, '');
+                value = value?.value || value || '';
+                const replacementValue = '[' + value + ']';
+                resultString = resultString.replace(matchedText, replacementValue);
+            }
+        } catch (e) {
+            console.error(e);
+        }
         return resultString;
     };
 
@@ -320,7 +326,7 @@ const ElementSetting = (props) => {
         
         if (!node.nodeValue) return '';
         const inputString = node.nodeValue;
-        return replacePlaceholders(inputString);
+        return node.isStateActive === true ? replacePlaceholders(inputString) : inputString;
     }, [colStates, _cstates, _states, _props, mapIndex, mapValue, node.nodeValue, setting?.resize]);
 
     // useMemo to calculate fallback image only when setting changes

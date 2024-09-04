@@ -17,7 +17,7 @@ import { TagOutlined } from '@ant-design/icons';
 
 const { Sider } = Layout;
 const { Panel } = Collapse;
-const menuKeys = ['pages', 'tags', 'components', 'collections', 'forms', 'elements', 'html'];
+const menuKeys = ['pages','layouts', 'tags', 'components', 'collections', 'forms', 'elements', 'html'];
 
 // Initial state for the reducer
 const initial = {
@@ -65,6 +65,7 @@ const EditorLeftSideBar = ({ }) => {
     const [keys, setKeys] = useState(menuKeys);
     const { onEdit, state } = usePageStates();
     const [elementState, dispatch] = useReducer(reducer, initial);
+    const [selectedTagType, setSelectedTagType] = useState("");
 
     // Effect to handle initial setup
     useEffect(() => {
@@ -90,10 +91,12 @@ const EditorLeftSideBar = ({ }) => {
     const handleSubMenuOpenChange = (keys) => {
         setOpenKeys(keys.slice(-1));
         setKeys(keys.length > 0 ? [keys[keys.length - 1]] : menuKeys);
+
+        setSelectedTagType("")
     };
 
     return (
-        <Sider width={200} collapsible collapsed={collapsed}  onCollapse={toggleCollapsed}>
+        <Sider width={220} collapsible collapsed={collapsed}  onCollapse={toggleCollapsed}>
             <Menu
                 mode="inline"
                 selectedKeys={selectedKeys}
@@ -105,6 +108,11 @@ const EditorLeftSideBar = ({ }) => {
                 {(keys.includes('pages') || collapsed) && (
                     <Menu.SubMenu icon={<MdFileCopy size="1.5em" />} key="pages" title="Pages">
                         <PageComponent type={'page'} page={state.page} onEdit={onEditPage} />
+                    </Menu.SubMenu>
+                )}
+                 {(keys.includes('layouts') || collapsed)&& (
+                    <Menu.SubMenu icon={<FaRegEdit size="1.5em" />} key="layouts" title="Layouts">
+                        <PageComponent type={'layout'} page={state.page} onEdit={onEditPage} />
                     </Menu.SubMenu>
                 )}
                 {(keys.includes('components') || collapsed) && (
@@ -125,8 +133,8 @@ const EditorLeftSideBar = ({ }) => {
                 {(keys.includes('tags')|| collapsed) && (
                     <Menu.SubMenu icon={<BsCodeSlash size="1.5em" />}
                         key="tags"
-                        title="Tags">
-                        <TagComponent gridStyle={{  textAlign: 'center' }} />
+                        title={`Tags ${selectedTagType && `(${selectedTagType})`}`}>
+                        <TagComponent setSelectedTagType={setSelectedTagType} width={220} gridStyle={{  textAlign: 'center' }} />
                     </Menu.SubMenu>)
                 }
                 {/* {(keys.includes('elements')|| collapsed) && (

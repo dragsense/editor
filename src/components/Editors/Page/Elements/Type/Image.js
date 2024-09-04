@@ -9,7 +9,7 @@ const createImageObject = (value) => {
 }
 
 // Function to create custom attributes for image element
-const createCustomAttributes = (_uid, pos, name, onMouseMove, onClick,  onMouseEnter, onMouseLeave, image, conds, disabledStyles) => {
+const createCustomAttributes = (_uid, pos, layout, name, onMouseMove, onClick,  onMouseEnter, onMouseLeave, image, conds, disabledStyles) => {
     return {
         onMouseMove: onMouseMove,
         onClick: onClick,
@@ -19,6 +19,8 @@ const createCustomAttributes = (_uid, pos, name, onMouseMove, onClick,  onMouseE
         "data-id": _uid,
         "data-pos": pos,
         "data-name": name,
+        "data-layout": layout,
+
         "draggable": false,
         style: conds ? {} : disabledStyles
     }
@@ -38,7 +40,7 @@ const createDisbaledAttributes = (_uid, pos, name, onMouseMove, onClick,  onMous
 }
 
 const Image = (props) => {
-    const { _uid, pos, conds, onMouseMove, onMouseEnter, onMouseExit, onClick, value, name, children, disabled } = props;
+    const { _uid, pos, conds, layout, onMouseMove, onMouseEnter, onMouseExit, onClick, value, name, children, disabled } = props;
 
     // Styles for disabled image
     const disabledStyles = useMemo(() => ({
@@ -50,7 +52,7 @@ const Image = (props) => {
     const image = useMemo(() => createImageObject(value), [value]);
    
     // Create custom attributes for image element
-    const customAttributes = useMemo(() => createCustomAttributes(_uid, pos, name, onMouseMove, onClick,  onMouseEnter, onMouseExit, image, conds, disabledStyles), [_uid, pos, name, onMouseMove, onClick, image, conds, disabledStyles]);
+    const customAttributes = useMemo(() => createCustomAttributes(_uid, pos, layout, name, onMouseMove, onClick,  onMouseEnter, onMouseExit, image, conds, disabledStyles), [_uid, pos, name, onMouseMove, onClick, image, conds, disabledStyles]);
 
     // Clone children and add custom attributes
     const ImageElement = useMemo(() => React.cloneElement(children, { customAttributes }), [children, customAttributes]);

@@ -54,7 +54,7 @@ const initial = {
 };
 
 // Reducer function to handle state changes
-// Reducer function to handle state changes
+// Reducer function to handle state changes 
 const reducer = (state, action) => {
   // Using a lookup object for better performance
   const actions = {
@@ -65,7 +65,7 @@ const reducer = (state, action) => {
       ...state,
       page: action.page,
       type: action.pageType,
-      states: {},
+      states: {}, 
       isChange: false,
     }),
     updatePage: () => ({
@@ -352,12 +352,26 @@ export const onDeleteElement = async (currentElement, _id) => {
         if (child) {
           // Recursively delete the child element and its child elements
           await onDeleteElement(child, _id);
+
+          if (child.dropdownId) {
+            await onDeleteDropdown(child.dropdownId, _id);
+          }
         }
       })
     );
   }
   // Delete the current element
   await deleteElement(currentElement, _id);
+};
+
+export const onDeleteDropdown = async (_uid, _id) => {
+  const child = await getData(_id, _uid);
+  if (child) {
+    await onDeleteElement(child, _id);
+    if (child.dropdownId) {
+      await onDeleteDropdown(child.dropdownId, _id);
+    }
+  }
 };
 
 export default function PageManger({ children }) {
@@ -533,7 +547,6 @@ export default function PageManger({ children }) {
       if (!page || !type) {
         throw new Error("Page or Type not selected!");
       }
-
       // Dispatch an 'edit' action with the selected page and page type to update the state.
       dispatch({ type: "edit", page: page, pageType: type });
 
@@ -621,6 +634,7 @@ export default function PageManger({ children }) {
       const orignal = await getData(state.page._id, updatedElement._uid);
 
       // Update the element data in the database
+
       await updateData(state.page._id, {
         ...updatedElement,
         updateHTML: undefined,
@@ -1687,17 +1701,17 @@ export default function PageManger({ children }) {
 
           onOk: async () => {
             try {
-              if(state.isChange) {
-              if (state.node) {
-                await updateValue(state.node, false);
-              }
+              if (state.isChange) {
+                if (state.node) {
+                  await updateValue(state.node, false);
+                }
 
-              if (state.selector && state.isStyleChange) {
-                await onUpdateSelector(state.selector, false);
-              }
+                if (state.selector && state.isStyleChange) {
+                  await onUpdateSelector(state.selector, false);
+                }
 
-              await savePage(page, type, dispatch);
-            }
+                await savePage(page, type, dispatch);
+              }
               await publishPage(page, type, dispatch);
 
               dispatch({ type: "savePage" });
@@ -2368,8 +2382,8 @@ export default function PageManger({ children }) {
     async (style = false) => {
       // If style is true, update the element with style
       // Else, update the element with the current style change state
-      if (style) dispatch({ type: "updateElement", style });
-      else dispatch({ type: "updateElement", style: state.isStyleChange });
+      if (style) dispatch({ type: "updateElement", style, isChange: true });
+      else dispatch({ type: "updateElement", style: state.isStyleChange, isChange: true });
     },
     [state.isStyleChange]
   );

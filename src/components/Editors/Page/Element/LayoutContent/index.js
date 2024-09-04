@@ -14,7 +14,7 @@ function LayoutContent({ children, state, onUpdate }) {
   const menuLayout = <>
       <h4 style={{ textAlign: 'center' }}>Menu</h4>
       <Divider></Divider>
-      <Menu onSave={(menus) => onUpdate("menu", menus)} node={state.node} pages={[]}>{children}</Menu>
+      <Menu onSave={(menus) => onUpdate("menu-list", menus)} node={state.node} pages={[]}>{children}</Menu>
     </>
   
 
@@ -32,7 +32,7 @@ function LayoutContent({ children, state, onUpdate }) {
 
 
   // Render based on the layout type
-  return layout === 'menu' ? menuLayout :
+  return layout === 'menu-list' ? menuLayout :
     layout === 'component' || type === 'component' ? componentLayout :
        <span>Please Select the component</span>
 

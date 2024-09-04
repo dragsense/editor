@@ -65,6 +65,30 @@ const ElementValue = (props) => {
     } else if (key[0] === "WINDOW") return handleWindowType(key);
   };
 
+  const handleDefaultType = (type, key, value) => {
+    const cstateId = _cstates?._uid;
+    let types = [
+      "Menu",
+      "Flex",
+      "Tabs",
+      "Accordion",
+      "Sider",
+      "Grid",
+      "Container",
+      "Slider",
+      "Gallery",
+      "Dropdown",
+      "Observable",
+      "Modal",
+      "GoToTop",
+    ];
+    types = types.map(t => t+ "-" +cstateId);
+    if (types.includes(type)) {
+      return getStateValue(key, _cstates, setting?.host);
+    }
+    return value;
+  };
+
   // Function to handle colStates type
   const handleColStatesType = (key, value, host) => {
     if (!colStates) return value;
@@ -91,31 +115,21 @@ const ElementValue = (props) => {
       case "COLSTATES":
         return handleColStatesType(key, value, setting?.host);
       case "FORMSTATES":
-        return _states && _states[key[0]]
-          ? _states[key[0]][key[1]] ||
-              (!["input", "textarea"].includes(node.tagName) ? "[form state]" : '')
-          : value;
+        if (_states && _states[key[0]]) {
+          const val = _states[key[0]][key[1]];
+          return val !== undefined
+            ? val
+            : !["input", "textarea"].includes(node.tagName)
+            ? "[form state]"
+            : "";
+        }
+        return "";
       case "MAPVALUE":
         return mapValue;
       case "MAPINDEX":
         return mapIndex;
-      case "Menu":
-      case "Flex":
-      case "Tabs":
-      case "Accordion":
-      case "Sider":
-      case "Grid":
-      case "Container":
-      case "Slider":
-      case "Gallery":
-      case "Dropdown":
-      case "Dropdown":
-      case "Observable":
-      case "Modal":
-      case "GoToTop":
-        return getStateValue(key, _cstates, setting?.host);
       default:
-        return value;
+        return handleDefaultType(type, key);
     }
   };
 
@@ -151,18 +165,18 @@ const ElementValue = (props) => {
   const handleOnClick = (changeFun, fun, withValue, stateValue) => {
     if (withValue?.notClickable) return;
 
-    if (fun?.onClick) fun.onClick(changeFun, stateValue, withValue);
+    if (fun?.onClick)
+      fun.onClick(changeFun, stateValue, withValue, fun.onClick);
   };
 
   const onClickNode = (e) => {
     // Prevent default action for anchor tags
     if (node.tagName === "a") e.preventDefault();
-
     try {
       if (node.onClick) {
         let { withValue, stateValue } = extractOnClickValues(node.onClick);
 
-        handleOnClick(node.onClick, fun, withValue, stateValue, value);
+        handleOnClick(node.onClick, fun, withValue, stateValue, value, e);
       }
     } catch (e) {
       console.error(e);
@@ -371,10 +385,11 @@ const ElementValue = (props) => {
 
   const onScroll = (e) => {
     e.preventDefault();
-
     const onScroll = node.onScroll;
 
-    if (!onScroll || !fun?.onChange) return;
+    console.log(fun?.onChange)
+
+    if (!onScroll) return;
 
     try {
       const { scrollLeft, scrollTop, delta } = handleScroll(e, onScroll);
@@ -384,6 +399,7 @@ const ElementValue = (props) => {
         scrollTop,
         delta
       );
+
 
       if (valueX || valueY) {
         try {
@@ -424,7 +440,6 @@ const ElementValue = (props) => {
   );
   const hasOnClick = useMemo(() => Boolean(node.onClick), [node.onClick]);
   const hasOnScroll = useMemo(() => Boolean(node.onScroll), [node.onScroll]);
-
   return (
     <ElementType
       {...props}

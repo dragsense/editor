@@ -7,7 +7,7 @@ const disabledStyles = {
 };
 
 // Function to create custom attributes for the element
-const createCustomAttributes = (_uid, pos, onMouseMove, name, onClick, onScroll, onMouseEnter, onMouseLeave, conds, disabledStyles) => {
+const createCustomAttributes = (_uid, pos, layout, onMouseMove, name, onClick, onScroll, onMouseEnter, onMouseLeave, conds, disabledStyles) => {
     return {
         onMouseMove,
         onScroll,
@@ -24,6 +24,8 @@ const createCustomAttributes = (_uid, pos, onMouseMove, name, onClick, onScroll,
         "data-name": name,
         "data-id": _uid,
         "data-pos": pos,
+        "data-layout": layout,
+
         "draggable": false,
         style: conds ? {} : disabledStyles
     }
@@ -53,6 +55,7 @@ const Component = ({
     _uid,
     onMouseMove,
     conds,
+    layout,
     onScroll,
     onClick,
     disabled,
@@ -71,7 +74,7 @@ const Component = ({
             {innerWraaper}</>
         ) : <span style={{ userSelect: 'none', color: "#cccccc" }}>add content here</span>;
     }, [innerWraaper, value]);
-    const customAttributes = createCustomAttributes(_uid, pos, onMouseMove, name, onClick, onScroll, onMouseEnter, onMouseExit, conds, disabledStyles);
+    const customAttributes = createCustomAttributes(_uid, pos, layout, onMouseMove, name, onClick, onScroll, onMouseEnter, onMouseExit, conds, disabledStyles);
 
     const clonedElement = useMemo(() => React.cloneElement(children, { customAttributes }, spanElement), [children, customAttributes, spanElement]);
 

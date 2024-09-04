@@ -10,17 +10,26 @@ const Slides = (props) => {
     states,
     element,
     node,
+    updateStates
   } = props;
 
 // Using useMemo to optimize performance by memoizing the state values
-  const openSider = useMemo(() => getDefaultValue(states['openSider'], -1), [states]);
+  const openSider = useMemo(() => getDefaultValue(states['openSider'], false), [states]);
   const type = useMemo(() => getDefaultValue(states['type'], 'expandRight'), [states]);
   const initialValue = useMemo(() => getDefaultValue(states['initialValue'], '200px'), [states]);
   const expandValue = useMemo(() => getDefaultValue(states['expandValue'], '400px'), [states]);
   const duration = useMemo(() => getDefaultValue(states['duration'], 300), [states]);
 
 // Disable the Sider if no input change
+
+useEffect(() => {
+  if (openSider)
+    updateStates("siderStatus", "close");
+  else
+    updateStates("siderStatus", "open");
  
+}, [openSider]);
+
   return (
     <Sider 
       openSider={openSider} 

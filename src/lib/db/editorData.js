@@ -567,6 +567,7 @@ const fetchDataAndSave = async (type, endpoint, pageId, project, dispatch) => {
         payload._states = data.states;
         payload._events = data.events;
         payload._collStates = data.collStates;
+        payload.main = data.main;
 
     } else
         payload._styles = elements;

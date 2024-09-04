@@ -42,7 +42,7 @@ export default function ElementSetting({
     } else {
       state.attributes[key].key = key;
       state.attributes[key].value = value;
-      
+
       setState({ ...state });
     }
 
@@ -71,7 +71,7 @@ export default function ElementSetting({
     state.attributes["href"] = state.attributes["href"] || { key: "href" };
 
     state.attributes["href"].name = "dynamic-url";
-   
+
     if (keys === undefined || keys[0] === undefined) {
       state.attributes["href"].valueState = undefined;
     } else {
@@ -81,8 +81,9 @@ export default function ElementSetting({
     }
     setState({ ...state });
     setIsChange(true);
-
   };
+
+
 
   const renderCascader = () => {
     const newState = state.attributes["href"] || {};
@@ -226,6 +227,10 @@ export default function ElementSetting({
       <br />
       <br />
 
+      {state?.type !== "component" 
+      && !state?.fixedClass
+      &&  (
+
       <Form.Item label="Mian Class">
         <Input
           maxLength={100}
@@ -235,15 +240,16 @@ export default function ElementSetting({
             onChange(e.target.value, "mainClass");
           }}
         />
-      </Form.Item>
+      </Form.Item>)}
 
-      <Form.Item label="Element Classes">
-        <ClassManager
-          element={state}
-          cascaderStates={cascaderStates}
-          setIsChange={setIsChange}
-        />
-      </Form.Item>
+        <Form.Item label="Element Classes">
+          <ClassManager
+            element={state}
+            cascaderStates={cascaderStates}
+            setIsChange={setIsChange}
+          />
+        </Form.Item>
+      
     </Form>
   );
 }

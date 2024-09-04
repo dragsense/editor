@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button, Modal, theme, Space, message, Cascader } from "antd";
+import { Button, Modal, theme, Space, message, Cascader, Checkbox  } from "antd";
 import ContentEditor from "../../../../Element/ContentEditor";
 import SyntaxHighlighter from "../../../../Element/Content/SyntaxHighlighter";
 import { dark } from "react-syntax-highlighter/dist/cjs/styles/hljs"
@@ -25,13 +25,14 @@ const handleModalStateChange = (state, contentRef, type, setHtml) => {
     if (state.visible && contentRef.current) {
         
         let existingChildren = state?.node.querySelector(`[data-child="child-${state._uid}"]`);
-  
+        let content = existingChildren && !state.isActive ? existingChildren.innerHTML : state.nodeValue;
+
         ContentEditor.destroy(null);
         if (type === 0) {
-            contentRef.current.innerHTML = existingChildren ? existingChildren.innerHTML : state.nodeValue;
+            contentRef.current.innerHTML = content;
             ContentEditor.start(contentRef.current, document.querySelector('body'));
         } else
-            setHtml(existingChildren ? existingChildren.innerHTML : state.nodeValue)
+            setHtml(content)
     } else {
         ContentEditor.destroy(null);
     }
@@ -84,6 +85,12 @@ export default function RichTextEditor({
     const [html, setHtml] = useState('');
     const [type, setType] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isActive, setIsActive] = useState(state.isStateActive);
+
+    useEffect(() => {
+        setIsActive(state.isStateActive);
+    }, [state.isStateActive]);
+
 
     useEffect(() => {
         initializeContentEditor(contentRef, html, type);
@@ -98,10 +105,10 @@ export default function RichTextEditor({
         if (!state.node)
             return;
         if (type === 1) {
-            onChange(html)
+            onChange(html, isActive)
         }
         else {
-            onChange(contentRef.current.innerHTML)
+            onChange(contentRef.current.innerHTML, isActive)
         }
         setIsModalOpen(false);
         ContentEditor.destroy(null);
@@ -113,11 +120,15 @@ export default function RichTextEditor({
     };
 
     const handleAfterOpenChange = (visible) => {
-        handleModalStateChange({node: state.node, _uid: state._uid, visible}, contentRef, type, setHtml);
+        handleModalStateChange({node: state.node, nodeValue: state.nodeValue, _uid: state._uid, visible, isActive}, contentRef, type, setHtml);
     };
 
     const onChangeKeys = (keys) => {
         handleKeysChange(type, contentRef, keys, textareaRef, setHtml);
+    };
+
+    const handleActiveChange = (e) => {
+        setIsActive(e.target.checked);
     };
 
     return (
@@ -132,7 +143,10 @@ export default function RichTextEditor({
                         options={cascaderStates}
                         onChange={onChangeKeys}
                         placeholder="Select State"
-                    />
+                    />    &nbsp;&nbsp;
+                    <Checkbox checked={isActive} onChange={handleActiveChange}>
+                        Active State
+                    </Checkbox>
                 </>} visible={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
                 <Space wrap>
                     <Button disabled={type === 0}

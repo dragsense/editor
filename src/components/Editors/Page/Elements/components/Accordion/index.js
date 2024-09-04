@@ -22,7 +22,6 @@ const renderAccordion = (flattenedChildren, activeIndex) => {
   const accordions = [];
 
   const totalAccordion = flattenedChildren.length;
-
   for (let i = 0; i < totalAccordion; i++) {
     const isActive = activeIndex === i;
     accordions.push(flattenedChildren[i].props?.children ?

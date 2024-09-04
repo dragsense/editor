@@ -331,6 +331,7 @@ export const updateStateValue = (
       );
 
       updatedValue = eval(originalExpression);
+
     } else {
       updatedValue = value;
     }
