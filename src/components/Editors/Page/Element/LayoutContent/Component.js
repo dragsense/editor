@@ -56,8 +56,8 @@ const Component = ({ states, onSave, skippedProperties }) => {
             defaultValue={property.defaultValue}
             onChange={(value) => handlePropertyChange(property.key, value)}
           >
-            {property.values.map(val =>
-              <Option value={val}>{val}</Option>)}
+            {property.values.map((val, i) =>
+              <Option key={i} value={val}>{val}</Option>)}
           </Select>
         );
       case 'boolean':

@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { message } from "antd";
 import ElementMapping from "./ElementMapping";
+import { evaluate } from 'mathjs'
 
 import { InlineSkeleton } from "./Elements";
 import { getAllData } from "../../../../lib/db";
@@ -450,7 +451,8 @@ const Component = (props) => {
     result = result.replace(/\[delta]/g, delta);
 
     try {
-      return eval(result);
+     
+      return evaluate(`${result}`);
     } catch (e) {
       message.error("Invalid expression:" + e?.message);
       return null;

@@ -32,8 +32,8 @@ export const loadPage = async (page, type, dispatch, clear = true) => {
         }
 
         // Load styles and elements for the specified page and type.
-        await loadStyles(project, page, type, dispatch, clear);
         await loadElements(project, page, type, dispatch, clear);
+        await loadStyles(project, page, type, dispatch, clear);
     } catch (error) {
         // Handle the error as needed. This could be dispatching to a reducer, console logging, or other error handling mechanisms.
         console.error("Error loading the page:", error.message);

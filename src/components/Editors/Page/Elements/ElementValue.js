@@ -1,6 +1,7 @@
 import React, { useMemo, useCallback } from "react";
 
 import ElementType from "./ElementType";
+import { evaluate } from 'mathjs'
 
 import {
   getStateValue,
@@ -331,8 +332,8 @@ const ElementValue = (props) => {
 
       if (valueX || valueY) {
         try {
-          valueX = eval(valueX);
-          valueY = eval(valueY);
+          valueX =  evaluate(`${valueX}`);
+          valueY =  evaluate(`${valueY}`);
         } catch (e) {
           console.error("Invalid expression:", e);
         }
@@ -403,8 +404,8 @@ const ElementValue = (props) => {
 
       if (valueX || valueY) {
         try {
-          valueX = eval(valueX);
-          valueY = eval(valueY);
+          valueX =  evaluate(`${valueX}`);
+          valueY =  evaluate(`${valueY}`);
         } catch (e) {
           message.error("Invalid expression:" + e?.message);
         }

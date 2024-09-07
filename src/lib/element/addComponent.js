@@ -496,7 +496,7 @@ const createSlider = async (state, document) => {
                   type: "MAPINDEX",
                 },
                 relation: "AND",
-                value: "[key] === [state]",
+                value: "[key] == [state]",
                 name: "active-bg",
               },
             },

@@ -75,7 +75,7 @@ export default function AddAttribute({
                 <Form.Item label={label} className="font-500">
                     <Select onChange={onChangeKey} value={newState.key} showSearch style={{ width: '100%' }} placeholder={`Select ${label}`}>
                         <Option value="">None</Option>
-                        {attributes.map(val => <Option value={val}>{val}</Option>)}
+                        {attributes.map((val, i) => <Option key={i} value={val}>{val}</Option>)}
                     </Select>
                 </Form.Item>
                 {newState.key === 'style' ?

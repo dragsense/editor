@@ -3,6 +3,7 @@ import { useMemo } from "react";
 
 import { getStateValue, getPageValue } from '../../../../lib/element/elementNode';
 import ElementValue from './ElementValue';
+import { evaluate } from 'mathjs'
 
 
 
@@ -169,11 +170,11 @@ const ElementSetting = (props) => {
     const evaluateCondition = (expression, v, keyValue) => {
         let original = expression.replace(/\[state]/g, v);
         original = original.replace(/\[key]/g, keyValue);
-
+        
         try {
-            return eval(original);
+            return !!evaluate(`${original}`);
         } catch (e) {
-            message.error("Invalid expression:" + e?.message);
+            message.error("Invalid expression: (Conditions) " + e?.message);
             return true;
         }
     };
@@ -221,9 +222,9 @@ const ElementSetting = (props) => {
 
                 value = attribute.value.replace(/\[state]/, value);
                 try {
-                    attributeValue = eval(value);
+                    attributeValue = evaluate(`${value}`);
                 } catch (e) {
-                    message.error("Invalid expression: " + e?.message);
+                    message.error("Invalid expression: (Attributes) " + e?.message);
                 }
             } else {
                 attributeValue = value;

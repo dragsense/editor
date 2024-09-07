@@ -75,7 +75,7 @@ const ElementComponent = (props) => {
 
     const { node, _id, fun, children, onUpdateStates } = props;
 
-    const [states, setStates] = useState({ _uid: node._uid, ...node.states });
+    const [states, setStates] = useState({ isNew: true });
     const [state, setState] = useState(null);
 
     const setValue = (elem, value, withValue) => {
@@ -101,18 +101,26 @@ const ElementComponent = (props) => {
     useEffect(() => {
         if (!state)
             return;
+
+     
+
         const { elem, stateValue, withValue } = state;
         setValue(elem, stateValue, withValue);
     }, [state]);
 
     const onClick = useCallback((changeEvent, stateValue, withValue, func = () => {}) => {
-        
 
-        if(func === onClick)
-        handleOnClick(changeEvent, stateValue, withValue, fun, setState);
-    }, [fun]);
+        
+      
+        
+        setTimeout(() => {
+            if (func === onClick)
+                handleOnClick(changeEvent, stateValue, withValue, fun, setState);  // Deferring state update
+        }, 0);  
+    }, [fun, states]);
 
     const updateStates = useCallback((key, value, updateKey = 'defaultValue') => {
+
 
 
         if(key === 'activeItem')

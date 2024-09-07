@@ -1,5 +1,6 @@
 import { message } from "antd";
 import { formatDate } from "../utils";
+import { evaluate } from 'mathjs'
 
 /**
  * Get the value of a state based on its key.
@@ -293,7 +294,7 @@ export const getStates = (key, states) => {
 
 /**
  * Update the value of a state based on provided parameters.
- * This function uses the eval function to evaluate the expression.
+ * This function uses the evaluate function to evaluate the expression.
  * It's important to ensure that the expression is safe to evaluate.
  *
  * @param {object} elem - The element containing key and value expressions.
@@ -330,7 +331,7 @@ export const updateStateValue = (
         stateRef[updateKey]
       );
 
-      updatedValue = eval(originalExpression);
+      updatedValue = evaluate(`${originalExpression}`);
 
     } else {
       updatedValue = value;

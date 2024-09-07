@@ -98,7 +98,6 @@ export default function Element({
 
       // Update the main property based on checkbox state
       page.main = e.target.checked ? state.node._uid : "0";
-      console.log(e.target.checked, page.main)
       // Save the updated page
       await storePage(page);
 

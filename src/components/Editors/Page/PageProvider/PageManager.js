@@ -54,7 +54,7 @@ const initial = {
 };
 
 // Reducer function to handle state changes
-// Reducer function to handle state changes 
+// Reducer function to handle state changes
 const reducer = (state, action) => {
   // Using a lookup object for better performance
   const actions = {
@@ -65,7 +65,7 @@ const reducer = (state, action) => {
       ...state,
       page: action.page,
       type: action.pageType,
-      states: {}, 
+      states: {},
       isChange: false,
     }),
     updatePage: () => ({
@@ -348,19 +348,22 @@ export const onDeleteElement = async (currentElement, _id) => {
     // Use Promise.all to delete all child elements concurrently for better performance
     await Promise.all(
       currentElement.childNodes.map(async (_uid) => {
-        const child = await getData(_id, _uid);
-        if (child) {
-          // Recursively delete the child element and its child elements
-          await onDeleteElement(child, _id);
+        if (_uid !== "0") {
+          const child = await getData(_id, _uid);
+          if (child) {
+            // Recursively delete the child element and its child elements
+            await onDeleteElement(child, _id);
 
-          if (child.dropdownId) {
-            await onDeleteDropdown(child.dropdownId, _id);
+            if (child.dropdownId) {
+              await onDeleteDropdown(child.dropdownId, _id);
+            }
           }
         }
       })
     );
   }
   // Delete the current element
+  if(currentElement._uid !== '0')
   await deleteElement(currentElement, _id);
 };
 
@@ -865,6 +868,9 @@ export default function PageManger({ children }) {
 
   // Function to delete a component from the page
   const deleteComponent = async (tag) => {
+
+   
+
     // Fetch all data related to the current page
     const page = await getAllData(state.page._id);
 
@@ -874,7 +880,7 @@ export default function PageManger({ children }) {
       if (Array.isArray(page[`${tag.page.pageType}s`])) {
         // Filter out the component to be deleted
         page[`${tag.page.pageType}s`] = filterPageComponents(page, tag);
-
+     
         // Store the updated page data
         await storePage(page);
 
@@ -1143,7 +1149,7 @@ export default function PageManger({ children }) {
       }
 
       // Check if the currentUid is '0'
-      if (currentUid == "0") {
+      if (currentUid == "0" || currentElement._uid == '0') {
         throw new Error("Body cannot be deleted.");
       }
 
@@ -2383,7 +2389,12 @@ export default function PageManger({ children }) {
       // If style is true, update the element with style
       // Else, update the element with the current style change state
       if (style) dispatch({ type: "updateElement", style, isChange: true });
-      else dispatch({ type: "updateElement", style: state.isStyleChange, isChange: true });
+      else
+        dispatch({
+          type: "updateElement",
+          style: state.isStyleChange,
+          isChange: true,
+        });
     },
     [state.isStyleChange]
   );

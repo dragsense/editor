@@ -47,7 +47,6 @@ function AddElement({ onAddElement, currentElement, setCurrentElement }) {
     const onSelect = (tag, elements = []) => {
         setElements(elements);
         setTag(tag);
-        console.log(tag);
     }
 
     const [open, setOpen] = useState(false);

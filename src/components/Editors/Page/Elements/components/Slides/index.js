@@ -76,7 +76,7 @@ const Slides = (props) => {
     const flattenedChildren =
       nodes.length > 0
         ? nodes.map((mapValue, mapIndex) =>
-          element({ tagName: 'div', state: node.state, className: 'slide', type: 'layouts',  layout: 'slide', }, children, mapValue, mapIndex)
+          element({ key: mapValue?._uid || mapIndex, tagName: 'div', state: node.state, className: 'slide', type: 'layouts',  layout: 'slide', }, children, mapValue, mapIndex)
         )
         : React.Children.toArray(children);
 
@@ -118,6 +118,9 @@ const Slides = (props) => {
   }, [autoPlay, interval, loop, activeIndex, total, isHovered]);
 
   useEffect(() => {
+
+    if(activeIndex === -1)
+      return;
 
     if (loop)
       setLoopIndex(flattenedChildren, type, numColumns, moveColumns, activeIndex, updateStates);
@@ -200,7 +203,7 @@ const Slides = (props) => {
 
         slides.push(slideItems.map((item, index) => (
           <div
-            key={startIndex + index}
+            key={childs.length + startIndex + index}
             style={{
               cursor: 'pointer',
               userSelect: 'none',
