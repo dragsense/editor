@@ -1,14 +1,14 @@
 import React, { useMemo, useCallback } from "react";
 
 import ElementType from "./ElementType";
-import { evaluate } from 'mathjs'
+import { Parser } from "expr-eval";
 
 import {
   getStateValue,
   getPageValue,
 } from "../../../../lib/element/elementNode";
 import { message } from "antd";
-
+const parser = new Parser();
 // Main component for handling Element Value
 const ElementValue = (props) => {
   // Destructuring props for easier access
@@ -332,8 +332,11 @@ const ElementValue = (props) => {
 
       if (valueX || valueY) {
         try {
-          valueX =  evaluate(`${valueX}`);
-          valueY =  evaluate(`${valueY}`);
+         
+          const expr1 = parser.parse(valueX);
+          const expr2 = parser.parse(valueY);
+          valueX =  expr1.evaluate();
+          valueY =  expr2.evaluate();
         } catch (e) {
           console.error("Invalid expression:", e);
         }
@@ -388,8 +391,6 @@ const ElementValue = (props) => {
     e.preventDefault();
     const onScroll = node.onScroll;
 
-    console.log(fun?.onChange)
-
     if (!onScroll) return;
 
     try {
@@ -404,8 +405,11 @@ const ElementValue = (props) => {
 
       if (valueX || valueY) {
         try {
-          valueX =  evaluate(`${valueX}`);
-          valueY =  evaluate(`${valueY}`);
+          
+          const expr1 = parser.parse(valueX);
+          const expr2 = parser.parse(valueY);
+          valueX =  expr1.evaluate();
+          valueY =  expr2.evaluate();
         } catch (e) {
           message.error("Invalid expression:" + e?.message);
         }

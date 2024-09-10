@@ -2,8 +2,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { message } from "antd";
 import ElementMapping from "./ElementMapping";
-import { evaluate } from 'mathjs'
-
+import { Parser } from "expr-eval";
 import { InlineSkeleton } from "./Elements";
 import { getAllData } from "../../../../lib/db";
 
@@ -19,6 +18,7 @@ import {
 import DocumentServices from "../../../../lib/services/documents";
 import { debounce } from "../../../../lib/utils";
 
+const parser = new Parser();
 // Function to generate collection states
 const generateCollectionStates = async (collection) => {
   const relStates = await generateCascadeRelationsStates(collection);
@@ -451,8 +451,11 @@ const Component = (props) => {
     result = result.replace(/\[delta]/g, delta);
 
     try {
-     
-      return evaluate(`${result}`);
+      
+
+      const expr = parser.parse(result);
+      const evaluatedResult = expr.evaluate();
+      return evaluatedResult;
     } catch (e) {
       message.error("Invalid expression:" + e?.message);
       return null;

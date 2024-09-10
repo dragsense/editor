@@ -151,13 +151,13 @@ function createWindow() {
     title: 'Autocode Editor',
     width: 800,
     height: 600,
-    autoHideMenuBar: true,
+    autoHideMenuBar: false,
     
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: true,
       webSecurity: true,
-      devTools: app.isPackaged ? false : true,
+      devTools: true,
       preload: path.join(__dirname, 'preload.js')
     },
     icon: path.join(__dirname, 'favicon.ico'),

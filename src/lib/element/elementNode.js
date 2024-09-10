@@ -1,7 +1,7 @@
 import { message } from "antd";
 import { formatDate } from "../utils";
-import { evaluate } from 'mathjs'
-
+import { Parser } from "expr-eval";
+const parser = new Parser();
 /**
  * Get the value of a state based on its key.
  * This function is used to retrieve the value of a state from a given states object.
@@ -330,8 +330,8 @@ export const updateStateValue = (
         /\[key]/g,
         stateRef[updateKey]
       );
-
-      updatedValue = evaluate(`${originalExpression}`);
+      const expr = parser.parse(originalExpression);
+      updatedValue = expr.evaluate();
 
     } else {
       updatedValue = value;
