@@ -56,6 +56,7 @@ const Media = (props) => {
             {React.cloneElement(children, {
                 key,
                 customAttributes: {
+                    crossOrigin: "anonymous",
                     width: 320, height: 'auto', controls: true,
                     poster: tag === 'video' ? poster.src : undefined,
                     alt: poster.alt,
@@ -69,6 +70,7 @@ const Media = (props) => {
     const disabledElement = useCallback(() => (
         React.cloneElement(children, {
             customAttributes: {
+                crossOrigin: "anonymous",
                 width: 320, height: 'auto', controls: true,
                 poster: tag === 'video' ? poster.src : undefined,
                 alt: poster.alt,

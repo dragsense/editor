@@ -35,6 +35,7 @@ const Video = ({ src, alt, mimetype, duration = 0 }) => {
   return (
     <div style={{ position: "relative", padding: "56.25% 0 0 0", height: 0 }}>
       <video
+      crossOrigin="anonymous"
         ref={videoRef}
         alt={alt}
         style={{

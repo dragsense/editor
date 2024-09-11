@@ -86,14 +86,14 @@ const InnerComponent = ({ children, document, onLoad, _id, type }) => {
         // Fetch settings and append scripts to document head
         let res = await SettingServices.get();
 
-        if (res?.setting) {
+        if (res?.settings) {
           document.head.insertAdjacentHTML(
             "beforeend",
-            res.setting.scripts?.head || ""
+            res.settings.scripts?.head || ""
           );
           document.body.insertAdjacentHTML(
             "beforeend",
-            res.setting.scripts?.footer || ""
+            res.settings.scripts?.footer || ""
           );
         }
 

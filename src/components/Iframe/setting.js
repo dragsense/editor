@@ -19,8 +19,8 @@ const InnerComponent = ({ children, document, onLoad }) => {
   const loadCSSStyles = async () => {
     try {
       const settingRes = await SettingServices.get();
-      if (settingRes?.setting)
-        document.head.insertAdjacentHTML("beforeend", settingRes.setting.scripts?.head);
+      if (settingRes?.settings)
+        document.head.insertAdjacentHTML("beforeend", settingRes.settings.scripts?.head);
 
       let res = await ThemeServices.getFonts();
       if (res.fonts)
@@ -49,7 +49,7 @@ const InnerComponent = ({ children, document, onLoad }) => {
       }
       document.head.appendChild(style);
 
-      return settingRes.setting?._id;
+      return settingRes.settings?._id;
     } catch (e) {
       throw new Error(e?.message);
     }
