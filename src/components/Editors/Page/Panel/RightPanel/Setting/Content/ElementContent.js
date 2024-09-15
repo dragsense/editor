@@ -249,7 +249,6 @@ export default function ElementContent({ cascaderStates, host, state, setState, 
                         height: '120px',
                         cursor: 'pointer'
                     }}
-                    crossOrigin="anonymous"
                     alt={state.src?.alt}
                     src={host + state.src?.src}
                     fallback="./images/default/default-img.png" />

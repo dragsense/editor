@@ -15,7 +15,6 @@ const createCustomAttributes = (_uid, pos, layout, name, onMouseMove, onClick,  
         onClick: onClick,
         onMouseLeave,
         onMouseEnter,
-        crossOrigin: "anonymous",
         src: image.src, alt: image.alt,
         "data-id": _uid,
         "data-pos": pos,
@@ -35,7 +34,6 @@ const createDisbaledAttributes = (_uid, pos, name, onMouseMove, onClick,  onMous
         onMouseLeave,
         onMouseEnter,
         src: image.src, alt: image.alt,
-        crossOrigin: "anonymous",
         style: conds ? {} : disabledStyles
     }
 }
