@@ -27,7 +27,7 @@ const listPos = ['inside', 'outside'];
 const { Option } = Select;
 
 
-export default function List({ style, properties, onChangeStyle }) {
+export default function List({ style, host, properties, onChangeStyle }) {
 
     const [image, setImage] = useState('');
     const [mediaModal, setMediaModal] = useState(false);
@@ -117,9 +117,9 @@ export default function List({ style, properties, onChangeStyle }) {
 
         if (!properties['list-style-image'])
             properties['list-style-image'] = {};
-        properties['list-style-image'].value = `url(${image[0].src})`;
+        properties['list-style-image'].value = `url(${host + image[0].src})`;
         properties['list-style-image'].image = image[0];
-        style.setProperty('list-style-image', `url(${image[0].src})`, stylePriority.listStyleImage);
+        style.setProperty('list-style-image', `url(${host + image[0].src})`, stylePriority.listStyleImage);
         setImage(image[0]);
 
         onChangeStyle(); setStylePriority({ ...stylePriority });
@@ -250,9 +250,10 @@ export default function List({ style, properties, onChangeStyle }) {
                 style={{
                     width: '120px',
                     height: '120px',
+                    objectFit: 'cover',
                     cursor: 'pointer'
                 }}
-                src={`${image?.src || "./images/default/default-img.png"}`}
+                src={`${host+ image?.src || "./images/default/default-img.png"}`}
                 />
 
             </div>

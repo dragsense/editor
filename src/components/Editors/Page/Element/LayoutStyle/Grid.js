@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Radio, InputNumber, Slider, Checkbox, Button, Select, Input } from 'antd';
+import { Radio, InputNumber, Slider, Checkbox, Button, Select, Input, Divider } from 'antd';
 
 const { Option } = Select;
 const properties = [
@@ -57,91 +57,9 @@ const handleAdjustmentTypeChange = (type) => {
 
 const content = (
   <div style={{ maxWidth: 230, zIndex: 10 }}>
+     <Divider>Grid Setting </Divider>
 
-      <div style={{ margin: '10px 0' }}>
-          <label>Adjustment Type:</label> <br />
-          <Radio.Group
-              value={adjustmentType}
-              onChange={(e) => handleAdjustmentTypeChange(e.target.value)}
-          >
-              <Radio value="padding">Padding</Radio>
-              <Radio value="margin">Margin</Radio>
-          </Radio.Group>
-      </div>
-
-
-      <div style={{ margin: '10px 0' }}>
-                <label>All Sides</label> <br />
-                <Slider
-                    min={0.3}
-                    max={50}
-                    step={0.1}
-                    value={parseFloat(properties[`${adjustmentType}-top`]?.value || 0)}
-                    onChange={(v) => handleLockAllSides(v)}
-                />
-                <InputNumber
-                    value={parseFloat(properties[`${adjustmentType}-top`]?.value || 0)}
-                    onChange={(v) => handleLockAllSides(v)}
-                    addonAfter={
-                        <Select
-                            value={properties[`${adjustmentType}-top`]?.unit}
-                            onChange={(unit) => {
-
-                                ['top', 'right', 'bottom', 'left'].map((key) => {
-                                    if (!properties[key]) properties[key] = {};
-                                    properties[`${adjustmentType}-${key}`].unit = unit;
-                                })
-
-                                handleLockAllSides(parseFloat(properties[`${adjustmentType}-top`]?.value) + unit);
-
-
-                                setChange(true);
-                            }}
-                            style={{ width: 70 }}
-                        >
-                            <Option value="px">px</Option>
-                            <Option value="em">em</Option>
-                            <Option value="rem">rem</Option>
-                        </Select>
-                    }
-                />
-            </div>
-            {['top', 'right', 'bottom', 'left'].map((side) => (
-                <div key={side} style={{ margin: '10px 0' }}>
-                    <label>{`${side.charAt(0).toUpperCase() + side.slice(1)}`}</label> <br />
-                    <Slider
-                        min={0.3}
-                        max={50}
-                        step={0.1}
-                        value={parseFloat(properties[`${adjustmentType}-${side}`]?.value || 0)}
-                        onChange={(v) =>
-                            handleSideInputChange(side, `${adjustmentType}-${side}`, v)
-                        }
-                    />
-                    <InputNumber
-                        value={parseFloat(properties[`${adjustmentType}-${side}`]?.value || 0)}
-                        onChange={(v) =>
-                            handleSideInputChange(side, `${adjustmentType}-${side}`, v)
-                        }
-                        addonAfter={
-                            <Select
-                                value={properties[`${adjustmentType}-${side}`]?.unit}
-                                onChange={(unit) => {
-                                    if (!properties[`${adjustmentType}-${side}`]) properties[`${adjustmentType}-${side}`] = {};
-                                    properties[`${adjustmentType}-${side}`].unit = unit;
-                                    handleSideInputChange(side, `${adjustmentType}-${side}`, parseFloat(properties[`${adjustmentType}-${side}`]?.value) + unit);
-                                }}
-                                style={{ width: 70 }}
-                            >
-                                <Option value="px">px</Option>
-                                <Option value="em">em</Option>
-                                <Option value="rem">rem</Option>
-                            </Select>
-                        }
-                    />
-                </div>
-            ))}
-      <div style={{ margin: '10px 0' }}>
+     <div style={{ margin: '10px 0' }}>
         <label>Grid Template Columns</label> <br />
         <Checkbox
           checked={properties['grid-template-columns']?.value === 'auto'}
@@ -265,6 +183,92 @@ const content = (
           <Option value="baseline">Baseline</Option>
         </Select>
       </div>
+
+      <div style={{ margin: '10px 0' }}>
+
+          <Divider>Adjustment Type</Divider>
+          <Radio.Group
+              value={adjustmentType}
+              onChange={(e) => handleAdjustmentTypeChange(e.target.value)}
+          >
+              <Radio value="padding">Padding</Radio>
+              <Radio value="margin">Margin</Radio>
+          </Radio.Group>
+      </div>
+
+
+      <div style={{ margin: '10px 0' }}>
+                <label>All Sides</label> <br />
+                <Slider
+                    min={0.3}
+                    max={50}
+                    step={0.1}
+                    value={parseFloat(properties[`${adjustmentType}-top`]?.value || 0)}
+                    onChange={(v) => handleLockAllSides(v)}
+                />
+                <InputNumber
+                    value={parseFloat(properties[`${adjustmentType}-top`]?.value || 0)}
+                    onChange={(v) => handleLockAllSides(v)}
+                    addonAfter={
+                        <Select
+                            value={properties[`${adjustmentType}-top`]?.unit}
+                            onChange={(unit) => {
+
+                                ['top', 'right', 'bottom', 'left'].map((key) => {
+                                    if (!properties[key]) properties[key] = {};
+                                    properties[`${adjustmentType}-${key}`].unit = unit;
+                                })
+
+                                handleLockAllSides(parseFloat(properties[`${adjustmentType}-top`]?.value) + unit);
+
+
+                                setChange(true);
+                            }}
+                            style={{ width: 70 }}
+                        >
+                            <Option value="px">px</Option>
+                            <Option value="em">em</Option>
+                            <Option value="rem">rem</Option>
+                        </Select>
+                    }
+                />
+            </div>
+            {['top', 'right', 'bottom', 'left'].map((side) => (
+                <div key={side} style={{ margin: '10px 0' }}>
+                    <label>{`${side.charAt(0).toUpperCase() + side.slice(1)}`}</label> <br />
+                    <Slider
+                        min={0.3}
+                        max={50}
+                        step={0.1}
+                        value={parseFloat(properties[`${adjustmentType}-${side}`]?.value || 0)}
+                        onChange={(v) =>
+                            handleSideInputChange(side, `${adjustmentType}-${side}`, v)
+                        }
+                    />
+                    <InputNumber
+                        value={parseFloat(properties[`${adjustmentType}-${side}`]?.value || 0)}
+                        onChange={(v) =>
+                            handleSideInputChange(side, `${adjustmentType}-${side}`, v)
+                        }
+                        addonAfter={
+                            <Select
+                                value={properties[`${adjustmentType}-${side}`]?.unit}
+                                onChange={(unit) => {
+                                    if (!properties[`${adjustmentType}-${side}`]) properties[`${adjustmentType}-${side}`] = {};
+                                    properties[`${adjustmentType}-${side}`].unit = unit;
+                                    handleSideInputChange(side, `${adjustmentType}-${side}`, parseFloat(properties[`${adjustmentType}-${side}`]?.value) + unit);
+                                }}
+                                style={{ width: 70 }}
+                            >
+                                <Option value="px">px</Option>
+                                <Option value="em">em</Option>
+                                <Option value="rem">rem</Option>
+                            </Select>
+                        }
+                    />
+                </div>
+            ))}
+     
    
         </div>
     );

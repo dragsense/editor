@@ -14,6 +14,7 @@ export default function Style({
   menuKeys,
   state,
   onChange,
+  host,
   onDeleteSelector,
   onSelectSelector,
   onUpdateSelector,
@@ -103,6 +104,7 @@ export default function Style({
         onChange={() => onChange(true)}
         width={"100%"}
         mode={"light"}
+        host={host}
         menuKeys={menuKeys}
       >
         <Divider orientation="center" orientationMargin="0"></Divider>

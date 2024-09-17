@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Radio, InputNumber, Slider,Button, Select } from 'antd';
+import { Radio, InputNumber, Slider,Button, Select, Divider } from 'antd';
 import { SettingOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
@@ -48,7 +48,7 @@ function TabsContent({ children, selector, setChange }) {
         <div style={{ maxWidth: 230, zIndex: 10 }}>
 
             <div style={{ margin: '10px 0' }}>
-                <label>Adjustment Type:</label> <br />
+                <Divider>Adjustment Type</Divider>
                 <Radio.Group
                     value={adjustmentType}
                     onChange={(e) => handleAdjustmentTypeChange(e.target.value)}

@@ -14,7 +14,7 @@ import Clip from './Clip';
 const { Panel } = Collapse;
 
 
-export default function Background({ style, colors, variables, properties, onChangeStyle }) {
+export default function Background({ style, colors, host, variables, properties, onChangeStyle }) {
 
 
     const [stylePriority, setStylePriority] = useState({
@@ -70,7 +70,7 @@ export default function Background({ style, colors, variables, properties, onCha
                     setStylePriority={setStylePriority} />
                 </Panel>
                 <Panel header="Image" key="2">
-                    <Image type="Image" style={style} properties={properties}
+                    <Image type="Image" style={style} host={host} properties={properties}
                      onChangeStyle={onChangeStyle} stylePriority={stylePriority} 
                      setStylePriority={setStylePriority} />
                 </Panel>

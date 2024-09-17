@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Slider, InputNumber, Select, Button, Radio } from 'antd';
+import { Slider, InputNumber, Select, Button, Radio, Divider } from 'antd';
 
 const { Option } = Select;
 
@@ -45,7 +45,7 @@ function Div({ children, selector, setChange }) {
         <div style={{ maxWidth: 230, zIndex: 10 }}>
 
             <div style={{ margin: '10px 0' }}>
-                <label>Adjustment Type:</label> <br />
+                <Divider>Adjustment Type</Divider>
                 <Radio.Group
                     value={adjustmentType}
                     onChange={(e) => handleAdjustmentTypeChange(e.target.value)}

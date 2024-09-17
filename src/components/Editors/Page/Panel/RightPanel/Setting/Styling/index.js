@@ -5,6 +5,7 @@ import Style from './Style';
 
 export default function Styling({
     state,
+    host,
     menuKeys,
     onSelectSelector,
     onDeleteSelector,
@@ -25,6 +26,7 @@ export default function Styling({
                 onDeleteSelector={onDeleteSelector}
                 onUpdateSelector={onUpdateSelector}
                 onChange={onChangeStyle}
+                host={host}
                 menuKeys={menuKeys}
                 state={state}
                 onSelectSelector={onSelectSelector} /></>

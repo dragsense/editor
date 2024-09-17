@@ -27,7 +27,7 @@ const handleAddElement = async (tag, before, currentElement, onAddElement, eleme
 // Function to handle the saving of columns
 const handleSaveCols = async (cols, currentElement, onAddElement) => {
     for (let i = 0; i < cols.count; i++) {
-        await onAddElement({ tag: 'div', type: 'layout', layout: "fg-child", width: cols.widths[i] }, undefined, currentElement);
+        await onAddElement({ tag: 'div', type: 'layout', layout: "fg-child", name: currentElement.name + " Child",  width: cols.widths[i] }, undefined, currentElement);
     }
 }
 
@@ -148,7 +148,7 @@ function AddElement({ onAddElement, currentElement, setCurrentElement }) {
             footer={
                 <div style={{ padding: 5 }}>
                     <Button onClick={onCancel}>Cancel</Button>
-                    {currentElement.layout === 'Flex' || currentElement.layout === 'Grid' ?
+                    {currentElement.layout === 'flex' || currentElement.layout === 'grid' ?
                         <Button type="primary" onClick={onSaveCols} disabled={!cols.count}>Add</Button>
                         :
                         <>
@@ -170,7 +170,7 @@ function AddElement({ onAddElement, currentElement, setCurrentElement }) {
             )}
         >
             <div style={{ height: '60vh', overflow: 'auto' }}>
-                {currentElement.layout === 'Flex' || currentElement.layout === 'Grid' ?
+                {currentElement.layout === 'flex' || currentElement.layout === 'grid' ?
                     <Columns setCols={setCols} />
                     : <>
                         <TagComponent

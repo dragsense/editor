@@ -5,7 +5,7 @@ import { MdRestartAlt } from 'react-icons/md'
 import MediaModal from "../../../Media";
 
 
-export default function _Image({ type, style, properties, onChangeStyle, stylePriority, setStylePriority }) {
+export default function _Image({ type, style, host, properties, onChangeStyle, stylePriority, setStylePriority }) {
 
 
     const [mediaModal, setMediaModal] = useState(false);
@@ -29,9 +29,9 @@ export default function _Image({ type, style, properties, onChangeStyle, stylePr
 
         if (!properties['background-image'])
             properties['background-image'] = {};
-        properties['background-image'].value = `url(${image[0].src})`;
+        properties['background-image'].value = `url(${host + image[0].src})`;
         properties['background-image'].image = image[0];
-        style.setProperty('background-image', `url(${image[0].src})`, stylePriority.backgroundImage);
+        style.setProperty('background-image', `url(${host + image[0].src})`, stylePriority.backgroundImage);
         setImage(image[0]);
 
         onChangeStyle(); setStylePriority({ ...stylePriority });
@@ -89,9 +89,10 @@ export default function _Image({ type, style, properties, onChangeStyle, stylePr
                 style={{
                     width: '120px',
                     height: '120px',
+                    objectFit: 'cover',
                     cursor: 'pointer'
                 }}
-                src={`${image?.src || "./images/default/default-img.png"}`}
+                src={`${host + image?.src || "./images/default/default-img.png"}`}
                 />
 
         </div>

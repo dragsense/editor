@@ -36,6 +36,7 @@ export default function RightSideBar({
     onSelect,
     onDelete,
     onSubmit,
+    host,
     animation = false,
     width = 250,
     mode = "dark",
@@ -257,7 +258,7 @@ export default function RightSideBar({
                     key={key}
                     className='style-item-panel'
                 >
-                    <Component style={selector?.style}
+                    <Component style={selector?.style} host={host}
                         fonts={fonts} colors={colors} variables={variables}
                         properties={selector?.properties} onChangeStyle={onChange} />
                 </Panel>

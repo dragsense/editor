@@ -70,7 +70,7 @@ const reducer = (state, action) => {
     }
 };
 
-export default function Style({ children, onBack }) {
+export default function Style({ children, onBack, host }) {
 
     // State variables for various UI elements and data
     const [backgroundColor, setBackgroundColor] = useState('#fff');
@@ -805,6 +805,7 @@ export default function Style({ children, onBack }) {
                 onChange={onChange}
                 isChange={isStyleChange}
                 onLoad={onLoad}
+                host={host}
                 isConverted={isConverted}
             >
 

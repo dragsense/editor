@@ -868,6 +868,7 @@ export default function IFrame({
       setCurrentElement({
         dataset: { id: item.uid, pos: item.pos },
         layout: item.layout,
+        name: item.name
       });
     };
 

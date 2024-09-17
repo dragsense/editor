@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { Radio, InputNumber, Button, Slider, Select } from 'antd';
+import { Radio, InputNumber, Button, Slider, Select, Divider } from 'antd';
 import { SettingOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
@@ -50,7 +50,7 @@ function Nav({ children, selector, setChange }) {
         <div style={{ maxWidth: 230, zIndex: 10 }}>
 
             <div style={{ margin: '10px 0' }}>
-                <label>Adjustment Type:</label> <br />
+                <Divider>Adjustment Type</Divider>
                 <Radio.Group
                     value={adjustmentType}
                     onChange={(e) => handleAdjustmentTypeChange(e.target.value)}

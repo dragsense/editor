@@ -179,9 +179,9 @@ const createFlex = async (state, document, childCount = 2) => {
   // Define the child item structure
   const childItem = {
     tagName: "div",
-    name: "Flex Child",
+    name: "FlexBox Child",
     type: "layouts",
-    layout: "flex-child",
+    layout: "fg-child",
     childNodes: [],
   };
 
@@ -217,7 +217,7 @@ const createFlex = async (state, document, childCount = 2) => {
     name: "FlexBox",
     cname: "FlexBox",
     type: "component",
-    layout: "Flex",
+    layout: "flex",
     nodeValue: "",
     childNodes: childNodes,
     className: className,
@@ -228,9 +228,12 @@ const createFlex = async (state, document, childCount = 2) => {
   // Apply CSS and update data for each child element
   childsElement.forEach(async (child) => {
     const properties = {
-      flex: { value: "1" },
-      padding: { value: "5px" },
+      width: {
+        value: "100%",
+        unit: "%",
+      },
     };
+    console.log(properties);
     await addCSS(document, properties, child, state.page._id);
     await updateData(state.page._id, child);
   });
@@ -261,7 +264,7 @@ const createGrid = async (state, document, gridItemsCount = 4) => {
     tagName: "div",
     name: "Grid Child",
     type: "layouts",
-    layout: "grid-child",
+    layout: "fg-child",
     childNodes: [],
   };
 
@@ -1017,7 +1020,7 @@ const createGallery = async (state, document) => {
     tagName: "img",
     name: "Image",
     type: "media",
-    
+
     layout: "img",
     nodeValue: "",
     childNodes: [],
@@ -1065,8 +1068,14 @@ const createGallery = async (state, document) => {
 
   const extraSelectors = {
     selectors: [
-      { selector:  "." + className + " .ac-modal-body .ac-gallery-item", tagName: 'div' },
-      { selector:  "." + className + " .ac-modal-body .ac-gallery-img", tagName: 'div' },
+      {
+        selector: "." + className + " .ac-modal-body .ac-gallery-item",
+        tagName: "div",
+      },
+      {
+        selector: "." + className + " .ac-modal-body .ac-gallery-img",
+        tagName: "div",
+      },
     ],
     properties: [
       {},
@@ -1086,7 +1095,8 @@ const createGallery = async (state, document) => {
       key: ["activeItem"],
       type: "Gallery-" + wrraper_unique_id,
     },
-    "Gallery-" + wrraper_unique_id, extraSelectors
+    "Gallery-" + wrraper_unique_id,
+    extraSelectors
   );
 
   modalElement.parent = wrraper_unique_id;
@@ -1382,15 +1392,18 @@ const createModal = async (
 
   if (extraSelectors && Array.isArray(extraSelectors?.selectors)) {
     for (let i = 0; i < extraSelectors.selectors.length; i++) {
-      await addCSS(document, extraSelectors.properties[i], extraSelectors.selectors[i], state.page._id);
+      await addCSS(
+        document,
+        extraSelectors.properties[i],
+        extraSelectors.selectors[i],
+        state.page._id
+      );
     }
 
     modal["selectors"] = extraSelectors.selectors;
   }
 
   await updateData(state.page._id, modal);
-
-
 
   properties = {
     position: {

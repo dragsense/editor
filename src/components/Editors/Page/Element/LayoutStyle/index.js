@@ -106,7 +106,7 @@ function LayoutStyle({ children, layout, selector, onChange, isStyleChange, onUp
       <Main selector={selector} setChange={onChange}>{children}</Main>
     ) : layout === 'section' ? (
       <Section selector={selector} setChange={onChange}>{children}</Section>
-    ) : layout === 'div' ? (
+    ) : layout === 'div' || layout === 'fg-child' ? (
       <Div selector={selector} setChange={onChange}>{children}</Div>
     ) : layout === 'article' ? (
       <Article selector={selector} setChange={onChange}>{children}</Article>

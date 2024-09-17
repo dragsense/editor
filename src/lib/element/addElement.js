@@ -758,7 +758,7 @@ const createElement = async (
       newElement = {
         _uid: uniqueId,
         tagName: tag.tag,
-        name: tag.layout,
+        name: tag.name || tag.layout,
         type: tag.type,
         layout: tag.layout,
         attributes: tag.attributes,

@@ -90,12 +90,14 @@ const ElementComponent = (props) => {
         if (!node)
             return;
 
-        const { _uid, ...restOfStates } = node.states;
+        const { _uid, ...restOfStates } = node.states || {};
 
         setStates({ _uid: node._uid, ...node.states });
         
         const cascaderStates = generateCascader(restOfStates, node.name + " (" + node.cname + ")", node.cname + "-" + node._uid);
         onUpdateStates(node._uid, cascaderStates, setStates);
+
+
     }, [node?.name]);
 
     useEffect(() => {

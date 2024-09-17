@@ -164,6 +164,7 @@ export default function Elements({ pageUpdated, _id, pageType, onUpdateStates })
       onUpdateStates('PAGESTATES', pageStates, null);
 
       const res = await SettingServices.get();
+   
       const data = {
         _id: page._id,
         slug: page.slug,
@@ -176,7 +177,7 @@ export default function Elements({ pageUpdated, _id, pageType, onUpdateStates })
         relationships,
         host: res.host || '',
         ...({ setting: page.setting } || {}),
-        global: { ...res.setting },
+        global: { ...res.settings },
       };
       setSetting(data);
     }

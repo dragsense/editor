@@ -126,6 +126,7 @@ const EditorRightSideBar = ({
   onUpdateSelector,
   onMove,
   onAdd,
+
   onCopy,
   onDelete,
   state,
@@ -279,6 +280,7 @@ const EditorRightSideBar = ({
             {state.node && (
               <Styling
                 onDeleteSelector={onDeleteSelector}
+                host={page.host}
                 onUpdateSelector={onUpdateSelector}
                 state={state}
                 onChangeStyle={onChange}
