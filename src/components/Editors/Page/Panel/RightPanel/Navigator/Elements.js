@@ -1,7 +1,7 @@
 // Importing necessary libraries and components
 import React, { useEffect, useState, useCallback } from 'react';
 import { getAllData, getData } from '../../../../../../lib/db';
-import { Card, Checkbox, Divider, Popconfirm, Radio, theme } from 'antd';
+import { Card, Checkbox, Divider, message, Popconfirm, Radio, theme } from 'antd';
 import { CopyOutlined, DeleteOutlined } from '@ant-design/icons';
 
 // InlineSkeleton component for loading state
@@ -113,12 +113,22 @@ function TreeNode(props) {
     }
 
     try {
-      const tag = JSON.parse(event.dataTransfer.getData('text/plain'));
+      
+      const droppedData = JSON.parse(event.dataTransfer.getData("text/plain"));
 
-      if (tag.move)
-        onMove(id, tag._uid, isTop, pos, tag.dragPos, null);
+      // Check if the dropped item contains the specific key/value pair.
+      const allowedKey = "autocode-element"; // Replace this with your actual key
+      if (droppedData.key !== allowedKey) {
+        // If the key does not match, show a warning and stop execution.
+        message.warning("This item is not allowed to be dropped here.");
+        return;
+      }
+
+
+      if (droppedData.move)
+        onMove(id, droppedData._uid, isTop, pos, droppedData.dragPos, null);
       else
-        onAdd(tag, id, isTop, pos, null);
+        onAdd(droppedData, id, isTop, pos, null);
     } catch (e) {
       currentElement.style.backgroundColor = 'transparent';
     }

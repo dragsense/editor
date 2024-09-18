@@ -20,7 +20,7 @@ function Item({ tag, selectedTag, color, onSelect, children, gridStyle }) {
   };
 
   const onDragStart = (e) => {
-    e.dataTransfer.setData('text/plain', JSON.stringify(tag));
+    e.dataTransfer.setData('text/plain', JSON.stringify({...tag, key: 'autocode-element'}));
   };
 
   const render = useMemo(() => {

@@ -220,7 +220,8 @@ export default function IFrame({
       .map((element) => ({
         uid: element.dataset.id,
         name: element.dataset.name || element.tagName,
-        layout: element.dataset.layout || element.dataset.name || element.tagName,
+        layout:
+          element.dataset.layout || element.dataset.name || element.tagName,
         pos: element.dataset.pos,
       }));
 
@@ -273,7 +274,7 @@ export default function IFrame({
       onClickElement(container?.document, key);
       ContentEditor.destroy();
     },
-    [state.node, container]
+    [state.node, state.page, container]
   );
 
   // Effect to set container
@@ -443,10 +444,23 @@ export default function IFrame({
         }
 
         const pos = currentElement.dataset.pos || "";
-        const tag = JSON.parse(event.dataTransfer.getData("text/plain"));
-        handleTagAction(tag, id, isTop, pos, iframeDocument);
+        const droppedData = JSON.parse(
+          event.dataTransfer.getData("text/plain")
+        );
+
+        // Check if the dropped item contains the specific key/value pair.
+        const allowedKey = "autocode-element"; // Replace this with your actual key
+        if (droppedData.key !== allowedKey) {
+          // If the key does not match, show a warning and stop execution.
+          message.warning("This item is not allowed to be dropped here.");
+          return;
+        }
+
+        // If the key matches, continue with the tag action.
+        handleTagAction(droppedData, id, isTop, pos, iframeDocument);
+
       } catch (e) {
-        message.error(e?.message, "Something Wrong");
+        console.error(e?.message, "Something Wrong");
       } finally {
         setGapBarPos(null);
       }
@@ -650,10 +664,21 @@ export default function IFrame({
       if (!id) return;
 
       try {
-        const tag = JSON.parse(event.dataTransfer.getData("text/plain"));
-        tag.move
-          ? onMove(id, tag._uid, isTop, pos, tag.dragPos, iframeDocument)
-          : onAdd(tag, id, isTop, pos, iframeDocument);
+
+        const droppedData = JSON.parse(event.dataTransfer.getData("text/plain"));
+
+        // Check if the dropped item contains the specific key/value pair.
+        const allowedKey = "autocode-element"; // Replace this with your actual key
+        if (droppedData.key !== allowedKey) {
+          // If the key does not match, show a warning and stop execution.
+          message.warning("This item is not allowed to be dropped here.");
+          return;
+        }
+
+
+        droppedData.move
+          ? onMove(id, droppedData._uid, isTop, pos, droppedData.dragPos, iframeDocument)
+          : onAdd(droppedData, id, isTop, pos, iframeDocument);
       } catch (e) {
         console.error(e);
       }
@@ -743,7 +768,7 @@ export default function IFrame({
         frameBorder={0}
         id="ac-editor-iframe-doc"
         width="100%"
-        style={{height: "95vh"}}
+        style={{ height: "95vh" }}
         ref={iframeRef}
       >
         {container?.mountTarget &&
@@ -832,6 +857,7 @@ export default function IFrame({
       e.dataTransfer.setData(
         "text/plain",
         JSON.stringify({
+          key: 'autocode-element',
           _uid: item.uid,
           name: item.name,
           dragPos: item.pos,
@@ -868,7 +894,7 @@ export default function IFrame({
       setCurrentElement({
         dataset: { id: item.uid, pos: item.pos },
         layout: item.layout,
-        name: item.name
+        name: item.name,
       });
     };
 

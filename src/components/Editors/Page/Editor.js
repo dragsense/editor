@@ -138,7 +138,7 @@ export default function Editor({ children, _id, pageType, onBack }) {
             position: 'fixed',
             width: '100%',
             height: '100%',
-            backgroundColor: '#fff',
+            backgroundColor: 'transparent',
             left: 0,
             top: 0,
             right: 0,
@@ -152,7 +152,7 @@ export default function Editor({ children, _id, pageType, onBack }) {
         >
 
         </div>}
-        <Spin size="small" spinning={state.loading}
+        <Spin size="large" spinning={state.loading}
             style={{
                 position: 'fixed',
                 top: '50%',

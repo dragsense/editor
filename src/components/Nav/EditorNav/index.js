@@ -128,7 +128,6 @@ const EditorNav = ({
             <Button
               type="dashed"
               style={{ marginRight: 10 }}
-              loading={state?.loading}
               onClick={handleBackClick}
             >
               Back
@@ -138,7 +137,6 @@ const EditorNav = ({
           <Button
             type="primary"
             disabled={!state?.isChange}
-            loading={state?.loading}
             style={{ marginRight: 10 }}
             onClick={(e) => {
               e.preventDefault();
@@ -150,7 +148,6 @@ const EditorNav = ({
 
           <Button
             type="primary"
-            loading={state?.loading}
             onClick={(e) => {
               e.preventDefault();
               onSubmit(true);

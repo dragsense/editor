@@ -10,7 +10,7 @@ const handleDragStart = (e, page, type) => {
     const tag = {
         "page": { _id: page._id, pageType: type },
     }
-    e.dataTransfer.setData('text/plain', JSON.stringify(tag));
+    e.dataTransfer.setData('text/plain', JSON.stringify({...tag, key: 'autocode-element'}));
 }
 
 // Function to handle edit
