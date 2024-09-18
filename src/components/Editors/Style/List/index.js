@@ -253,7 +253,7 @@ export default function List({ style, host, properties, onChangeStyle }) {
                     objectFit: 'cover',
                     cursor: 'pointer'
                 }}
-                src={`${host+ image?.src || "./images/default/default-img.png"}`}
+                src={`${image ? host + image?.src : "./images/default/default-img.png"}`}
                 />
 
             </div>

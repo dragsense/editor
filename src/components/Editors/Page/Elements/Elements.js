@@ -42,10 +42,8 @@ const TreeNode = (props) => {
 
   useEffect(() => {
 
-
     const checkIds = Array.isArray(pageUpdated.newIds) && pageUpdated.newIds.includes(_uid);
     if (!checkIds && pageUpdated.parentId !== _uid && pageUpdated?.currentId !== _uid) return;
-
 
     fetchNode();
   }, [pageUpdated, fetchNode]);
@@ -56,11 +54,8 @@ const TreeNode = (props) => {
   const rootForm = pageType === 'form' ? { _id } : null;
 
 
-
   if(isEmpty(node))
     return;
-
-
 
   return (
     <ElementWrapper
@@ -182,9 +177,6 @@ export default function Elements({ pageUpdated, _id, pageType, onUpdateStates })
       setSetting(data);
     }
   }, [_id]);
-
-
-
 
   useEffect(() => {
     fetchNode();

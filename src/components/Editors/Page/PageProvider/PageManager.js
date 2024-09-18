@@ -94,7 +94,7 @@ const reducer = (state, action) => {
     unselect: () => ({ ...state, node: null, states: { ...state.states } }),
     addSelector: () => ({ ...state, selector: action.selector }),
     selectNode: () => ({ ...state, node: action.node }),
-    error: () => ({ ...state, error: action.error }),
+    error: () => ({ ...state, error: action.error, loading: false }),
     finish: () => ({ ...state, loading: false }),
   };
 

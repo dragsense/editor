@@ -235,7 +235,6 @@ const ElementSetting = (props) => {
       if (attribute.value) {
         value = attribute.value.replace(/\[state]/, value);
         try {
-        
           const expr = parser.parse(value);
           const evaluatedResult = expr.evaluate();
           attributeValue = evaluatedResult;
@@ -246,6 +245,11 @@ const ElementSetting = (props) => {
         attributeValue = value;
       }
     }
+
+    if(attribute.key === 'backgroundImage' || attribute.key === 'background-image')
+      attributeValue = `url(${attributeValue})`;
+
+
     const conditions = attribute.conditions;
     const cond = calculateConditions(conditions);
     return cond ? attributeValue : null;

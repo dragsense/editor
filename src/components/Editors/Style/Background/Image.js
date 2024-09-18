@@ -92,7 +92,7 @@ export default function _Image({ type, style, host, properties, onChangeStyle, s
                     objectFit: 'cover',
                     cursor: 'pointer'
                 }}
-                src={`${host + image?.src || "./images/default/default-img.png"}`}
+                src={`${image ? host + image?.src : "./images/default/default-img.png"}`}
                 />
 
         </div>
