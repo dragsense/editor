@@ -11,7 +11,13 @@ const parser = new Parser();
  * @param {object} states - The states object.
  * @returns {any} - The value of the state.
  */
-export const getStateValue = (key, states, host) => {
+export const getStateValue = (
+  key,
+  states,
+  host,
+  defaultImage = "./images/default/default-img.png",
+  fallbackPoster = "./images/default/default-poster.png"
+) => {
   try {
     // If states object is not provided, return an empty string
     if (!states) {
@@ -31,7 +37,9 @@ export const getStateValue = (key, states, host) => {
       case "image":
         return {
           value: stateRef.src
-            ? host + stateRef.src.src
+            ? stateRef.src.src
+              ? host + stateRef.src.src
+              : defaultImage
             : "./images/default/default-img.png",
           label: stateRef.src?.alt || "image",
         };
@@ -39,7 +47,9 @@ export const getStateValue = (key, states, host) => {
       case "video":
         return {
           value: stateRef.src
-            ? host + stateRef.src.src
+            ? stateRef.src.src
+              ? host + stateRef.src.src
+              : fallbackPoster
             : "./images/default/default-poster.png",
           label: stateRef.src?.alt || "video",
           srcs: stateRef.srcs,
@@ -57,7 +67,9 @@ export const getStateValue = (key, states, host) => {
           if (stateRef.states[index] !== undefined) {
             const value = stateRef.states[index];
             return {
-              value: value.src || "./images/default/default-img.png",
+              value: value.src
+                ? host + value.src
+                : defaultImage || "./images/default/default-img.png",
               label: value.alt || "image",
             };
           }
@@ -78,7 +90,12 @@ export const getStateValue = (key, states, host) => {
         return "";
 
       case "object":
-        return getStateValue([key[1]], stateRef.states);
+        return getStateValue(
+          [key[1]],
+          stateRef.states,
+          defaultImage,
+          fallbackPoster
+        );
 
       default:
         return stateRef.defaultValue !== undefined ? stateRef.defaultValue : "";
@@ -99,7 +116,13 @@ export const getStateValue = (key, states, host) => {
  * @param {object} states - The states object.
  * @returns {Array} - An array of values.
  */
-export const getStateStates = (key, states, host) => {
+export const getStateStates = (
+  key,
+  states,
+  host,
+  defaultImage = "./images/default/default-img.png",
+  fallbackPoster = "./images/default/default-poster.png"
+) => {
   let values = [];
 
   try {
@@ -118,7 +141,6 @@ export const getStateStates = (key, states, host) => {
 
     // Depending on the type of the value, populate the values array
     if (value.type === "array") {
-
       values = Object.values(value.states || {}).flatMap((state) => {
         const val = state.value.split(":");
         return {
@@ -131,7 +153,11 @@ export const getStateStates = (key, states, host) => {
 
     if (value.type === "images") {
       values = Object.values(value.states || {}).map((state) => {
-        return { label: state.alt, value: host + state.src, key: state._id };
+        return {
+          label: state.alt,
+          value: state.src ? host + state.src : defaultImage,
+          key: state._id,
+        };
       });
     }
 
@@ -190,7 +216,12 @@ export const getStateRef = (key, states) => {
  * @param {object} states - The states object.
  * @returns {any} - The default value based on the state type.
  */
-export const getStates = (key, states) => {
+export const getStates = (
+  key,
+  states,
+  defaultImage = "./images/default/default-img.png",
+  fallbackPoster = "./images/default/default-poster.png"
+) => {
   try {
     // If states object is not provided, return an empty string
     if (!states) {
@@ -209,8 +240,7 @@ export const getStates = (key, states) => {
     switch (stateRef.type) {
       // Handle image type
       case "image":
-        const imageSrc =
-          stateRef.src?.src || "./images/default/default-img.png";
+        const imageSrc = stateRef.src?.src ? stateRef.src.src : defaultImage;
         const imageLabel = stateRef.src?.alt || "image";
         return {
           value: imageSrc,
@@ -219,8 +249,7 @@ export const getStates = (key, states) => {
 
       // Handle video type
       case "video":
-        const videoSrc =
-          stateRef.src?.src || "./images/default/default-poster.png";
+        const videoSrc = stateRef.src?.src ? stateRef.src.src : fallbackPoster;
         const videoLabel = stateRef.src?.alt || "video";
         return {
           value: videoSrc,
@@ -280,7 +309,12 @@ export const getStates = (key, states) => {
 
       // Handle object type
       case "object":
-        return getStateValue([key[1]], stateRef.states);
+        return getStateValue(
+          [key[1]],
+          stateRef.states,
+          defaultImage,
+          fallbackPoster
+        );
 
       // Handle default case
       default:
@@ -315,7 +349,7 @@ export const updateStateValue = (
   const expression = elem.value || "";
 
   let stateRef = getStateRef(key, states);
- 
+
   if (!stateRef) {
     return false;
   }
@@ -332,7 +366,6 @@ export const updateStateValue = (
       );
       const expr = parser.parse(originalExpression);
       updatedValue = expr.evaluate();
-
     } else {
       updatedValue = value;
     }
@@ -532,7 +565,7 @@ export async function generateCascadeRelationsStates(collection) {
     // Map over the populated relationships and generate a cascader for each
     cascaderItems = await Promise.all(
       collection.populatedRelationships.map(async (relation) => {
-        const res =  generateCascader(
+        const res = generateCascader(
           {
             0: {
               states: relation.states || {},
@@ -541,14 +574,11 @@ export async function generateCascadeRelationsStates(collection) {
             },
           },
           relation.name.toUpperCase(),
-          relation._id,
-          
+          relation._id
         )[0];
 
+        if (res.children) res.children = [...pageSetting, ...res.children];
 
-        if(res.children)
-          res.children = [...pageSetting, ...res.children]
-        
         return res;
       })
     );
@@ -606,11 +636,20 @@ export const getPaginationRange = (currentPage, totalPages, pagination) => {
     return Array.from({ length: totalPages }, (_, index) => index + 1);
   }
 
-  const leftRange = Array.from({ length: leftRangeLength }, (_, index) => index + 1);
-  const rightRange = Array.from({ length: rightRangeLength }, (_, index) => totalPages - rightRangeLength + index + 1);
+  const leftRange = Array.from(
+    { length: leftRangeLength },
+    (_, index) => index + 1
+  );
+  const rightRange = Array.from(
+    { length: rightRangeLength },
+    (_, index) => totalPages - rightRangeLength + index + 1
+  );
 
   // Nearby pages range
-  const nearbyRange = Array.from({ length: end - start + 1 }, (_, index) => start + index);
+  const nearbyRange = Array.from(
+    { length: end - start + 1 },
+    (_, index) => start + index
+  );
 
   // Adjust for dots
   if (start > leftRangeLength + 1) {
@@ -637,7 +676,16 @@ export const getPaginationRange = (currentPage, totalPages, pagination) => {
  * @param {object} setting - The settings object.
  * @returns {object|null} - The value based on the key or null if not found.
  */
-export const getSettingValue = (key, setting, host) => {
+export const getSettingValue = (
+  key,
+  setting,
+  host,
+  defaultImage = "./images/default/default-img.png",
+  fallbackPoster = "./images/default/default-poster.png"
+) => {
+
+  console.log(defaultImage);
+
   // Extract the setting object
   const _setting = setting.setting;
   // If the setting object is not defined, return null
@@ -647,7 +695,9 @@ export const getSettingValue = (key, setting, host) => {
   if (key[1] === "image") {
     const image = _setting["populatedImage"];
     return {
-      value: host + image?.src || "/images/default/default-img.png",
+      value: image?.src
+        ? host + image.src
+        : defaultImage,
       label: image?.alt || "[featured image]",
     };
   }
@@ -676,7 +726,8 @@ export const getSettingValue = (key, setting, host) => {
  * @param {object} setting - The settings object.
  * @returns {object|null} - The value based on the key or null if not found.
  */
-const getDocumentValue = (key, setting) => {
+const getDocumentValue = (key, setting, host, defaultImage = "./images/default/default-img.png",
+  fallbackPoster = "./images/default/default-poster.png") => {
   // Extract the document object
   const doc = setting[key[0]];
   // If the document object is not defined, return null
@@ -688,7 +739,9 @@ const getDocumentValue = (key, setting) => {
   if (key[1] === "image") {
     const image = doc["image"];
     return {
-      value: image?.src || "/images/default/default-img.png",
+      value: image?.src
+        ? host + image.src
+        : defaultImage,
       label: image?.alt || "Featured Image",
     };
   }
@@ -709,18 +762,22 @@ const getDocumentValue = (key, setting) => {
  * @param {object} setting - The settings object.
  * @returns {object|null} - The value based on the key or null if not found.
  */
-export const getPageValue = (elemKey, setting, host, mapIndex = 0) => {
+export const getPageValue = (
+  elemKey,
+  setting,
+  host,
+  mapIndex = 0,
+  defaultImage = "./images/default/default-img.png",
+  fallbackPoster = "./images/default/default-poster.png"
+) => {
   // Remove 'POPULATED' if it's the first element in the key array
-
-
   const key = [...elemKey];
   if (key[0] === "POPULATED") {
     key.shift();
     if (setting.populatedRelationships?.[key[0]]) {
-
       const populated = setting.populatedRelationships[key[0]][mapIndex] || {};
       key.shift();
-      return getPageValue([...key], populated, host)
+      return getPageValue([...key], populated, host);
     }
   }
 
@@ -728,11 +785,23 @@ export const getPageValue = (elemKey, setting, host, mapIndex = 0) => {
     const modifiedKey = [...key];
     modifiedKey.shift();
 
-    return getStateValue(modifiedKey, setting.states, setting.host || host);
+    return getStateValue(
+      modifiedKey,
+      setting.states,
+      setting.host || host,
+      defaultImage,
+      fallbackPoster
+    );
   } else if (key[0] === "RELATIONSHIPS" && setting.relationships) {
     return setting.relationships[key[1]] || null;
   } else if (key[0] === "SETTING") {
-    return getSettingValue(key, setting, setting.host || host);
+    return getSettingValue(
+      key,
+      setting,
+      setting.host || host,
+      defaultImage,
+      fallbackPoster
+    );
   } else if (key[0] === "creator") {
     const creator = setting[key[0]] || {};
 
@@ -744,10 +813,11 @@ export const getPageValue = (elemKey, setting, host, mapIndex = 0) => {
     const createdAt = setting[key[0]];
     return createdAt ? formatDate(createdAt, key[1]) : `[page ${key[1]}]`;
   } else if (key[1] === "NEXTDOCUMNET" || key[1] === "PREVDOCUMNET") {
-    return getDocumentValue(key, setting);
+    return getDocumentValue(key, setting, setting.host || host,);
   } else {
     return {
-      value: setting[key[0]] !== undefined ? setting[key[0]] : `[page ${key[0]}]`,
+      value:
+        setting[key[0]] !== undefined ? setting[key[0]] : `[page ${key[0]}]`,
       label: setting[key[0]] || `[page ${key[0]}]`,
     };
   }

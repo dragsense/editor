@@ -91,7 +91,7 @@ const renderElement = (tagType, layout, props) => {
 const ElementType = (props) => {
     const { node } = props;
     const layout = node.layout;
-    const tagType = useMemo(() => getTagType(node, layout), [node, layout]); // useMemo for performance optimization
+    const tagType = useMemo(() => getTagType(node, layout), [node, layout]);
     return renderElement(tagType, layout, props);
 }
 

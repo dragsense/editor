@@ -45,6 +45,29 @@ const ElementSetting = (props) => {
     node,
   } = props;
 
+
+   // useMemo to calculate fallback image only when setting changes
+   const fallbackImage = useMemo(() => {
+    let defaultImage = "/images/default/default-img.png";
+    if (setting && setting["global"]) {
+      const images = setting["global"]["images"];
+      const placeholder = images?.placeholder?.src;
+      defaultImage = placeholder ? setting.host + placeholder : defaultImage;
+    }
+    return defaultImage;
+  }, [setting]);
+
+  // useMemo to calculate fallback poster only when setting changes
+  const fallbackPoster = useMemo(() => {
+    let defaultImage = "./images/default/default-poster.png";
+    if (setting && setting["global"]) {
+      const images = setting["global"]["images"];
+      const placeholder = images?.placeholder?.src;
+      defaultImage = placeholder ? setting.host + placeholder : defaultImage;
+    }
+    return defaultImage;
+  }, [setting]);
+
   /**
    * This function is used to get the value of an element.
    *
@@ -57,16 +80,17 @@ const ElementSetting = (props) => {
     const type = elem?.type;
     const key = elem?.key;
 
+    
     // Check the type of the element and return the corresponding value
     switch (type) {
       case "GLOBAL":
         return handleGlobalType(key, value);
       case "PROPS":
-        return getStateValue(key, _props, setting?.host) || `[props.${key}]`;
+        return getStateValue(key, _props, setting?.host, fallbackImage, fallbackPoster) || `[props.${key}]`;
       case "STATES":
-        return getStateValue(key, _states, setting?.host);
+        return getStateValue(key, _states, setting?.host, fallbackImage, fallbackPoster);
       case "PAGE":
-        return getPageValue(key, setting, setting?.host, mapIndex);
+        return getPageValue(key, setting, setting?.host, mapIndex, fallbackImage, fallbackPoster);
       case "COLSTATES":
         return handleColStatesType(key, value, setting?.host);
       case "FORMSTATES":
@@ -123,7 +147,7 @@ const ElementSetting = (props) => {
     return {
       value: image?.src
         ? setting?.host + image.src
-        : "/images/default/default-img.png",
+        : fallbackImage,
       label: image === undefined ? `[${key[2]}]` : image?.alt || "Global Image",
     };
   };
@@ -134,7 +158,7 @@ const ElementSetting = (props) => {
     if (key[0] === "PAGES") return mapIndex + 1;
     else if (key[0] === "docsLength" && colStates.documents)
       return colStates.documents.length || "0";
-    else return getPageValue(key, colStates, host, mapIndex);
+    else return getPageValue(key, colStates, host, mapIndex, fallbackImage, fallbackPoster);
   };
 
   // Handle 'FORMSTATES' type
@@ -165,7 +189,7 @@ const ElementSetting = (props) => {
     ];
     types = types.map((t) => t + "-" + cstateId);
     if (types.includes(type)) {
-      return getStateValue(key, _cstates);
+      return getStateValue(key, _cstates, fallbackImage, fallbackPoster);
     }
     return "";
   };
@@ -183,7 +207,6 @@ const ElementSetting = (props) => {
 
     original = original.replace(/\[key]/g, keyValue);
     try {
-
       const expr = parser.parse(original);
       const evaluatedResult = expr.evaluate();
       return evaluatedResult;
@@ -224,10 +247,13 @@ const ElementSetting = (props) => {
    * @returns {any} The calculated attribute value.
    */
   const calculateAttributeValue = (attribute) => {
+
+
     let attributeValue = null;
     if (attribute.key === "style") {
       attributeValue = calculateAttributes(attribute.attributes);
     } else {
+
       const stateValue = getValue(attribute.valueState, attribute.value);
 
       let value = stateValue?.value || stateValue;
@@ -246,8 +272,15 @@ const ElementSetting = (props) => {
       }
     }
 
-    if(attribute.key === 'backgroundImage' || attribute.key === 'background-image')
+
+
+
+    if (
+      attribute.key === "backgroundImage" ||
+      attribute.key === "background-image"
+    )
       attributeValue = `url(${attributeValue})`;
+
 
 
     const conditions = attribute.conditions;
@@ -262,6 +295,7 @@ const ElementSetting = (props) => {
    * @returns {object} The calculated attributes object.
    */
   const calculateAttributes = (attributes) => {
+
     if (!attributes) return {};
     return Object.values(attributes).reduce((a, attribute) => {
       const attributeValue = calculateAttributeValue(attribute);
@@ -280,11 +314,12 @@ const ElementSetting = (props) => {
 
   let attr = useMemo(() => {
     try {
+      
       return calculateAttributes(attributes);
     } catch (e) {
       return {};
     }
-  }, [attributes, colStates, _cstates, _states, _props, mapValue, node._uid]);
+  }, [attributes, colStates, _cstates, _states, _props, mapValue, node._uid, fallbackImage]);
 
   // Function to calculate class names based on conditions
   const calculateClassNames = (cls) => {
@@ -305,6 +340,8 @@ const ElementSetting = (props) => {
       return a + " " + classValue;
     }, "");
   };
+
+  
 
   // useMemo to calculate class names only when dependencies change
   const clss = useMemo(() => {
@@ -372,26 +409,13 @@ const ElementSetting = (props) => {
     setting?.resize,
   ]);
 
-  // useMemo to calculate fallback image only when setting changes
-  const fallbackImage = useMemo(() => {
-    let defaultImage = "/images/default/default-img.png";
-    if (setting && setting["images"]?.placeholder.src)
-      return setting["images"]?.placeholder.src;
-    return defaultImage;
-  }, [setting]);
-
-  // useMemo to calculate fallback poster only when setting changes
-  const fallbackPoster = useMemo(() => {
-    let defaultImage = "./images/default/default-poster.png";
-    if (setting && setting["images"]?.placeholder.src)
-      return setting["images"]?.placeholder.src;
-    return defaultImage;
-  }, [setting]);
+ 
 
   // useMemo to calculate node value with fallback only when nodeValue changes
   const withFallBackNodeValue = useMemo(() => {
     switch (node.tagName) {
       case "img":
+        console.log(setting);
         return {
           value: node.src ? setting?.host + node.src.src : fallbackImage,
           label: node.src?.alt,
