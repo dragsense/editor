@@ -139,9 +139,11 @@ const InnerComponent = ({ children, document, onLoad, _id, type }) => {
       }
     });
   };
-
+ 
   // useEffect hook to load CSS styles and call onLoad function when _id changes
   useEffect(() => {
+
+  
     if (_id)
       loadCSSStyles()
         .then((status) => {
@@ -151,7 +153,7 @@ const InnerComponent = ({ children, document, onLoad, _id, type }) => {
           message.error(e?.message || "Something went wrong!");
         });
     else onLoad(null, "", document);
-  }, [_id]);
+  }, [_id, type]);
 
   return children;
 };
@@ -763,6 +765,7 @@ export default function IFrame({
 
   // Function to render the iframe
   const renderIframe = () => {
+   
     return (
       <iframe
         frameBorder={0}
@@ -1121,7 +1124,7 @@ export default function IFrame({
       </Card>
     );
   };
-
+ 
   return (
     <>
       {renderOverlay()}

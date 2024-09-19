@@ -120,7 +120,6 @@ const ElementSetting = (props) => {
     const contentWindow = iframe.contentWindow;
 
     if (!contentWindow) return;
-
     if (key[1] === "width") {
       return contentWindow.innerWidth;
     } else if (key[1] === "height") {
@@ -310,7 +309,7 @@ const ElementSetting = (props) => {
     } catch (e) {
       return true;
     }
-  }, [conditions, colStates, _cstates, _states, _props, mapValue, node._uid]);
+  }, [conditions, setting, colStates, _cstates, _states, _props, mapValue, node._uid]);
 
   let attr = useMemo(() => {
     try {
@@ -319,7 +318,7 @@ const ElementSetting = (props) => {
     } catch (e) {
       return {};
     }
-  }, [attributes, colStates, _cstates, _states, _props, mapValue, node._uid, fallbackImage]);
+  }, [attributes, setting, colStates, _cstates, _states, _props, mapValue, node._uid, fallbackImage]);
 
   // Function to calculate class names based on conditions
   const calculateClassNames = (cls) => {
@@ -363,6 +362,7 @@ const ElementSetting = (props) => {
     mapValue,
     node._uid,
     node.className,
+    setting
   ]);
 
   // Regular expression pattern to match the placeholders in the node value
@@ -415,7 +415,6 @@ const ElementSetting = (props) => {
   const withFallBackNodeValue = useMemo(() => {
     switch (node.tagName) {
       case "img":
-        console.log(setting);
         return {
           value: node.src ? setting?.host + node.src.src : fallbackImage,
           label: node.src?.alt,

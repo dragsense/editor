@@ -154,7 +154,7 @@ function SearchableSelector({ state, onSelect, animation = false, isConverted = 
     );
 
     const validateSearchInput = (inputValue) => {
-        const regex = animation ? /^(100|[1-9][0-9]?|0)%|from|to$/ : /^(?:\.[a-zA-Z0-9_-]+|#[a-zA-Z0-9_-]+)$/;
+        const regex = animation ? /^(100|[1-9][0-9]?|0)%|from|to$/ : /^([.#][a-zA-Z0-9_-]+)(\s+[.#][a-zA-Z0-9_-]+)*$/;
         return regex.test(inputValue);
     };
 

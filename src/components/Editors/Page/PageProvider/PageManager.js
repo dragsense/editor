@@ -363,8 +363,7 @@ export const onDeleteElement = async (currentElement, _id) => {
     );
   }
   // Delete the current element
-  if(currentElement._uid !== '0')
-  await deleteElement(currentElement, _id);
+  if (currentElement._uid !== "0") await deleteElement(currentElement, _id);
 };
 
 export const onDeleteDropdown = async (_uid, _id) => {
@@ -377,7 +376,7 @@ export const onDeleteDropdown = async (_uid, _id) => {
   }
 };
 
-export default function PageManger({ children }) {
+export default function PageManger({ children, _id, pageType }) {
   // Use the useReducer hook to manage the state of the page
   // The reducer function is used to handle state changes
   // The initial state is passed as the second argument to the useReducer hook
@@ -585,6 +584,7 @@ export default function PageManger({ children }) {
       dispatch({ type: "finish" });
     }
   };
+
 
   // Function to update the value of an element
   const updateValue = async (
@@ -868,9 +868,6 @@ export default function PageManger({ children }) {
 
   // Function to delete a component from the page
   const deleteComponent = async (tag) => {
-
-   
-
     // Fetch all data related to the current page
     const page = await getAllData(state.page._id);
 
@@ -880,7 +877,7 @@ export default function PageManger({ children }) {
       if (Array.isArray(page[`${tag.page.pageType}s`])) {
         // Filter out the component to be deleted
         page[`${tag.page.pageType}s`] = filterPageComponents(page, tag);
-     
+
         // Store the updated page data
         await storePage(page);
 
@@ -1149,7 +1146,7 @@ export default function PageManger({ children }) {
       }
 
       // Check if the currentUid is '0'
-      if (currentUid == "0" || currentElement._uid == '0') {
+      if (currentUid == "0" || currentElement._uid == "0") {
         throw new Error("Body cannot be deleted.");
       }
 
@@ -1805,8 +1802,11 @@ export default function PageManger({ children }) {
           element.style.outline = null;
         });
 
+
         // Add outline to the selected node
-        node.style.outline = "#2fc1ff dotted 3px";
+        if (element.type === "component" || element.page)
+          node.style.outline = "#f88a24 dotted 3px";
+        else node.style.outline = "#2fc1ff dotted 3px";
 
         // Dispatch the selected node along with its data to the state
         dispatch({ type: "selectNode", node: { ...element, node } });

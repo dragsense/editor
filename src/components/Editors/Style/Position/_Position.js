@@ -163,7 +163,7 @@ export default function Position({ type, style, properties, onChangeStyle, style
                             </Option>
                         ))}
                     </Select>
-                    <Checkbox
+                    <Checkbox  style={{ marginLeft: 3 }}
                         name="position"
                         size="small"
                         checked={stylePriority.position === "important"}

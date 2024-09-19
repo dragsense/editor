@@ -11,7 +11,7 @@ export default function Color({ type, colors, style, properties, onChangeStyle, 
 
 
     const [colorPicker, setColorPicker] = useState(false);
-    const [color, setColor] = useState(style.backgroundColor);
+    const [color, setColor] = useState(style.backgroundColor || '#000');
     const [isGradient, setIsGradientType] = useState(false);
 
     const [gradientType, setGradientType] = useState('linear');

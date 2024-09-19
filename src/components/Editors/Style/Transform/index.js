@@ -1,68 +1,125 @@
-import { Collapse } from 'antd';
-import { useEffect, useState } from 'react';
+import { Checkbox, Collapse, Tooltip } from "antd";
+import { useEffect, useState } from "react";
 
-
-import Scale from './Scale';
-import Rotate from './Rotate';
-import Translate from './Translate';
-import Skew from './Skew';
-import Perspective from './Perspective';
+import Scale from "./Scale";
+import Rotate from "./Rotate";
+import Translate from "./Translate";
+import Skew from "./Skew";
+import Perspective from "./Perspective";
 const { Panel } = Collapse;
 
-export default function Trasform({ style, properties, onChangeStyle  }) {
+export default function Trasform({ style, properties, onChangeStyle }) {
+  const [stylePriority, setStylePriority] = useState({
+    scale: "",
+    rotate: "",
+    translate: "",
+    skew: "",
+    perspective: "",
+  });
 
-    const [stylePriority, setStylePriority] = useState({
-        scale: '',
-        rotate: '',
-        translate: '',
-        skew: '',
-        perspective: ''
-    })
+  useEffect(() => {
+    if (!properties) {
+      return;
+    }
 
-    useEffect( () => {
+    const priorities = {};
 
-        if (!properties) {
-            return;
-        }
+    for (const key in stylePriority) {
+      const hyphenatedKey = key.replace(/([A-Z])/g, "-$1").toLowerCase();
+      if (properties[hyphenatedKey])
+        priorities[key] = properties[hyphenatedKey].priority;
+      else priorities[key] = "";
+    }
+    setStylePriority(priorities);
+  }, [properties]);
 
-        const priorities = {};
+  const onChangePriority = (e) => {
+    const priority = e.target.checked ? "important" : "";
 
-        for (const key in stylePriority) {
-            const hyphenatedKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();
-            if (properties[hyphenatedKey])
-                priorities[key] = properties[hyphenatedKey].priority;
-            else
-                priorities[key] = '';
+    if (!properties["transform"]) properties["transform"] = {};
 
-        }
-        setStylePriority(priorities);
+    properties["transform"].priority = priority;
 
-    }, [properties]);
+    setStylePriority({ ...stylePriority, transform: priority });
+    style.setProperty("transform", style.transform, priority);
 
+    onChangeStyle();
+  };
 
+  return (
+    <>
+      {" "}
+      {style && (
+        <>
+          <Tooltip placement="top" title="important">
+            <Checkbox
+              style={{ marginLeft: 3 }}
+              checked={stylePriority.transform === "important"}
+              onChange={onChangePriority}
+            >
+              i
+            </Checkbox>
+          </Tooltip>
 
-    return <> {style && <>  <Collapse defaultActiveKey={['1']} accordion ghost>
-        <Panel header="Scale" key="1">
-
-            <Scale min={-2} max={2} style={style} properties={properties} onChangeStyle={onChangeStyle} stylePriority={stylePriority} setStylePriority={setStylePriority} />
-        </Panel>
-        <Panel header="Rotate" key="2">
-            <Rotate min={-360} max={360} style={style} properties={properties} onChangeStyle={onChangeStyle} stylePriority={stylePriority} setStylePriority={setStylePriority} />
-        </Panel>
-        <Panel header="Translate" key="3">
-            <Translate min={-50} max={50} style={style} properties={properties} onChangeStyle={onChangeStyle} stylePriority={stylePriority} setStylePriority={setStylePriority} />
-        </Panel>
-          <Panel header="Skew" key="4">
-            <Skew min={-50} max={50} style={style} properties={properties} onChangeStyle={onChangeStyle} stylePriority={stylePriority} setStylePriority={setStylePriority}  />
-        </Panel> 
-        <Panel header="Perspective" key="5">
-            <Perspective min={-1000} max={1000} style={style} properties={properties} onChangeStyle={onChangeStyle} stylePriority={stylePriority} setStylePriority={setStylePriority}  />
-        </Panel>  
-    </Collapse>
-    </>}
+          <Collapse defaultActiveKey={["1"]} accordion ghost>
+            <Panel header="Scale" key="1">
+              <Scale
+                min={-2}
+                max={2}
+                style={style}
+                properties={properties}
+                onChangeStyle={onChangeStyle}
+                stylePriority={stylePriority}
+                setStylePriority={setStylePriority}
+              />
+            </Panel>
+            <Panel header="Rotate" key="2">
+              <Rotate
+                min={-360}
+                max={360}
+                style={style}
+                properties={properties}
+                onChangeStyle={onChangeStyle}
+                stylePriority={stylePriority}
+                setStylePriority={setStylePriority}
+              />
+            </Panel>
+            <Panel header="Translate" key="3">
+              <Translate
+                min={-50}
+                max={50}
+                style={style}
+                properties={properties}
+                onChangeStyle={onChangeStyle}
+                stylePriority={stylePriority}
+                setStylePriority={setStylePriority}
+              />
+            </Panel>
+            <Panel header="Skew" key="4">
+              <Skew
+                min={-50}
+                max={50}
+                style={style}
+                properties={properties}
+                onChangeStyle={onChangeStyle}
+                stylePriority={stylePriority}
+                setStylePriority={setStylePriority}
+              />
+            </Panel>
+            <Panel header="Perspective" key="5">
+              <Perspective
+                min={-1000}
+                max={1000}
+                style={style}
+                properties={properties}
+                onChangeStyle={onChangeStyle}
+                stylePriority={stylePriority}
+                setStylePriority={setStylePriority}
+              />
+            </Panel>
+          </Collapse>
+        </>
+      )}
     </>
-
-
+  );
 }
-
-

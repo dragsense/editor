@@ -35,35 +35,13 @@ export default function Perspective({
 
 
 
-    const onChangePriority = (e) => {
-        const priority = e.target.checked ? 'important' : '';
 
-        if (!properties['perspective']) {
-            properties['perspective'] = {};
-        }
-
-        properties['perspective'].priority = priority;
-        setStylePriority({ ...stylePriority, perspective: priority });
-
-        const perspectiveValue = properties['perspective'].value || '0';
-        style.setProperty('perspective', perspectiveValue, priority);
-
-        onChangeStyle();
-    };
 
     return (
         <div>
             <div style={{ marginBottom: '10px' }}>
                 <strong>Perspective: </strong>
-                <Tooltip placement="top" title="important">
-                    <Checkbox
-                        style={{ marginLeft: 3 }}
-                        checked={stylePriority.perspective === 'important'}
-                        onChange={onChangePriority}
-                    >
-                        i
-                    </Checkbox>
-                </Tooltip>
+              
                 <Tooltip placement="top" title="Reset">
                     <Button
                         style={{ float: 'right' }}

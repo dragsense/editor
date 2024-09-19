@@ -45,7 +45,6 @@ const ShadowText = ({ style, colors, properties, onChangeStyle }) => {
             setStylePriority(priorities);
         }
 
-        console.log(properties)
     }, [properties]);
 
     const handleOffsetXChange = (value) => {
@@ -156,16 +155,17 @@ const ShadowText = ({ style, colors, properties, onChangeStyle }) => {
 
     const onChangePriority = (e) => {
 
+        const name = e.target.name;
+        const _name = e.target['data-name'];
         const priority = e.target.checked ? 'important' : '';
-        setStylePriority({ ...stylePriority, "text-shadow": priority })
 
+        if (!properties[_name])
+            properties[_name] = {}
 
-        if (!properties["text-shadow"])
-        properties["text-shadow"] = {};
+        properties[_name].priority = priority;
 
-        properties["text-shadow"].priority = priority;
-   
-        style.setProperty("text-shadow", style.textShadow, priority);
+        style.setProperty(_name, style[name], priority);
+        setStylePriority({ ...stylePriority, [name]: priority });
         onChangeStyle();
 
     }
@@ -177,7 +177,7 @@ const ShadowText = ({ style, colors, properties, onChangeStyle }) => {
             <div style={{ marginBottom: "10px" }}>
                 <strong >Text Shadow:     </strong>
                 <Tooltip placement="top" title="important">
-                    <Checkbox style={{ marginLeft: 3 }}
+                    <Checkbox style={{ marginLeft: 3 }} name='textShadow' data-name="text-shadow"
                         checked={stylePriority.textShadow === 'important'} onChange={onChangePriority}>i</Checkbox>
                 </Tooltip>
                 <Tooltip placement="top" title="Reset">

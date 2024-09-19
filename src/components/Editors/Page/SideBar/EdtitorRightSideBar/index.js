@@ -69,7 +69,7 @@ let globalStates = [
         value: "WEBSITE",
         children: [
           {
-            label: "TITLE",
+            label: "Title",
             value: "webTitle",
           },
           {
@@ -77,9 +77,14 @@ let globalStates = [
             value: "tagLine",
           },
           {
-            label: "DESCRIPTION",
+            label: "Description",
             value: "desc",
           },
+          {
+            label: "Language",
+            value: "lang",
+          },
+          
           {
             label: "Author",
             value: "author",

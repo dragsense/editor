@@ -175,7 +175,7 @@ const ElementComponent = (props) => {
     }, [states]);
 
     return (
-        <span  style={{ border: '#ffaa4f solid 1px', display: 'inherit' }}>
+     
             <ElementMapping
                 {...props} 
                 map={node.map}
@@ -198,8 +198,8 @@ const ElementComponent = (props) => {
                         updateStates: updateStates
                     })
                 })}
-            </ElementMapping>
-        </span>
+            </ElementMapping> 
+       
     );
 };
 

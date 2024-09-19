@@ -233,7 +233,7 @@ const createFlex = async (state, document, childCount = 2) => {
         unit: "%",
       },
     };
-    console.log(properties);
+    
     await addCSS(document, properties, child, state.page._id);
     await updateData(state.page._id, child);
   });
@@ -351,7 +351,7 @@ const createContainer = async (state, document) => {
     cname: "Container",
     type: "component",
     layout: "container",
-    nodeValue: "Container",
+    nodeValue: "",
     childNodes: [],
     className: className,
     selector: `.${className}`,

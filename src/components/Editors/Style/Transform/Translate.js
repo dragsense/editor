@@ -131,35 +131,14 @@ export default function Translate({
         onChangeStyle();
     };
 
-    const onChangePriority = (e) => {
-        const priority = e.target.checked ? 'important' : '';
-
-        if (!properties || !properties['transform']) {
-            return;
-        }
-
-        properties['transform'].priority = priority;
-
-        setStylePriority({ ...stylePriority, transform: priority });
-        style.setProperty('transform', style.transform, priority);
-
-        onChangeStyle();
-    };
+   
 
     return (
         <>
             <div>
                 <div style={{ marginBottom: '10px' }}>
                     <strong>Translate: </strong>
-                    <Tooltip placement="top" title="important">
-                        <Checkbox
-                            style={{ marginLeft: 3 }}
-                            checked={stylePriority.transform === 'important'}
-                            onChange={onChangePriority}
-                        >
-                            i
-                        </Checkbox>
-                    </Tooltip>
+                   
                     <Tooltip placement="top" title="Reset">
                         <Button
                             style={{ float: 'right' }}

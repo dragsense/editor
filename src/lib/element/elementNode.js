@@ -498,6 +498,24 @@ export const pageSetting = [
   {
     label: "CREATOR",
     value: "creator",
+    children: [
+      {
+        label: "NAME",
+        value: "name",
+      },
+      {
+        label: "EMAIL",
+        value: "email",
+      },
+      {
+        label: "BIO",
+        value: "bio",
+      },
+      {
+        label: "Image",
+        value: "image",
+      },
+    ],
   },
   {
     label: "URL",
@@ -683,8 +701,7 @@ export const getSettingValue = (
   defaultImage = "./images/default/default-img.png",
   fallbackPoster = "./images/default/default-poster.png"
 ) => {
-
-  console.log(defaultImage);
+ 
 
   // Extract the setting object
   const _setting = setting.setting;
@@ -695,9 +712,7 @@ export const getSettingValue = (
   if (key[1] === "image") {
     const image = _setting["populatedImage"];
     return {
-      value: image?.src
-        ? host + image.src
-        : defaultImage,
+      value: image?.src ? host + image.src : defaultImage,
       label: image?.alt || "[featured image]",
     };
   }
@@ -726,8 +741,13 @@ export const getSettingValue = (
  * @param {object} setting - The settings object.
  * @returns {object|null} - The value based on the key or null if not found.
  */
-const getDocumentValue = (key, setting, host, defaultImage = "./images/default/default-img.png",
-  fallbackPoster = "./images/default/default-poster.png") => {
+const getDocumentValue = (
+  key,
+  setting,
+  host,
+  defaultImage = "./images/default/default-img.png",
+  fallbackPoster = "./images/default/default-poster.png"
+) => {
   // Extract the document object
   const doc = setting[key[0]];
   // If the document object is not defined, return null
@@ -739,9 +759,7 @@ const getDocumentValue = (key, setting, host, defaultImage = "./images/default/d
   if (key[1] === "image") {
     const image = doc["image"];
     return {
-      value: image?.src
-        ? host + image.src
-        : defaultImage,
+      value: image?.src ? host + image.src : defaultImage,
       label: image?.alt || "Featured Image",
     };
   }
@@ -802,18 +820,18 @@ export const getPageValue = (
       defaultImage,
       fallbackPoster
     );
-  } else if (key[0] === "creator") {
+  } else if (key[0] === "creator" && key[1]) {
     const creator = setting[key[0]] || {};
-
+    const value = creator[key[1]];
     return {
-      value: creator._id || "",
-      label: creator.name || "Unknown",
+      value: key[1] !== 'email' ? key[1] : value,
+      label: value || "Unknown",
     };
   } else if (key[0] === "createdAt") {
     const createdAt = setting[key[0]];
     return createdAt ? formatDate(createdAt, key[1]) : `[page ${key[1]}]`;
   } else if (key[1] === "NEXTDOCUMNET" || key[1] === "PREVDOCUMNET") {
-    return getDocumentValue(key, setting, setting.host || host,);
+    return getDocumentValue(key, setting, setting.host || host);
   } else {
     return {
       value:

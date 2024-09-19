@@ -223,19 +223,18 @@ const ShadowBox = ({ style, colors, properties, onChangeStyle }) => {
 
     const onChangePriority = (e) => {
 
-
+        const name = e.target.name;
+        const _name = e.target['data-name'];
         const priority = e.target.checked ? 'important' : '';
 
+        if (!properties[_name])
+            properties[_name] = {}
 
-        if (!properties["box-shadow"])
-            properties["box-shadow"] = {};
+        properties[_name].priority = priority;
 
-        properties["box-shadow"].priority = priority;
-
-        style.setProperty("box-shadow", style["box-shadow"], priority);
+        style.setProperty(_name, style[name], priority);
+        setStylePriority({ ...stylePriority, [name]: priority });
         onChangeStyle();
-
-        setStylePriority({ ...stylePriority, "box-shadow": priority })
 
 
     }
@@ -246,7 +245,7 @@ const ShadowBox = ({ style, colors, properties, onChangeStyle }) => {
             <div style={{ marginBottom: "10px" }}>
                 <strong >Box Shadow:     </strong>
                 <Tooltip placement="top" title="important">
-                    <Checkbox style={{ marginLeft: 3 }}
+                    <Checkbox style={{ marginLeft: 3 }} name='boxShadow' data-name="box-shadow"
                         checked={stylePriority.boxShadow === 'important'} onChange={onChangePriority}>i</Checkbox>
                 </Tooltip>
                 <Tooltip placement="top" title="Reset">

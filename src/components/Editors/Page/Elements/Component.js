@@ -864,18 +864,7 @@ const Component = (props) => {
     }
   }, [loading, props, node.map, states, _states, colStates, renderChildren]);
 
-  return (
-    <span
-      style={{
-        border: "#ff7875 solid 1px",
-        display: "inline-block",
-        width: "-webkit-fill-available",
-      }}
-      data-name={`${component.disabled ? "disabled-" : ""}component`}
-    >
-      {renderComponent()}
-    </span>
-  );
+  return renderComponent()
 };
 
 export default Component;

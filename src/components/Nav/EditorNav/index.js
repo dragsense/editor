@@ -85,8 +85,14 @@ const EditorNav = ({
           padding: "5px 20px",
         }}
       >
-        <img src="./images/logo/nav-logo.png" width="50" alt="autocode-logo" />
-
+        {" "}
+        <a href="/">
+          <img
+            src="./images/logo/nav-logo.png"
+            width="50"
+            alt="autocode-logo"
+          />
+        </a>
         <BreakPoints
           windowWidth={windowWidth}
           setWindowWidth={setWindowWidth}
@@ -95,9 +101,7 @@ const EditorNav = ({
           orientation={orientation}
           setOrientation={setOrientation}
         />
-
         <NavigationButtons undo={undo} redo={redo} />
-
         <div>
           {!previewMode && (
             <Tooltip title="Restore to the Last Published Changes">
@@ -105,9 +109,8 @@ const EditorNav = ({
                 type="text"
                 style={{ marginRight: 10 }}
                 onClick={async () => {
-                    onSubmit(false, true);
+                  onSubmit(false, true);
                 }}
-              
                 icon={<MdRestore />}
               ></Button>
             </Tooltip>

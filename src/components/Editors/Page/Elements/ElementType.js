@@ -74,6 +74,7 @@ const renderElement = (tagType, layout, props) => {
                 value={value.label || value}
                 pos={pos} _uid={_uid} name={node.cname || node.name || node.tagName} conds={conds}
                 onClick={onClick}
+                type={node.type}
                 onScroll={onScroll}
                 onMouseMove={onMouseMove}
                 onMouseEnter={onMouseEnter}
@@ -83,7 +84,7 @@ const renderElement = (tagType, layout, props) => {
             return <General layout={layout}  disabled={disabled}
                 onMouseEnter={onMouseEnter}
                 onMouseExit={onMouseExit}
-                pos={pos} _uid={_uid} name={node.cname || node.name || node.tagName}
+                pos={pos} _uid={_uid} type={node.type} name={node.cname || node.name || node.tagName}
                 conds={conds} onMouseMove={onMouseMove} onScroll={onScroll} onClick={onClick} value={value?.label || value} innerWraaper={children}>{element}</General>;
     }
 }

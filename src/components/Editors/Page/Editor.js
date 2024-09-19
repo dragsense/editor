@@ -50,7 +50,7 @@ export default function Editor({ children, _id, pageType, onBack }) {
         onChangeMedia(minMax, orientation, windowWidth);
     }, [minMax, orientation, windowWidth])
 
-    
+  
         // Rendering the Editor component
     return <>
 
@@ -79,6 +79,7 @@ export default function Editor({ children, _id, pageType, onBack }) {
                 <Content>
                     {(!state.page && state.loading) && <Alert style={{ margin: '10px' }} message="Please Select the Page Or Component" />}
                     <CanvasEditor windowWidth={windowWidth} setWindowWidth={setWindowWidth}>
+                        
                         <IFrame
                             _id={_id} pageType={state.type || pageType}
                             onLoad={onEdit} node={state.node}
