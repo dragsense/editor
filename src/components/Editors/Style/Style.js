@@ -70,7 +70,7 @@ const reducer = (state, action) => {
     }
 };
 
-export default function Style({ children, onBack, host }) {
+export default function Style({ children, onBack, host, isStyleEditor = false }) {
 
     // State variables for various UI elements and data
     const [backgroundColor, setBackgroundColor] = useState('#fff');
@@ -799,6 +799,7 @@ export default function Style({ children, onBack, host }) {
             <Editor
                 onDelete={onDeleteSelector}
                 state={state}
+                isStyleEditor={isStyleEditor}
                 onSubmit={onUpdateSelector}
                 onEdit={onEdit}
                 onSelect={onSelectSelector}

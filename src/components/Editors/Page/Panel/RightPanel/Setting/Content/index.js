@@ -41,7 +41,7 @@ export default function Content({
 
   useEffect(() => {
     if (!isChange) return;
-
+    onElementUpdate();
     onChange(false);
   }, [isChange]);
 

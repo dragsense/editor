@@ -139,12 +139,13 @@ const InnerComponent = ({ children, document, onLoad, _id, type }) => {
       }
     });
   };
- 
+
   // useEffect hook to load CSS styles and call onLoad function when _id changes
   useEffect(() => {
+    if (_id) {
+      const viewportTag = `<meta name="viewport" content="width=device-width, initial-scale=1.0">`;
+      document.head.insertAdjacentHTML("beforeend", viewportTag);
 
-  
-    if (_id)
       loadCSSStyles()
         .then((status) => {
           onLoad({ _id }, type, document);
@@ -152,7 +153,7 @@ const InnerComponent = ({ children, document, onLoad, _id, type }) => {
         .catch((e) => {
           message.error(e?.message || "Something went wrong!");
         });
-    else onLoad(null, "", document);
+    } else onLoad(null, "", document);
   }, [_id, type]);
 
   return children;
@@ -276,7 +277,7 @@ export default function IFrame({
       onClickElement(container?.document, key);
       ContentEditor.destroy();
     },
-    [state.node, state.page, container]
+    [state.node, state.page, state.media, container]
   );
 
   // Effect to set container
@@ -460,7 +461,6 @@ export default function IFrame({
 
         // If the key matches, continue with the tag action.
         handleTagAction(droppedData, id, isTop, pos, iframeDocument);
-
       } catch (e) {
         console.error(e?.message, "Something Wrong");
       } finally {
@@ -580,7 +580,7 @@ export default function IFrame({
       iframeDocument.removeEventListener("contextmenu", onContextMenu);
       setGapBarPos(null);
     };
-  }, [state.page, state.node, editing, container]);
+  }, [state.page, state.node, state.media, editing, container]);
 
   // Reset editing state when page is updated
   useEffect(() => {
@@ -666,8 +666,9 @@ export default function IFrame({
       if (!id) return;
 
       try {
-
-        const droppedData = JSON.parse(event.dataTransfer.getData("text/plain"));
+        const droppedData = JSON.parse(
+          event.dataTransfer.getData("text/plain")
+        );
 
         // Check if the dropped item contains the specific key/value pair.
         const allowedKey = "autocode-element"; // Replace this with your actual key
@@ -677,9 +678,15 @@ export default function IFrame({
           return;
         }
 
-
         droppedData.move
-          ? onMove(id, droppedData._uid, isTop, pos, droppedData.dragPos, iframeDocument)
+          ? onMove(
+              id,
+              droppedData._uid,
+              isTop,
+              pos,
+              droppedData.dragPos,
+              iframeDocument
+            )
           : onAdd(droppedData, id, isTop, pos, iframeDocument);
       } catch (e) {
         console.error(e);
@@ -765,7 +772,6 @@ export default function IFrame({
 
   // Function to render the iframe
   const renderIframe = () => {
-   
     return (
       <iframe
         frameBorder={0}
@@ -860,7 +866,7 @@ export default function IFrame({
       e.dataTransfer.setData(
         "text/plain",
         JSON.stringify({
-          key: 'autocode-element',
+          key: "autocode-element",
           _uid: item.uid,
           name: item.name,
           dragPos: item.pos,
@@ -1124,7 +1130,7 @@ export default function IFrame({
       </Card>
     );
   };
- 
+
   return (
     <>
       {renderOverlay()}

@@ -20,6 +20,7 @@ export default function StyleEditor({
   isChange,
   children,
   isConverted,
+  isStyleEditor,
 }) {
   const [mediaHost, setMediaHost] = useState();
 
@@ -68,6 +69,7 @@ export default function StyleEditor({
           onDelete={onDelete}
           onChange={onChange}
           onSubmit={onSubmit}
+          isStyleEditor={isStyleEditor}
           width={271}
           isConverted={isConverted}
         >

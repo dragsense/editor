@@ -69,6 +69,10 @@ export default function Style({
     await onUpdateSelector({ ...state.selector, properties: {} });
   };
 
+  const onSubmit = async () => {
+    await onUpdateSelector(state.selector);
+  };
+
   const onSelect = async (newSelector, elementstate = "") => {
     await onSelectSelector(newSelector, elementstate);
   };
@@ -100,6 +104,7 @@ export default function Style({
         state={state}
         onSelect={onSelect}
         onDelete={onDelete}
+        onSubmit={onSubmit}
         onReset={onReset}
         onChange={() => onChange(true)}
         width={"100%"}

@@ -56,6 +56,7 @@ const initial = {
 // Reducer function to handle state changes
 // Reducer function to handle state changes
 const reducer = (state, action) => {
+  
   // Using a lookup object for better performance
   const actions = {
     start: () => ({ ...state, loading: true, error: "" }),
@@ -584,7 +585,6 @@ export default function PageManger({ children, _id, pageType }) {
       dispatch({ type: "finish" });
     }
   };
-
 
   // Function to update the value of an element
   const updateValue = async (
@@ -1802,14 +1802,12 @@ export default function PageManger({ children, _id, pageType }) {
           element.style.outline = null;
         });
 
-
         // Add outline to the selected node
         if (element.type === "component" || element.page)
           node.style.outline = "#f88a24 dotted 3px";
         else node.style.outline = "#2fc1ff dotted 3px";
 
         // Dispatch the selected node along with its data to the state
-        dispatch({ type: "selectNode", node: { ...element, node } });
 
         // Fetch the style data of the element
         let style = await getData(
@@ -1832,7 +1830,9 @@ export default function PageManger({ children, _id, pageType }) {
             properties: styleElement[key]["root"].properties || {},
           };
 
+          
           await onSelectSelector(selector, "");
+          dispatch({ type: "selectNode", node: { ...element, node } });
         }
       } catch (error) {
         // Handle any errors that occur during the execution of the function
@@ -1928,6 +1928,8 @@ export default function PageManger({ children, _id, pageType }) {
           }
         }
 
+       
+
         // If media rule doesn't exist, create a new one
         if (!cssMediaRule) {
           const mediaIndex = cssRules.length;
@@ -2008,14 +2010,13 @@ export default function PageManger({ children, _id, pageType }) {
   // Function to dispatch media changes
   const dispatchMediaChanges = useCallback(
     (minMax, orientation, windowWidth) => {
+    
       if (!windowWidth || windowWidth == "100%") {
         dispatch({ type: "media", media: "" });
       } else {
         dispatch({
           type: "media",
-          media: `(${minMax}-width: ${windowWidth}px)${
-            orientation ? ` and (orientation: ${orientation})` : ""
-          }`,
+          media: `(${minMax}-width: ${windowWidth}px)`,
         });
       }
     },
@@ -2023,19 +2024,16 @@ export default function PageManger({ children, _id, pageType }) {
   );
 
   // Function to handle media changes
-  const onChangeMedia = useCallback(
-    async (minMax, orientation, windowWidth) => {
-      // Update node value
-      await updateNodeValues();
+  const onChangeMedia = async (minMax, orientation, windowWidth) => {
+    // Update node value
+    await updateNodeValues();
 
-      // Update selector value
-      await updateSelectorValue();
+    // Update selector value
+    await updateSelectorValue();
 
-      // Dispatch media changes
-      dispatchMediaChanges(minMax, orientation, windowWidth);
-    },
-    [updateNodeValue, updateSelectorValue, dispatchMediaChanges]
-  );
+    // Dispatch media changes
+    dispatchMediaChanges(minMax, orientation, windowWidth);
+  };
 
   // Function to get the global stylesheet
   const getGlobalStyleSheet = (styleSheets) => {

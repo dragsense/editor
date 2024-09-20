@@ -43,6 +43,7 @@ export default function Element({
   // useEffect to handle changes
   useEffect(() => {
     if (!isChange) return;
+    onElementUpdate();
     onChange(false);
   }, [isChange]);
 
