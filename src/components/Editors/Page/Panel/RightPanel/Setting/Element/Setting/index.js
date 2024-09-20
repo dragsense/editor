@@ -1,5 +1,4 @@
-import React, { Children, useEffect, useRef, useState } from "react";
-
+import React, { useState } from "react";
 import {
   Input,
   Form,
@@ -11,17 +10,16 @@ import {
   Tooltip,
   Select,
 } from "antd";
-
 import Others from "./Others";
 import {
   ArrowLeftOutlined,
   MoreOutlined,
   QuestionCircleOutlined,
+  CheckOutlined, // Import the save icon
 } from "@ant-design/icons";
 import ClassManager from "./ClassManager";
 
 const { Text } = Typography;
-
 const { Option } = Select;
 
 export default function ElementSetting({
@@ -30,6 +28,8 @@ export default function ElementSetting({
   setState,
   setIsChange,
 }) {
+  const [className, setClassName] = useState("");
+
   const onChnageAttribute = (key, value) => {
     if (!state.attributes) {
       state.attributes = {};
@@ -46,7 +46,6 @@ export default function ElementSetting({
       setState({ ...state });
     }
 
-    setIsChange(true);
   };
 
   const onRemove = (key) => {
@@ -58,7 +57,10 @@ export default function ElementSetting({
 
   const onChange = (value, name) => {
     setState({ ...state, [name]: value });
+  };
 
+  // Save button handlers for each input
+  const handleSave = () => {
     setIsChange(true);
   };
 
@@ -69,7 +71,6 @@ export default function ElementSetting({
     }
 
     state.attributes["href"] = state.attributes["href"] || { key: "href" };
-
     state.attributes["href"].name = "dynamic-url";
 
     if (keys === undefined || keys[0] === undefined) {
@@ -80,10 +81,8 @@ export default function ElementSetting({
       state.attributes["href"].valueState = { key: value, type: keys[0] };
     }
     setState({ ...state });
-    setIsChange(true);
+    handleSave(); // Trigger save after state change
   };
-
-
 
   const renderCascader = () => {
     const newState = state.attributes["href"] || {};
@@ -112,6 +111,9 @@ export default function ElementSetting({
           }}
           name="tagName"
           value={state.tagName}
+          suffix={
+            <CheckOutlined onClick={handleSave} style={{ color: "green", cursor: "pointer" }} />
+          }
         >
           <Option value="h1">h1</Option>
           <Option value="h2">h2</Option>
@@ -132,18 +134,19 @@ export default function ElementSetting({
           name="name"
           onChange={(e) => {
             e.preventDefault();
-
             const value = e.target.value;
             const name = e.target.name;
-
             onChange(value, name);
           }}
           value={state.name}
+          suffix={
+            <CheckOutlined onClick={handleSave} style={{ color: "green", cursor: "pointer" }} />
+          }
         />
       </Form.Item>
+
       <Form.Item label="Element ID">
         <Text disabled>e.g. 'hero-heading'</Text>
-
         <Input
           maxLength={200}
           value={state.attributes["id"]?.value}
@@ -153,14 +156,16 @@ export default function ElementSetting({
             e.preventDefault();
             onChnageAttribute("id", e.target.value);
           }}
+          suffix={
+            <CheckOutlined onClick={handleSave} style={{ color: "green", cursor: "pointer" }} />
+          }
         />
       </Form.Item>
 
-      {state.tagName == "a" && (
+      {state.tagName === "a" && (
         <>
           <Form.Item label="Custom Link">
             <Text disabled>e.g. 'https://example.com'</Text>
-
             <Input
               value={state.attributes["href"]?.value}
               placeholder="href"
@@ -169,8 +174,12 @@ export default function ElementSetting({
                 e.preventDefault();
                 onChnageAttribute("href", e.target.value);
               }}
+              suffix={
+                <CheckOutlined onClick={handleSave} style={{ color: "green", cursor: "pointer" }} />
+              }
             />
           </Form.Item>
+
           <Divider orientation="center" orientationMargin="0">
             Dynamic Link{" "}
             <Tooltip
@@ -188,7 +197,6 @@ export default function ElementSetting({
       {(state.tagName === "img" || state.tagName === "video") && (
         <Form.Item label="Custom src">
           <Text disabled>e.g. 'https://example.com/src.xyz'</Text>
-
           <Input
             value={state.attributes["src"]?.value}
             placeholder="src"
@@ -197,59 +205,77 @@ export default function ElementSetting({
               e.preventDefault();
               onChnageAttribute("src", e.target.value);
             }}
+            suffix={
+              <CheckOutlined onClick={handleSave} style={{ color: "green", cursor: "pointer" }} />
+            }
           />
         </Form.Item>
       )}
 
-      <Popover
-        placement="left"
-        title={
-          <>
-            Others <br />
-            Note:<em> Use single quotes for string values</em>
-          </>
-        }
-        content={
-          <Others
-            state={state}
-            attributes={state.attributes}
-            onChnageAttribute={onChnageAttribute}
-            onRemove={onRemove}
-          />
-        }
-        trigger="click"
-      >
-        <Button type="text" icon={<ArrowLeftOutlined />}>
-          {" "}
-          More{" "}
-        </Button>
-      </Popover>
-      <br />
-      <br />
-
-      {state?.type !== "component" 
-      && !state?.fixedClass
-      &&  (
-
-      <Form.Item label="Mian Class">
-        <Input
-          maxLength={100}
-          value={state.mainClass}
-          placeholder="Main Class"
-          onChange={(e) => {
-            onChange(e.target.value, "mainClass");
+<Popover
+  placement="left"
+  title={
+    <>
+      Others <br />
+      Note:<em> Use single quotes for string values</em>
+    </>
+  }
+  content={
+    <>
+      <Others
+        state={state}
+        attributes={state.attributes}
+        onChnageAttribute={onChnageAttribute}
+        onRemove={onRemove}
+      />
+      {/* Adding a Save button inside the Popover */}
+      <div style={{ textAlign: "right", marginTop: 10 }}>
+        <Button
+          icon={<CheckOutlined />}
+          type="primary"
+          onClick={() => {
+            setIsChange(true); // Trigger save when clicked
           }}
-        />
-      </Form.Item>)}
+          style={{ display: "inline-flex", alignItems: "center", cursor: "pointer" }}
+        >
+          Save
+        </Button>
+      </div>
+    </>
+  }
+  trigger="click"
+>
+  <Button type="text" icon={<ArrowLeftOutlined />}>
+    More
+  </Button>
+</Popover>
 
-        <Form.Item label="Element Classes">
-          <ClassManager
-            element={state}
-            cascaderStates={cascaderStates}
-            setIsChange={setIsChange}
+      <br />
+      <br />
+
+      {state?.type !== "component" && !state?.fixedClass && (
+        <Form.Item label="Main Class">
+          <Input
+            maxLength={100}
+            value={state.mainClass}
+            placeholder="Main Class"
+            onChange={(e) => {
+              onChange(e.target.value, "mainClass");
+            }}
+            suffix={
+              <CheckOutlined onClick={handleSave} style={{ color: "green", cursor: "pointer" }} />
+            }
           />
         </Form.Item>
-      
+      )}
+
+      <Form.Item label="Element Classes">
+        <ClassManager
+          element={state}
+          cascaderStates={cascaderStates}
+          setIsChange={setIsChange}
+        />
+      </Form.Item>
     </Form>
   );
 }

@@ -105,6 +105,7 @@ function SearchableSelector({
       };
     } else {
       const key = state.media || "normal";
+      if (!selectedSelector.style) selectedSelector.style = {};
       if (!selectedSelector.style[key]) selectedSelector.style[key] = {};
       if (!selectedSelector.style[key]["root"])
         selectedSelector.style[key]["root"] = {};

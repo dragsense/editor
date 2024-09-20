@@ -216,7 +216,7 @@ const createCss = (key, style, selectorText, iFrameDocument) => {
   let cssRules = sheet.cssRules || sheet.rules;
 
   // Get the style element from the style object
-  const styleElement = style.style;
+  const styleElement = style.style || {};
 
   // If the style element does not have the key, initialize it
   if (!styleElement[key]) styleElement[key] = { ["root"]: {} };
@@ -1819,6 +1819,7 @@ export default function PageManger({ children, _id, pageType }) {
 
         // If the style data exists, select the selector
         if (style) {
+        
           const styleElement = style.style || {};
           const key = state.media || "normal";
           styleElement[key] = styleElement[key] || {};
@@ -1981,7 +1982,7 @@ export default function PageManger({ children, _id, pageType }) {
         _uid,
         store,
       };
-
+      console.log(selector)
       // Dispatch the selector data
       dispatch({ type: "addSelector", selector });
     } catch (e) {

@@ -168,7 +168,7 @@ export const loadElements = async (
   while (true) {
     let { done, value } = await reader.read();
     if (done) break;
-
+   
     if (Array.isArray(value)) {
       for (const item of value) {
         await storePage(item);
@@ -273,7 +273,7 @@ export const loadStyles = async (
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
-
+  
     if (Array.isArray(value)) {
         for (const item of value) {
           await storePage(item, STYLE_STORE_NAME);

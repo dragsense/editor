@@ -109,7 +109,7 @@ export default function RightSideBar({
       setState("");
       setSelector(state.selector);
     }
-  }, [state.node]);
+  }, [state.node, state.selector]);
 
   const [fonts, setFonts] = useState([]);
   const [colors, setColors] = useState([]);

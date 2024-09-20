@@ -154,7 +154,7 @@ const InnerComponent = ({ children, document, onLoad, _id, type }) => {
           message.error(e?.message || "Something went wrong!");
         });
     } else onLoad(null, "", document);
-  }, [_id, type]);
+  }, [_id]);
 
   return children;
 };

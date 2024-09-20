@@ -16,7 +16,6 @@ const handleDragStart = (e, page, type) => {
 // Function to handle edit
 const handleEdit = (e, page, type, onEdit) => {
     e.preventDefault();
-    console.log(type);
     onEdit(page, type);
 }
 
