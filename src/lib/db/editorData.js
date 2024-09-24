@@ -629,6 +629,8 @@ const fetchDataAndSave = async (type, endpoint, pageId, project, dispatch) => {
     payload.main = data.main;
   } else payload._styles = elements;
 
+ 
+
   await fetcher(sanitizedUrl, {
     method: "POST",
     headers: {

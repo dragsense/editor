@@ -1982,7 +1982,7 @@ export default function PageManger({ children, _id, pageType }) {
         _uid,
         store,
       };
-      console.log(selector)
+    
       // Dispatch the selector data
       dispatch({ type: "addSelector", selector });
     } catch (e) {

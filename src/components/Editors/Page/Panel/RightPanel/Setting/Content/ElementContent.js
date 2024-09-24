@@ -46,6 +46,7 @@ export default function ElementContent({
       nodeValue: content,
       isStateActive: isActive,
     }));
+    setIsChange(true);
   };
 
   // Function to handle change in value
@@ -174,13 +175,16 @@ export default function ElementContent({
           placeholder="Enter option values separated by , and separated value and label by | e.g value1|label1,value2|label2"
           value={state.options}
           onChange={handleValuesChange}
-          suffix={
-            <CheckOutlined
-              onClick={handleSave}
-              style={{ color: "green", cursor: "pointer" }}
-            />
-          }
+         
         />
+           <CheckOutlined
+            onClick={handleSave}
+            style={{
+              float: "right",
+              color: "green",
+              cursor: "pointer",
+            }}
+          />
       </Form.Item>
     );
   };
