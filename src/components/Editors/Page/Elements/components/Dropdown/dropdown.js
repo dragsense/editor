@@ -63,6 +63,7 @@ const Dropdown = ({
           bottom: openSide.includes('bottom') ? topOffset : 'auto',
           width: 'auto',
           height: 'auto',
+          zIndex: 9999,
           ...dropdownTransition.defaultStyles,
         };
         const transitionStyles =  dropdownTransition[state];
