@@ -4,8 +4,9 @@ import { Modal, Button, Input, message } from 'antd';
 import { v4 as uuid } from 'uuid';
 import SyntaxHighlighter from "../../../Element/Content/SyntaxHighlighter";
 import { dark } from "react-syntax-highlighter/dist/cjs/styles/hljs"
-
+import { Controlled as CodeMirror } from 'react-codemirror2'
 import HTMLTags from '../Tag/htmlTags.json';
+import "codemirror/mode/xml/xml";
 
 const acceptedAttributes = ["classes", "disabled", "action", "method", "placeholder", "target", "hidden", "value", "type", "name", "rows", "checked", "id", "href", "src", "style", "width", "height", "title", "alt"];
 const acceptedStyles = [
@@ -218,11 +219,7 @@ const HtmlConvertComponent = ({ onSelect }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [isChange, setIsChange] = useState(false);
 
-    const handleInputChange = (event) => {
-        setHtmlInput(event.target.value);
-        setIsChange(true);
-    };
-
+  
     const handleConvertClick = async () => {
         setIsLoading(true);
         try {
@@ -240,57 +237,25 @@ const HtmlConvertComponent = ({ onSelect }) => {
 
     return (
         <div style={{ padding: '20px', backgroundColor: '#f0f2f5' }}>
-            <div style={{ maxHeight: 450, overflow: 'auto' }}>
+
+            <CodeMirror
+             style={{ height: 'auto' }}
+                value={htmlInput}
+                options={{
+                    mode: 'text/html',
+                    theme: 'material',
+                    lineNumbers: true,
+                }} onBeforeChange={(editor, data, value) => {
+                    setHtmlInput(value);
+                    setIsChange(true);
+
+                }}
+                onChange={(editor, data, value) => {
+                   
+                }}
+            />
 
 
-                {<div key={1} style={{ position: 'relative' }} index={1}>
-                    <textarea
-                        style={{
-                            caretColor: 'white',
-                            margin: '0px',
-                            border: '0px',
-                            background: 'none',
-                            boxSizing: 'inherit',
-                            display: 'inherit',
-                            fontSize: '1em',
-                            fontFamily: `'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace`,
-                            fontStyle: 'inherit',
-                            fontVariantLigatures: 'inherit',
-                            fontWeight: 'inherit',
-                            letterSpacing: 'inherit',
-                            lineHeight: 'inherit',
-                            tabSize: 'inherit',
-                            textIndent: 'inherit',
-                            textRendering: 'inherit',
-                            textTransform: 'inherit',
-                            whiteSpace: 'pre-wrap',
-                            wordBreak: 'keep-all',
-                            overflowWrap: 'break-word',
-                            position: 'absolute',
-                            top: '0px',
-                            left: '0px',
-                            width: '100%',
-                            height: '100%',
-                            resize: 'none',
-                            color: 'inherit',
-                            overflow: 'hidden',
-                            '-webkit-font-smoothing': 'antialiased',
-                            '-webkit-text-fill-color': 'transparent',
-                            padding: '0.5rem',
-                        }}
-                        placeholder="Type your code here..."
-                        value={htmlInput}
-                        spellcheck="false"
-                        className="code-text-editor"
-                        onChange={handleInputChange}
-                    >
-                    </textarea>
-                    <SyntaxHighlighter language={"html"} theme={dark} className="syntax-highlighter">
-                        {htmlInput}
-                    </SyntaxHighlighter>
-                </div>}
-
-            </div>
             <Button type='dashed' style={{ marginTop: 10 }}
                 isLoading={isLoading}
                 block

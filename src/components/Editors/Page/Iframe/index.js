@@ -815,6 +815,16 @@ export default function IFrame({
               fontSize: 48,
               padding: 0,
               textAlign: "center",
+              position: 'relative',
+              zIndex: 1000,
+              width: 50,
+              height: 50,
+              background: 'white',
+              margin: 'auto',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
+            
             }}
             data-name="Root"
             data-rootId="0"

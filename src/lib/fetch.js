@@ -1,25 +1,27 @@
 // Fetcher function to handle API calls
 export const fetcher = (...args) => {
-  // Use fetch API to make the request
+  // Use fetch API to make the request 
   return fetch(...args).then(async (response) => {
-    let data;
+    let data; 
     try {
       // If status is 204 (No Content), return null
       if (response.status === 204) return null;
       // Otherwise, parse the response to JSON
       data = await response.json();
-    } catch (error) {
+    } catch (error) { 
+   
       // If parsing fails, return a rejected Promise with the error
-      return Promise.reject(error);
+      return Promise.reject(error?.error || new Error(error?.message || 'Something went wrong'));
     }
     // If response is OK, return the data
     if (response.ok) {
       return data;
     } else {
+      
       // If response is not OK, return a rejected Promise with the error message
       return Promise.reject(data?.error || new Error(data?.message || 'Something went wrong'));
     }
-  });
+  }).catch(async err => Promise.reject(err?.error || new Error(err?.message || 'Something went wrong')));
 };
 
 // This function creates an API request with the given endpoint, method, and body
@@ -62,3 +64,4 @@ export const createApiRequest = async (endpoint, method = 'GET', body = null, is
   // Send the request using the fetcher function
   return fetcher(requestUrl, requestOptions);
 };
+
